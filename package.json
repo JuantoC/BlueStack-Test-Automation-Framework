@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "axios": "^1.13.2",
+    "base64-js": "^1.5.1",
+    "chromedriver": "^142.0.1",
+    "geckodriver": "^6.0.2",
+    "selenium-webdriver": "^4.38.0",
+    "typescript": "^5.9.3"
+  },
+  "name": "first-selenium",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:watch": "tsc --watch",
+    "start": "concurrently \"npm run build:watch\" \"nodemon dist/tests/01_CreateNewPost.js\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/selenium-webdriver": "^4.35.4",
+    "nodemon": "^3.1.11"
+  }
+}

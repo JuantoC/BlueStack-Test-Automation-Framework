@@ -5,7 +5,6 @@ import { WebDriver } from "selenium-webdriver";
  * @param direction La dirección de navegación: "back" o "forward".
  */
 export async function browserHistory(driver: WebDriver, direction: "back" | "forward") {
-
   console.log(`[browserHistory] Dirección: ${direction}`);
   if (direction === "back") {
     await driver.navigate().back();

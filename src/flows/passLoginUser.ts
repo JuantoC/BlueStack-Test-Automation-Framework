@@ -2,17 +2,30 @@ import { WebDriver } from "selenium-webdriver";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { writeSafe } from "../core/actions/writeSafe.js";
 import { loginPage } from '../pages/loginPage.js';
+import { RetryOptions, retry } from "../core/wrappers/retry.js";
+import { stackLabel } from "../core/utils/stackLabel.js";
 
 /**
  * Realiza el proceso completo de login en la aplicación.
  * @param driver La instancia del WebDriver.
  * @param credentials El objeto con el usuario y la contraseña.
+ * @param timeout Tiempo máximo de espera para cada acción.
+ * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
-export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string }): Promise<void> {
+export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string }, timeout: number, opts: RetryOptions = {}): Promise<void> {
+  const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passLoginUser : ${credentials.username}`) };
 
-  console.log(`Intentando login con usuario: ${credentials.username}`);
-  await writeSafe(driver, loginPage.usernameField, credentials.username, 1500, { label: "passLoginUser / Username Field : writeSafe" });
-  await writeSafe(driver, loginPage.passwordField, credentials.password, 1500, { label: "passLoginUser / Password Field: writeSafe" });
-  await clickSafe(driver, loginPage.loginButton, 1500, { label: "passLoginUser / Login Button : clickSafe" });
-  console.log('Login exitoso. Esperando la redirección a la pantalla principal...');
+  console.log(`[${fullOpts.label}]`);
+  return retry(
+    async () => {
+      try {
+        await writeSafe(driver, loginPage.usernameField, credentials.username, timeout, fullOpts);
+        await writeSafe(driver, loginPage.passwordField, credentials.password, timeout, fullOpts);
+        await clickSafe(driver, loginPage.loginButton, timeout, fullOpts);
+        console.log('Login exitoso. Esperando la redirección a la pantalla principal...');
+      } catch (error: any) {
+        console.error(`[${fullOpts.label}] Falla en login: ${error.message}`);
+        throw error;
+      }
+  })
 }

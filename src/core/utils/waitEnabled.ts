@@ -1,6 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { retry } from '../wrappers/retry';
-import { RetryOptions } from '../wrappers/retry.js';
+import { RetryOptions, retry } from '../wrappers/retry.js';
 import { stackLabel } from "./stackLabel.js";
 
 /**
@@ -12,18 +11,20 @@ import { stackLabel } from "./stackLabel.js";
  * @returns Una promesa que resuelve con el mismo WebElement una vez que está habilitado.
  */
 export async function waitEnabled(driver: WebDriver, element: WebElement, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const elementLabel = element ? element.toString() : JSON.stringify(element);
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `waitEnabled: ${elementLabel}`) };
+  if (!element || typeof element.getId !== "function") {
+        throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
+    }
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `waitEnabled: ${element.toString()}`) };
 
   console.log(`${fullOpts.label}.`);
   return retry<WebElement>(
     async () => {
       try {
-        console.log(`waitEnabled:${elementLabel} Esperando...`);
+        console.log(`waitEnabled:${element.toString()} Esperando...`);
         await driver.wait(
           until.elementIsEnabled(element),
-          timeout, `Elemento no habilitado: ${elementLabel} en ${timeout / 1000}s`);
-        console.log(`waitEnabled:${elementLabel} Elemento está habilitado.`);
+          timeout, `Elemento no habilitado: ${element.toString()} en ${timeout / 1000}s`);
+        console.log(`waitEnabled:${element.toString()} Elemento está habilitado.`);
         return element;
       } catch (err) {
         if (err instanceof error.TimeoutError) {

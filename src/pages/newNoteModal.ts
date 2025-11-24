@@ -4,7 +4,6 @@ import { By, Locator } from 'selenium-webdriver';
  * Component Object para el modal de selección del tipo de nota (Post, Listicle, LiveBlog, etc.).
  */
 export class NoteCreationModal {
-    // Botón que abre el modal
     public createNoteModalBtn: Locator = By.css("button.btn-create-note");
 
     /**
@@ -16,7 +15,6 @@ export class NoteCreationModal {
     */
     public noteTypeBase(noteName: string, noteTypeIndexMap: { [key: string]: string }): Locator {
         const index = noteTypeIndexMap[noteName];
-
         if (index === undefined) {
             throw new Error(`Error de Locator: El tipo de nota "${noteName}" no está definido.`);
         }

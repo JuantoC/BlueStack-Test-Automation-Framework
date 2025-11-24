@@ -1,6 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { retry } from '../wrappers/retry';
-import { RetryOptions } from '../wrappers/retry.js';
+import { RetryOptions, retry } from '../wrappers/retry.js';
 
 /**
  * Espera a que un WebElement (ya encontrado) sea visible en la página.
@@ -11,18 +10,19 @@ import { RetryOptions } from '../wrappers/retry.js';
  * @returns Una promesa que resuelve con el mismo WebElement una vez que es visible.
  */
 export async function waitVisible(driver: WebDriver, element: WebElement, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-    const locatorLabel = element ? element.toString() : JSON.stringify(element);
-    const fullOpts = { ...opts, label: opts.label ?? `waitVisible: ${locatorLabel}` };
+    if (!element || typeof element.getId !== "function") {
+        throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
+    }
+    const fullOpts = { ...opts, label: opts.label ?? `waitVisible: ${element.toString()}` };
 
     console.log(`${fullOpts.label}.`);
     return retry<WebElement>(
         async () => {
             try {
-                console.log(`waitVisible:${locatorLabel} Esperando...`);
-                await driver.wait(
-                    until.elementIsVisible(element),
-                    timeout, `Elemento no visible: ${locatorLabel} en ${timeout / 1000}s`);
-                console.log(`waitVisible:${locatorLabel} Elemento esta visible.`);
+                console.log(`waitVisible:${element.toString()} Esperando...`);
+                await driver.wait( until.elementIsVisible(element), timeout, `Elemento no visible: ${element.toString()} en ${timeout / 1000}s`);
+                console.log(`waitVisible:${element.toString()} Elemento esta visible.`);
+
                 return element;
             } catch (err) {
                 if (err instanceof error.TimeoutError) {

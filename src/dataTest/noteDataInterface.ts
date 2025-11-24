@@ -3,7 +3,7 @@ export interface NoteDataInterface {
     secondaryTitle?: string;
     subtitle?: string;
     halfTitle?: string;
-    body: string;
+    body?: string;
     tags?: string[];
     hiddenTags?: string[];
     summary?: string;

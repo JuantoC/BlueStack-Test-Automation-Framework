@@ -3,10 +3,10 @@ import { initializeDriver, quitDriver } from '../core/driver/driverManager.js';
 import { DevSaasLocators, getAuthUrl } from '../environments/Dev_SAAS/Locators.js';
 import { dismiss2FAModal } from '../core/actions/twoFA-Modal.js';
 import type { AuthLocators } from '../Interfaces/interfaces.js';
-import { loginUser } from '../core/actions/passLoginUser.js'
-import { selectNoteType } from '../core/actions/selectNoteType.js';
-import { NewPostData } from '../Data-Test/Note-Creation-Data.js';
-import { fillPostFields } from '../flows/fillPostFields.js';
+import { loginUser } from '../flows/passLoginUser.js'
+import { selectNoteType } from '../core/utils/getNoteTypeLocator.js';
+import { NewPostData } from '../dataTest/noteData.js';
+import { fillPostFields } from '../core/helpers/fillPostFields.js';
 
 // ===========================================
 //          SCRIPT DE EJECUCIÓN DEL TEST

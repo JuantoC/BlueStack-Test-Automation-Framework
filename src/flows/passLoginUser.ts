@@ -1,9 +1,9 @@
 import { WebDriver } from "selenium-webdriver";
-import { clickSafe } from "./clickSafe.js";
-import { writeSafe } from "./writeSafe.js";
-import { loginPage } from '../../pages/loginPage.js';
-import { RetryOptions, retry } from "../wrappers/retry.js";
-import { stackLabel } from "../utils/stackLabel.js";
+import { clickSafe } from "../core/actions/clickSafe.js";
+import { writeSafe } from "../core/actions/writeSafe.js";
+import { loginPage } from '../pages/login.js';
+import { RetryOptions, retry } from "../core/wrappers/retry.js";
+import { stackLabel } from "../core/utils/stackLabel.js";
 
 /**
  * Realiza el proceso completo de login en la aplicación.
@@ -12,7 +12,7 @@ import { stackLabel } from "../utils/stackLabel.js";
  * @param timeout Tiempo máximo de espera para cada acción.
  * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
-export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string }, timeout: number, opts: RetryOptions = {}): Promise<void> {
+export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string },  timeout: number, opts: RetryOptions = {}): Promise<void> {
   const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passLoginUser : ${credentials.username}`) };
 
   console.log(`[${fullOpts.label}]`);

@@ -1,4 +1,4 @@
-import { NoteDataInterface } from './Note-Creation-Interface.js';
+import { NoteDataInterface } from './noteDataInterface.js';
 
 export const NewPostData: NoteDataInterface[] = [
     {

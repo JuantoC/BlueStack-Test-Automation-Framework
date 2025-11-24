@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ljharb/tsconfig": "^0.3.2",
     "axios": "^1.13.2",
     "base64-js": "^1.5.1",
     "chromedriver": "^142.0.1",

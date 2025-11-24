@@ -11,8 +11,8 @@ import { loginPage } from '../pages/loginPage.js';
 export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string }): Promise<void> {
 
   console.log(`Intentando login con usuario: ${credentials.username}`);
-  await writeSafe(driver, loginPage.usernameField, credentials.username, 1500, { label: "loginUser / Username Field : writeSafe" });
-  await writeSafe(driver, loginPage.passwordField, credentials.password, 1500, { label: "loginUser / Password Field: writeSafe" });
-  await clickSafe(driver, loginPage.loginButton, 1500, { label: "loginUser / Login Button : clickSafe" });
+  await writeSafe(driver, loginPage.usernameField, credentials.username, 1500, { label: "passLoginUser / Username Field : writeSafe" });
+  await writeSafe(driver, loginPage.passwordField, credentials.password, 1500, { label: "passLoginUser / Password Field: writeSafe" });
+  await clickSafe(driver, loginPage.loginButton, 1500, { label: "passLoginUser / Login Button : clickSafe" });
   console.log('Login exitoso. Esperando la redirección a la pantalla principal...');
 }

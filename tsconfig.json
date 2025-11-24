@@ -1,23 +1,29 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-
     "module": "ESNext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowImportingTsExtensions": false,
-
     "rootDir": "./src",
     "outDir": "./dist",
     "noEmit": false,
-
-    "lib": ["es2022"],
-    "types": ["node", "selenium-webdriver"],
-
+    "lib": [
+      "es2022"
+    ],
+    "types": [
+      "node",
+      "selenium-webdriver"
+    ],
     "strict": true,
     "skipLibCheck": true,
-
     "sourceMap": true,
     "declaration": false
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

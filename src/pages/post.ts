@@ -1,5 +1,4 @@
 import { By, Locator } from 'selenium-webdriver';
-import { NoteDataInterface } from '../dataTest/noteDataInterface.js'
 
 export const LOCATOR_SUFFIX = 'Field';
 /**
@@ -7,15 +6,16 @@ export const LOCATOR_SUFFIX = 'Field';
  */
 export class PostPageLocators {
   // 1. Campos principales
-  public titleField: Locator = By.css('textarea.content__input-title.main__title-height');
-  public subTitleField: Locator = By.css('ckeditor[data-testid="copete-content"] .ck-editor__editable');
-  public halfTitleField: Locator = By.css('div[data-testid="volanta-content"] input[type="text"]');
-  public bodyField: Locator = By.css('ckeditor[data-testid="ckCuerpoNota"] .ck-editor__editable');
+  public titleField: Locator = By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height');
+  public secondaryTitleField: Locator = By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height');
+  public subTitleField: Locator = By.css('div[id="copete-content"] ckeditor[data-testid="copete-content"]');
+  public halfTitleField: Locator = By.css('div[id="volanta-content"] input[type="text"]');
+  public bodyField: Locator = By.css('div[id="cuerpo-content"] ckeditor[data-testid="ckCuerpoNota"]');
   public summaryField: Locator = By.id('resumen-content');
 
   // 2. Campos de Tags
-  public tagsField: Locator = By.id('mat-mdc-chip-list-input-0');
-  public hiddentagsField: Locator = By.id('mat-mdc-chip-list-input-1');
+  public tagsField: Locator = By.id('div[id="claves-content"] input[role="combobox"]');
+  public hiddentagsField: Locator = By.id('div[id="clavesOcultas-content"] input[role="combobox"]');
 
   // 3. Sección de Autor
   public authorInternalUserBtn: Locator = By.css('mat-icon="check_circle_outline"');
@@ -30,11 +30,24 @@ export class PostPageLocators {
   public firstSectionOption: Locator = By.id('mat-option-74');
 
   // 5. Header
-  public saveBtn: Locator = By.id('dropdown-save');
-  public publishBtn: Locator = By.id('dropdown-publish');
+  public saveBtn: Locator = By.css('button[data-testid="dropdown-actions"]')
+  public dropdownSave: Locator = By.id('dropdown-save');
+  public saveAndExitBtn: Locator = By.id("option-dropdown-0")
+  public ExitBtn: Locator = By.id("option-dropdown-1")
+  public dropdownPublish: Locator = By.id('dropdown-publish');
+  public publishBtn: Locator = By.css('button[data-testid="dropdown-action"]')
+  public publishAndExitBtn: Locator = By.id("option-dropdown-0")
+  public scheduleBtn: Locator = By.id("option-dropdown-1")
+  public backBtn: Locator = By.css('a[data-testid="btn-exit-note"]')
 
   // 6. Acciones
   public addListicleItemBtn: Locator = By.css('button[data-testid="add-listicle-item"]');
+
+  // 7. Modales
+  public exitAnywayBtnModal: Locator = By.css('app-cmsmedios-button[data-testid="btn-cancel"]')
+  public saveAndExitBtnModal: Locator = By.css('button[data-testid="btn-calendar-confirm"]')
+  public cancelBtnModal: Locator = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]')
+  public publishBtnModal: Locator = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]')
 
   /**
     * Obtener el Locator de un campo de Listicle dinámico.

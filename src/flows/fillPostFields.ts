@@ -14,7 +14,7 @@ import { stackLabel } from "../core/utils/stackLabel";
  * @param timeout Tiempo máximo de espera para cada campo.
  */
 export async function fillPostFields(driver: WebDriver, postData: NoteDataInterface, timeout: number = 1500, opts: RetryOptions = {}): Promise<void> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `fillPostFields`) };
+  const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `fillPostFields`) };
   const Locators = createPostPage;
   const fieldMap = {
     title: Locators.mainTitleField,

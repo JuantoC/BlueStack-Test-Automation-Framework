@@ -1,9 +1,9 @@
 import { WebDriver } from 'selenium-webdriver';
 import { initializeDriver, quitDriver } from '../core/driver/driverManager.js';
 import { DevSaasLocators, getAuthUrl } from '../environments/Dev_SAAS/Locators.js';
-import { dismiss2FAModal } from '../flows/twoFA-Modal.js';
+import { dismiss2FAModal } from '../core/actions/twoFA-Modal.js';
 import type { AuthLocators } from '../Interfaces/interfaces.js';
-import { loginUser } from '../flows/passLoginUser.js'
+import { loginUser } from '../core/actions/passLoginUser.js'
 import { selectNoteType } from '../core/actions/selectNoteType.js';
 import { NewPostData } from '../Data-Test/Note-Creation-Data.js';
 import { fillPostFields } from '../flows/fillPostFields.js';

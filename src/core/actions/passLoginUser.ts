@@ -1,9 +1,9 @@
 import { WebDriver } from "selenium-webdriver";
-import { clickSafe } from "../core/actions/clickSafe.js";
-import { writeSafe } from "../core/actions/writeSafe.js";
-import { loginPage } from '../pages/loginPage.js';
-import { RetryOptions, retry } from "../core/wrappers/retry.js";
-import { stackLabel } from "../core/utils/stackLabel.js";
+import { clickSafe } from "./clickSafe.js";
+import { writeSafe } from "./writeSafe.js";
+import { loginPage } from '../../pages/loginPage.js';
+import { RetryOptions, retry } from "../wrappers/retry.js";
+import { stackLabel } from "../utils/stackLabel.js";
 
 /**
  * Realiza el proceso completo de login en la aplicación.
@@ -22,7 +22,7 @@ export async function passLoginUser(driver: WebDriver, credentials: { username: 
         await writeSafe(driver, loginPage.usernameField, credentials.username, timeout, fullOpts);
         await writeSafe(driver, loginPage.passwordField, credentials.password, timeout, fullOpts);
         await clickSafe(driver, loginPage.loginButton, timeout, fullOpts);
-        console.log('Login exitoso. Esperando la redirección a la pantalla principal...');
+        console.log('Login exitoso.');
       } catch (error: any) {
         console.error(`[${fullOpts.label}] Falla en login: ${error.message}`);
         throw error;

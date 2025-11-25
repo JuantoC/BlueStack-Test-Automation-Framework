@@ -1,39 +1,231 @@
-import { Locator } from "selenium-webdriver";
+import { Locator, WebDriver } from "selenium-webdriver";
+import { RetryOptions } from "../../../core/wrappers/retry";
+import { stackLabel } from "../../../core/utils/stackLabel";
+import { writeSafe } from "../../../core/actions/writeSafe";
+import { assertValueEquals } from "../../../core/utils/assertValueEquals";
 
+export enum NoteTextField {
+  TITLE = 'title',
+  SECONDARY_TITLE = 'secondaryTitle',
+  SUB_TITLE = 'subTitle',
+  HALF_TITLE = 'halfTitle',
+  BODY = 'body',
+  SUMMARY = 'summary'
+}
+export enum NoteTagField {
+  TAGS = 'tags',
+  HIDDEN_TAGS = 'hiddenTags'
+}
+export enum AuthorType {
+  INTERNAL = 'internal',
+  ANONYMOUS = 'anonymous',
+  MANUAL = 'manual'
+}
+
+export enum ListicleFieldType {
+  TITLE = 'title',
+  BODY = 'body'
+}
 export class NoteTextFields {
-    // 1. Campos principales
-    public titleField: Locator = By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height');
-    public secondaryTitleField: Locator = By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height');
-    public subTitleField: Locator = By.css('div[id="copete-content"] ckeditor[data-testid="copete-content"]');
-    public halfTitleField: Locator = By.css('div[id="volanta-content"] input[type="text"]');
-    public bodyField: Locator = By.css('div[id="cuerpo-content"] ckeditor[data-testid="ckCuerpoNota"]');
-    public summaryField: Locator = By.id('resumen-content');
+  // ========== LOCATORS ==========
+  private locatorMap: Record<NoteTextField, Locator> = {
+    [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
+    [NoteTextField.SECONDARY_TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height'),
+    [NoteTextField.SUB_TITLE]: By.css('div[id="copete-content"] ckeditor[data-testid="copete-content"]'),
+    [NoteTextField.HALF_TITLE]: By.css('div[id="volanta-content"] input[type="text"]'),
+    [NoteTextField.BODY]: By.css('div[id="cuerpo-content"] ckeditor[data-testid="ckCuerpoNota"]'),
+    [NoteTextField.SUMMARY]: By.id('resumen-content')
+  };
 
-    // 2. Campos de Tags
-    public tagsField: Locator = By.id('div[id="claves-content"] input[role="combobox"]');
-    public hiddentagsField: Locator = By.id('div[id="clavesOcultas-content"] input[role="combobox"]');
+  /**
+   * Mapa de locators para tags
+   */
+  private tagLocatorMap: Record<NoteTagField, Locator> = {
+    [NoteTagField.TAGS]: By.css('div[id="claves-content"] input[role="combobox"]'),
+    [NoteTagField.HIDDEN_TAGS]: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
+  };
 
-    /**
- * Obtener el Locator de un campo de Listicle dinámico.
- * @param fieldType El tipo de campo ('title' o 'body').
- * @param index El índice del elemento Listicle
- * @returns El Locator de Selenium.
-*/
-    public getListicleFieldLocator(fieldType: 'title' | 'body', index: number): Locator {
-        const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
-        let selector: string;
+  /**
+   * Mapa de nombres legibles para logs
+   */
+  private fieldNameMap: Record<NoteTextField, string> = {
+    [NoteTextField.TITLE]: 'título',
+    [NoteTextField.SECONDARY_TITLE]: 'título secundario',
+    [NoteTextField.SUB_TITLE]: 'subtítulo',
+    [NoteTextField.HALF_TITLE]: 'volanta',
+    [NoteTextField.BODY]: 'cuerpo',
+    [NoteTextField.SUMMARY]: 'resumen'
+  };
+  // ========== MÉTODO DINÁMICO ==========
+  /**
+   * Rellena un campo de texto de forma dinámica
+   * @param driver - WebDriver instance
+   * @param field - El campo a rellenar
+   * @param value - El valor a escribir
+   * @param timeout - Timeout para la operación
+   * @param opts - Opciones de retry
+   */
+  async fillField(
+    driver: WebDriver,
+    field: NoteTextField,
+    value: string,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `fillField:${field}`) };
+    const fieldName = this.fieldNameMap[field];
+    const locator = this.locatorMap[field];
 
-        switch (fieldType) {
-            case 'title':
-                selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
-                break;
-            case 'body':
-                selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
-                break;
-            default:
-                throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
-        }
+    console.log(`[${fullOpts.label}] Rellenando ${fieldName}...`);
+    const element = await writeSafe(driver, locator, value, timeout, fullOpts);
+    await assertValueEquals(driver, element, locator, value, `El valor del ${fieldName} no coincide`);
+  }
 
-        return By.xpath(selector);
+  /**
+   * Rellena múltiples campos de texto a la vez
+   * Acepta un objeto con los campos a rellenar
+   * @param driver - WebDriver instance
+   * @param data - Objeto con los datos a rellenar
+   * @param timeout - Timeout para la operación
+   * @param opts - Opciones de retry
+   */
+  async fillTextFields(
+    driver: WebDriver,
+    data: Partial<Record<NoteTextField, string>>,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillTextFields') };
+
+    for (const [field, value] of Object.entries(data)) {
+      if (value !== undefined && value.trim() !== "") {
+        await this.fillField(driver, field as NoteTextField, value, timeout, fullOpts);
+      }
     }
+  }
+
+  // ========== MÉTODOS PARA TAGS ==========
+  /**
+   * Método dinámico para agregar tags (normales o ocultos)
+   * @param driver - WebDriver instance
+   * @param tagField - Si es normal o hidden
+   * @param timeout - Timeout para la operación
+   * @param opts - Opciones de retry
+   */
+  async addTagsToField(
+    driver: WebDriver,
+    tagField: NoteTagField,
+    tags: string[],
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `addTags:${tagField}`) };
+    const locator = this.tagLocatorMap[tagField];
+    if (tags.length === 0) {
+      console.log(`[${fullOpts.label}] No hay tags para procesar.`);
+      return;
+    }
+
+    console.log(`[${fullOpts.label}] Iniciando ingreso de ${tags.length} tags.`);
+    for (const tag of tags) {
+      if (tag.trim() === "") continue;
+      const tagTextWithSubmit = tag.trim() + '\n';
+
+      console.log(`[${fullOpts.label}] Ingresando tag: "${tag.trim()}"`);
+      await writeSafe(driver, locator, tagTextWithSubmit, timeout, fullOpts);
+    }
+    console.log(`[${fullOpts.label}] Tags completados.`);
+  }
+
+  /**
+   * Métodos de conveniencia para tags
+   */
+  async addTags(driver: WebDriver, tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
+    await this.addTagsToField(driver, NoteTagField.TAGS, tags, timeout, opts);
+  }
+
+  async addHiddenTags(driver: WebDriver, tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
+    await this.addTagsToField(driver, NoteTagField.HIDDEN_TAGS, tags, timeout, opts);
+  }
+
+  // ========== MÉTODOS PARA LISTICLE ==========
+  /**
+   * Obtener el Locator de un campo de Listicle dinámico
+   */
+  public getListicleFieldLocator(fieldType: ListicleFieldType, index: number): Locator {
+    const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
+    let selector: string;
+
+    switch (fieldType) {
+      case ListicleFieldType.TITLE:
+        selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
+        break;
+      case ListicleFieldType.BODY:
+        selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
+        break;
+      default:
+        throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
+    }
+
+    return By.xpath(selector);
+  }
+
+  /**
+   * Rellena un item de Listicle específico
+   */
+  async fillListicleItem(
+    driver: WebDriver,
+    index: number,
+    title: string,
+    body: string,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `fillListicleItem #${index}`) };
+    const uiIndex = index + 1; // Los índices UI empiezan en 1
+
+    // Rellenar título del item
+    if (title && title.trim() !== "") {
+      const titleLocator = this.getListicleFieldLocator(ListicleFieldType.TITLE, uiIndex);
+      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Título`);
+
+      const titleElement = await writeSafe(driver, titleLocator, title, timeout, fullOpts);
+      await assertValueEquals(driver, titleElement, titleLocator, title, `Listicle #${uiIndex} Título no coincide.`);
+    }
+
+    // Rellenar cuerpo del item
+    if (body && body.trim() !== "") {
+      const bodyLocator = this.getListicleFieldLocator(ListicleFieldType.BODY, uiIndex);
+      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Cuerpo`);
+
+      const bodyElement = await writeSafe(driver, bodyLocator, body, timeout, fullOpts);
+      await assertValueEquals(driver, bodyElement, bodyLocator, body, `Listicle #${uiIndex} Cuerpo no coincide.`);
+    }
+  }
+
+  /**
+   * Rellena múltiples items de Listicle
+   */
+  async fillListicleItems(
+    driver: WebDriver,
+    items: Array<{ title: string; body: string }>,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillListicleItems') };
+
+    if (!items || items.length === 0) {
+      console.log(`[${fullOpts.label}] No hay items de listicle para procesar.`);
+      return;
+    }
+
+    console.log(`[${fullOpts.label}] Procesando ${items.length} items de listicle.`);
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      await this.fillListicleItem(driver, i, item.title, item.body, timeout, fullOpts);
+    }
+
+    console.log(`[${fullOpts.label}] Listicle items completados.`);
+  }
 }

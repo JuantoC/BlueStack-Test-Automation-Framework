@@ -12,7 +12,7 @@ export class NoteCreationModalPage {
   * @param noteName El nombre legible de la nota (e.g., 'New Post', 'New Listicle').
   * @returns Un Locator (By.css) que apunta al botón correcto.
   */
-  public getNoteTypeLocator(noteName: string): Locator {
+  public getNoteTypeLocator(noteName: NoteType): Locator {
     const index = noteTypeIndexMap[noteName];
     if (index === undefined) {
       throw new Error(`Error de Locator: El tipo de nota "${noteName}" no está definido.`);
@@ -26,4 +26,9 @@ export const noteTypeIndexMap: Record<string, string> = {
   'New Listicle': '1',
   'New LiveBlog': '2',
 };
+export enum NoteType {
+  POST = 'New Post',
+  LISTICLE = 'New Listicle',
+  LIVEBLOG = 'New LiveBlog'
+}
 export const noteCreationModalPage = new NoteCreationModalPage();

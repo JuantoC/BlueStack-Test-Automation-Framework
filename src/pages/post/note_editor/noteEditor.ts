@@ -1,4 +1,4 @@
-import { By, Locator } from 'selenium-webdriver';
+import { By, Locator, WebDriver } from 'selenium-webdriver';
 import { NoteAuthorField } from './authorField';
 import { NoteFooterBtn } from './footerBtn';
 import { NoteHeaderActions } from './headerActions';
@@ -16,8 +16,10 @@ export class NoteEditorPage {
   public headerActions: NoteHeaderActions;
   public sidebarDropdown: NoteSidebarDropdow;
   public textFields: NoteTextFields;
+  public driver: WebDriver
 
-  constructor() {
+  constructor(driver: WebDriver) {
+    this.driver = driver;
     this.imageFields = new NoteImageFields()
     this.authorFields = new NoteAuthorField()
     this.footerBtn = new NoteFooterBtn()
@@ -26,6 +28,3 @@ export class NoteEditorPage {
     this.textFields = new NoteTextFields()
   }
 }
-
-export const LOCATOR_SUFFIX = 'Field';
-export const noteEditorPage = new NoteEditorPage();

@@ -1,14 +1,25 @@
-export interface NoteDataInterface {
-    title: string;
+import { AuthorType } from "../pages/post/note_editor/textFields";
+
+export interface NoteData {
+    // Campos de texto principales
+    title?: string;
     secondaryTitle?: string;
-    subtitle?: string;
+    subTitle?: string;
     halfTitle?: string;
     body?: string;
+    summary?: string;
+
+    // Tags
     tags?: string[];
     hiddenTags?: string[];
-    summary?: string;
+
+    // Autor
     authorName?: string;
     authorDescription?: string;
-    listicleTitle?: string[];
-    listicleBody?: string[];
+    authorType?: AuthorType;
+
+    listicleItems?: Array<{
+        title: string;
+        body: string;
+    }>;
 }

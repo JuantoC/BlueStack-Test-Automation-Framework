@@ -2,7 +2,7 @@ import { WebDriver } from "selenium-webdriver";
 import { writeSafe } from "../actions/writeSafe.js";
 import { assertValueEquals } from "../utils/assertValueEquals.js";
 import { RetryOptions } from "../wrappers/retry.js";
-import { PostPage } from "../../pages/post.js";
+import { PostPage } from "../../pages/post/note_editor/noteEditor.js";
 import { NoteDataInterface } from "../../dataTest/noteDataInterface.js";
 import { stackLabel } from "../utils/stackLabel.js";
 

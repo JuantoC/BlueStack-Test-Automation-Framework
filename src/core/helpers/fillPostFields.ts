@@ -1,7 +1,7 @@
 import { writeSafe } from "../actions/writeSafe.js";
 import { NoteDataInterface } from "../../dataTest/noteDataInterface.js";
 import { WebDriver, Locator } from "selenium-webdriver";
-import { PostPage, LOCATOR_SUFFIX } from "../../pages/post.js";
+import { noteEditorPage, LOCATOR_SUFFIX } from "../../pages/post/note_editor/noteEditor.js";
 import { assertValueEquals } from '../utils/assertValueEquals.js';
 import { RetryOptions } from "../wrappers/retry.js";
 import { stackLabel } from "../utils/stackLabel.js";
@@ -33,7 +33,7 @@ export async function fillPostFields(driver: WebDriver, postData: NoteDataInterf
       // Lógica para Tags y HiddenTags (si son arrays y existen en la data)
       if (key === 'tags' || key === 'hiddenTags') {
         const locatorName = key + LOCATOR_SUFFIX; // "tagsField"
-        const locator = (PostPage as any)[locatorName];
+        const locator = (noteEditorPage.textFields as any)[locatorName];
 
         if (Array.isArray(value) && value.length > 0 && locator) {
           await handleTagsFields(driver, value as string[], locator, timeout, fullOpts);
@@ -43,7 +43,7 @@ export async function fillPostFields(driver: WebDriver, postData: NoteDataInterf
     }
 
     if (typeof value === "string" && value.trim() !== "") {
-      const locator: Locator | undefined = (PostPage as any)[key + LOCATOR_SUFFIX];
+      const locator: Locator | undefined = (noteEditorPage.textFields as any)[key + LOCATOR_SUFFIX];
 
       if (locator) {
         console.log(`[Rellenando ${key} ...]`);
@@ -52,7 +52,7 @@ export async function fillPostFields(driver: WebDriver, postData: NoteDataInterf
           `El valor del campo "${key}" no coincide con el valor esperado.`
         );
       } else {
-        console.warn(`[${fullOpts.label}] Advertencia: Campo "${key}" existe en la data, pero no se encontró el locator "${key + LOCATOR_SUFFIX}" en PostPage.`);
+        console.warn(`[${fullOpts.label}] Advertencia: Campo "${key}" existe en la data, pero no se encontró el locator "${key + LOCATOR_SUFFIX}" en /page/post.`);
       }
     }
   }

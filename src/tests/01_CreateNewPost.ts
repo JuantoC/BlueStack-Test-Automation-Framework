@@ -1,5 +1,5 @@
 import { WebDriver } from 'selenium-webdriver';
-import { initializeDriver, quitDriver } from '../core/driver/driverManager.js';
+import { initializeDriver, quitDriver } from '../core/actions/driverManager.js';
 import { DevSaasLocators, getAuthUrl } from '../environments/Dev_SAAS/Locators.js';
 import { dismiss2FAModal } from '../core/actions/twoFA-Modal.js';
 import type { AuthLocators } from '../Interfaces/interfaces.js';

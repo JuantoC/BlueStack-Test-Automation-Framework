@@ -3,13 +3,9 @@ import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions } from '../config/chromeOptions.js';
 import { DriverOptions } from '../config/chromeOptions.js';
 
-// ===========================================
-//          CONFIGURACIÓN DEL DRIVER
-// ===========================================
-
 /**
  * Inicializa y configura la instancia de WebDriver.
- * @param options Opciones de configuración: isHeadless y parametros de windowSize.
+ * @param options isHeadless: boolean
  * @returns Una promesa que resuelve con la instancia configurada de WebDriver.
  */
 export async function initializeDriver(options: DriverOptions): Promise<WebDriver> {

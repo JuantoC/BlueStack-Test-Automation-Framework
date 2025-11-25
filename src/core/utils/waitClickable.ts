@@ -5,25 +5,25 @@ import { waitVisible } from "./waitVisible";
 import { waitEnabled } from "./waitEnabled";
 
 export async function waitClickable(driver: WebDriver, element: WebElement, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-    if (!element || typeof element.getId !== "function") {
-        throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
-    }
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `waitClickable: ${element.toString()}`) };
+  if (!element || typeof element.getId !== "function") {
+    throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
+  }
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `waitClickable: ${element.toString()}`) };
 
-    console.log(`${fullOpts.label}.`);
-    return retry<WebElement>(
-        async () => {
-            try {
-                console.log(`waitClickable:${element.toString()} Esperando...`);
-                await waitVisible(driver, element, timeout, fullOpts);
-                await waitEnabled(driver, element, timeout, fullOpts);
-                console.log(`waitClickable:${element.toString()} Elemento clickable.`);
-                return element;
-            } catch (err) {
-                if (err instanceof error.TimeoutError) {
-                    console.error(`ERROR en waitClickable. Elemento no clickable en ${timeout / 1000}s`);
-                }
-                throw err;
-            }
-        }, fullOpts);
+  console.log(`${fullOpts.label}.`);
+  return retry<WebElement>(
+    async () => {
+      try {
+        console.log(`waitClickable:${element.toString()} Esperando...`);
+        await waitVisible(driver, element, timeout, fullOpts);
+        await waitEnabled(driver, element, timeout, fullOpts);
+        console.log(`waitClickable:${element.toString()} Elemento clickable.`);
+        return element;
+      } catch (err) {
+        if (err instanceof error.TimeoutError) {
+          console.error(`ERROR en waitClickable. Elemento no clickable en ${timeout / 1000}s`);
+        }
+        throw err;
+      }
+    }, fullOpts);
 }

@@ -16,17 +16,13 @@ export enum NoteTagField {
   TAGS = 'tags',
   HIDDEN_TAGS = 'hiddenTags'
 }
-export enum AuthorType {
-  INTERNAL = 'internal',
-  ANONYMOUS = 'anonymous',
-  MANUAL = 'manual'
-}
 
 export enum ListicleFieldType {
   TITLE = 'title',
   BODY = 'body'
 }
 export class NoteTextFields {
+  private driver: WebDriver;
   // ========== LOCATORS ==========
   private locatorMap: Record<NoteTextField, Locator> = {
     [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
@@ -56,17 +52,19 @@ export class NoteTextFields {
     [NoteTextField.BODY]: 'cuerpo',
     [NoteTextField.SUMMARY]: 'resumen'
   };
+
+  constructor(driver: WebDriver) {
+    this.driver = driver;
+  }
   // ========== MÉTODO DINÁMICO ==========
   /**
    * Rellena un campo de texto de forma dinámica
-   * @param driver - WebDriver instance
    * @param field - El campo a rellenar
    * @param value - El valor a escribir
    * @param timeout - Timeout para la operación
    * @param opts - Opciones de retry
    */
   async fillField(
-    driver: WebDriver,
     field: NoteTextField,
     value: string,
     timeout: number,
@@ -77,20 +75,18 @@ export class NoteTextFields {
     const locator = this.locatorMap[field];
 
     console.log(`[${fullOpts.label}] Rellenando ${fieldName}...`);
-    const element = await writeSafe(driver, locator, value, timeout, fullOpts);
-    await assertValueEquals(driver, element, locator, value, `El valor del ${fieldName} no coincide`);
+    const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
+    await assertValueEquals(this.driver, element, locator, value, `El valor del ${fieldName} no coincide`);
   }
 
   /**
    * Rellena múltiples campos de texto a la vez
    * Acepta un objeto con los campos a rellenar
-   * @param driver - WebDriver instance
    * @param data - Objeto con los datos a rellenar
    * @param timeout - Timeout para la operación
    * @param opts - Opciones de retry
    */
   async fillTextFields(
-    driver: WebDriver,
     data: Partial<Record<NoteTextField, string>>,
     timeout: number,
     opts: RetryOptions = {}
@@ -99,7 +95,7 @@ export class NoteTextFields {
 
     for (const [field, value] of Object.entries(data)) {
       if (value !== undefined && value.trim() !== "") {
-        await this.fillField(driver, field as NoteTextField, value, timeout, fullOpts);
+        await this.fillField(field as NoteTextField, value, timeout, fullOpts);
       }
     }
   }
@@ -107,13 +103,11 @@ export class NoteTextFields {
   // ========== MÉTODOS PARA TAGS ==========
   /**
    * Método dinámico para agregar tags (normales o ocultos)
-   * @param driver - WebDriver instance
    * @param tagField - Si es normal o hidden
    * @param timeout - Timeout para la operación
    * @param opts - Opciones de retry
    */
   async addTagsToField(
-    driver: WebDriver,
     tagField: NoteTagField,
     tags: string[],
     timeout: number,
@@ -132,7 +126,7 @@ export class NoteTextFields {
       const tagTextWithSubmit = tag.trim() + '\n';
 
       console.log(`[${fullOpts.label}] Ingresando tag: "${tag.trim()}"`);
-      await writeSafe(driver, locator, tagTextWithSubmit, timeout, fullOpts);
+      await writeSafe(this.driver, locator, tagTextWithSubmit, timeout, fullOpts);
     }
     console.log(`[${fullOpts.label}] Tags completados.`);
   }
@@ -140,92 +134,90 @@ export class NoteTextFields {
   /**
    * Métodos de conveniencia para tags
    */
-  async addTags(driver: WebDriver, tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
-    await this.addTagsToField(driver, NoteTagField.TAGS, tags, timeout, opts);
+  async addTags (tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
+    await this.addTagsToField(NoteTagField.TAGS, tags, timeout, opts);
   }
 
-  async addHiddenTags(driver: WebDriver, tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
-    await this.addTagsToField(driver, NoteTagField.HIDDEN_TAGS, tags, timeout, opts);
-  }
+  async addHiddenTags (tags: string[], timeout: number, opts: RetryOptions = {}): Promise < void> {
+  await this.addTagsToField(NoteTagField.HIDDEN_TAGS, tags, timeout, opts);
+}
 
   // ========== MÉTODOS PARA LISTICLE ==========
   /**
    * Obtener el Locator de un campo de Listicle dinámico
    */
   public getListicleFieldLocator(fieldType: ListicleFieldType, index: number): Locator {
-    const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
-    let selector: string;
+  const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
+  let selector: string;
 
-    switch (fieldType) {
-      case ListicleFieldType.TITLE:
-        selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
-        break;
-      case ListicleFieldType.BODY:
-        selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
-        break;
-      default:
-        throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
-    }
-
-    return By.xpath(selector);
+  switch (fieldType) {
+    case ListicleFieldType.TITLE:
+      selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
+      break;
+    case ListicleFieldType.BODY:
+      selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
+      break;
+    default:
+      throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
   }
+
+  return By.xpath(selector);
+}
 
   /**
    * Rellena un item de Listicle específico
    */
   async fillListicleItem(
-    driver: WebDriver,
-    index: number,
-    title: string,
-    body: string,
-    timeout: number,
-    opts: RetryOptions = {}
-  ): Promise<void> {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `fillListicleItem #${index}`) };
-    const uiIndex = index + 1; // Los índices UI empiezan en 1
+  index: number,
+  title: string,
+  body: string,
+  timeout: number,
+  opts: RetryOptions = {}
+): Promise < void> {
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `fillListicleItem #${index}`) };
+  const uiIndex = index + 1; // Los índices UI empiezan en 1
 
-    // Rellenar título del item
-    if (title && title.trim() !== "") {
-      const titleLocator = this.getListicleFieldLocator(ListicleFieldType.TITLE, uiIndex);
-      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Título`);
+  // Rellenar título del item
+  if(title && title.trim() !== "") {
+  const titleLocator = this.getListicleFieldLocator(ListicleFieldType.TITLE, uiIndex);
+  console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Título`);
 
-      const titleElement = await writeSafe(driver, titleLocator, title, timeout, fullOpts);
-      await assertValueEquals(driver, titleElement, titleLocator, title, `Listicle #${uiIndex} Título no coincide.`);
-    }
+  const titleElement = await writeSafe(this.driver, titleLocator, title, timeout, fullOpts);
+  await assertValueEquals(this.driver, titleElement, titleLocator, title, `Listicle #${uiIndex} Título no coincide.`);
+}
 
-    // Rellenar cuerpo del item
-    if (body && body.trim() !== "") {
-      const bodyLocator = this.getListicleFieldLocator(ListicleFieldType.BODY, uiIndex);
-      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Cuerpo`);
+// Rellenar cuerpo del item
+if (body && body.trim() !== "") {
+  const bodyLocator = this.getListicleFieldLocator(ListicleFieldType.BODY, uiIndex);
+  console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Cuerpo`);
 
-      const bodyElement = await writeSafe(driver, bodyLocator, body, timeout, fullOpts);
-      await assertValueEquals(driver, bodyElement, bodyLocator, body, `Listicle #${uiIndex} Cuerpo no coincide.`);
-    }
+  const bodyElement = await writeSafe(this.driver, bodyLocator, body, timeout, fullOpts);
+  await assertValueEquals(this.driver, bodyElement, bodyLocator, body, `Listicle #${uiIndex} Cuerpo no coincide.`);
+}
   }
 
   /**
    * Rellena múltiples items de Listicle
    */
   async fillListicleItems(
-    driver: WebDriver,
-    items: Array<{ title: string; body: string }>,
-    timeout: number,
-    opts: RetryOptions = {}
-  ): Promise<void> {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillListicleItems') };
+  items: Array<{ title: string; body: string }>,
+  timeout: number,
+  opts: RetryOptions = {}
+): Promise < void> {
+  const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillListicleItems') };
 
-    if (!items || items.length === 0) {
-      console.log(`[${fullOpts.label}] No hay items de listicle para procesar.`);
-      return;
-    }
+  if(!items || items.length === 0) {
+  console.log(`[${fullOpts.label}] No hay items de listicle para procesar.`);
+  return;
+}
 
-    console.log(`[${fullOpts.label}] Procesando ${items.length} items de listicle.`);
+console.log(`[${fullOpts.label}] Procesando ${items.length} items de listicle.`);
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      await this.fillListicleItem(driver, i, item.title, item.body, timeout, fullOpts);
-    }
+for (let i = 0; i < items.length; i++) {
+  const item = items[i];
+  await this.fillListicleItem(i, item.title, item.body, timeout, fullOpts);
+}
 
-    console.log(`[${fullOpts.label}] Listicle items completados.`);
+console.log(`[${fullOpts.label}] Listicle items completados.`);
   }
 }

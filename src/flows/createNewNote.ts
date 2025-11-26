@@ -3,18 +3,13 @@ import { RetryOptions } from "../core/wrappers/retry";
 import { stackLabel } from "../core/utils/stackLabel";
 import { clickSafe } from "../core/actions/clickSafe";
 import { noteCreationModalPage, } from "../pages/post/noteCreationModal.js";
-import { NoteDataInterface } from "../dataTest/noteDataInterface";
-import { fillPostFields } from "../core/helpers/fillPostFields";
+import { NoteData } from "../dataTest/noteDataInterface";
+import { NoteEditorPage } from "../pages/post/note_editor/noteEditor";
 
-export async function createNewNote(driver: WebDriver, noteType: string, data: NoteDataInterface, timeout: number, opts: RetryOptions) {
+export async function createNewNote(driver: WebDriver, noteType: string, data: NoteData, timeout: number, opts: RetryOptions) {
     const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `createNewNote:${noteType}`) };
-    const noteTypeBtn: Locator = noteCreationModalPage.getNoteTypeLocator(noteType)
-
+    const page =new NoteEditorPage(driver, )
     console.log(`[${fullOpts.label}]`);
-    console.log('Abriendo nota...')
-    clickSafe(driver, noteCreationModalPage.openDropdownBtn, timeout, fullOpts);
-    clickSafe(driver, noteTypeBtn, timeout, fullOpts);
-    console.log('Rellenando campos...')
-    fillPostFields(driver, data, timeout, fullOpts);
+
     
 }

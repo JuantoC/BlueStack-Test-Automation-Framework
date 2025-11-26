@@ -1,26 +1,10 @@
 import { Locator, WebDriver } from "selenium-webdriver";
+import { NoteData } from "../../../dataTest/noteDataInterface";
 import { RetryOptions } from "../../../core/wrappers/retry";
 import { stackLabel } from "../../../core/utils/stackLabel";
 import { writeSafe } from "../../../core/actions/writeSafe";
 import { assertValueEquals } from "../../../core/utils/assertValueEquals";
 
-export enum NoteTextField {
-  TITLE = 'title',
-  SECONDARY_TITLE = 'secondaryTitle',
-  SUB_TITLE = 'subTitle',
-  HALF_TITLE = 'halfTitle',
-  BODY = 'body',
-  SUMMARY = 'summary'
-}
-export enum NoteTagField {
-  TAGS = 'tags',
-  HIDDEN_TAGS = 'hiddenTags'
-}
-
-export enum ListicleFieldType {
-  TITLE = 'title',
-  BODY = 'body'
-}
 export class NoteTextFields {
   private driver: WebDriver;
   // ========== LOCATORS ==========
@@ -33,17 +17,11 @@ export class NoteTextFields {
     [NoteTextField.SUMMARY]: By.id('resumen-content')
   };
 
-  /**
-   * Mapa de locators para tags
-   */
   private tagLocatorMap: Record<NoteTagField, Locator> = {
     [NoteTagField.TAGS]: By.css('div[id="claves-content"] input[role="combobox"]'),
     [NoteTagField.HIDDEN_TAGS]: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
   };
 
-  /**
-   * Mapa de nombres legibles para logs
-   */
   private fieldNameMap: Record<NoteTextField, string> = {
     [NoteTextField.TITLE]: 'título',
     [NoteTextField.SECONDARY_TITLE]: 'título secundario',
@@ -56,7 +34,48 @@ export class NoteTextFields {
   constructor(driver: WebDriver) {
     this.driver = driver;
   }
-  // ========== MÉTODO DINÁMICO ==========
+  // ========== MÉTODOS ==========
+
+  async fillNoteData(
+    data: Partial<NoteData>,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, 'NoteTextFields.fillNoteData') };
+    const textFieldsData: Partial<Record<NoteTextField, string>> = {};
+
+    console.log(`[${fullOpts.label}] Iniciando orquestación de llenado de campos (Textos, Tags, Listicle)...`);
+
+    // 1. Llenar campos de texto principales
+    for (const key of Object.keys(NOTE_TEXT_FIELD_MAP) as Array<keyof typeof NOTE_TEXT_FIELD_MAP>) {
+      const dataKey = key as keyof NoteData;
+      const enumKey = NOTE_TEXT_FIELD_MAP[dataKey];
+      const value = data[dataKey] as string | undefined;
+
+      if (value !== undefined && value.trim() !== "") {
+        textFieldsData[enumKey] = value;
+      }
+    }
+    if (Object.keys(textFieldsData).length > 0) {
+      await this.fillTextFields(textFieldsData, timeout, fullOpts);
+    }
+
+    // 2. Llenar Tags
+    if (data.tags && data.tags.length > 0) {
+      await this.addTags(data.tags, timeout, fullOpts);
+    }
+    if (data.hiddenTags && data.hiddenTags.length > 0) {
+      await this.addHiddenTags(data.hiddenTags, timeout, fullOpts);
+    }
+
+    // 3. Llenar Listicle Items
+    if (data.listicleItems && data.listicleItems.length > 0) {
+      await this.fillListicleItems(data.listicleItems, timeout, fullOpts);
+    }
+
+    console.log(`[${fullOpts.label}] Orquestación de llenado completada.`);
+  }
+  
   /**
    * Rellena un campo de texto de forma dinámica
    * @param field - El campo a rellenar
@@ -134,90 +153,120 @@ export class NoteTextFields {
   /**
    * Métodos de conveniencia para tags
    */
-  async addTags (tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
+  async addTags(tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
     await this.addTagsToField(NoteTagField.TAGS, tags, timeout, opts);
   }
 
-  async addHiddenTags (tags: string[], timeout: number, opts: RetryOptions = {}): Promise < void> {
-  await this.addTagsToField(NoteTagField.HIDDEN_TAGS, tags, timeout, opts);
-}
+  async addHiddenTags(tags: string[], timeout: number, opts: RetryOptions = {}): Promise<void> {
+    await this.addTagsToField(NoteTagField.HIDDEN_TAGS, tags, timeout, opts);
+  }
 
   // ========== MÉTODOS PARA LISTICLE ==========
   /**
    * Obtener el Locator de un campo de Listicle dinámico
    */
   public getListicleFieldLocator(fieldType: ListicleFieldType, index: number): Locator {
-  const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
-  let selector: string;
+    const baseSelector = `//div[@data-listicle-item-index="${index}"]`;
+    let selector: string;
 
-  switch (fieldType) {
-    case ListicleFieldType.TITLE:
-      selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
-      break;
-    case ListicleFieldType.BODY:
-      selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
-      break;
-    default:
-      throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
+    switch (fieldType) {
+      case ListicleFieldType.TITLE:
+        selector = `${baseSelector}//input[contains(@class, 'listicle-title-input')]`;
+        break;
+      case ListicleFieldType.BODY:
+        selector = `${baseSelector}//ckeditor[contains(@class, 'listicle-body-editor')]/.ck-editor__editable`;
+        break;
+      default:
+        throw new Error(`Tipo de campo Listicle desconocido: ${fieldType}`);
+    }
+
+    return By.xpath(selector);
   }
-
-  return By.xpath(selector);
-}
 
   /**
    * Rellena un item de Listicle específico
    */
   async fillListicleItem(
-  index: number,
-  title: string,
-  body: string,
-  timeout: number,
-  opts: RetryOptions = {}
-): Promise < void> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `fillListicleItem #${index}`) };
-  const uiIndex = index + 1; // Los índices UI empiezan en 1
+    index: number,
+    title: string,
+    body: string,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `fillListicleItem #${index}`) };
+    const uiIndex = index + 1; // Los índices UI empiezan en 1
 
-  // Rellenar título del item
-  if(title && title.trim() !== "") {
-  const titleLocator = this.getListicleFieldLocator(ListicleFieldType.TITLE, uiIndex);
-  console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Título`);
+    // Rellenar título del item
+    if (title && title.trim() !== "") {
+      const titleLocator = this.getListicleFieldLocator(ListicleFieldType.TITLE, uiIndex);
+      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Título`);
 
-  const titleElement = await writeSafe(this.driver, titleLocator, title, timeout, fullOpts);
-  await assertValueEquals(this.driver, titleElement, titleLocator, title, `Listicle #${uiIndex} Título no coincide.`);
-}
+      const titleElement = await writeSafe(this.driver, titleLocator, title, timeout, fullOpts);
+      await assertValueEquals(this.driver, titleElement, titleLocator, title, `Listicle #${uiIndex} Título no coincide.`);
+    }
 
-// Rellenar cuerpo del item
-if (body && body.trim() !== "") {
-  const bodyLocator = this.getListicleFieldLocator(ListicleFieldType.BODY, uiIndex);
-  console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Cuerpo`);
+    // Rellenar cuerpo del item
+    if (body && body.trim() !== "") {
+      const bodyLocator = this.getListicleFieldLocator(ListicleFieldType.BODY, uiIndex);
+      console.log(`[${fullOpts.label}] Rellenando Listicle #${uiIndex} Cuerpo`);
 
-  const bodyElement = await writeSafe(this.driver, bodyLocator, body, timeout, fullOpts);
-  await assertValueEquals(this.driver, bodyElement, bodyLocator, body, `Listicle #${uiIndex} Cuerpo no coincide.`);
-}
+      const bodyElement = await writeSafe(this.driver, bodyLocator, body, timeout, fullOpts);
+      await assertValueEquals(this.driver, bodyElement, bodyLocator, body, `Listicle #${uiIndex} Cuerpo no coincide.`);
+    }
   }
 
   /**
    * Rellena múltiples items de Listicle
    */
   async fillListicleItems(
-  items: Array<{ title: string; body: string }>,
-  timeout: number,
-  opts: RetryOptions = {}
-): Promise < void> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillListicleItems') };
+    items: Array<{ title: string; body: string }>,
+    timeout: number,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillListicleItems') };
 
-  if(!items || items.length === 0) {
-  console.log(`[${fullOpts.label}] No hay items de listicle para procesar.`);
-  return;
-}
+    if (!items || items.length === 0) {
+      console.log(`[${fullOpts.label}] No hay items de listicle para procesar.`);
+      return;
+    }
 
-console.log(`[${fullOpts.label}] Procesando ${items.length} items de listicle.`);
+    console.log(`[${fullOpts.label}] Procesando ${items.length} items de listicle.`);
 
-for (let i = 0; i < items.length; i++) {
-  const item = items[i];
-  await this.fillListicleItem(i, item.title, item.body, timeout, fullOpts);
-}
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      await this.fillListicleItem(i, item.title, item.body, timeout, fullOpts);
+    }
 
-console.log(`[${fullOpts.label}] Listicle items completados.`);
+    console.log(`[${fullOpts.label}] Listicle items completados.`);
   }
 }
+
+export enum NoteTextField {
+  TITLE = 'title',
+  SECONDARY_TITLE = 'secondaryTitle',
+  SUB_TITLE = 'subTitle',
+  HALF_TITLE = 'halfTitle',
+  BODY = 'body',
+  SUMMARY = 'summary'
+}
+
+export enum NoteTagField {
+  TAGS = 'tags',
+  HIDDEN_TAGS = 'hiddenTags'
+}
+
+export enum ListicleFieldType {
+  TITLE = 'title',
+  BODY = 'body'
+}
+
+// Mapeo entre la clave de NoteData y la clave del enum NoteTextField
+const NOTE_TEXT_FIELD_MAP: Record<keyof NoteData, NoteTextField> = {
+  title: NoteTextField.TITLE,
+  secondaryTitle: NoteTextField.SECONDARY_TITLE,
+  subTitle: NoteTextField.SUB_TITLE,
+  halfTitle: NoteTextField.HALF_TITLE,
+  body: NoteTextField.BODY,
+  summary: NoteTextField.SUMMARY,
+} as any;
+

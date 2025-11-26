@@ -3,7 +3,7 @@ import { initializeDriver, quitDriver } from '../core/actions/driverManager.js';
 import { DevSaasLocators, getAuthUrl } from '../environments/Dev_SAAS/Locators.js';
 import { dismiss2FAModal } from '../core/actions/twoFA-Modal.js';
 import type { AuthLocators } from '../Interfaces/interfaces.js';
-import { loginUser } from '../flows/passLoginUser.js'
+import { loginUser } from '../flows/manageAuth.js'
 import { selectNoteType } from '../core/utils/getNoteTypeLocator.js';
 import { NewPostData } from '../dataTest/noteData.js';
 import { fillPostFields } from '../core/helpers/fillPostFields.js';

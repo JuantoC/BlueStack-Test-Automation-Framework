@@ -18,19 +18,19 @@ export class LoginFields {
   }
 
   // ========== MÉTODOS ==========
-  async fillUsername(username: string, timeout: number = 1500, opts: RetryOptions = {}): Promise<void> {
+  async fillUsername(username: string, timeout: number, opts: RetryOptions = {}): Promise<void> {
     const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillUsername') };
     console.log(`[${fullOpts.label}] Rellenando username: ${username}`);
     await writeSafe(this.driver, this.usernameField, username, timeout, fullOpts);
   }
 
-  async fillPassword(password: string, timeout: number = 1500, opts: RetryOptions = {}): Promise<void> {
+  async fillPassword(password: string, timeout: number, opts: RetryOptions = {}): Promise<void> {
     const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillPassword') };
     console.log(`[${fullOpts.label}] Rellenando password`);
     await writeSafe(this.driver, this.passwordField, password, timeout, fullOpts);
   }
 
-  async clickLogin(timeout: number = 1500, opts: RetryOptions = {}): Promise<void> {
+  async clickLogin(timeout: number, opts: RetryOptions = {}): Promise<void> {
     const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickLogin') };
     console.log(`[${fullOpts.label}] Haciendo click en login`);
     await clickSafe(this.driver, this.loginButton, timeout, fullOpts);
@@ -39,7 +39,7 @@ export class LoginFields {
   /**
    * Método completo - Hace login con credenciales
    */
-  async fillLogin(username: string, password: string, timeout: number = 1500, opts: RetryOptions = {}): Promise<void> {
+  async fillLogin(username: string, password: string, timeout: number, opts: RetryOptions = {}): Promise<void> {
     const fullOpts = { ...opts, label: stackLabel(opts.label, 'LoginPage.login') };
 
     await this.fillUsername(username, timeout, fullOpts);

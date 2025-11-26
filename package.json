@@ -14,7 +14,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:watch": "tsc --watch",
-    "start": "concurrently \"npm run build:watch\" \"nodemon dist/tests/01_CreateNewPost.js\""
+    "start": "concurrently \"npm run build:watch\" \"nodemon dist/sesions/01_Test.js\""
   },
   "keywords": [],
   "author": "",
@@ -24,6 +24,7 @@
     "@ljharb/tsconfig": "^0.3.2",
     "@types/node": "^24.10.1",
     "@types/selenium-webdriver": "^4.35.4",
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.11"
   }
-}
+} 

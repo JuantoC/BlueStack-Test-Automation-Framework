@@ -4,24 +4,6 @@ import { RetryOptions } from "../../../core/wrappers/retry";
 import { stackLabel } from "../../../core/utils/stackLabel";
 
 /**
- * Enum para los tipos de nota disponibles.
- */
-export enum NoteType {
-  POST = 'POST',
-  LISTICLE = 'LISTICLE',
-  LIVEBLOG = 'LIVEBLOG'
-}
-
-/**
- * Configuración de los tipos de nota con sus índices y nombres.
- */
-const NOTE_TYPE_CONFIG: Record<NoteType, { index: string; displayName: string }> = {
-  [NoteType.POST]: { index: '0', displayName: 'New Post' },
-  [NoteType.LISTICLE]: { index: '1', displayName: 'New Listicle' },
-  [NoteType.LIVEBLOG]: { index: '2', displayName: 'New LiveBlog' }
-};
-
-/**
  * Component Object para el dropdown de selección del tipo de nota (Post, Listicle, LiveBlog, etc.).
  */
 export class NoteCreationDropwdown {
@@ -72,3 +54,21 @@ export class NoteCreationDropwdown {
     console.log(`Tipo de nota "${displayName}" seleccionado con éxito.`);
   }
 }
+
+/**
+ * Enum para los tipos de nota disponibles.
+ */
+export enum NoteType {
+  POST = 'POST',
+  LISTICLE = 'LISTICLE',
+  LIVEBLOG = 'LIVEBLOG'
+}
+
+/**
+ * Configuración de los tipos de nota con sus índices y nombres.
+ */
+const NOTE_TYPE_CONFIG: Record<NoteType, { index: string; displayName: string }> = {
+  [NoteType.POST]: { index: '0', displayName: 'New Post' },
+  [NoteType.LISTICLE]: { index: '1', displayName: 'New Listicle' },
+  [NoteType.LIVEBLOG]: { index: '2', displayName: 'New LiveBlog' }
+};

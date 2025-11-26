@@ -6,7 +6,7 @@ export interface DriverOptions {
 
 /**
  * Define las opciones específicas para Chrome.
- * @param options Opciones de configuración del driver.
+ * @param options Opciones de configuración del driver (isHeadless....).
  * @returns Un objeto ChromeOptions.
  */
 export function setChromeOptions(options: DriverOptions): ChromeOptions {

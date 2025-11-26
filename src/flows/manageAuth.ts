@@ -10,8 +10,10 @@ import { stackLabel } from "../core/utils/stackLabel.js";
  * @param timeout Tiempo máximo de espera para cada acción.
  * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
-export async function passLoginUser(driver: WebDriver, credentials: { username: string; password: string },  timeout: number, opts: RetryOptions = {}): Promise<void> {
+export async function passLogin(driver: WebDriver, credentials: { username: string; password: string }, timeout: number, opts: RetryOptions = {}): Promise<void> {
   const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passLoginUser:${credentials.username}`) };
-  const page = 
+  const page = new AuthPage(driver)
+
   console.log(`[${fullOpts.label}]`);
+  page.passAuth(credentials, timeout, fullOpts)
 }

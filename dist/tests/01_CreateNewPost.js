@@ -1,10 +1,10 @@
-import { initializeDriver, quitDriver } from '../core/DriverChrome-Config.js';
+import { initializeDriver, quitDriver } from '../core/actions/driverManager.js';
 import { DevSaasLocators, getAuthUrl } from '../environments/Dev_SAAS/Locators.js';
-import { dismiss2FAModal } from '../flows/2FA-Modal.js';
-import { loginUser } from '../flows/Auth-Login.js';
-import { selectNoteType } from '../flows/Note-Types.js';
-import { NewPostData } from '../Data-Test/Note-Creation-Data.js';
-import { fillPostFields } from '../flows/Post-Fields.js';
+import { dismiss2FAModal } from '../core/actions/twoFA-Modal.js';
+import { loginUser } from '../flows/manageAuth.js';
+import { selectNoteType } from '../core/utils/getNoteTypeLocator.js';
+import { NewPostData } from '../dataTest/noteData.js';
+import { fillPostFields } from '../core/helpers/fillPostFields.js';
 // ===========================================
 //          SCRIPT DE EJECUCIÓN DEL TEST
 // ===========================================
@@ -32,7 +32,6 @@ async function runCreateNewPostTest() {
     try {
         driver = await initializeDriver({
             isHeadless: false,
-            windowSize: { width: 1400, height: 900 }
         });
         console.log("==============================================");
         console.log("INICIO DE TEST: Creación de 'New Post' (Dev-SAAS)");

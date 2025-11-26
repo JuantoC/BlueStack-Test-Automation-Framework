@@ -1,0 +1,31 @@
+import { retry } from '../wrappers/retry';
+import { stackLabel } from "../utils/stackLabel";
+import { waitClickable } from "../utils/waitClickable";
+import { waitFind } from "../utils/waitFind";
+/**
+ * Realiza un clic seguro en un elemento.
+ * Combina las esperas de 'Find' y 'Visible' y espera a que el elemento esté habilitado.
+ * @param driver La instancia del WebDriver.
+ * @param locator El WebElement donde se realizará el clic.
+ * @param timeout Tiempo máximo de espera para  encontrar el elemento (default: 1.5s).
+ * @param opts Objeto de ppciones de reintento (ej. retries, label).
+ * @returns Una promesa que resuelve con el WebElement después del clic.
+ */
+export async function clickSafe(driver, locator, timeout = 1500, opts = {}) {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `clickSafe: ${JSON.stringify(locator)}`) };
+    console.log(`${fullOpts.label}`);
+    return retry(async () => {
+        try {
+            const element = await waitFind(driver, locator, timeout, fullOpts);
+            console.log(`Realizando click en: ${JSON.stringify(locator)}.`);
+            await waitClickable(driver, element, timeout, fullOpts);
+            console.log(`Exito click: ${JSON.stringify(locator)}.`);
+            return element;
+        }
+        catch (error) {
+            console.error(`${fullOpts.label} Falla en click: ${error.message}`);
+            throw error;
+        }
+    }, fullOpts);
+}
+//# sourceMappingURL=clickSafe.js.map

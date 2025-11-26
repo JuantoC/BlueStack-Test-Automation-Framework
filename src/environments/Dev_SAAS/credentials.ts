@@ -15,3 +15,6 @@ export const adminCredentials = {
     username: 'jtcaldera',
     password: 'uw%4sm1UIzIxT0',
 };
+
+
+//NOTA: cambiar el tipo de credenciales armar un enum y formar una interfaz para las credenciales

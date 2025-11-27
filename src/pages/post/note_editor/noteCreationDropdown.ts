@@ -1,7 +1,7 @@
-import { Locator, WebDriver } from "selenium-webdriver";
-import { clickSafe } from "../../../core/actions/clickSafe";
-import { RetryOptions } from "../../../core/wrappers/retry";
-import { stackLabel } from "../../../core/utils/stackLabel";
+import { Locator, WebDriver, By } from "selenium-webdriver";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
+import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
 
 /**
  * Component Object para el dropdown de selección del tipo de nota (Post, Listicle, LiveBlog, etc.).

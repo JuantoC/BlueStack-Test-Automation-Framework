@@ -1,5 +1,5 @@
 import { WebDriver } from "selenium-webdriver";
-import { AuthPage } from '../pages/auth/authPage.js';
+import { AuthPage } from "../pages/auth/authPage.js";
 import { RetryOptions } from "../core/wrappers/retry.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 
@@ -11,9 +11,9 @@ import { stackLabel } from "../core/utils/stackLabel.js";
  * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
 export async function passLogin(driver: WebDriver, credentials: { username: string; password: string }, timeout: number, opts: RetryOptions = {}): Promise<void> {
-  const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passLoginUser:${credentials.username}`) };
+  const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passLogin:${credentials.username}`) };
   const page = new AuthPage(driver)
 
   console.log(`[${fullOpts.label}]`);
-  page.passAuth(credentials, timeout, fullOpts)
+  await page.passAuth(credentials, timeout, fullOpts)
 }

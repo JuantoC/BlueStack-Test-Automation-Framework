@@ -1,8 +1,8 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
-import { RetryOptions, retry } from '../wrappers/retry';
-import { stackLabel } from "../utils/stackLabel";
-import { waitClickable } from "../utils/waitClickable";
-import { waitFind } from "../utils/waitFind";
+import { RetryOptions, retry } from "../wrappers/retry.js";
+import { stackLabel } from "../utils/stackLabel.js";
+import { waitClickable } from "../utils/waitClickable.js";
+import { waitFind } from "../utils/waitFind.js";
 
 /**
  * Realiza un clic seguro en un elemento.
@@ -24,6 +24,7 @@ export async function clickSafe(driver: WebDriver, locator: Locator, timeout: nu
         
         console.log(`Realizando click en: ${JSON.stringify(locator)}.`);
         await waitClickable(driver, element, timeout, fullOpts);
+        await element.click()
         console.log(`Exito click: ${JSON.stringify(locator)}.`);
 
         return element;

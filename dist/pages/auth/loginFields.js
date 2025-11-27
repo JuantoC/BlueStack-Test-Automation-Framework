@@ -1,14 +1,14 @@
 import { By } from 'selenium-webdriver';
-import { stackLabel } from '../../core/utils/stackLabel';
-import { writeSafe } from '../../core/actions/writeSafe';
-import { clickSafe } from '../../core/actions/clickSafe';
+import { stackLabel } from "../../core/utils/stackLabel.js";
+import { writeSafe } from "../../core/actions/writeSafe.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
 /**
  * Page Object para la página de Login.
  */
 export class LoginFields {
     usernameField = By.id('username-field-log');
     passwordField = By.id('password-field-log');
-    loginButton = By.css('.security-card-submit-button');
+    loginButton = By.css('button[data-testid="qa-login"]');
     driver;
     constructor(driver) {
         this.driver = driver;

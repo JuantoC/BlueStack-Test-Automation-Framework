@@ -1,5 +1,5 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
-import { isContentEditable } from "./isContentEditable";
+import { isContentEditable } from "./isContentEditable.js";
 
 /**
  * Revisa que el valor de un elemento web coincide con el valor esperado.

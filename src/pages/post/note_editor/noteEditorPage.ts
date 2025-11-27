@@ -1,14 +1,14 @@
 import { WebDriver } from 'selenium-webdriver';
-import { NoteAuthorField } from './authorField';
-import { NoteFooterBtn } from './footerBtn';
-import { NoteHeaderActions } from './headerActions';
-import { NoteSidebarDropdow } from './sidebarDropdown';
-import { NoteTextFields } from './textFields';
-import { NoteImageFields } from './imageFields';
-import { NoteCreationDropwdown } from './noteCreationDropdown';
-import { RetryOptions } from '../../../core/wrappers/retry';
-import { NoteData } from '../../../dataTest/noteDataInterface';
-import { stackLabel } from '../../../core/utils/stackLabel';
+import { NoteAuthorField } from "./authorField.js";
+import { NoteFooterBtn } from "./footerBtn.js";
+import { NoteHeaderActions } from "./headerActions.js";
+import { NoteSidebarDropdow } from "./sidebarDropdown.js";
+import { NoteTextFields } from "./textFields.js";
+import { NoteImageFields } from "./imageFields.js";
+import { NoteCreationDropwdown } from "./noteCreationDropdown.js";
+import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
 
 /**
  * Orquestador de los Page Object para la página de edición de una nota.

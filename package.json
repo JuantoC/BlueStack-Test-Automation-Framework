@@ -10,11 +10,11 @@
   "name": "first-selenium",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/sesions/01_Test.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:watch": "tsc --watch",
-    "start": "concurrently \"npm run build:watch\" \"nodemon dist/sesions/01_Test.js\""
+    "start": "concurrently \"npm run build:watch\" \"nodemon dist/sessions/01_Test.js\""
   },
   "keywords": [],
   "author": "",
@@ -27,4 +27,4 @@
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.11"
   }
-} 
+}

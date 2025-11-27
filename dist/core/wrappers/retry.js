@@ -1,5 +1,5 @@
-import { calcBackoff, sleep } from '../utils/backOff.js';
-import { DefaultConfig } from '../config/default.js';
+import { calcBackoff, sleep } from "../utils/backOff.js";
+import { DefaultConfig } from "../config/default.js";
 export async function retry(action, { retries = DefaultConfig.retry.retries, initialDelayMs = DefaultConfig.retry.retryDelayMs, maxDelayMs = DefaultConfig.retry.maxRetryDelayMs, backoffFactor = DefaultConfig.retry.backoffFactor, label = "retry" } = {}) {
     let attempt = 1;
     while (attempt <= retries) {

@@ -1,3 +1,4 @@
+import { By } from "selenium-webdriver";
 export class NoteSidebarDropdow {
     // 4. Side Dropdown y Botones de Acción
     sideDropdownButton = By.css('mat-select[data-testid="select-lateral"]');

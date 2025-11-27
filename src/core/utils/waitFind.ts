@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, Locator, error } from "selenium-webdriver";
-import { RetryOptions, retry } from '../wrappers/retry.js';
+import { RetryOptions, retry } from "../wrappers/retry.js";
 import { stackLabel } from "./stackLabel.js";
 
 
@@ -16,10 +16,10 @@ export async function waitFind(driver: WebDriver, locator: Locator, timeout: num
 
   console.log(`[${fullOpts.label}]`);
   return retry(
-    () => {
+    async () => {
       try {
         console.log(`Buscando: ${JSON.stringify(locator)}.`);
-        const element = driver.wait(until.elementLocated(locator), timeout, `Elemento no encontrado: ${JSON.stringify(locator)} en ${timeout / 1000}s`);
+        const element = await driver.wait(until.elementLocated(locator), timeout, `Elemento no encontrado: ${JSON.stringify(locator)} en ${timeout / 1000}s`);
         console.log(`Exito: ${JSON.stringify(locator)}.`);
 
         return element;

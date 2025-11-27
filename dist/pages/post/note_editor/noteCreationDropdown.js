@@ -1,5 +1,6 @@
-import { clickSafe } from "../../../core/actions/clickSafe";
-import { stackLabel } from "../../../core/utils/stackLabel";
+import { By } from "selenium-webdriver";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
 /**
  * Component Object para el dropdown de selección del tipo de nota (Post, Listicle, LiveBlog, etc.).
  */

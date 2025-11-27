@@ -1,6 +1,6 @@
 import { By } from 'selenium-webdriver';
-import { clickSafe } from '../../core/actions/clickSafe';
-import { stackLabel } from '../../core/utils/stackLabel';
+import { clickSafe } from "../../core/actions/clickSafe.js";
+import { stackLabel } from "../../core/utils/stackLabel.js";
 /**
  * Page Object para el modal de Doble Autenticación (2FA) que se descarta.
  */

@@ -1,4 +1,4 @@
-import { AuthPage } from '../pages/auth/authPage.js';
+import { AuthPage } from "../pages/auth/authPage.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 /**
  * Realiza el proceso completo de login en la aplicación.
@@ -8,9 +8,9 @@ import { stackLabel } from "../core/utils/stackLabel.js";
  * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
 export async function passLogin(driver, credentials, timeout, opts = {}) {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `passLoginUser:${credentials.username}`) };
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `passLogin:${credentials.username}`) };
     const page = new AuthPage(driver);
     console.log(`[${fullOpts.label}]`);
-    page.passAuth(credentials, timeout, fullOpts);
+    await page.passAuth(credentials, timeout, fullOpts);
 }
 //# sourceMappingURL=manageAuth.js.map

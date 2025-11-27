@@ -1,5 +1,5 @@
-import { calcBackoff, sleep } from '../utils/backOff.js';
-import { DefaultConfig } from '../config/default.js';
+import { calcBackoff, sleep } from "../utils/backOff.js";
+import { DefaultConfig } from "../config/default.js";
 
 /**  Define la interfaz de opciones para mejorar la tipificación
  * T es el tipo de retorno de la acción que se va a reintentar

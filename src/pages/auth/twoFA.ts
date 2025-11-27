@@ -1,7 +1,7 @@
 import { By, Locator, WebDriver } from 'selenium-webdriver';
-import { RetryOptions } from '../../core/wrappers/retry';
-import { clickSafe } from '../../core/actions/clickSafe';
-import { stackLabel } from '../../core/utils/stackLabel';
+import { RetryOptions } from "../../core/wrappers/retry.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
+import { stackLabel } from "../../core/utils/stackLabel.js";
 
 /**
  * Page Object para el modal de Doble Autenticación (2FA) que se descarta.

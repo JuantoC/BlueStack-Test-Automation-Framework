@@ -1,5 +1,6 @@
-import { stackLabel } from "../../../core/utils/stackLabel";
-import { clickSafe } from "../../../core/actions/clickSafe";
+import { By } from "selenium-webdriver";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
 /**
  * Clase para acciones del header
  */

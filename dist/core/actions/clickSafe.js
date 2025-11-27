@@ -1,7 +1,7 @@
-import { retry } from '../wrappers/retry';
-import { stackLabel } from "../utils/stackLabel";
-import { waitClickable } from "../utils/waitClickable";
-import { waitFind } from "../utils/waitFind";
+import { retry } from "../wrappers/retry.js";
+import { stackLabel } from "../utils/stackLabel.js";
+import { waitClickable } from "../utils/waitClickable.js";
+import { waitFind } from "../utils/waitFind.js";
 /**
  * Realiza un clic seguro en un elemento.
  * Combina las esperas de 'Find' y 'Visible' y espera a que el elemento esté habilitado.
@@ -19,6 +19,7 @@ export async function clickSafe(driver, locator, timeout = 1500, opts = {}) {
             const element = await waitFind(driver, locator, timeout, fullOpts);
             console.log(`Realizando click en: ${JSON.stringify(locator)}.`);
             await waitClickable(driver, element, timeout, fullOpts);
+            await element.click();
             console.log(`Exito click: ${JSON.stringify(locator)}.`);
             return element;
         }

@@ -1,4 +1,4 @@
-import { isContentEditable } from "./isContentEditable";
+import { isContentEditable } from "./isContentEditable.js";
 /**
  * Revisa que el valor de un elemento web coincide con el valor esperado.
  * Maneja tanto elementos editables como estándar.

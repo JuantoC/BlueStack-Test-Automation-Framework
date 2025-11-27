@@ -1,4 +1,4 @@
-import { Locator } from "selenium-webdriver";
+import { Locator, By } from "selenium-webdriver";
 
 export class NoteSidebarDropdow {
     // 4. Side Dropdown y Botones de Acción

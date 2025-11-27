@@ -1,9 +1,9 @@
-import { Locator, WebDriver } from "selenium-webdriver";
-import { stackLabel } from "../../../core/utils/stackLabel";
-import { RetryOptions } from "../../../core/wrappers/retry";
-import { clickSafe } from "../../../core/actions/clickSafe";
-import { writeSafe } from "../../../core/actions/writeSafe";
-import { assertValueEquals } from "../../../core/utils/assertValueEquals";
+import { Locator, WebDriver, By } from "selenium-webdriver";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
+import { writeSafe } from "../../../core/actions/writeSafe.js";
+import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
 
 export enum AuthorType {
   INTERNAL = 'internal',
@@ -17,7 +17,7 @@ export enum AuthorType {
 export class NoteAuthorField {
   // ========== LOCATORS ==========
   private authorButtonMap: Record<AuthorType, Locator> = {
-    [AuthorType.INTERNAL]: By.css('mat-icon="check_circle_outline"'),
+    [AuthorType.INTERNAL]: By.xpath('//mat-icon[text()="check_circle_outline"]'),
     [AuthorType.ANONYMOUS]: By.css('mat-icon="person_outline"'),
     [AuthorType.MANUAL]: By.css('mat-icon="draw"')
   };

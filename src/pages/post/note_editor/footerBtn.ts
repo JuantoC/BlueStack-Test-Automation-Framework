@@ -1,4 +1,4 @@
-import { Locator } from "selenium-webdriver";
+import { Locator, By } from "selenium-webdriver";
 
 export class NoteFooterBtn {
      // 6. Acciones

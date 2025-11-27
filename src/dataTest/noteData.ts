@@ -1,4 +1,4 @@
-import { NoteData } from './noteDataInterface.js';
+import { NoteData } from "./noteDataInterface.js";
 
 export const noteData: NoteData[] = [
     {

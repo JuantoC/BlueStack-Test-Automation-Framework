@@ -1,20 +1,20 @@
 import { error } from "selenium-webdriver";
-import { retry } from '../wrappers/retry.js';
+import { retry } from "../wrappers/retry.js";
 import { stackLabel } from "./stackLabel.js";
-import { waitVisible } from "./waitVisible";
-import { waitEnabled } from "./waitEnabled";
+import { waitVisible } from "./waitVisible.js";
+import { waitEnabled } from "./waitEnabled.js";
 export async function waitClickable(driver, element, timeout = 1500, opts = {}) {
     if (!element || typeof element.getId !== "function") {
-        throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
+        throw new Error("Expected a WebElement but received: " + element.toString());
     }
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `waitClickable: ${element.toString()}`) };
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `waitClickable: ${(element.toString())}`) };
     console.log(`${fullOpts.label}.`);
     return retry(async () => {
         try {
-            console.log(`waitClickable:${element.toString()} Esperando...`);
+            console.log(`waitClickable:${(element.toString())} Esperando...`);
             await waitVisible(driver, element, timeout, fullOpts);
             await waitEnabled(driver, element, timeout, fullOpts);
-            console.log(`waitClickable:${element.toString()} Elemento clickable.`);
+            console.log(`waitClickable:${(element.toString())} Elemento clickable.`);
             return element;
         }
         catch (err) {

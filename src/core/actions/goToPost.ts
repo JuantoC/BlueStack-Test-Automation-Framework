@@ -1,5 +1,5 @@
 import { WebDriver } from "selenium-webdriver";
-import { postUrl } from "../utils/routes";
+import { postUrl } from "../utils/routes.js";
 
 /** Navega a la página de un post específico en el panel de administración.
  * @param driver La instancia de WebDriver.

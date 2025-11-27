@@ -1,5 +1,5 @@
 import { until, error } from "selenium-webdriver";
-import { retry } from '../wrappers/retry.js';
+import { retry } from "../wrappers/retry.js";
 import { stackLabel } from "./stackLabel.js";
 /**
  * Espera a que un WebElement (ya encontrado) esté habilitado para la interacción.

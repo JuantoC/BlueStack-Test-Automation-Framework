@@ -1,7 +1,7 @@
-import { Locator, WebDriver } from "selenium-webdriver";
-import { stackLabel } from "../../../core/utils/stackLabel";
-import { RetryOptions } from "../../../core/wrappers/retry";
-import { clickSafe } from "../../../core/actions/clickSafe";
+import { Locator, WebDriver, By } from "selenium-webdriver";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
 
 /**
  * Clase para acciones del header

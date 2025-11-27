@@ -1,6 +1,6 @@
 import { Builder, Capabilities } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
-import { setChromeOptions } from '../config/chromeOptions.js';
+import { setChromeOptions } from "../config/chromeOptions.js";
 /**
  * Inicializa y configura la instancia de WebDriver.
  * @param options isHeadless: boolean

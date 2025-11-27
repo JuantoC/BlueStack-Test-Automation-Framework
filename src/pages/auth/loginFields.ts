@@ -1,8 +1,8 @@
 import { By, Locator, WebDriver } from 'selenium-webdriver';
-import { stackLabel } from '../../core/utils/stackLabel';
-import { writeSafe } from '../../core/actions/writeSafe';
-import { RetryOptions } from '../../core/wrappers/retry';
-import { clickSafe } from '../../core/actions/clickSafe';
+import { stackLabel } from "../../core/utils/stackLabel.js";
+import { writeSafe } from "../../core/actions/writeSafe.js";
+import { RetryOptions } from "../../core/wrappers/retry.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
 
 /**
  * Page Object para la página de Login.
@@ -10,7 +10,7 @@ import { clickSafe } from '../../core/actions/clickSafe';
 export class LoginFields {
   public usernameField: Locator = By.id('username-field-log');
   public passwordField: Locator = By.id('password-field-log');
-  public loginButton: Locator = By.css('.security-card-submit-button');
+  public loginButton: Locator = By.css('button[data-testid="qa-login"]');
   public driver: WebDriver;
 
   constructor(driver: WebDriver) {

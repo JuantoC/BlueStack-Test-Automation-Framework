@@ -1,15 +1,16 @@
-import { stackLabel } from "../../../core/utils/stackLabel";
-import { writeSafe } from "../../../core/actions/writeSafe";
-import { assertValueEquals } from "../../../core/utils/assertValueEquals";
+import { By } from "selenium-webdriver";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { writeSafe } from "../../../core/actions/writeSafe.js";
+import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
 export class NoteTextFields {
     driver;
     // ========== LOCATORS ==========
     locatorMap = {
         [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
         [NoteTextField.SECONDARY_TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height'),
-        [NoteTextField.SUB_TITLE]: By.css('div[id="copete-content"] ckeditor[data-testid="copete-content"]'),
+        [NoteTextField.SUB_TITLE]: By.css('ckeditor[data-testid="copete-content"] div.ck-editor__editable'),
         [NoteTextField.HALF_TITLE]: By.css('div[id="volanta-content"] input[type="text"]'),
-        [NoteTextField.BODY]: By.css('div[id="cuerpo-content"] ckeditor[data-testid="ckCuerpoNota"]'),
+        [NoteTextField.BODY]: By.css('div[id="cuerpo-content"] div.ck-editor__editable'),
         [NoteTextField.SUMMARY]: By.id('resumen-content')
     };
     tagLocatorMap = {

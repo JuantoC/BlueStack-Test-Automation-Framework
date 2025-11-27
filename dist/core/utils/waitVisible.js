@@ -1,5 +1,5 @@
 import { until, error } from "selenium-webdriver";
-import { retry } from '../wrappers/retry.js';
+import { retry } from "../wrappers/retry.js";
 /**
  * Espera a que un WebElement (ya encontrado) sea visible en la página.
  * @param driver La instancia del WebDriver.

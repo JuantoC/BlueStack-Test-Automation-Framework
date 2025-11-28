@@ -19,7 +19,7 @@ export async function assertValueEquals(driver, element, locator, expected, mess
     }
     if (actual !== expected) {
         throw new Error(message ??
-            `Assertion failed: 
+            `[assertValueEquals]: 
 Valor del elemento ${JSON.stringify(locator)} no coincide.
 Esperado: "${expected}"
 Actual:   "${actual}"`);

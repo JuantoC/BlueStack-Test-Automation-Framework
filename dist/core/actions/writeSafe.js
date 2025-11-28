@@ -16,7 +16,7 @@ import { clickSafe } from "./clickSafe.js";
 export async function writeSafe(driver, locator, text, timeout = 1500, opts = {}) {
     const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]: ${JSON.stringify(locator)}`) };
     console.log(`[writeSafe]: ${JSON.stringify(locator)}`);
-    return retry(async () => {
+    return await retry(async () => {
         try {
             const element = await clickSafe(driver, locator, timeout, fullOpts);
             const isEditable = await isContentEditable(element);
@@ -34,6 +34,6 @@ export async function writeSafe(driver, locator, text, timeout = 1500, opts = {}
             console.error(`[${fullOpts}] Falla en escritura: ${error.message}`);
             throw error;
         }
-    });
+    }, fullOpts);
 }
 //# sourceMappingURL=writeSafe.js.map

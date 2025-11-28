@@ -19,6 +19,7 @@ export async function retry(action, { retries = DefaultConfig.retry.retries, ini
             attempt++;
         }
     }
-    throw new Error("[Retry`s agotado]");
+    console.error("[Retry`s agotado]");
+    process.exit();
 }
 //# sourceMappingURL=retry.js.map

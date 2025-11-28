@@ -1,4 +1,5 @@
 import { By } from "selenium-webdriver";
+import { retry } from "../../../core/wrappers/retry.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
@@ -70,8 +71,10 @@ export class NoteTextFields {
         const fieldName = this.fieldNameMap[field];
         const locator = this.locatorMap[field];
         console.log(`[fillField] Rellenando ${fieldName}...`);
-        const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
-        await assertValueEquals(this.driver, element, locator, value, `El valor del ${fieldName} no coincide`);
+        return await retry(async () => {
+            const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
+            await assertValueEquals(this.driver, element, locator, value);
+        }, fullOpts);
     }
     /**
      * Rellena múltiples campos de texto a la vez

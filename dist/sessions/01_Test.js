@@ -1,14 +1,14 @@
 import { noteData } from "../dataTest/noteData.js";
 import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { NoteType } from "../pages/post/note_editor/noteCreationDropdown.js";
-import { initializeDriver } from "../core/actions/driverManager.js";
+import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
 import { createFullNote } from "../flows/createNewNote.js";
 import { passLogin } from "../flows/manageAuth.js";
 import { getAuthUrl } from "../core/actions/getAuthURL.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 async function runSession() {
     let driver = undefined;
-    const data = noteData[2];
+    const data = noteData[3];
     const apacheCredentials = basicAuthCredentials;
     const credentials = adminCredentials;
     const noteType = NoteType.POST;
@@ -24,8 +24,11 @@ async function runSession() {
         console.error('¡LA PRUEBA FALLÓ EN UN PASO CRÍTICO!');
         console.error(e);
         console.error('============================================');
+        process.exit();
     }
     finally {
+        await quitDriver(driver, 5000);
+        process.exit();
     }
 }
 runSession();

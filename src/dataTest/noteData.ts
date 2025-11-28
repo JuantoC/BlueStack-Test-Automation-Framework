@@ -25,16 +25,14 @@ export const noteData: NoteData[] = [
     },
     {
         title: "Explorando las Maravillas de la Naturaleza: Una Aventura Inolvidable",
-        body: `La naturaleza nos ofrece un espectáculo sin igual, lleno de paisajes impresionantes, flora y fauna diversa, y experiencias que nos conectan con el mundo que nos rodea. En esta aventura, exploraremos algunos de los destinos más fascinantes donde la naturaleza despliega toda su grandeza.
-Desde las majestuosas montañas hasta las serenas playas, cada lugar tiene su propia historia que contar. Acompáñanos en este viaje para descubrir los secretos mejor guardados de la naturaleza y cómo podemos preservarlos para las futuras generaciones.`,
+        body: `La naturaleza nos ofrece un espectáculo sin igual, lleno de paisajes impresionantes, flora y fauna diversa, y experiencias que nos conectan con el mundo que nos rodea. En esta aventura, exploraremos algunos de los destinos más fascinantes donde la naturaleza despliega toda su grandeza. Desde las majestuosas montañas hasta las serenas playas, cada lugar tiene su propia historia que contar. Acompáñanos en este viaje para descubrir los secretos mejor guardados de la naturaleza y cómo podemos preservarlos para las futuras generaciones.`,
         summary: "Una exploración detallada de los destinos naturales más impresionantes del mundo y la importancia de su conservación.",
         authorName: "Juan Torres",
         authorDescription: "Apasionado por la naturaleza y la aventura, Juan ha recorrido el mundo documentando sus experiencias al aire libre."
     },
     {
         title: "La Revolución de la Tecnología Verde: Innovaciones para un Futuro Sostenible",
-        body: `En los últimos años, la tecnología verde ha emergido como una fuerza transformadora en la lucha contra el cambio climático y la promoción de la sostenibilidad. Desde energías renovables hasta soluciones de eficiencia energética, estas innovaciones están cambiando la forma en que interactuamos con nuestro entorno.
-Este artículo explora las últimas tendencias en tecnología verde, destacando proyectos innovadores y su impacto positivo en el medio ambiente. Además, discutiremos cómo las empresas y los individuos pueden adoptar estas tecnologías para contribuir a un futuro más sostenible.`,
+        body: `En los últimos años, la tecnología verde ha emergido como una fuerza transformadora en la lucha contra el cambio climático y la promoción de la sostenibilidad. Desde energías renovables hasta soluciones de eficiencia energética, estas innovaciones están cambiando la forma en que interactuamos con nuestro entorno. Este artículo explora las últimas tendencias en tecnología verde, destacando proyectos innovadores y su impacto positivo en el medio ambiente. Además, discutiremos cómo las empresas y los individuos pueden adoptar estas tecnologías para contribuir a un futuro más sostenible.`,
         summary: "Un análisis de las innovaciones en tecnología verde y su papel crucial en la construcción de un futuro sostenible.",
         authorName: "María López",
         authorDescription: "Ingeniera ambiental y defensora de la sostenibilidad, María se dedica a promover soluciones tecnológicas que beneficien al planeta."

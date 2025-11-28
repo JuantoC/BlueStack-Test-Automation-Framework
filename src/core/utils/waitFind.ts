@@ -26,6 +26,7 @@ export async function waitFind(driver: WebDriver, locator: Locator, timeout: num
       } catch (err) {
         if (err instanceof error.TimeoutError) {
           throw new Error(`[${fullOpts.label}] ERROR TIMEOUT. Elemento no encontrado ${JSON.stringify(locator)}`);
+          
         }
         throw err;
       }

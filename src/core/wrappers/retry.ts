@@ -49,5 +49,6 @@ export async function retry<T>(
       attempt++;
     }
   }
-  throw new Error("[Retry`s agotado]");
+  console.error("[Retry`s agotado]")
+  process.exit()
 }

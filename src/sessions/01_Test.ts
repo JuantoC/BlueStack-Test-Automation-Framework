@@ -10,25 +10,23 @@ import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 
 async function runSession(): Promise<void> {
     let driver: WebDriver | undefined = undefined;
-    const data = noteData[2];
-    const apacheCredentials = basicAuthCredentials;
-    const credentials = adminCredentials;
     const noteType = NoteType.POST
-    const authUrl = getAuthUrl(MainConfig.BASE_URL, apacheCredentials.username, apacheCredentials.password)
+    const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password)
 
     driver = await initializeDriver({ isHeadless: false })
     try {
         await driver.get(authUrl)
-        await passLogin(driver, credentials, 1500, { label: ("[01_Test]") })
-        await createFullNote(driver, noteType, data, 1500, { label: ("[01_Test]") })
-
+        await passLogin(driver, adminCredentials, 1500, { label: ("[01_Test]") })
+        await createFullNote(driver, noteType, noteData[3], 1500, { label: ("[01_Test]") })
     } catch (e) {
         console.error('============================================');
         console.error('¡LA PRUEBA FALLÓ EN UN PASO CRÍTICO!');
         console.error(e);
         console.error('============================================');
+        process.exit();
     } finally {
-
+        await quitDriver(driver, 5000)
+        process.exit();
     }
 }
 runSession()

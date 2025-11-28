@@ -1,6 +1,6 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
-import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { retry, RetryOptions } from "../../../core/wrappers/retry.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
@@ -75,7 +75,7 @@ export class NoteTextFields {
 
     console.log(`[${fullOpts.label}] Orquestación de llenado completada.`);
   }
-  
+
   /**
    * Rellena un campo de texto de forma dinámica
    * @param field - El campo a rellenar
@@ -89,13 +89,17 @@ export class NoteTextFields {
     timeout: number,
     opts: RetryOptions = {}
   ): Promise<void> {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `fillField:${field}`) };
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[fillField]: ${field}`) };
     const fieldName = this.fieldNameMap[field];
     const locator = this.locatorMap[field];
 
     console.log(`[fillField] Rellenando ${fieldName}...`);
-    const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
-    await assertValueEquals(this.driver, element, locator, value, `El valor del ${fieldName} no coincide`);
+    return await retry(
+      async () => {
+        const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
+        await assertValueEquals(this.driver, element, locator, value);
+      }
+      , fullOpts)
   }
 
   /**

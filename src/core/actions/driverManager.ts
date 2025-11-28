@@ -2,6 +2,7 @@ import { Builder, WebDriver, Capabilities } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions } from "../config/chromeOptions.js";
 import { DriverOptions } from "../config/chromeOptions.js";
+import { sleep } from '../utils/backOff.js';
 
 /**
  * Inicializa y configura la instancia de WebDriver.
@@ -32,9 +33,12 @@ export async function initializeDriver(options: DriverOptions): Promise<WebDrive
  * Cierra el navegador y termina la sesión de WebDriver.
  * @param driver La instancia del WebDriver a cerrar.
  */
-export async function quitDriver(driver: WebDriver): Promise<void> {
+export async function quitDriver(driver: WebDriver, time?: number): Promise<void> {
     console.log('[quitDriver] Cerrando WebDriver...');
     if (driver) {
+        if (time) {
+            await sleep(time);
+        }
         await driver.quit();
         console.log('[quitDriver] WebDriver cerrado exitosamente.');
     }

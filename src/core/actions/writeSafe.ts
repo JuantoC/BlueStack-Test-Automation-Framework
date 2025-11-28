@@ -19,7 +19,7 @@ export async function writeSafe(driver: WebDriver, locator: Locator, text: strin
   const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]: ${JSON.stringify(locator)}`) };
 
   console.log(`[writeSafe]: ${JSON.stringify(locator)}`);
-  return retry<WebElement>(
+  return await retry<WebElement>(
     async () => {
       try {
         const element = await clickSafe(driver, locator, timeout, fullOpts);
@@ -38,6 +38,5 @@ export async function writeSafe(driver: WebDriver, locator: Locator, text: strin
         throw error;
       }
     }
-  )
-
+  ,fullOpts)
 }

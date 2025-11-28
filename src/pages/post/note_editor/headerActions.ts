@@ -47,7 +47,6 @@ export class NoteHeaderActions {
       default:
         throw new Error(`${action} no es una opcion correcta. "save and exit" o "exit" parametros permitidos `)
     }
-    await clickSafe(this.driver, this.saveAndExitBtn, timeout, fullOpts);
   }
   
   async clickPublish(timeout: number, opts: RetryOptions = {}): Promise<void> {
@@ -59,7 +58,9 @@ export class NoteHeaderActions {
   async clickBack(action: 'save' | 'exit', timeout: number, opts: RetryOptions = {}): Promise<void> {
     const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickBack') };
     await clickSafe(this.driver, this.backBtn, timeout, fullOpts);
-    switch (action) {
+    switch (action
+      
+    ) {
       case 'save':
         await clickSafe(this.driver, this.saveAndExitBtnModal)
         break;

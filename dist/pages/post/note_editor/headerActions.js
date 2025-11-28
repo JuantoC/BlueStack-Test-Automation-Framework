@@ -42,7 +42,6 @@ export class NoteHeaderActions {
             default:
                 throw new Error(`${action} no es una opcion correcta. "save and exit" o "exit" parametros permitidos `);
         }
-        await clickSafe(this.driver, this.saveAndExitBtn, timeout, fullOpts);
     }
     async clickPublish(timeout, opts = {}) {
         const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickPublish') };

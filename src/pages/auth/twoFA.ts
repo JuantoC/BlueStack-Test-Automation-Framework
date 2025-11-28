@@ -16,8 +16,8 @@ export class TwoFAFields {
     }
 
     async passTwoFA(timeout: number, opts: RetryOptions) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'passTwoFA') };
-        console.log(`[${fullOpts.label}] Haciendo click en "I Will do it later"`);
+        const fullOpts = { ...opts, label: stackLabel(opts.label, '[passTwoFA]') };
+        console.log(`[passTwoFA] Haciendo click en "I Will do it later"`);
         await clickSafe(this.driver, this.twoFAModalDismissButton, timeout, fullOpts);
     }
 }

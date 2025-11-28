@@ -14,19 +14,20 @@ import { clickSafe } from "./clickSafe.js";
  * @returns Una promesa que resuelve con el WebElement después de escribir.
  */
 export async function writeSafe(driver, locator, text, timeout = 1500, opts = {}) {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `writeSafe: ${JSON.stringify(locator)}`) };
-    console.log(`[${fullOpts.label}]`);
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]: ${JSON.stringify(locator)}`) };
+    console.log(`[writeSafe]: ${JSON.stringify(locator)}`);
     return retry(async () => {
         try {
             const element = await clickSafe(driver, locator, timeout, fullOpts);
             const isEditable = await isContentEditable(element);
-            console.log(`Escribiendo en: [${JSON.stringify(locator)}`);
+            console.log(`[writeSafe] Escribiendo ...`);
             if (isEditable) {
                 await writeToEditable(element, text);
             }
             else {
                 await writeToStandard(element, text);
             }
+            console.log(`[writeSafe] Exito Escritura.`);
             return element;
         }
         catch (error) {

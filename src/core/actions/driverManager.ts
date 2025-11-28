@@ -9,7 +9,7 @@ import { DriverOptions } from "../config/chromeOptions.js";
  * @returns Una promesa que resuelve con la instancia configurada de WebDriver.
  */
 export async function initializeDriver(options: DriverOptions): Promise<WebDriver> {
-    console.log(`Inicializando WebDriver (Chrome, Headless: ${options.isHeadless})...`);
+    console.log(`[initializeDriver]: Inicializando WebDriver (Chrome; Headless: ${options.isHeadless})...`);
 
     const driverPath = './node_modules/chromedriver/lib/chromedriver/chromedriver';
     const serviceBuilder = new ServiceBuilder(driverPath);
@@ -24,7 +24,7 @@ export async function initializeDriver(options: DriverOptions): Promise<WebDrive
 
     await driver.manage().setTimeouts({ implicit: 3000 });
 
-    console.log('WebDriver inicializado.');
+    console.log('[initializeDriver] WebDriver inicializado.');
     return driver;
 }
 
@@ -33,9 +33,9 @@ export async function initializeDriver(options: DriverOptions): Promise<WebDrive
  * @param driver La instancia del WebDriver a cerrar.
  */
 export async function quitDriver(driver: WebDriver): Promise<void> {
-    console.log('Cerrando WebDriver...');
+    console.log('[quitDriver] Cerrando WebDriver...');
     if (driver) {
         await driver.quit();
-        console.log('WebDriver cerrado exitosamente.');
+        console.log('[quitDriver] WebDriver cerrado exitosamente.');
     }
 }

@@ -12,7 +12,7 @@ export class AuthPage {
     }
     //NOTA: cambiar el tipo de credenciales armar un enum y formar una interfaz para las credenciales
     async passAuth(credentials, timeout, opts) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, `passAuth`) };
+        const fullOpts = { ...opts, label: stackLabel(opts.label, `[passAuth]`) };
         await this.login.fillLogin(credentials.username, credentials.password, timeout, fullOpts);
         await this.twoFA.passTwoFA(timeout, fullOpts);
     }

@@ -21,7 +21,7 @@ export async function retry<T>(
     initialDelayMs = DefaultConfig.retry.retryDelayMs,
     maxDelayMs = DefaultConfig.retry.maxRetryDelayMs,
     backoffFactor = DefaultConfig.retry.backoffFactor,
-    label = "retry"
+    label = "[Retry]"
   } = {}
 ): Promise<T> {
   let attempt = 1;
@@ -31,10 +31,10 @@ export async function retry<T>(
       return await action();
     } catch (err: any) {
       const canRetry = attempt < retries;
-      console.warn(`[${label}] intento ${attempt} falló: ${err.message}`);
+      console.warn(`[${label}]: Intento ${attempt} falló: ${err.message}`);
 
       if (!canRetry) {
-        console.error(`[${label}] agotó reintentos (${retries}).`);
+        console.error(`[${label}]: Agotó reintentos (${retries}).`);
         throw err;
       }
       const delay = calcBackoff(
@@ -49,5 +49,5 @@ export async function retry<T>(
       attempt++;
     }
   }
-  throw new Error("retry agotado");
+  throw new Error("[Retry`s agotado]");
 }

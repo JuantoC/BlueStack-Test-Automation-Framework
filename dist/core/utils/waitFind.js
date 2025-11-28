@@ -10,18 +10,18 @@ import { stackLabel } from "./stackLabel.js";
  * @returns Una promesa que resuelve con el WebElement una vez ubicado.
  */
 export async function waitFind(driver, locator, timeout = 1500, opts = {}) {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `waitFind: ${JSON.stringify(locator)}`) };
-    console.log(`[${fullOpts.label}]`);
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitFind]: ${JSON.stringify(locator)}`) };
+    console.log(`[waitFind]: ${JSON.stringify(locator)}`);
     return retry(async () => {
         try {
-            console.log(`Buscando: ${JSON.stringify(locator)}.`);
+            console.log(`[waitFind] Buscando...`);
             const element = await driver.wait(until.elementLocated(locator), timeout, `Elemento no encontrado: ${JSON.stringify(locator)} en ${timeout / 1000}s`);
-            console.log(`Exito: ${JSON.stringify(locator)}.`);
+            console.log(`[waitFind] Exito busqueda.`);
             return element;
         }
         catch (err) {
             if (err instanceof error.TimeoutError) {
-                throw new Error(`Elemento no encontrado: ${JSON.stringify(locator)} en ${timeout / 1000}s`);
+                throw new Error(`[${fullOpts.label}] ERROR TIMEOUT. Elemento no encontrado ${JSON.stringify(locator)}`);
             }
             throw err;
         }

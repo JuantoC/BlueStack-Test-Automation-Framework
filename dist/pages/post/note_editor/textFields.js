@@ -69,7 +69,7 @@ export class NoteTextFields {
         const fullOpts = { ...opts, label: stackLabel(opts.label, `fillField:${field}`) };
         const fieldName = this.fieldNameMap[field];
         const locator = this.locatorMap[field];
-        console.log(`[${fullOpts.label}] Rellenando ${fieldName}...`);
+        console.log(`[fillField] Rellenando ${fieldName}...`);
         const element = await writeSafe(this.driver, locator, value, timeout, fullOpts);
         await assertValueEquals(this.driver, element, locator, value, `El valor del ${fieldName} no coincide`);
     }

@@ -1,5 +1,6 @@
 import { until, error } from "selenium-webdriver";
-import { retry } from "../wrappers/retry.js";
+import { scrollIntoView } from "./scrollIntoView.js";
+import { stackLabel } from "./stackLabel.js";
 /**
  * Espera a que un WebElement (ya encontrado) sea visible en la página.
  * @param driver La instancia del WebDriver.
@@ -10,23 +11,22 @@ import { retry } from "../wrappers/retry.js";
  */
 export async function waitVisible(driver, element, timeout = 1500, opts = {}) {
     if (!element || typeof element.getId !== "function") {
-        throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
+        throw new Error("[waitVisible] Expected a WebElement but received: " + await element.getTagName());
     }
-    const fullOpts = { ...opts, label: opts.label ?? `waitVisible: ${element.toString()}` };
-    console.log(`${fullOpts.label}.`);
-    return retry(async () => {
-        try {
-            console.log(`waitVisible:${element.toString()} Esperando...`);
-            await driver.wait(until.elementIsVisible(element), timeout, `Elemento no visible: ${element.toString()} en ${timeout / 1000}s`);
-            console.log(`waitVisible:${element.toString()} Elemento esta visible.`);
-            return element;
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitVisible]: ${await element.getTagName()}`) };
+    console.log(`[waitVisible]: ${await element.getTagName()}.`);
+    try {
+        console.log(`[waitVisible] Esperando que sea visible...`);
+        await driver.wait(until.elementIsVisible(element), timeout, `[waitVisible] Elemento no visible: ${await element.getTagName()} en ${timeout / 1000}s`);
+        console.log(`[waitVisible]: Elemento esta visible.`);
+        return element;
+    }
+    catch (err) {
+        if (err instanceof error.TimeoutError) {
+            console.error(`[${fullOpts.label}] ERROR TIMEOUT: Elemento no visible`);
+            await scrollIntoView(element);
         }
-        catch (err) {
-            if (err instanceof error.TimeoutError) {
-                console.error(`ERROR en WaitVisible. Elemento no visible en ${timeout / 1000}s`);
-            }
-            throw err;
-        }
-    }, fullOpts);
+        throw err;
+    }
 }
 //# sourceMappingURL=waitVisible.js.map

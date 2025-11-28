@@ -1,10 +1,8 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginFields } from "./loginFields.js";
 import { RetryOptions } from "../../core/wrappers/retry.js";
-import { NoteData } from "../../dataTest/noteDataInterface.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { TwoFAFields } from "./twoFA.js";
-import { adminCredentials } from "../../environments/Dev_SAAS/credentials.js";
 
 export class AuthPage {
     public driver: WebDriver;
@@ -19,7 +17,7 @@ export class AuthPage {
 
     //NOTA: cambiar el tipo de credenciales armar un enum y formar una interfaz para las credenciales
     async passAuth(credentials: { username: string; password: string }, timeout: number, opts: RetryOptions) {
-        const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `passAuth`) }
+        const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `[passAuth]`) }
 
         await this.login.fillLogin(credentials.username, credentials.password, timeout, fullOpts)
         await this.twoFA.passTwoFA(timeout, fullOpts)

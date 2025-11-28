@@ -8,9 +8,9 @@ import { stackLabel } from "../core/utils/stackLabel.js";
  * @param opts Objeto de opciones de reintento (ej. retries, label).
  */
 export async function passLogin(driver, credentials, timeout, opts = {}) {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `passLogin:${credentials.username}`) };
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[passLogin]:${credentials.username}`) };
     const page = new AuthPage(driver);
-    console.log(`[${fullOpts.label}]`);
+    console.log(`[passLogin]`);
     await page.passAuth(credentials, timeout, fullOpts);
 }
 //# sourceMappingURL=manageAuth.js.map

@@ -13,18 +13,18 @@ export async function waitEnabled(driver, element, timeout = 1500, opts = {}) {
     if (!element || typeof element.getId !== "function") {
         throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
     }
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `waitEnabled: ${element.toString()}`) };
-    console.log(`${fullOpts.label}.`);
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitEnabled]: ${await element.getTagName()}`) };
+    console.log(`[waitEnabled]: ${await element.getTagName()}`);
     return retry(async () => {
         try {
-            console.log(`waitEnabled:${element.toString()} Esperando...`);
-            await driver.wait(until.elementIsEnabled(element), timeout, `Elemento no habilitado: ${element.toString()} en ${timeout / 1000}s`);
-            console.log(`waitEnabled:${element.toString()} Elemento está habilitado.`);
+            console.log(`[waitEnabled] Esperando que este disponible...`);
+            await driver.wait(until.elementIsEnabled(element), timeout, `[waitEnabled] Elemento no habilitado: ${await element.getTagName()} en ${timeout / 1000}s`);
+            console.log(`[waitEnabled] Elemento está habilitado.`);
             return element;
         }
         catch (err) {
             if (err instanceof error.TimeoutError) {
-                console.error(`ERROR en waitEnabled. Elemento no habilitado en ${timeout / 1000}s`);
+                console.error(`[${fullOpts.label}] ERROR TIMEOUT. Elemento no habilitado`);
             }
             throw err;
         }

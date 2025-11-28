@@ -18,7 +18,6 @@ export const noteData = [
         subTitle: "Expertos destacan la utilidad de la tecnología en prevención y diagnóstico temprano",
         body: "El avance de los dispositivos médicos portátiles está transformando la forma en que los pacientes y profesionales de la salud acceden a la información. Con sensores cada vez más precisos, estos equipos permiten un monitoreo constante de la actividad cardíaca, patrones de sueño y niveles de oxigenación. Las empresas del sector anticipan un crecimiento sostenido durante los próximos años.",
         tags: ["salud", "tecnología", "innovación"],
-        summary: "La tecnología wearable se consolida como herramienta clave para el monitoreo preventivo en salud.",
         authorName: "Lucía Ortega",
         authorDescription: "Periodista enfocada en innovación científica y tecnológica."
     },

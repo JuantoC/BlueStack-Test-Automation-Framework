@@ -35,23 +35,15 @@ export class NoteEditorPage {
        * @param opts - Opciones de retry
        */
     async fillFields(data, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'NoteEditorPage.fillFields') };
-        console.log(`[${fullOpts.label}] Iniciando llenado de campos...`);
+        const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteEditorPage.fillFields]') };
+        console.log(`[NoteEditorPage.fillFields] Iniciando llenado de campos...`);
         // 1. NoteTextFields para Textos, Tags y Listicles
         await this.textFields.fillNoteData(data, timeout, fullOpts);
         // 2. Manejar campos de autor
-        if (data.authorType) {
-            await this.authorFields.selectAuthorType(data.authorType, timeout, fullOpts);
-        }
-        if (data.authorName !== undefined && data.authorName.trim() !== "") {
-            await this.authorFields.fillAuthorName(data.authorName, timeout, fullOpts);
-        }
-        if (data.authorDescription !== undefined && data.authorDescription.trim() !== "") {
-            await this.authorFields.fillAuthorDescription(data.authorDescription, timeout, fullOpts);
-        }
+        await this.authorFields.fillAuthorField(data, timeout, fullOpts);
         // 3. (Opcional) Manejar campos de Imagen, si existieran
         // if (data.image) { await this.imageFields.fillImage(data.image, timeout, fullOpts); }
-        console.log(`[${fullOpts.label}] Llenado de campos completado.`);
+        console.log(`[NoteEditorPage.fillFields] Llenado de campos completado.`);
     }
 }
 //# sourceMappingURL=noteEditorPage.js.map

@@ -1,6 +1,6 @@
 import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig } from "../config/default.js";
-export async function retry(action, { retries = DefaultConfig.retry.retries, initialDelayMs = DefaultConfig.retry.retryDelayMs, maxDelayMs = DefaultConfig.retry.maxRetryDelayMs, backoffFactor = DefaultConfig.retry.backoffFactor, label = "retry" } = {}) {
+export async function retry(action, { retries = DefaultConfig.retry.retries, initialDelayMs = DefaultConfig.retry.retryDelayMs, maxDelayMs = DefaultConfig.retry.maxRetryDelayMs, backoffFactor = DefaultConfig.retry.backoffFactor, label = "[Retry]" } = {}) {
     let attempt = 1;
     while (attempt <= retries) {
         try {
@@ -8,9 +8,9 @@ export async function retry(action, { retries = DefaultConfig.retry.retries, ini
         }
         catch (err) {
             const canRetry = attempt < retries;
-            console.warn(`[${label}] intento ${attempt} falló: ${err.message}`);
+            console.warn(`[${label}]: Intento ${attempt} falló: ${err.message}`);
             if (!canRetry) {
-                console.error(`[${label}] agotó reintentos (${retries}).`);
+                console.error(`[${label}]: Agotó reintentos (${retries}).`);
                 throw err;
             }
             const delay = calcBackoff(attempt, initialDelayMs, backoffFactor, maxDelayMs);
@@ -19,6 +19,6 @@ export async function retry(action, { retries = DefaultConfig.retry.retries, ini
             attempt++;
         }
     }
-    throw new Error("retry agotado");
+    throw new Error("[Retry`s agotado]");
 }
 //# sourceMappingURL=retry.js.map

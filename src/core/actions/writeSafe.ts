@@ -1,5 +1,4 @@
-import { WebDriver, until, WebElement, Locator } from "selenium-webdriver";
-import { waitFind } from "../utils/waitFind.js";
+import { WebDriver, WebElement, Locator } from "selenium-webdriver";
 import { RetryOptions, retry } from "../wrappers/retry.js"
 import { writeToEditable, writeToStandard } from "../utils/write.js";
 import { isContentEditable } from "../utils/isContentEditable.js";
@@ -17,20 +16,22 @@ import { clickSafe } from "./clickSafe.js";
  * @returns Una promesa que resuelve con el WebElement después de escribir.
  */
 export async function writeSafe(driver: WebDriver, locator: Locator, text: string, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `writeSafe: ${JSON.stringify(locator)}`) };
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]: ${JSON.stringify(locator)}`) };
 
-  console.log(`[${fullOpts.label}]`);
+  console.log(`[writeSafe]: ${JSON.stringify(locator)}`);
   return retry<WebElement>(
     async () => {
       try {
         const element = await clickSafe(driver, locator, timeout, fullOpts);
         const isEditable = await isContentEditable(element);
-        console.log(`Escribiendo en: [${JSON.stringify(locator)}`);
+
+        console.log(`[writeSafe] Escribiendo ...`);
         if (isEditable) {
           await writeToEditable(element, text)
         } else {
           await writeToStandard(element, text)
         }
+        console.log(`[writeSafe] Exito Escritura.`)
         return element;
       } catch (error: any) {
         console.error(`[${fullOpts}] Falla en escritura: ${error.message}`);

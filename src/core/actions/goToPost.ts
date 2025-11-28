@@ -8,6 +8,6 @@ import { postUrl } from "../utils/routes.js";
  */
 export async function goToPost(driver: WebDriver, baseURL: string, id: number | string) {
   const url = postUrl(baseURL, id);
-  console.log(`[goToPost] Navegando a: ${url}`);
+  console.log(`[goToPost] Navegando a ${url} ...`);
   await driver.navigate().to(url);
 }

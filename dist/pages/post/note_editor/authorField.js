@@ -15,31 +15,67 @@ export var AuthorType;
 export class NoteAuthorField {
     // ========== LOCATORS ==========
     authorButtonMap = {
-        [AuthorType.INTERNAL]: By.xpath('//mat-icon[text()="check_circle_outline"]'),
-        [AuthorType.ANONYMOUS]: By.css('mat-icon="person_outline"'),
-        [AuthorType.MANUAL]: By.css('mat-icon="draw"')
+        [AuthorType.INTERNAL]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[1]"),
+        [AuthorType.ANONYMOUS]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[2]"),
+        [AuthorType.MANUAL]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[3]"),
     };
-    authorDescriptionField = By.css('.author-description__height');
-    authorNameField = By.css('input[data-testid="type_autocomplete"]');
+    authorDescriptionField = By.css("#mat-input-3");
+    authorNameField = By.css("#mat-input-2");
     driver;
     constructor(driver) {
         this.driver = driver;
     }
     // ========== MÉTODOS ==========
+    async fillAuthorField(data, timeout, opts) {
+        const fullOpts = { ...opts, label: stackLabel(opts.label, `[NoteAuthorField.fillAuthorField]`) };
+        const hasDescription = !!data.authorDescription?.trim();
+        const hasName = !!data.authorName?.trim();
+        console.log('[NoteAuthorField.fillAuthorField] Revisando formato de autor requerido...');
+        let authorType;
+        if (!data.authorType) {
+            if (hasName || hasDescription) {
+                authorType = AuthorType.MANUAL;
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            authorType = data.authorType;
+        }
+        switch (authorType) {
+            case AuthorType.INTERNAL:
+                console.log('[NoteAuthorField.fillAuthorField] El tipo de autor es: ', AuthorType.INTERNAL);
+                return;
+            case AuthorType.ANONYMOUS:
+                await this.selectAuthorType(AuthorType.ANONYMOUS, timeout, fullOpts);
+                return;
+            case AuthorType.MANUAL:
+                await this.selectAuthorType(AuthorType.MANUAL, timeout, fullOpts);
+                if (hasName) {
+                    await this.fillAuthorName(data.authorName, timeout, fullOpts);
+                }
+                if (hasDescription) {
+                    await this.fillAuthorDescription(data.authorDescription, timeout, fullOpts);
+                }
+                return;
+        }
+    }
     async selectAuthorType(type, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'selectAuthorType') };
+        const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteAuthorField.selectAuthorType]') };
         const locator = this.authorButtonMap[type];
+        console.log('[NoteAuthorField.selectAuthorType]');
         await clickSafe(this.driver, locator, timeout, fullOpts);
     }
     async fillAuthorName(name, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillAuthorName') };
-        console.log(`[${fullOpts.label}] Rellenando nombre de autor...`);
+        const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteAuthorField.fillAuthorName]') };
+        console.log(`[NoteAuthorField.fillAuthorName] Rellenando nombre de autor...`);
         const element = await writeSafe(this.driver, this.authorNameField, name, timeout, fullOpts);
         await assertValueEquals(this.driver, element, this.authorNameField, name, 'El valor del nombre de autor no coincide');
     }
     async fillAuthorDescription(description, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'fillAuthorDescription') };
-        console.log(`[${fullOpts.label}] Rellenando descripción de autor...`);
+        const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteAuthorField.fillAuthorDescription]') };
+        console.log(`[NoteAuthorField.fillAuthorDescription] Rellenando descripción de autor...`);
         const element = await writeSafe(this.driver, this.authorDescriptionField, description, timeout, fullOpts);
         await assertValueEquals(this.driver, element, this.authorDescriptionField, description, 'El valor de la descripción no coincide');
     }

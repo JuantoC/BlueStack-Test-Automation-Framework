@@ -6,7 +6,7 @@ import { postUrl } from "../utils/routes.js";
  */
 export async function goToPost(driver, baseURL, id) {
     const url = postUrl(baseURL, id);
-    console.log(`[goToPost] Navegando a: ${url}`);
+    console.log(`[goToPost] Navegando a ${url} ...`);
     await driver.navigate().to(url);
 }
 //# sourceMappingURL=goToPost.js.map

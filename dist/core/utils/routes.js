@@ -4,13 +4,20 @@ export const AdminRoutes = {
     IMAGES: "/admin/images",
     PROFILE: "/admin/user_profile",
 };
+/** Normaliza una base URL garantizando https:// */
+function ensureHttps(url) {
+    return url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : `https://${url}`;
+}
 /** Construye la URL para acceder a un post específico en el panel de administración.
  * @param base La URL base del ambiente.
  * @param id El ID del post.
  * @returns La URL completa para el post en el panel de administración.
  */
 export function postUrl(base, id) {
-    return `${base.replace(/\/$/, "")}/admin/post/${id}`;
+    const normalized = ensureHttps(base).replace(/\/$/, "");
+    return `${normalized}/admin/post/${id}`;
 }
 /** Une una URL base con un path específico
  * @param base La URL base.
@@ -18,6 +25,8 @@ export function postUrl(base, id) {
  * @returns La URL completa unida.
  */
 export function joinUrl(base, path) {
-    return `${base.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
+    const normalized = ensureHttps(base).replace(/\/+$/, "");
+    const cleanedPath = path.replace(/^\/+/, "");
+    return `${normalized}/${cleanedPath}`;
 }
 //# sourceMappingURL=routes.js.map

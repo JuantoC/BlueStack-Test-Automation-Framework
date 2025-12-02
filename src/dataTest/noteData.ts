@@ -1,4 +1,5 @@
 import { NoteData } from "./noteDataInterface.js";
+import { AuthorType } from "../pages/post/note_editor/authorField.js";
 
 export const noteData: NoteData[] = [
     {
@@ -38,3 +39,53 @@ export const noteData: NoteData[] = [
         authorDescription: "Ingeniera ambiental y defensora de la sostenibilidad, María se dedica a promover soluciones tecnológicas que beneficien al planeta."
     }
 ]
+
+export const notesData: NoteData[] = [
+    {
+        title: "Impacto económico del sector tecnológico",
+        secondaryTitle: "Tendencias actuales",
+        subTitle: "Cómo evolucionan las startups",
+        halfTitle: "Informe 2025",
+        body: "El sector tecnológico continúa expandiéndose con ritmos acelerados...",
+        summary: "Resumen del análisis económico del sector tech en 2025.",
+        tags: ["economía", "tecnología", "startups"],
+        hiddenTags: ["internal-report", "confidential"],
+        authorName: "Departamento de Investigación",
+        authorDescription: "Equipo interno especializado en análisis macroeconómico.",
+        authorType: AuthorType.MANUAL
+    },
+    {
+        title: "Experiencia en eventos masivos",
+        secondaryTitle: "Seguridad y logística",
+        body: "Asistí a un festival con más de 50.000 personas y noté varios puntos críticos...",
+        summary: "Relato anónimo sobre organización en eventos multitudinarios.",
+        tags: ["eventos", "seguridad"],
+        hiddenTags: ["anonymous"],
+        authorName: "Anónimo",
+        authorDescription: "El autor decidió no revelar su identidad.",
+        authorType: AuthorType.ANONYMOUS
+    },
+    {
+        title: "Guía rápida de mantenimiento",
+        secondaryTitle: "Equipo de impresión industrial",
+        subTitle: "Modelo XT-900",
+        body: "Para comenzar con el mantenimiento básico es necesario...",
+        summary: "Pasos esenciales para mantenimiento preventivo.",
+        tags: ["mantenimiento", "industria"],
+        hiddenTags: [],
+        authorName: "Carlos Pérez",
+        authorDescription: "Técnico especializado en maquinaria industrial.",
+        authorType: AuthorType.MANUAL
+    },
+    {
+        title: "Arquitectura distribuida en sistemas de noticias en tiempo real",
+        subTitle: "Diseño aplicado en grandes redacciones digitales",
+        halfTitle: "Versión técnica 2025",
+        body: `Los sistemas modernos de publicación de noticias requieren infraestructura capaz de soportar miles de operaciones concurrentes por minuto sin comprometer la latencia de lectura ni los tiempos de indexación. Este informe detalla la arquitectura distribuida utilizada para garantizar: - Replicación eventual con consistencia fuerte en segmentos críticos. - Persistencia optimizada para contenido temporal (drafts) y contenido permanente. - Colas de procesamiento para normalización, etiquetado automático y validación semántica. - Servicios de locking granular por nota para evitar “writing collisions” entre editores. Además, se documenta la estrategia de tolerancia a fallos aplicada mediante split-brain handling en escenarios de partición de red, así como las mejoras introducidas para acelerar el cierre editorial automatizado.`,
+        tags: ["arquitectura", "distributed-systems", "newsroom-tech", "scalability"],
+        hiddenTags: ["internal-design", "infra-deepdive"],
+        authorName: "Equipo de Plataforma Editorial",
+        authorDescription: "Área interna r esponsable del diseño e implementación de sistemas críticos de publicación.",
+        authorType: AuthorType.MANUAL
+    },
+];

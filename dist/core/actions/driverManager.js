@@ -9,14 +9,13 @@ import { sleep } from '../utils/backOff.js';
  */
 export async function initializeDriver(options) {
     console.log(`[initializeDriver]: Inicializando WebDriver (Chrome; Headless: ${options.isHeadless})...`);
-    const driverPath = './node_modules/chromedriver/lib/chromedriver/chromedriver';
+    const driverPath = './node_modules/chromedriver/lib/chromedriver/chromedriver.exe';
     const serviceBuilder = new ServiceBuilder(driverPath);
     const chromeOptions = setChromeOptions(options);
     const driver = await new Builder()
         .forBrowser('chrome')
         .setChromeOptions(chromeOptions)
         .withCapabilities(Capabilities.chrome())
-        .setChromeService(serviceBuilder)
         .build();
     await driver.manage().setTimeouts({ implicit: 3000 });
     console.log('[initializeDriver] WebDriver inicializado.');

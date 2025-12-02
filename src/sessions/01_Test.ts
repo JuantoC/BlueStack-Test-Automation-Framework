@@ -1,31 +1,32 @@
-import { WebDriver } from "selenium-webdriver";
 import { noteData } from "../dataTest/noteData.js";
 import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { NoteType } from "../pages/post/note_editor/noteCreationDropdown.js";
 import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
-import { createFullNote } from "../flows/createNewNote.js";
+import { fillNote } from "../flows/fillNote.js";
 import { passLogin } from "../flows/manageAuth.js";
 import { getAuthUrl } from "../core/actions/getAuthURL.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
+import { NoteExitAction } from "../pages/post/note_editor/headerActions.js";
+import { closeNoteEditor, createNewNote } from "../flows/noteLifecycleManager.js";
 
 async function runSession(): Promise<void> {
-    let driver: WebDriver | undefined = undefined;
     const noteType = NoteType.POST
     const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password)
+    const label = { label: ("[01_Test]") }
 
-    driver = await initializeDriver({ isHeadless: false })
+    const driver = await initializeDriver({ isHeadless: false })
     try {
         await driver.get(authUrl)
-        await passLogin(driver, adminCredentials, 1500, { label: ("[01_Test]") })
-        await createFullNote(driver, noteType, noteData[3], 1500, { label: ("[01_Test]") })
+        await passLogin(driver, adminCredentials, 1500, label)
+        await createNewNote(driver, noteType, 1000, label)
+        await fillNote(driver, noteData[2], 1500, label)
+        await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, 1500, label)
     } catch (e) {
-        console.error('============================================');
         console.error('¡LA PRUEBA FALLÓ EN UN PASO CRÍTICO!');
         console.error(e);
-        console.error('============================================');
         process.exit();
     } finally {
-        await quitDriver(driver, 5000)
+        await quitDriver(driver, 8000)
         process.exit();
     }
 }

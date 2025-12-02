@@ -1,81 +1,119 @@
 import { By } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
+export var NoteExitAction;
+(function (NoteExitAction) {
+    // Acciones del Dropdown 'Guardar'
+    NoteExitAction["SAVE_AND_EXIT"] = "save and exit";
+    NoteExitAction["EXIT_WITHOUT_SAVING"] = "exit without saving";
+    // Acciones del Dropdown 'Publicar'
+    NoteExitAction["PUBLISH_AND_EXIT"] = "publish and exit";
+    NoteExitAction["SCHEDULE_AND_EXIT"] = "schedule";
+    // Acciones del Botón principal 'Publicar' (asumo que publica y se queda en la nota, y luego tienes que hacer algo más para salir)
+    // Basado en tu código anterior `clickPublish`, asumo que es publicar y confirmar la acción en un modal.
+    NoteExitAction["PUBLISH_ONLY_CONFIRM"] = "publish only";
+    // Acciones del Botón 'Back'
+    NoteExitAction["BACK_SAVE_AND_EXIT"] = "back save and exit";
+    NoteExitAction["BACK_EXIT_DISCARD"] = "back exit discard";
+    // Acción de Guardar (botón principal, sin salir) - Lo incluimos por completitud
+    NoteExitAction["SAVE_ONLY"] = "save only";
+})(NoteExitAction || (NoteExitAction = {}));
 /**
  * Clase para acciones del header
  */
 export class NoteHeaderActions {
-    // ========== LOCATORS ==========
-    saveBtn = By.css('button[data-testid="dropdown-actions"]');
-    dropdownSave = By.id('dropdown-save');
-    saveAndExitBtn = By.id("option-dropdown-0");
-    exitBtn = By.id("option-dropdown-1");
-    dropdownPublish = By.id('dropdown-publish');
-    publishBtn = By.css('button[data-testid="dropdown-action"]');
-    publishAndExitBtn = By.id("option-dropdown-0");
-    scheduleBtn = By.id("option-dropdown-1");
-    backBtn = By.css('a[data-testid="btn-exit-note"]');
-    // Modales
-    exitAnywayBtnModal = By.css('app-cmsmedios-button[data-testid="btn-cancel"]');
-    saveAndExitBtnModal = By.css('button[data-testid="btn-calendar-confirm"]');
-    publishBtnModal = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]');
-    cancelBtnModal = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]');
     driver;
+    // ========== LOCATORS ORIGINALES Y RENOMBRADOS ==========
+    // Los locators se definen como constantes privadas (readonly) para mayor seguridad.
+    // 1. Botones de Acción Principal / Desplegables
+    SAVE_DROPDOWN_BTN = By.css('button[data-testid="dropdown-actions"]'); // Tu 'saveBtn' original
+    PUBLISH_PRIMARY_BTN = By.css('button[data-testid="dropdown-action"]'); // Tu 'publishBtn' original
+    BACK_BTN = By.css('a[data-testid="btn-exit-note"]'); // Tu 'backBtn' original
+    // 2. Contenedores de Dropdowns (Aunque no se usan para el clic, los mantenemos si son necesarios para waits)
+    DROPDOWN_SAVE_CONTAINER = By.id('dropdown-save'); // Tu 'dropdownSave' original
+    DROPDOWN_PUBLISH_CONTAINER = By.id('dropdown-publish'); // Tu 'dropdownPublish' original
+    // 3. Opciones de Dropdown (Guardar)
+    SAVE_AND_EXIT_OPT = By.id("option-dropdown-0"); // Tu 'saveAndExitBtn' original
+    EXIT_WITHOUT_SAVING_OPT = By.id("option-dropdown-1"); // Tu 'exitBtn' original
+    // 4. Opciones de Dropdown (Publicar)
+    PUBLISH_AND_EXIT_OPT = By.id("option-dropdown-0"); // Tu 'publishAndExitBtn' original
+    SCHEDULE_OPT = By.id("option-dropdown-1"); // Tu 'scheduleBtn' original
+    // 5. Modales
+    MODAL_DISCARD_EXIT_BTN = By.css('app-cmsmedios-button[data-testid="btn-cancel"]'); // Tu 'exitAnywayBtnModal' original
+    MODAL_SAVE_AND_EXIT_BTN = By.css('button[data-testid="btn-calendar-confirm"]'); // Tu 'saveAndExitBtnModal' original
+    MODAL_PUBLISH_CONFIRM_BTN = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]'); // Tu 'publishBtnModal' original
+    MODAL_CANCEL_BTN = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]'); // Tu 'cancelBtnModal' original (Añadido aunque no se use en las salidas)
+    // ========== LOCATOR MAPS DINÁMICOS ==========
+    locatorMap = {
+        // Acciones que inician con el botón de Guardar (desplegable)
+        [NoteExitAction.SAVE_ONLY]: this.SAVE_DROPDOWN_BTN,
+        [NoteExitAction.SAVE_AND_EXIT]: this.SAVE_DROPDOWN_BTN,
+        [NoteExitAction.EXIT_WITHOUT_SAVING]: this.SAVE_DROPDOWN_BTN,
+        // Acciones que inician con el botón de Publicar (desplegable o directo)
+        [NoteExitAction.PUBLISH_ONLY_CONFIRM]: this.PUBLISH_PRIMARY_BTN,
+        [NoteExitAction.PUBLISH_AND_EXIT]: this.PUBLISH_PRIMARY_BTN,
+        [NoteExitAction.SCHEDULE_AND_EXIT]: this.PUBLISH_PRIMARY_BTN,
+        // Acciones que inician con el botón de Volver (Back)
+        [NoteExitAction.BACK_SAVE_AND_EXIT]: this.BACK_BTN,
+        [NoteExitAction.BACK_EXIT_DISCARD]: this.BACK_BTN,
+    };
     constructor(driver) {
         this.driver = driver;
     }
-    // ========== MÉTODOS ==========
-    async clickSave(timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickSave') };
-        await clickSafe(this.driver, this.saveBtn, timeout, fullOpts);
-    }
-    async clickSaveDropdown(action, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickSaveAndExit') };
-        await clickSafe(this.driver, this.dropdownSave, timeout, fullOpts);
+    // ========== MÉTODO PADRE CENTRALIZADO ==========
+    async clickExitAction(action, timeout, opts = {}) {
+        const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickExitAction]: ${action}`) };
+        // 1. Clicar el primer elemento usando el locatorMap
+        const initialLocator = this.locatorMap[action];
+        if (!initialLocator) {
+            throw new Error(`[NoteHeaderActions]: Acción de salida no mapeada: ${action}`);
+        }
+        await clickSafe(this.driver, initialLocator, timeout, fullOpts);
+        // 2. Manejar la secuencia posterior (Dropdowns, Modales, etc.)
         switch (action) {
-            case 'save and exit':
-                await clickSafe(this.driver, this.saveAndExitBtn);
+            case NoteExitAction.SAVE_ONLY:
+                // Clic simple, la acción se completó.
                 break;
-            case 'exit':
-                await clickSafe(this.driver, this.exitBtn);
+            // --- Dropdown de Guardar: Clic a la Opción ---
+            case NoteExitAction.SAVE_AND_EXIT:
+                await clickSafe(this.driver, this.SAVE_AND_EXIT_OPT, timeout, fullOpts);
+                break;
+            case NoteExitAction.EXIT_WITHOUT_SAVING:
+                await clickSafe(this.driver, this.EXIT_WITHOUT_SAVING_OPT, timeout, fullOpts);
+                break;
+            // --- Publicación Directa: Clic al Modal de Confirmación ---
+            case NoteExitAction.PUBLISH_ONLY_CONFIRM:
+                await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, timeout, fullOpts);
+                break;
+            // --- Dropdown de Publicar: Clic a la Opción ---
+            case NoteExitAction.PUBLISH_AND_EXIT:
+                await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, timeout, fullOpts);
+                break;
+            case NoteExitAction.SCHEDULE_AND_EXIT:
+                await clickSafe(this.driver, this.SCHEDULE_OPT, timeout, fullOpts);
+                break;
+            // --- Salida por Botón 'Back': Secuencia Compleja ---
+            case NoteExitAction.BACK_SAVE_AND_EXIT:
+            case NoteExitAction.BACK_EXIT_DISCARD:
+                await this._handleBackExit(action, timeout, fullOpts);
                 break;
             default:
-                throw new Error(`${action} no es una opcion correcta. "save and exit" o "exit" parametros permitidos `);
+                break;
         }
     }
-    async clickPublish(timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickPublish') };
-        await clickSafe(this.driver, this.publishBtn, timeout, fullOpts);
-        await clickSafe(this.driver, this.publishBtnModal, timeout, fullOpts);
-    }
-    async clickBack(action, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickBack') };
-        await clickSafe(this.driver, this.backBtn, timeout, fullOpts);
-        switch (action) {
-            case 'save':
-                await clickSafe(this.driver, this.saveAndExitBtnModal);
-                break;
-            case 'exit':
-                await clickSafe(this.driver, this.exitAnywayBtnModal);
-                break;
-            default:
-                throw new Error(`${action} no es una opcion correcta. "save" o "exit" parametros permitidos `);
+    // ========== MÉTODOS PRIVADOS AUXILIARES ==========
+    async _handleBackExit(action, timeout, opts) {
+        let modalLocator;
+        if (action === NoteExitAction.BACK_SAVE_AND_EXIT) {
+            modalLocator = this.MODAL_SAVE_AND_EXIT_BTN;
         }
-    }
-    async clickPublishDropdown(action, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, 'clickSaveAndExit') };
-        await clickSafe(this.driver, this.dropdownPublish, timeout, fullOpts);
-        switch (action) {
-            case 'publish and exit':
-                await clickSafe(this.driver, this.publishAndExitBtn);
-                break;
-            case 'schedule':
-                await clickSafe(this.driver, this.scheduleBtn);
-                break;
-            default:
-                throw new Error(`${action} no es una opcion correcta. "save and exit" o "exit" parametros permitidos `);
+        else if (action === NoteExitAction.BACK_EXIT_DISCARD) {
+            modalLocator = this.MODAL_DISCARD_EXIT_BTN;
         }
-        await clickSafe(this.driver, this.saveAndExitBtn, timeout, fullOpts);
+        else {
+            throw new Error(`Error lógico interno: Acción de Back Button inválida: ${action}`);
+        }
+        await clickSafe(this.driver, modalLocator, timeout, opts);
     }
 }
 //# sourceMappingURL=headerActions.js.map

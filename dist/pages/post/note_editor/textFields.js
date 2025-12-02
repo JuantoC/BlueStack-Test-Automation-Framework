@@ -67,7 +67,7 @@ export class NoteTextFields {
      * @param opts - Opciones de retry
      */
     async fillField(field, value, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, `fillField:${field}`) };
+        const fullOpts = { ...opts, label: stackLabel(opts.label, `[fillField]: ${field}`) };
         const fieldName = this.fieldNameMap[field];
         const locator = this.locatorMap[field];
         console.log(`[fillField] Rellenando ${fieldName}...`);

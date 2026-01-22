@@ -4,19 +4,16 @@ import { clickSafe } from "../../../core/actions/clickSafe.js";
 export var NoteExitAction;
 (function (NoteExitAction) {
     // Acciones del Dropdown 'Guardar'
+    NoteExitAction["SAVE_ONLY"] = "save only";
     NoteExitAction["SAVE_AND_EXIT"] = "save and exit";
     NoteExitAction["EXIT_WITHOUT_SAVING"] = "exit without saving";
     // Acciones del Dropdown 'Publicar'
+    NoteExitAction["PUBLISH_ONLY"] = "publish only";
     NoteExitAction["PUBLISH_AND_EXIT"] = "publish and exit";
     NoteExitAction["SCHEDULE_AND_EXIT"] = "schedule";
-    // Acciones del Botón principal 'Publicar' (asumo que publica y se queda en la nota, y luego tienes que hacer algo más para salir)
-    // Basado en tu código anterior `clickPublish`, asumo que es publicar y confirmar la acción en un modal.
-    NoteExitAction["PUBLISH_ONLY_CONFIRM"] = "publish only";
     // Acciones del Botón 'Back'
     NoteExitAction["BACK_SAVE_AND_EXIT"] = "back save and exit";
     NoteExitAction["BACK_EXIT_DISCARD"] = "back exit discard";
-    // Acción de Guardar (botón principal, sin salir) - Lo incluimos por completitud
-    NoteExitAction["SAVE_ONLY"] = "save only";
 })(NoteExitAction || (NoteExitAction = {}));
 /**
  * Clase para acciones del header
@@ -26,8 +23,8 @@ export class NoteHeaderActions {
     // ========== LOCATORS ORIGINALES Y RENOMBRADOS ==========
     // Los locators se definen como constantes privadas (readonly) para mayor seguridad.
     // 1. Botones de Acción Principal / Desplegables
-    SAVE_DROPDOWN_BTN = By.css('button[data-testid="dropdown-actions"]'); // Tu 'saveBtn' original
-    PUBLISH_PRIMARY_BTN = By.css('button[data-testid="dropdown-action"]'); // Tu 'publishBtn' original
+    SAVE_BTN = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
+    PUBLISH_BTN = By.css('button.btn-info[data-testid="dropdown-action"]');
     BACK_BTN = By.css('a[data-testid="btn-exit-note"]'); // Tu 'backBtn' original
     // 2. Contenedores de Dropdowns (Aunque no se usan para el clic, los mantenemos si son necesarios para waits)
     DROPDOWN_SAVE_CONTAINER = By.id('dropdown-save'); // Tu 'dropdownSave' original
@@ -39,20 +36,20 @@ export class NoteHeaderActions {
     PUBLISH_AND_EXIT_OPT = By.id("option-dropdown-0"); // Tu 'publishAndExitBtn' original
     SCHEDULE_OPT = By.id("option-dropdown-1"); // Tu 'scheduleBtn' original
     // 5. Modales
-    MODAL_DISCARD_EXIT_BTN = By.css('app-cmsmedios-button[data-testid="btn-cancel"]'); // Tu 'exitAnywayBtnModal' original
-    MODAL_SAVE_AND_EXIT_BTN = By.css('button[data-testid="btn-calendar-confirm"]'); // Tu 'saveAndExitBtnModal' original
+    MODAL_SAVE_AND_EXIT_BTN = By.css('[data-testid="btn-ok-confirmModal"] button');
+    MODAL_DISCARD_EXIT_BTN = By.css('[data-testid="btn-cancel"] button');
     MODAL_PUBLISH_CONFIRM_BTN = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]'); // Tu 'publishBtnModal' original
     MODAL_CANCEL_BTN = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]'); // Tu 'cancelBtnModal' original (Añadido aunque no se use en las salidas)
     // ========== LOCATOR MAPS DINÁMICOS ==========
     locatorMap = {
         // Acciones que inician con el botón de Guardar (desplegable)
-        [NoteExitAction.SAVE_ONLY]: this.SAVE_DROPDOWN_BTN,
-        [NoteExitAction.SAVE_AND_EXIT]: this.SAVE_DROPDOWN_BTN,
-        [NoteExitAction.EXIT_WITHOUT_SAVING]: this.SAVE_DROPDOWN_BTN,
+        [NoteExitAction.SAVE_ONLY]: this.SAVE_BTN,
+        [NoteExitAction.SAVE_AND_EXIT]: this.DROPDOWN_SAVE_CONTAINER,
+        [NoteExitAction.EXIT_WITHOUT_SAVING]: this.DROPDOWN_SAVE_CONTAINER,
         // Acciones que inician con el botón de Publicar (desplegable o directo)
-        [NoteExitAction.PUBLISH_ONLY_CONFIRM]: this.PUBLISH_PRIMARY_BTN,
-        [NoteExitAction.PUBLISH_AND_EXIT]: this.PUBLISH_PRIMARY_BTN,
-        [NoteExitAction.SCHEDULE_AND_EXIT]: this.PUBLISH_PRIMARY_BTN,
+        [NoteExitAction.PUBLISH_ONLY]: this.PUBLISH_BTN,
+        [NoteExitAction.PUBLISH_AND_EXIT]: this.DROPDOWN_PUBLISH_CONTAINER,
+        [NoteExitAction.SCHEDULE_AND_EXIT]: this.DROPDOWN_PUBLISH_CONTAINER,
         // Acciones que inician con el botón de Volver (Back)
         [NoteExitAction.BACK_SAVE_AND_EXIT]: this.BACK_BTN,
         [NoteExitAction.BACK_EXIT_DISCARD]: this.BACK_BTN,
@@ -80,40 +77,30 @@ export class NoteHeaderActions {
                 break;
             case NoteExitAction.EXIT_WITHOUT_SAVING:
                 await clickSafe(this.driver, this.EXIT_WITHOUT_SAVING_OPT, timeout, fullOpts);
+                await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, timeout, fullOpts);
                 break;
             // --- Publicación Directa: Clic al Modal de Confirmación ---
-            case NoteExitAction.PUBLISH_ONLY_CONFIRM:
+            case NoteExitAction.PUBLISH_ONLY:
                 await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, timeout, fullOpts);
                 break;
             // --- Dropdown de Publicar: Clic a la Opción ---
             case NoteExitAction.PUBLISH_AND_EXIT:
                 await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, timeout, fullOpts);
+                await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, 20000, fullOpts);
                 break;
             case NoteExitAction.SCHEDULE_AND_EXIT:
                 await clickSafe(this.driver, this.SCHEDULE_OPT, timeout, fullOpts);
                 break;
             // --- Salida por Botón 'Back': Secuencia Compleja ---
             case NoteExitAction.BACK_SAVE_AND_EXIT:
+                await clickSafe(this.driver, this.MODAL_SAVE_AND_EXIT_BTN, timeout, fullOpts);
+                break;
             case NoteExitAction.BACK_EXIT_DISCARD:
-                await this._handleBackExit(action, timeout, fullOpts);
+                await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, timeout, fullOpts);
                 break;
             default:
                 break;
         }
-    }
-    // ========== MÉTODOS PRIVADOS AUXILIARES ==========
-    async _handleBackExit(action, timeout, opts) {
-        let modalLocator;
-        if (action === NoteExitAction.BACK_SAVE_AND_EXIT) {
-            modalLocator = this.MODAL_SAVE_AND_EXIT_BTN;
-        }
-        else if (action === NoteExitAction.BACK_EXIT_DISCARD) {
-            modalLocator = this.MODAL_DISCARD_EXIT_BTN;
-        }
-        else {
-            throw new Error(`Error lógico interno: Acción de Back Button inválida: ${action}`);
-        }
-        await clickSafe(this.driver, modalLocator, timeout, opts);
     }
 }
 //# sourceMappingURL=headerActions.js.map

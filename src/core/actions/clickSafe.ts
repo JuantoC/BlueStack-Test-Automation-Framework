@@ -1,5 +1,6 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
-import { RetryOptions, retry } from "../wrappers/retry.js";
+import { retry } from "../wrappers/retry.js";
+import { RetryOptions } from "../config/default.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import { waitClickable } from "../utils/waitClickable.js";
 import { waitFind } from "../utils/waitFind.js";
@@ -14,9 +15,9 @@ import { waitFind } from "../utils/waitFind.js";
  * @returns Una promesa que resuelve con el WebElement después del clic.
  */
 export async function clickSafe(driver: WebDriver, locator: Locator, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickSafe]: ${JSON.stringify(locator)}`) };
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickSafe]`) };
 
-  console.log(`[clickSafe]: ${JSON.stringify(locator)}`);
+  console.log(`[clickSafe]`);
   return retry(
     async () => {
       try {

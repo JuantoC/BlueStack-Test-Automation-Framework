@@ -7,7 +7,7 @@ export async function waitClickable(driver, element, timeout = 1500, opts = {}) 
         throw new Error("Expected a WebElement but received: " + element.toString());
     }
     const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitClickable]: ${(await element.getTagName())}`) };
-    console.log(`[waitClickable]: ${(await element.getTagName())}`);
+    console.log(`[waitClickable]`);
     try {
         console.log(`[waitClickable] Esperando disponibilidad...`);
         await waitVisible(driver, element, timeout, fullOpts);

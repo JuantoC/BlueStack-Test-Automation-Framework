@@ -1,25 +1,24 @@
 import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig } from "../config/default.js";
-export async function retry(action, { retries = DefaultConfig.retry.retries, initialDelayMs = DefaultConfig.retry.retryDelayMs, maxDelayMs = DefaultConfig.retry.maxRetryDelayMs, backoffFactor = DefaultConfig.retry.backoffFactor, label = "[Retry]" } = {}) {
+export async function retry(action, options = {}) {
+    // Mezclamos los valores default con los recibidos
+    const { retries, initialDelayMs, maxDelayMs, backoffFactor, label } = { ...DefaultConfig, ...options };
     let attempt = 1;
-    while (attempt <= retries) {
+    while (true) {
         try {
             return await action();
         }
         catch (err) {
-            const canRetry = attempt < retries;
-            console.warn(`[${label}]: Intento ${attempt} falló: ${err.message}`);
-            if (!canRetry) {
-                console.error(`[${label}]: Agotó reintentos (${retries}).`);
-                throw err;
+            console.warn(`${label}: Intento ${attempt} falló: ${err.message}`);
+            if (attempt >= retries) {
+                console.error(`${label}: Se agotaron los ${retries} reintentos.`);
+                throw err; // Lanza el error al llamador
             }
             const delay = calcBackoff(attempt, initialDelayMs, backoffFactor, maxDelayMs);
-            console.log(`[${label}] Esperando ${delay / 1000}s antes del intento ${attempt + 1}...`);
+            console.log(`${label} Esperando ${delay / 1000}s antes del intento ${attempt + 1}...`);
             await sleep(delay);
             attempt++;
         }
     }
-    console.error("[Retry`s agotado]");
-    process.exit();
 }
 //# sourceMappingURL=retry.js.map

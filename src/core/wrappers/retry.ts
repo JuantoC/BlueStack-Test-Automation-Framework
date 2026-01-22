@@ -1,54 +1,46 @@
+import logger from "../utils/logger.js";
 import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig } from "../config/default.js";
-
-/**  Define la interfaz de opciones para mejorar la tipificación
- * T es el tipo de retorno de la acción que se va a reintentar
- */
-export interface RetryOptions {
-  retries?: number;
-  initialDelayMs?: number;
-  maxDelayMs?: number;
-  backoffFactor?: number;
-  label?: string;
-  // ... cualquier otra opción que pueda tener tu función retry
-}
-
+import { classifyError, ErrorCategory } from "../utils/errorHandler.js";
 
 export async function retry<T>(
   action: () => Promise<T>,
-  {
-    retries = DefaultConfig.retry.retries,
-    initialDelayMs = DefaultConfig.retry.retryDelayMs,
-    maxDelayMs = DefaultConfig.retry.maxRetryDelayMs,
-    backoffFactor = DefaultConfig.retry.backoffFactor,
-    label = "[Retry]"
-  } = {}
+  options: any = {}
 ): Promise<T> {
+  const { retries, initialDelayMs, maxDelayMs, backoffFactor, label } = {
+    ...DefaultConfig,
+    ...options
+  };
+
   let attempt = 1;
 
-  while (attempt <= retries) {
+  while (true) {
     try {
-      return await action();
+      const result = await action();
+      // Usamos DEBUG para no saturar la consola pero dejar rastro en el archivo
+      logger.debug(`Acción exitosa`, { label });
+      return result;
     } catch (err: any) {
-      const canRetry = attempt < retries;
-      console.warn(`[${label}]: Intento ${attempt} falló: ${err.message}`);
+      const category = classifyError(err);
 
-      if (!canRetry) {
-        console.error(`[${label}]: Agotó reintentos (${retries}).`);
+      // SI EL ERROR ES FATAL: No esperamos, lanzamos el error de una.
+      if (category === ErrorCategory.FATAL) {
+        logger.error(`Error FATAL en ${label}: ${err.message}. Abortando reintentos.`);
         throw err;
       }
-      const delay = calcBackoff(
-        attempt,
-        initialDelayMs,
-        backoffFactor,
-        maxDelayMs
-      );
 
-      console.log(`[${label}] Esperando ${delay / 1000}s antes del intento ${attempt + 1}...`);
+      // SI EL ERROR ES REINTENTABLE: Aplicamos la lógica de intentos
+      if (attempt >= retries) {
+        logger.error(`Se agotaron los reintentos (${retries}) para ${label}. Último error: ${err.message}`);
+        throw err;
+      }
+
+      // Log de nivel WARN: Se guarda en combined.log y sale en consola para avisar del flakiness
+      logger.warn(`Intento ${attempt} falló. Reintentando en breve... Motivo: ${err.message}`, { label });
+      const delay = calcBackoff(attempt, initialDelayMs, backoffFactor, maxDelayMs);
+      
       await sleep(delay);
       attempt++;
     }
   }
-  console.error("[Retry`s agotado]")
-  process.exit()
 }

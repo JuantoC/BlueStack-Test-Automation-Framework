@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../core/utils/stackLabel.js";
-import { RetryOptions } from "../core/wrappers/retry.js";
+import { RetryOptions } from "../core/config/default.js";
 import { NoteType } from "../pages/post/note_editor/noteCreationDropdown.js";
 import { NoteEditorPage } from "../pages/post/note_editor/noteEditorPage.js";
 import { NoteExitAction } from "../pages/post/note_editor/headerActions.js";

@@ -12,8 +12,8 @@ import { waitFind } from "../utils/waitFind.js";
  * @returns Una promesa que resuelve con el WebElement después del clic.
  */
 export async function clickSafe(driver, locator, timeout = 1500, opts = {}) {
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickSafe]: ${JSON.stringify(locator)}`) };
-    console.log(`[clickSafe]: ${JSON.stringify(locator)}`);
+    const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickSafe]`) };
+    console.log(`[clickSafe]`);
     return retry(async () => {
         try {
             const element = await waitFind(driver, locator, timeout, fullOpts);

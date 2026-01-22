@@ -12,7 +12,11 @@ export const basicAuthCredentials = {
  */
 export const adminCredentials = {
     username: 'jtcaldera',
-    password: 'uw%4sm1UIzIxT0',
+    password: 'oxCZc!61IiAgQT',
+};
+export const testEditorCredentials = {
+    username: 'QAuno',
+    password: '321!Qa'
 };
 //NOTA: cambiar el tipo de credenciales armar un enum y formar una interfaz para las credenciales
 //# sourceMappingURL=credentials.js.map

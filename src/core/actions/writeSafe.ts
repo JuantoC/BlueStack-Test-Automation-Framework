@@ -1,5 +1,6 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
-import { RetryOptions, retry } from "../wrappers/retry.js"
+import { retry } from "../wrappers/retry.js"
+import { RetryOptions } from "../config/default.js";
 import { writeToEditable, writeToStandard } from "../utils/write.js";
 import { isContentEditable } from "../utils/isContentEditable.js";
 import { stackLabel } from "../utils/stackLabel.js";
@@ -16,9 +17,9 @@ import { clickSafe } from "./clickSafe.js";
  * @returns Una promesa que resuelve con el WebElement después de escribir.
  */
 export async function writeSafe(driver: WebDriver, locator: Locator, text: string, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]: ${JSON.stringify(locator)}`) };
+  const fullOpts = { ...opts, label: stackLabel(opts.label, `[writeSafe]`) };
 
-  console.log(`[writeSafe]: ${JSON.stringify(locator)}`);
+  console.log(`[writeSafe]`);
   return await retry<WebElement>(
     async () => {
       try {

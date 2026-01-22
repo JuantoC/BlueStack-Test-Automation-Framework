@@ -2,36 +2,42 @@ import { WebDriver } from 'selenium-webdriver';
 import { NoteAuthorField } from "./authorField.js";
 import { NoteFooterBtn } from "./footerBtn.js";
 import { NoteHeaderActions } from "./headerActions.js";
-import { NoteSidebarDropdow } from "./sidebarDropdown.js";
-import { NoteTextFields } from "./textFields.js";
+import { NoteLateralSettings } from "./lateralSettings.js";
+import { textFields, textField } from "./textFields.js";
 import { NoteImageFields } from "./imageFields.js";
 import { NoteCreationDropwdown } from "./noteCreationDropdown.js";
-import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { RetryOptions } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { NoteTagField, NoteTagsFields } from './tagFields.js';
+import { listicleFields } from './listicleFields.js';
+import { stackLabel } from '../../../core/utils/stackLabel.js';
 
 /**
  * Orquestador de los Page Object para la página de edición de una nota.
 */
 export class NoteEditorPage {
+  public tagsFields: NoteTagsFields; 
+  public listicleFields: listicleFields;
   public imageFields: NoteImageFields;
   public authorFields: NoteAuthorField;
   public footerBtn: NoteFooterBtn;
   public headerActions: NoteHeaderActions;
-  public sidebarDropdown: NoteSidebarDropdow;
-  public textFields: NoteTextFields;
+  public settingsBtn: NoteLateralSettings;
+  public textFields: textFields;
   public driver: WebDriver
   public creationDropdow: NoteCreationDropwdown
 
 
   constructor(driver: WebDriver) {
     this.driver = driver;
+    this.tagsFields = new NoteTagsFields(driver);
+    this.listicleFields = new listicleFields(driver);
     this.imageFields = new NoteImageFields()
     this.authorFields = new NoteAuthorField(driver)
     this.footerBtn = new NoteFooterBtn()
     this.headerActions = new NoteHeaderActions(driver)
-    this.sidebarDropdown = new NoteSidebarDropdow()
-    this.textFields = new NoteTextFields(driver)
+    this.settingsBtn = new NoteLateralSettings(driver)
+    this.textFields = new textFields(driver)
     this.creationDropdow = new NoteCreationDropwdown(driver)
   }
 
@@ -41,21 +47,45 @@ export class NoteEditorPage {
      * @param timeout - Timeout para la operación
      * @param opts - Opciones de retry
      */
-    async fillFields(data: Partial<NoteData>, timeout: number, opts: RetryOptions = {}): Promise<void> {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteEditorPage.fillFields]') };
+  async fillFields(data: Partial<NoteData>, timeout: number, opts: RetryOptions = {}): Promise<void> {
+    const fullOpts = { ...opts, label: stackLabel(opts.label, '[NoteEditorPage.fillFields]') };
 
-        console.log(`[NoteEditorPage.fillFields] Iniciando llenado de campos...`);
+    console.log(`[NoteEditorPage] Iniciando proceso de llenado integral...`);
 
-        // 1. NoteTextFields para Textos, Tags y Listicles
-        await this.textFields.fillNoteData(data, timeout, fullOpts);
+    // 1. Textos Core (Mapeo explícito y seguro)
+    const textMapping: Array<{ dataKey: keyof NoteData; fieldEnum: textField }> = [
+      { dataKey: 'title', fieldEnum: textField.TITLE },
+      { dataKey: 'secondaryTitle', fieldEnum: textField.SECONDARY_TITLE },
+      { dataKey: 'subTitle', fieldEnum: textField.SUB_TITLE },
+      { dataKey: 'halfTitle', fieldEnum: textField.HALF_TITLE },
+      { dataKey: 'body', fieldEnum: textField.BODY },
+      { dataKey: 'summary', fieldEnum: textField.SUMMARY },
+    ];
 
-        // 2. Manejar campos de autor
-
-        await this.authorFields.fillAuthorField(data, timeout, fullOpts)
-
-        // 3. (Opcional) Manejar campos de Imagen, si existieran
-        // if (data.image) { await this.imageFields.fillImage(data.image, timeout, fullOpts); }
-
-        console.log(`[NoteEditorPage.fillFields] Llenado de campos completado.`);
+    for (const { dataKey, fieldEnum } of textMapping) {
+      const value = data[dataKey];
+      if (typeof value === 'string' && value.trim()) {
+        await this.textFields.fillField(fieldEnum, value, timeout, fullOpts);
+      }
     }
+
+    // 2. Tags (Delegación limpia)
+    if (data.tags?.length) {
+      await this.tagsFields.addTags(NoteTagField.TAGS, data.tags, timeout, fullOpts);
+    }
+    if (data.hiddenTags?.length) {
+      await this.tagsFields.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags, timeout, fullOpts);
+    }
+
+    // 3. Listicle (Delegación limpia)
+    if (data.listicleItems?.length) {
+      await this.listicleFields.fillListicleItems(data.listicleItems, timeout, fullOpts);
+    }
+
+    // 4. Autor y Configuración Lateral
+    await this.authorFields.fillAuthorField(data, timeout, fullOpts);
+    await this.settingsBtn.selectFirstSectionOption(timeout, fullOpts);
+
+    console.log(`[NoteEditorPage] Proceso finalizado exitosamente.`);
+  }
 }

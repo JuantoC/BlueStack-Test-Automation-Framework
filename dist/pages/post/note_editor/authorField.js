@@ -15,12 +15,12 @@ export var AuthorType;
 export class NoteAuthorField {
     // ========== LOCATORS ==========
     authorButtonMap = {
-        [AuthorType.INTERNAL]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[1]"),
-        [AuthorType.ANONYMOUS]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[2]"),
-        [AuthorType.MANUAL]: By.xpath("//label[normalize-space(.)='Author']/following::div[contains(@class,'icon-preview')][1]//mat-icon[3]"),
+        [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[contains(text(), 'check_circle_outline')]"),
+        [AuthorType.ANONYMOUS]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[contains(text(), 'person_outline')]"),
+        [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[contains(text(), 'draw')]"),
     };
-    authorDescriptionField = By.css("#mat-input-3");
-    authorNameField = By.css("#mat-input-2");
+    authorDescriptionField = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
+    authorNameField = By.css('.image-container_description input[type="text"]');
     driver;
     constructor(driver) {
         this.driver = driver;

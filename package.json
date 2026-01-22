@@ -5,7 +5,8 @@
     "chromedriver": "^142.0.1",
     "geckodriver": "^6.0.2",
     "selenium-webdriver": "^4.38.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "winston": "^3.19.0"
   },
   "name": "first-selenium",
   "version": "1.0.0",

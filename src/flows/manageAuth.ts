@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { AuthPage } from "../pages/auth/authPage.js";
-import { RetryOptions } from "../core/wrappers/retry.js";
+import { RetryOptions } from "../core/config/default.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 
 /**

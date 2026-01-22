@@ -1,5 +1,5 @@
 import { WebDriver, WebElement, error } from "selenium-webdriver";
-import { RetryOptions } from "../wrappers/retry.js";
+import { RetryOptions } from "../config/default.js";
 import { stackLabel } from "./stackLabel.js";
 import { waitVisible } from "./waitVisible.js";
 import { waitEnabled } from "./waitEnabled.js";
@@ -10,7 +10,7 @@ export async function waitClickable(driver: WebDriver, element: WebElement, time
   }
   const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitClickable]: ${(await element.getTagName())}`) };
 
-  console.log(`[waitClickable]: ${(await element.getTagName())}`);
+  console.log(`[waitClickable]`);
   try {
     console.log(`[waitClickable] Esperando disponibilidad...`);
     await waitVisible(driver, element, timeout, fullOpts);

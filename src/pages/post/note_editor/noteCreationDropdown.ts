@@ -1,6 +1,6 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { RetryOptions } from "../../../core/wrappers/retry.js";
+import { RetryOptions } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 
 /**

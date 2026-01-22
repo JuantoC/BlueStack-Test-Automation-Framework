@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginFields } from "./loginFields.js";
-import { RetryOptions } from "../../core/wrappers/retry.js";
+import { RetryOptions } from "../../core/config/default.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { TwoFAFields } from "./twoFA.js";
 

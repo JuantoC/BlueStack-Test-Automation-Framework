@@ -1,16 +1,18 @@
-export const DefaultConfig = {
-  retry: {
-    retries: 4,
-    retryDelayMs: 300,
-    maxRetryDelayMs: 5000,
-    backoffFactor: 2,
-    enableScreenshotsOnFail: true,
-    logLevel: 'debug',
-  },
-
-  timeout: {
-    short: 3000,   // Interacciones rápidas (escritura, clicks en elementos visibles)
-    medium: 60000, // Transiciones de UI (descarte de modal)
-    long: 10000,   // Redirecciones lentas (post-login, post-submit)
-  }
+/**  Define la interfaz de opciones para mejorar la tipificación
+ * T es el tipo de retorno de la acción que se va a reintentar
+ */
+export interface RetryOptions {
+  retries?: number;
+  initialDelayMs?: number;
+  maxDelayMs?: number;
+  backoffFactor?: number;
+  label?: string;
+  // ... cualquier otra opción que pueda tener tu función retry
+}
+export const DefaultConfig: Required<Omit<RetryOptions, 'label'>> & { label: string } = {
+  retries: 4,
+  initialDelayMs: 300,
+  maxDelayMs: 5000,
+  backoffFactor: 2,
+  label: "[Retry]"
 };

@@ -1,5 +1,6 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, retry } from "../wrappers/retry.js";
+import { retry } from "../wrappers/retry.js";
+import { RetryOptions } from "../config/default.js";
 import { stackLabel } from "./stackLabel.js";
 
 /**

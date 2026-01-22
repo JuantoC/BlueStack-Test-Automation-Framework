@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, retry } from "../wrappers/retry.js";
+import { RetryOptions } from "../config/default.js";
 import { scrollIntoView } from "./scrollIntoView.js";
 import { stackLabel } from "./stackLabel.js";
 

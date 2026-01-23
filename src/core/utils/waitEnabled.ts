@@ -1,37 +1,45 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { retry } from "../wrappers/retry.js";
-import { RetryOptions } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/default.js";
 import { stackLabel } from "./stackLabel.js";
+import logger from "../utils/logger.js";
+import { retry } from "../wrappers/retry.js";
 
 /**
- * Espera a que un WebElement (ya encontrado) esté habilitado para la interacción.
- * @param driver La instancia del WebDriver.
- * @param element El WebElement encontrado para verificar si está habilitado.
- * @param timeout El tiempo máximo de espera en milisegundos (default: 1.5s).
- * @param opts Opciones de reintento.
- * @returns Una promesa que resuelve con el mismo WebElement una vez que está habilitado.
+ * Verifica que el elemento no esté en estado 'disabled' en el DOM.
+ * Es el último paso de validación antes de intentar una interacción física.
  */
-export async function waitEnabled(driver: WebDriver, element: WebElement, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  if (!element || typeof element.getId !== "function") {
-    throw new Error("Expected a WebElement but received: " + JSON.stringify(element));
-  }
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitEnabled]: ${await element.getTagName()}`) };
+export async function waitEnabled(
+  driver: WebDriver,
+  element: WebElement,
+  opts: RetryOptions = {}
+): Promise<WebElement> {
 
-  console.log(`[waitEnabled]: ${await element.getTagName()}`);
-  return retry<WebElement>(
-    async () => {
-      try {
-        console.log(`[waitEnabled] Esperando que este disponible...`);
-        await driver.wait(
-          until.elementIsEnabled(element),
-          timeout, `[waitEnabled] Elemento no habilitado: ${await element.getTagName()} en ${timeout / 1000}s`);
-        console.log(`[waitEnabled] Elemento está habilitado.`);
-        return element;
-      } catch (err) {
-        if (err instanceof error.TimeoutError) {
-          console.error(`[${fullOpts.label}] ERROR TIMEOUT. Elemento no habilitado`);
-        }
-        throw err;
+  if (!element || typeof element.getId !== "function") {
+    throw new Error(`[waitEnabled] Se esperaba un WebElement pero se recibió: ${element}`);
+  }
+
+  const config = {
+    ...DefaultConfig,
+    ...opts,
+    label: stackLabel(opts.label, `waitEnabled`)
+  };
+
+  return await retry(async () => {
+    try {
+      logger.debug(`Esperando que el elemento esté habilitado (Enabled)...`, { label: config.label });
+
+      // until.elementIsEnabled verifica el atributo 'disabled' del HTML
+      await driver.wait(until.elementIsEnabled(element), config.timeoutMs);
+
+      return element;
+    } catch (err) {
+      if (err instanceof error.TimeoutError) {
+        logger.error(`Timeout: El elemento permanece deshabilitado tras ${config.timeoutMs / 1000}s`, {
+          label: config.label
+        });
       }
-    }, fullOpts);
+      // Propagamos el error para que el orquestador decida si reintentar
+      throw err;
+    }
+  }, config);
 }

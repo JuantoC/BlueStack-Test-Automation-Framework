@@ -1,36 +1,43 @@
 import { WebDriver, until, WebElement, Locator, error } from "selenium-webdriver";
-import { retry } from "../wrappers/retry.js";
-import { RetryOptions } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/default.js";
 import { stackLabel } from "./stackLabel.js";
-
+import logger from "../utils/logger.js";
+import { retry } from "../wrappers/retry.js";
 
 /**
- * Espera a que un elemento sea ubicado en el DOM por su Locator.
- * @param driver La instancia del WebDriver.
- * @param locator El objeto By (e.g., By.css('...'), By.xpath('...')) que identifica el elemento.
- * @param timeout El tiempo máximo de espera en milisegundos (default: 1.5s).
- * @param opts Opciones de reintento.
- * @returns Una promesa que resuelve con el WebElement una vez ubicado.
+ * Localiza un elemento en el DOM esperando a que esté presente.
  */
-export async function waitFind(driver: WebDriver, locator: Locator, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitFind]: ${JSON.stringify(locator)}`) };
+export async function waitFind(
+  driver: WebDriver,
+  locator: Locator,
+  opts: RetryOptions = {}
+): Promise<WebElement> {
 
-  console.log(`[waitFind]: ${JSON.stringify(locator)}`);
-  return retry(
-    async () => {
-      try {
-        console.log(`[waitFind] Buscando...`);
-        const element = await driver.wait(until.elementLocated(locator), timeout, `Elemento no encontrado: ${JSON.stringify(locator)} en ${timeout / 1000}s`);
-        console.log(`[waitFind] Exito busqueda.`);
+  const config = {
+    ...DefaultConfig,
+    ...opts,
+    label: stackLabel(opts.label, `waitFind`)
+  };
+  return await retry(async () => {
+    try {
+      logger.debug(`Buscando elemento: ${JSON.stringify(locator)}`, { label: config.label });
 
-        return element;
-      } catch (err) {
-        if (err instanceof error.TimeoutError) {
-          throw new Error(`[${fullOpts.label}] ERROR TIMEOUT. Elemento no encontrado ${JSON.stringify(locator)}`);
-          
-        }
-        throw err;
+      // until.elementLocated verifica la presencia del elemento en el DOM (independientemente de su visibilidad)
+      const element = await driver.wait(
+        until.elementLocated(locator),
+        config.timeoutMs
+      );
+      logger.debug(`Elemento encontrado: ${JSON.stringify(locator)}`, { label: config.label });
+      return element;
+    } catch (err) {
+      if (err instanceof error.TimeoutError) {
+        // Logueamos el error de timeout con el detalle del locator para facilitar el debug
+        logger.error(`Timeout: Elemento no encontrado ${JSON.stringify(locator)} tras ${config.timeoutMs}ms`, {
+          label: config.label
+        });
       }
-    }, fullOpts
-  );
+      // Propagamos el error para que sea el orquestador quien lo maneje
+      throw err;
+    }
+  }, config);
 }

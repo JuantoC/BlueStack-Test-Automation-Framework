@@ -1,12 +1,12 @@
 import { listicleData } from "../dataTest/noteData.js";
 import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
-import { NoteType } from "../pages/post/note_editor/noteCreationDropdown.js";
+import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
 import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
 import { fillNote } from "../flows/fillNote.js";
 import { passLogin } from "../flows/manageAuth.js";
-import { getAuthUrl } from "../core/actions/getAuthURL.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
-import { NoteExitAction } from "../pages/post/note_editor/headerActions.js";
+import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import { closeNoteEditor, createNewNote } from "../flows/noteLifecycleManager.js";
 
 async function notaLista(): Promise<void> {

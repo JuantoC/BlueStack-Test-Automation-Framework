@@ -1,39 +1,47 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
 import { retry } from "../wrappers/retry.js";
-import { RetryOptions } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/default.js";
 import { stackLabel } from "../utils/stackLabel.js";
-import { waitClickable } from "../utils/waitClickable.js";
-import { waitFind } from "../utils/waitFind.js";
+import logger from "../utils/logger.js";
+import { waitFind } from "../utils/waitFind.js"; 
+import { waitClickable } from "../utils/waitClickable.js"; 
 
 /**
- * Realiza un clic seguro en un elemento.
- * Combina las esperas de 'Find' y 'Visible' y espera a que el elemento esté habilitado.
- * @param driver La instancia del WebDriver.
- * @param locator El WebElement donde se realizará el clic.
- * @param timeout Tiempo máximo de espera para  encontrar el elemento (default: 1.5s).
- * @param opts Objeto de ppciones de reintento (ej. retries, label).
- * @returns Una promesa que resuelve con el WebElement después del clic.
+ * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
+ * Orquesta la búsqueda, validación de estado y el clic físico en un único bloque de reintento.
  */
-export async function clickSafe(driver: WebDriver, locator: Locator, timeout: number = 1500, opts: RetryOptions = {}): Promise<WebElement> {
-  const fullOpts = { ...opts, label: stackLabel(opts.label, `[clickSafe]`) };
+export async function clickSafe(
+  driver: WebDriver,
+  locator: Locator,
+  opts: RetryOptions = {}
+): Promise<WebElement> {
 
-  console.log(`[clickSafe]`);
-  return retry(
-    async () => {
-      try {
-        const element = await waitFind(driver, locator, timeout, fullOpts);
-        
-        console.log(`[clickSafe] Realizando click...`);
-        await waitClickable(driver, element, timeout, fullOpts);
-        await element.click()
-        console.log(`[clickSafe] Exito click.`);
+  // Fusionamos opciones y generamos un label de trazabilidad
+  const config = {
+    ...DefaultConfig,
+    ...opts,
+    label: stackLabel(opts.label, `clickSafe`)
+  };
 
-        return element;
-      } catch (error: any) {
-        console.error(`[${fullOpts.label}] Falla en click: ${error.message}`);
-        throw error;
-      }
-    },
-    fullOpts
-  )
+  return await retry(async () => {
+    // 1. Preparamos las opciones para las piezas internas.
+    const internalOpts = { ...config, supressRetry: true };
+    try {
+      // 2. Localización
+      const element = await waitFind(driver, locator, internalOpts);
+
+      // 3. Sincronización: Espera a que no haya loaders o animaciones bloqueantes.
+      logger.debug(`Verificando estado interactuable...`, { label: config.label });
+      await waitClickable(driver, element, internalOpts);
+
+      // 4. Ejecución
+      await element.click();
+
+      logger.info(`Click ejecutado correctamente`, { label: config.label });
+      return element;
+
+    } catch (error: any) {
+      throw error;
+    }
+  }, config);
 }

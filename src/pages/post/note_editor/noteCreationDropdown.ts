@@ -1,74 +1,60 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { RetryOptions } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
+import logger from "../../../core/utils/logger.js";
 
-/**
- * Component Object para el dropdown de selección del tipo de nota (Post, Listicle, LiveBlog, etc.).
- */
-export class NoteCreationDropwdown {
-  public openDropdownBtn: Locator = By.css("button.btn-create-note");
-  public driver: WebDriver
-
-  constructor(driver: WebDriver){
-    this.driver = driver
-  }
-
-  /**
-   * Función de Locator para los tipos de nota en el modal de creación.
-   * @param noteType El tipo de nota usando el enum NoteType.
-   * @returns Un Locator (By.css) que apunta al botón correcto.
-   */
-  public getNoteTypeLocator(noteType: NoteType): Locator {
-    const config = NOTE_TYPE_CONFIG[noteType];
-    if (!config) {
-      throw new Error(`Error de Locator: El tipo de nota "${noteType}" no está definido.`);
-    }
-    return By.css(`#option-dropdown-${config.index} label`);
-  }
-
-  /**
-   * Obtiene el nombre de visualización de un tipo de nota.
-   * @param noteType El tipo de nota usando el enum NoteType.
-   * @returns El nombre legible del tipo de nota.
-   */
-  public getNoteTypeDisplayName(noteType: NoteType): string {
-    return NOTE_TYPE_CONFIG[noteType].displayName;
-  }
-
-  async selectNoteType(noteType: NoteType, timeout: number, opts: RetryOptions): Promise<void> {
-    const fullOpts: RetryOptions = {...opts, label: stackLabel(opts.label, `selectNoteType:${noteType}`)}
-    
-    console.log(`Iniciando selección del tipo de nota: ${noteType}`);
-    // 1. Click en el botón para abrir el dropdown
-    console.log("Haciendo click en el botón para abrir el dropdown...");
-    await clickSafe(this.driver, this.openDropdownBtn, timeout, fullOpts);
-
-    // 2. Click en la opción elegida
-    const noteTypeOptionLocator = this.getNoteTypeLocator(noteType);
-    const displayName = this.getNoteTypeDisplayName(noteType);
-    
-    console.log(`Haciendo click en la opción: "${displayName}"`);
-    await clickSafe(this.driver, noteTypeOptionLocator, timeout, fullOpts);
-
-    console.log(`Tipo de nota "${displayName}" seleccionado con éxito.`);
-  }
-}
-
-/**
- * Enum para los tipos de nota disponibles.
- */
 export enum NoteType {
   POST = 'POST',
   LISTICLE = 'LISTICLE',
   LIVEBLOG = 'LIVEBLOG'
 }
 
-/**
- * Configuración de los tipos de nota con sus índices y nombres.
- */
-const NOTE_TYPE_CONFIG: Record<NoteType, { index: string; displayName: string }> = {
-  [NoteType.POST]: { index: '0', displayName: 'New Post' },
-  [NoteType.LISTICLE]: { index: '1', displayName: 'New Listicle' },
-  [NoteType.LIVEBLOG]: { index: '2', displayName: 'New LiveBlog' }
-};
+export class NoteCreationDropdown {
+  // PUNTOS 2: Configuración estática y encapsulada
+  private static readonly NOTE_TYPE_CONFIG: Record<NoteType, { index: number; displayName: string }> = {
+    [NoteType.POST]: { index: 0, displayName: 'New Post' },
+    [NoteType.LISTICLE]: { index: 1, displayName: 'New Listicle' },
+    [NoteType.LIVEBLOG]: { index: 2, displayName: 'New LiveBlog' }
+  };
+
+  // PUNTO 1: Encapsulamiento estricto (Private)
+  private readonly openDropdownBtn: Locator = By.css("button.btn-create-note");
+  private driver: WebDriver;
+
+  constructor(driver: WebDriver) {
+    this.driver = driver;
+  }
+
+  // PUNTO 3: Eliminación de timeout posicional y uso de config centralizado
+  async selectNoteType(noteType: NoteType, opts: RetryOptions = {}): Promise<void> {
+    const config = {
+      ...DefaultConfig,
+      ...opts,
+      label: stackLabel(opts.label, `selectNoteType(${noteType})`)
+    };
+
+    const typeData = NoteCreationDropdown.NOTE_TYPE_CONFIG[noteType];
+    if (!typeData) {
+      throw new Error(`[NoteCreationDropdown] Tipo de nota "${noteType}" no está en la configuración.`);
+    }
+
+    // Respetamos tu locator original pero inyectamos el índice de la config
+    const optionLocator = By.css(`#option-dropdown-${typeData.index} label`);
+
+    try {
+      // Uso de logger.debug para trazabilidad técnica interna
+      logger.debug("Abriendo selector de creación de nota", { label: config.label });
+      await clickSafe(this.driver, this.openDropdownBtn, config);
+
+      logger.debug(`Seleccionando opción: ${typeData.displayName}`, { label: config.label });
+      await clickSafe(this.driver, optionLocator, config);
+
+      // Uso de logger.info para hito de negocio
+      logger.info(`Tipo de nota "${typeData.displayName}" seleccionado exitosamente.`, { label: config.label });
+    } catch (error) {
+      // Regla de Oro: No redundancia. clickSafe ya logueó el error, nosotros solo propagamos.
+      throw error;
+    }
+  }
+}

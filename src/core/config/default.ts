@@ -2,17 +2,21 @@
  * T es el tipo de retorno de la acción que se va a reintentar
  */
 export interface RetryOptions {
+  timeoutMs?: number;
   retries?: number;
   initialDelayMs?: number;
   maxDelayMs?: number;
   backoffFactor?: number;
   label?: string;
+  supressRetry?: boolean;
   // ... cualquier otra opción que pueda tener tu función retry
 }
 export const DefaultConfig: Required<Omit<RetryOptions, 'label'>> & { label: string } = {
-  retries: 4,
+  timeoutMs: 5000,
+  retries: 5,
   initialDelayMs: 300,
-  maxDelayMs: 5000,
+  maxDelayMs: 6000,
   backoffFactor: 2,
-  label: "[Retry]"
+  label: "[RETRY]",
+  supressRetry: false
 };

@@ -1,7 +1,7 @@
 import { By, Key } from "selenium-webdriver"
 import { clickSafe } from "../core/actions/clickSafe.js"
 import { initializeDriver } from "../core/actions/driverManager.js"
-import { getAuthUrl } from "../core/actions/getAuthURL.js"
+import { getAuthUrl } from "../core/utils/getAuthURL.js"
 import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js"
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js"
 import { passLogin } from "../flows/manageAuth.js"

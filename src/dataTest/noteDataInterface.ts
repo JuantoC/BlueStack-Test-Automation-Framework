@@ -1,4 +1,4 @@
-import { AuthorType } from "../pages/post/note_editor/authorField.js";
+import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
 
 export interface NoteData {
     // Campos de texto principales

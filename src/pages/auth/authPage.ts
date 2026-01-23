@@ -1,25 +1,52 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginFields } from "./loginFields.js";
-import { RetryOptions } from "../../core/config/default.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
 import { TwoFAFields } from "./twoFA.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { stackLabel } from "../../core/utils/stackLabel.js";
+import logger from "../../core/utils/logger.js";
+import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js"; // Sugerencia de nueva interfaz
 
 export class AuthPage {
-    public driver: WebDriver;
-    public login: LoginFields;
-    public twoFA: TwoFAFields;
+  public driver: WebDriver;
+  public login: LoginFields;
+  public twoFA: TwoFAFields;
 
-    constructor(driver: WebDriver) {
-        this.driver = driver
-        this.login = new LoginFields(driver)
-        this.twoFA = new TwoFAFields(driver)
+  constructor(driver: WebDriver) {
+    this.driver = driver;
+    this.login = new LoginFields(driver);
+    this.twoFA = new TwoFAFields(driver);
+  }
+
+  /**
+   * Coordina el flujo completo de autenticación: Login + 2FA.
+   * @param credentials - Objeto con usuario y contraseña (Interfaz AuthCredentials).
+   * @param opts - Opciones que incluyen timeoutMs, retries y label.
+   */
+  async passAuth(
+    credentials: AuthCredentials,
+    opts: RetryOptions = {}
+  ): Promise<void> {
+    const config = {
+      ...DefaultConfig,
+      ...opts,
+      label: stackLabel(opts.label, "passAuth")
+    };
+
+    try {
+      logger.debug("Iniciando componentes de autenticación...", { label: config.label });
+
+      // 1. Fase de Login
+      await this.login.fillLogin(credentials.username, credentials.password, config);
+
+      // 2. Fase de Segundo Factor
+      await this.twoFA.passTwoFA(config);
+
+      logger.info("Flujo AuthPage completado correctamente", { label: config.label });
+
+    } catch (error: any) {
+      // No re-logueamos el error aquí para evitar redundancia, 
+      // ya que fillLogin o passTwoFA ya habrán emitido sus propios errores/warns.
+      throw error;
     }
-
-    //NOTA: cambiar el tipo de credenciales armar un enum y formar una interfaz para las credenciales
-    async passAuth(credentials: { username: string; password: string }, timeout: number, opts: RetryOptions) {
-        const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `[passAuth]`) }
-
-        await this.login.fillLogin(credentials.username, credentials.password, timeout, fullOpts)
-        await this.twoFA.passTwoFA(timeout, fullOpts)
-    }
+  }
 }

@@ -1,19 +1,51 @@
 import { WebDriver } from "selenium-webdriver";
 import { AuthPage } from "../pages/auth/authPage.js";
-import { RetryOptions } from "../core/config/default.js";
+import { DefaultConfig, RetryOptions } from "../core/config/default.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
+import logger from "../core/utils/logger.js";
 
 /**
- * Realiza el proceso completo de login en la aplicación.
- * @param driver La instancia del WebDriver.
- * @param credentials El objeto con el usuario y la contraseña.
- * @param timeout Tiempo máximo de espera para cada acción.
- * @param opts Objeto de opciones de reintento (ej. retries, label).
+ * Orquestador de negocio para realizar el flujo completo de autenticación.
+ * * @param driver - Instancia de WebDriver.
+ * @param credentials - Credenciales de acceso (Username/Password).
+ * @param opts - Opciones extendidas (timeoutMs, retries, label).
  */
-export async function passLogin(driver: WebDriver, credentials: { username: string; password: string }, timeout: number, opts: RetryOptions = {}): Promise<void> {
-  const fullOpts: RetryOptions = { ...opts, label: stackLabel(opts.label, `[passLogin]:${credentials.username}`) };
-  const page = new AuthPage(driver)
+export async function passLogin(
+  driver: WebDriver, 
+  credentials: { username: string; password: string }, 
+  opts: RetryOptions = {}
+): Promise<void> {
+  // 1. Unificamos configuración y refinamos el label.
+  // Evitamos incluir el username en el label de stack si esto puede generar logs muy pesados,
+  // pero lo mantenemos en la metadata del log para trazabilidad.
+  const config = {
+    ...DefaultConfig,
+    ...opts,
+    label: stackLabel(opts.label, "passLogin")
+  };
 
-  console.log(`[passLogin]`);
-  await page.passAuth(credentials, timeout, fullOpts)
+  const page = new AuthPage(driver);
+
+  try {
+    // 2. Log de hito de negocio (INFO).
+    logger.info(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, { 
+      label: config.label 
+    });
+
+    // 3. Delegación al Page Object.
+    await page.passAuth(credentials, config);
+
+    logger.debug(`Autenticación completada exitosamente para ${credentials.username}`, { 
+      label: config.label 
+    });
+
+  } catch (error: any) {
+    // 4. Log de error con contexto forense.
+    logger.error(`Fallo en el proceso de Login: ${error.message}`, {
+      label: config.label,
+      user: credentials.username,
+      timeoutMs: config.timeoutMs
+    });
+    throw error;
+  }
 }

@@ -20,13 +20,13 @@ import logger from "../../../core/utils/logger.js";
  */
 export class NoteEditorPage {
   // ========== SECCIONES (Private para forzar uso del Orquestador) ==========
-  private readonly tags: NoteTagsSection;
-  private readonly listicle: NoteListicleSection;
-  private readonly author: NoteAuthorSection;
-  private readonly header: NoteHeaderActions;
-  private readonly settings: NoteLateralSettings;
-  private readonly text: NoteTextContentSection;
-  private readonly creation: NoteCreationDropdown;
+  public readonly tags: NoteTagsSection;
+  public readonly listicle: NoteListicleSection;
+  public readonly author: NoteAuthorSection;
+  public readonly header: NoteHeaderActions;
+  public readonly settings: NoteLateralSettings;
+  public readonly text: NoteTextContentSection;
+  public readonly creation: NoteCreationDropdown;
 
   private driver: WebDriver;
 

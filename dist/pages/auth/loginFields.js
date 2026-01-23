@@ -1,9 +1,12 @@
 import { By } from 'selenium-webdriver';
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
+import { DefaultConfig } from "../../core/config/default.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
+import logger from "../../core/utils/logger.js";
 /**
- * Page Object para la página de Login.
+ * Componente de campos de Login.
+ * Maneja la interacción atómica con los inputs de credenciales y el botón de acceso.
  */
 export class LoginFields {
     usernameField = By.id('username-field-log');
@@ -13,34 +16,52 @@ export class LoginFields {
     constructor(driver) {
         this.driver = driver;
     }
-    // ========== MÉTODOS ==========
-    async fillUsername(username, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, `[fillUsername]:${username}`) };
-        console.log(`[fillUsername]: Rellenando username ${username}`);
-        await writeSafe(this.driver, this.usernameField, username, timeout, fullOpts);
+    async fillUsername(username, opts = {}) {
+        const config = {
+            ...DefaultConfig,
+            ...opts,
+            label: stackLabel(opts.label, "fillUsername")
+        };
+        logger.debug(`Ingresando nombre de usuario`, { label: config.label });
+        await writeSafe(this.driver, this.usernameField, username, config);
     }
-    async fillPassword(password, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, `[fillPassword]:${password}`) };
-        console.log(`[fillPassword]: Rellenando Password ${password}`);
-        await writeSafe(this.driver, this.passwordField, password, timeout, fullOpts);
+    async fillPassword(password, opts = {}) {
+        const config = {
+            ...DefaultConfig,
+            ...opts,
+            label: stackLabel(opts.label, "fillPassword")
+        };
+        // Seguridad: Logueamos la acción, pero NUNCA el valor de la contraseña.
+        logger.debug(`Ingresando contraseña (valor oculto)`, { label: config.label });
+        await writeSafe(this.driver, this.passwordField, password, config);
     }
-    async clickLogin(timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, '[clickLogin]') };
-        console.log(`[clickLogin]: cCickando en submit`);
-        await clickSafe(this.driver, this.loginButton, timeout, fullOpts);
+    async clickLogin(opts = {}) {
+        const config = {
+            ...DefaultConfig,
+            ...opts,
+            label: stackLabel(opts.label, "clickLogin")
+        };
+        logger.debug(`Ejecutando click en botón de acceso`, { label: config.label });
+        await clickSafe(this.driver, this.loginButton, config);
     }
     /**
-     * Método completo - Hace login con credenciales
+     * Orquestador de nivel de componente: Completa el formulario de acceso.
      */
-    async fillLogin(username, password, timeout, opts = {}) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, `[fillLogin]`) };
+    async fillLogin(username, password, opts = {}) {
+        const config = {
+            ...DefaultConfig,
+            ...opts,
+            label: stackLabel(opts.label, "fillLogin")
+        };
         try {
-            await this.fillUsername(username, timeout, fullOpts);
-            await this.fillPassword(password, timeout, fullOpts);
-            await this.clickLogin(timeout, fullOpts);
+            await this.fillUsername(username, config);
+            await this.fillPassword(password, config);
+            await this.clickLogin(config);
+            logger.info(`Formulario de login completado para: ${username}`, { label: config.label });
         }
-        catch (err) {
-            throw err;
+        catch (error) {
+            // Dejamos que el error se propague; writeSafe/clickSafe ya habrán logueado el detalle técnico.
+            throw error;
         }
     }
 }

@@ -1,4 +1,4 @@
-import { AuthorType } from "../pages/post/note_editor/authorField.js";
+import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
 export const noteData = [
     {
         title: "La sequía extrema redefine el panorama agrícola regional | Creado por BlueStack_Test_Automation Framework",

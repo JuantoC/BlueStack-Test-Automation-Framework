@@ -1,133 +1,70 @@
-import { By, Key } from "selenium-webdriver"
-import { clickSafe } from "../core/actions/clickSafe.js"
-import { initializeDriver } from "../core/actions/driverManager.js"
-import { getAuthUrl } from "../core/utils/getAuthURL.js"
-import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js"
-import { MainConfig } from "../environments/Dev_SAAS/env.config.js"
-import { passLogin } from "../flows/manageAuth.js"
-import { writeSafe } from "../core/actions/writeSafe.js"
-import { goToPost } from "../core/actions/goToPost.js"
+import { By, Key, WebDriver } from "selenium-webdriver";
+import { clickSafe } from "../core/actions/clickSafe.js";
+import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
+import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
+import { passLogin } from "../flows/manageAuth.js";
+import { writeSafe } from "../core/actions/writeSafe.js";
+import { goToPost } from "../core/actions/goToPost.js";
+import { DefaultConfig, RetryOptions } from "../core/config/default.js";
+import { stackLabel } from "../core/utils/stackLabel.js";
+import logger from "../core/utils/logger.js";
 
+async function createNewTags(tagsList: string[]): Promise<void> {
+    const sessionLabel = "DEV_UTILITY:CreateTags";
+    const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
 
+    const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password);
+    let driver: WebDriver | undefined;
 
-async function createNewTags(): Promise<void> {
-    const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password)
+    try {
+        driver = await initializeDriver({ isHeadless: false }, opts);
 
-    const driver = await initializeDriver({ isHeadless: false })
-    await driver.get(authUrl);
-    await passLogin(driver, adminCredentials, 1500, {});
-    await goToPost(driver, MainConfig.BASE_URL, "16")
-    await clickSafe(driver, By.css('a[title="Tags"]'))
-    for (let i = 0; i < tags.length; i++) {
-        const tag = tags[i];
-        const element = await clickSafe(driver, By.css(`div[id="aside-main"] button[type="button"]`));
-        await writeSafe(driver, By.css("textarea.tags-modal__input-title"), tag);
-        await element.sendKeys(Key.TAB);
-        await clickSafe(driver, By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]'));
+        logger.info(`Iniciando utilidad de creación de ${tagsList.length} tags`, { label: sessionLabel });
+
+        await driver.get(authUrl);
+        await passLogin(driver, adminCredentials, opts);
+
+        // Navegación a la entidad específica (ID: 16)
+        await goToPost(driver, MainConfig.BASE_URL, 16, opts);
+
+        // Abrir panel de Tags
+        await clickSafe(driver, By.css('a[title="Tags"]'), opts);
+
+        for (let i = 0; i < tagsList.length; i++) {
+            const tag = tagsList[i];
+            const iterOpts = { ...opts, label: stackLabel(opts.label, `tag[${i}]`) };
+
+            logger.debug(`Procesando tag: ${tag}`, { label: iterOpts.label });
+
+            // 1. Click en botón añadir
+            await clickSafe(driver, By.css(`div[id="aside-main"] button[type="button"]`), iterOpts);
+
+            // 2. Escribir nombre del tag
+            const input = await writeSafe(driver, By.css("textarea.tags-modal__input-title"), tag, iterOpts);
+
+            // 3. Confirmar (Simulamos Tab y Click en confirmación)
+            await input.sendKeys(Key.TAB);
+            await clickSafe(driver, By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]'), iterOpts);
+
+            logger.info(`Tag "${tag}" creado exitosamente`, { label: iterOpts.label });
+        }
+
+    } catch (error: any) {
+        logger.error(`Fallo en el script de utilidad: ${error.message}`, { label: sessionLabel });
+    } finally {
+        if (driver) {
+            await quitDriver(driver, { ...opts, timeoutMs: 3000 });
+        }
     }
 }
-createNewTags()
 
-const tags = [
-    "Investigación periodística",
-    "Cobertura en vivo",
-    "Especiales",
-    "Contexto",
-    "Explicador",
-    "Resumen del día",
-    "Historias humanas",
-    "Agenda pública",
-    "Emergencia",
-    "Transparencia",
-    "Género",
-    "Justicia",
-    "Seguridad",
-    "Educación",
-    "Infraestructura",
-    "Turismo",
-    "Mercados",
-    "Consumo",
-    "Innovación",
-    "Ciencia",
-    "Astronomía",
-    "Meteorología",
-    "Cambio climático",
-    "Sostenibilidad",
-    "Agro",
-    "Empresas",
-    "PyMEs",
-    "Movilidad",
-    "Urbanismo",
-    "Elecciones",
-    "Congreso",
-    "Gobierno",
-    "Opinión pública",
-    "Tendencia social",
-    "Cultura digital",
-    "Entretenimiento",
-    "Streaming",
-    "Crítica",
-    "Literatura",
-    "Arte",
-    "Historia",
-    "Religión",
-    "Derechos humanos",
-    "Migración",
-    "Conflicto",
-    "Finanzas personales",
-    "Investigaciones especiales",
-    "Datos abiertos",
-    "Transporte",
-    "Tecnología médica",
-    "Acceso público",
-    "Balance anual",
-    "Campañas electorales",
-    "Desempeño fiscal",
-    "Evaluación social",
-    "Factor humano",
-    "Gestión pública",
-    "Hechos relevantes",
-    "Identidad cultural",
-    "Juventud",
-    "Kilómetros urbanos",
-    "Legislación",
-    "Movimientos sociales",
-    "Narrativa",
-    "Observatorio",
-    "Patrimonio",
-    "Quebranto económico",
-    "Riesgo país",
-    "Sindicatos",
-    "Tecnopolítica",
-    "Urbanización",
-    "Vivienda",
-    "Web y medios",
-    "Xenofobia",
-    "Yacimientos",
-    "Zonificación",
-    "Análisis electoral",
-    "Brecha salarial",
-    "Crecimiento urbano",
-    "Diversidad",
-    "Equidad",
-    "Fiscalización",
-    "Gobernanza",
-    "Hitos",
-    "Industrias creativas",
-    "Jurisprudencia",
-    "Kits educativos",
-    "Labor educativa",
-    "Movilidad eléctrica",
-    "Normativa",
-    "Opinión experta",
-    "Participación ciudadana",
-    "Quiebre institucional",
-    "Regulación",
-    "Soberanía",
-    "Territorio",
-    "Uso del suelo",
-    "Vulnerabilidad",
-    "Wind power",
-    "Youth policy",
-    "Zona crítica"
+// Data de ejecución
+const tagsToCreate = [
+    "Tag Automatizado 1",
+    "Tag Automatizado 2"
 ];
+
+// Disparo del script
+createNewTags(tagsToCreate).catch(err => console.error("Error fatal:", err));

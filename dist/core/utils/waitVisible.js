@@ -1,32 +1,44 @@
 import { until, error } from "selenium-webdriver";
+import { DefaultConfig } from "../config/default.js";
 import { scrollIntoView } from "./scrollIntoView.js";
 import { stackLabel } from "./stackLabel.js";
+import logger from "../utils/logger.js";
+import { retry } from "../wrappers/retry.js";
 /**
- * Espera a que un WebElement (ya encontrado) sea visible en la página.
- * @param driver La instancia del WebDriver.
- * @param element El WebElement ya resuelto para verificar su visibilidad.
- * @param timeout El tiempo máximo de espera en milisegundos (default: 5s).
- * @param opts Opciones de reintento.
- * @returns Una promesa que resuelve con el mismo WebElement una vez que es visible.
+ * Valida la visibilidad de un elemento en el DOM.
+ * Si falla por timeout, intenta desplazar el elemento a la vista (scroll) antes de reportar el error.
  */
-export async function waitVisible(driver, element, timeout = 1500, opts = {}) {
+export async function waitVisible(driver, element, opts = {}) {
+    // Validación preventiva: Evita llamadas al driver con objetos nulos o corruptos
     if (!element || typeof element.getId !== "function") {
-        throw new Error("[waitVisible] Expected a WebElement but received: " + await element.getTagName());
+        throw new Error(`[waitVisible] Se esperaba un WebElement pero se recibió un objeto inválido.`);
     }
-    const fullOpts = { ...opts, label: stackLabel(opts.label, `[waitVisible]: ${await element.getTagName()}`) };
-    console.log(`[waitVisible]: ${await element.getTagName()}.`);
-    try {
-        console.log(`[waitVisible] Esperando que sea visible...`);
-        await driver.wait(until.elementIsVisible(element), timeout, `[waitVisible] Elemento no visible: ${await element.getTagName()} en ${timeout / 1000}s`);
-        console.log(`[waitVisible]: Elemento esta visible.`);
-        return element;
-    }
-    catch (err) {
-        if (err instanceof error.TimeoutError) {
-            console.error(`[${fullOpts.label}] ERROR TIMEOUT: Elemento no visible`);
-            await scrollIntoView(element);
+    const config = {
+        ...DefaultConfig,
+        ...opts,
+        label: stackLabel(opts.label, `waitVisible`)
+    };
+    return await retry(async () => {
+        try {
+            logger.debug(`Esperando visibilidad del elemento...`, { label: config.label });
+            // until.elementIsVisible verifica que el elemento no esté oculto por CSS (display:none, visibility:hidden)
+            await driver.wait(until.elementIsVisible(element), config.timeoutMs);
+            return element;
         }
-        throw err;
-    }
+        catch (err) {
+            if (err instanceof error.TimeoutError) {
+                logger.warn(`Timeout de visibilidad alcanzado. Intentando scrollIntoView como recuperación...`, { label: config.label });
+                // Intentamos scroll para ayudar al diagnóstico o a un reintento posterior
+                try {
+                    await scrollIntoView(element);
+                }
+                catch (scrollErr) {
+                    logger.debug(`No se pudo realizar el scroll: ${scrollErr.message}`, { label: config.label });
+                }
+            }
+            // Relanzamos el error original para que el retryWrapper o el test decidan el siguiente paso
+            throw err;
+        }
+    }, config);
 }
 //# sourceMappingURL=waitVisible.js.map

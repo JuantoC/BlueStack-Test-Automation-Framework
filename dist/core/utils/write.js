@@ -1,12 +1,44 @@
-export async function writeToEditable(element, text) {
-    const driver = element.getDriver();
-    console.log(`[writeToEditable]: ${await element.getTagName()} es un elemento editable`);
-    await driver.executeScript("arguments[0].focus(); arguments[0].innerHTML = '';", element);
-    await element.sendKeys(text);
+import logger from "../utils/logger.js";
+import { stackLabel } from "../utils/stackLabel.js";
+/**
+ * Escribe texto en elementos con atributo contenteditable utilizando JS para el foco
+ * y limpieza, y sendKeys para la simulación de teclado.
+ */
+export async function writeToEditable(element, text, label) {
+    const configLabel = stackLabel(label, "writeToEditable");
+    try {
+        logger.debug("Preparando elemento contenteditable (focus & clear via JS)", {
+            label: configLabel
+        });
+        const driver = element.getDriver();
+        // Limpiamos e inyectamos foco vía script para asegurar receptividad
+        await driver.executeScript("arguments[0].focus(); arguments[0].innerHTML = '';", element);
+        await element.sendKeys(text);
+    }
+    catch (error) {
+        logger.error(`Error en escritura editable: ${error.message}`, {
+            label: configLabel
+        });
+        throw error;
+    }
 }
-export async function writeToStandard(element, text) {
-    console.log(`[writeToEditable]: ${await element.getTagName()} NO es un elemento editable`);
-    await element.clear();
-    await element.sendKeys(text);
+/**
+ * Escribe texto en elementos de input estándar (input, textarea).
+ */
+export async function writeToStandard(element, text, label) {
+    const configLabel = stackLabel(label, "writeToStandard");
+    try {
+        logger.debug("Limpiando campo estándar e ingresando texto", {
+            label: configLabel
+        });
+        await element.clear();
+        await element.sendKeys(text);
+    }
+    catch (error) {
+        logger.error(`Error en escritura estándar: ${error.message}`, {
+            label: configLabel
+        });
+        throw error;
+    }
 }
 //# sourceMappingURL=write.js.map

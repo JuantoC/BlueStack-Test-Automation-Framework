@@ -3,68 +3,74 @@ import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions, DriverOptions } from "../config/chromeOptions.js";
 import { sleep } from '../utils/backOff.js';
 import { stackLabel } from "../utils/stackLabel.js";
+import { RetryOptions, DefaultConfig } from "../config/default.js";
 import logger from "../utils/logger.js";
 
 /**
- * Inicializa y configura la instancia de WebDriver con Chrome.
- * Implementa una espera implícita base y configuración de servicio.
- * * @param options - Configuración de ejecución (Headless, Window size, etc.)
- * @returns Instancia de WebDriver lista para operar.
+ * Gestiona el ciclo de vida del WebDriver.
  */
-export async function initializeDriver(options: DriverOptions): Promise<WebDriver> {
-    const label = '[initializeDriver]';
 
-    logger.debug(`Configurando entorno de ejecución (Headless: ${options.isHeadless})`, { label });
+export async function initializeDriver(options: DriverOptions, opts: RetryOptions = {}): Promise<WebDriver> {
+    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "initializeDriver") };
+
+    logger.debug(`Configurando navegador (Headless: ${options.isHeadless})`, { label: config.label });
 
     try {
-        // Nota: Se recomienda que driverPath sea inyectado vía variables de entorno en CI/CD
-        const driverPath = './node_modules/chromedriver/lib/chromedriver/chromedriver.exe';
-        const serviceBuilder = new ServiceBuilder(driverPath);
         const chromeOptions = setChromeOptions(options);
 
+        // Selenium 4 gestiona el driver automáticamente. 
+        // Solo usamos ServiceBuilder si necesitamos pasar argumentos específicos al proceso del driver.
         const driver = await new Builder()
             .forBrowser('chrome')
             .setChromeOptions(chromeOptions)
-            .setChromeService(serviceBuilder)
             .withCapabilities(Capabilities.chrome())
             .build();
 
-        // Configuración de estabilidad inicial
-        await driver.manage().setTimeouts({ implicit: 3000 });
+        /**
+         * REGLA SENIOR: Evitamos timeouts implícitos globales. 
+         * Confiamos en nuestras piezas Lego (writeSafe, clickSafe) que ya manejan 
+         * sus propias esperas explícitas. Esto hace que el test sea mucho más rápido.
+         */
+        await driver.manage().setTimeouts({
+            pageLoad: 30000, // Tiempo límite para que cargue la URL
+            script: 30000    // Tiempo límite para ejecución de JS
+        });
 
-        logger.info('Sesión de WebDriver iniciada correctamente', { label });
+        logger.info('Sesión de WebDriver iniciada y lista para operar', { label: config.label });
         return driver;
 
     } catch (error: any) {
-        logger.error(`Error fatal al inicializar el Driver: ${error.message}`, { label });
+        logger.error(`Error crítico al inicializar WebDriver: ${error.message}`, { label: config.label });
         throw error;
     }
 }
 
 /**
  * Finaliza la sesión del WebDriver de forma segura.
- * * @param driver - Instancia activa de WebDriver.
- * @param time - Tiempo de espera opcional antes del cierre (ms).
+ * @param driver - Instancia activa.
+ * @param opts - Opciones para trazabilidad y posible delay de observación.
  */
-export async function quitDriver(driver: WebDriver | null, time?: number): Promise<void> {
-    const label = '[quitDriver]';
+export async function quitDriver(driver: WebDriver | null, opts: RetryOptions = {}): Promise<void> {
+    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "quitDriver") };
 
     if (!driver) {
-        logger.warn('Se intentó cerrar un Driver que no está inicializado o es nulo', { label });
+        logger.warn('Intento de cierre sobre un driver nulo o inexistente', { label: config.label });
         return;
     }
 
     try {
-        if (time) {
-            logger.debug(`Esperando ${time}ms antes de finalizar sesión...`, { label });
-            await sleep(time);
+        // Si el usuario pasó un timeoutMs, esperamos antes de cerrar. 
+        // Útil para ver el estado final de la UI antes de que desaparezca la ventana.
+        if (opts.timeoutMs) {
+            logger.debug(`Delay de observación activo: esperando ${opts.timeoutMs}ms`, { label: config.label });
+            await sleep(opts.timeoutMs);
         }
 
         await driver.quit();
-        logger.info('Sesión de WebDriver cerrada exitosamente', { label });
+        logger.info('Sesión finalizada exitosamente', { label: config.label });
 
     } catch (error: any) {
-        // En este punto, un error suele indicar que el proceso ya estaba cerrado o es huérfano
-        logger.warn(`No se pudo cerrar la sesión limpiamente: ${error.message}`, { label });
+        // No lanzamos error aquí para no interrumpir el cierre del proceso de Node
+        logger.warn(`Cierre de sesión no limpio (posible proceso huérfano): ${error.message}`, { label: config.label });
     }
 }

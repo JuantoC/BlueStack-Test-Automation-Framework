@@ -1,8 +1,10 @@
 export const DefaultConfig = {
-    retries: 4,
+    timeoutMs: 5000,
+    retries: 5,
     initialDelayMs: 300,
-    maxDelayMs: 5000,
+    maxDelayMs: 6000,
     backoffFactor: 2,
-    label: "[Retry]"
+    label: "[RETRY]",
+    supressRetry: false
 };
 //# sourceMappingURL=default.js.map

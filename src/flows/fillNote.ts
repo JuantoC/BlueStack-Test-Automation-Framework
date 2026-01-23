@@ -6,46 +6,41 @@ import { NoteEditorPage } from "../pages/post/note_editor/NoteEditorPage.js";
 import logger from "../core/utils/logger.js";
 
 /**
- * Orquestador de negocio para completar el formulario de una nota.
- * Centraliza la configuración en el objeto opts para mayor flexibilidad.
- * * @param driver - Instancia de WebDriver.
- * @param data - Datos de la nota a ingresar.
- * @param opts - Opciones extendidas incluyendo timeoutMs y trazabilidad.
+ * Flow de Negocio: Rellenado Dinámico de Nota.
+ * Procesa únicamente los campos presentes en el objeto 'data'.
  */
 export async function fillNote(
   driver: WebDriver,
-  data: NoteData,
+  data: Partial<NoteData>,
   opts: RetryOptions = {}
 ): Promise<void> {
-  // 1. Unificamos la configuración. 
-  // Ahora timeoutMs viene dentro de opts, si no existe, toma el DefaultConfig.
+  // 1. Configuración de trazabilidad
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "fillNote")
+    label: stackLabel(opts.label, "flow:fillNote")
   };
 
-  const page = new NoteEditorPage(driver);
+  const editor = new NoteEditorPage(driver);
 
   try {
-    // 2. Log de hito de negocio.
-    logger.info(`Iniciando llenado de nota: "${data.title || 'Untitled'}"`, {
+    logger.info(`Iniciando llenado dinámico de campos presentes en data`, {
       label: config.label
     });
 
-    // 3. Delegación al Page Object. 
-    // Pasamos el objeto config completo que ya contiene el timeoutMs.
-    await page.fillFields(data, config);
+    /**
+     * Delegamos la inteligencia al método maestro del NoteEditorPage.
+     * Como usamos Partial<NoteData>, fillFullNote ya tiene la lógica de:
+     * "Si el campo existe y tiene valor, lo escribo; si no, lo ignoro".
+     */
+    await editor.fillFullNote(data, config);
 
-    logger.debug(`Proceso fillNote finalizado exitosamente.`, {
-      label: config.label
-    });
+    logger.info(`Llenado dinámico finalizado con éxito`, { label: config.label });
 
   } catch (error: any) {
-    // Trazabilidad forense sin realizar operaciones costosas.
-    logger.error(`Fallo crítico al completar la nota: ${error.message}`, {
-      label: config.label,
-      context: { title: data.title, timeoutMs: config.timeoutMs }
+    // Captura de fallo en el nivel más alto del flujo de edición
+    logger.error(`Fallo en el flow de edición: ${error.message}`, {
+      label: config.label
     });
     throw error;
   }

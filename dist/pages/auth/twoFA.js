@@ -1,19 +1,43 @@
 import { By } from 'selenium-webdriver';
+import { DefaultConfig } from "../../core/config/default.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
+import logger from "../../core/utils/logger.js";
 /**
- * Page Object para el modal de Doble Autenticación (2FA) que se descarta.
+ * Componente para gestionar el modal de Doble Autenticación (2FA).
+ * En este flujo actual, se encarga de descartar el modal para continuar.
  */
 export class TwoFAFields {
-    driver;
     twoFAModalDismissButton = By.css('[data-testid="btn-next"]');
+    driver;
     constructor(driver) {
         this.driver = driver;
     }
-    async passTwoFA(timeout, opts) {
-        const fullOpts = { ...opts, label: stackLabel(opts.label, '[passTwoFA]') };
-        console.log(`[passTwoFA] Haciendo click en "I Will do it later"`);
-        await clickSafe(this.driver, this.twoFAModalDismissButton, timeout, fullOpts);
+    /**
+     * Omite el modal de 2FA haciendo clic en el botón de continuar/descartar.
+     * @param opts - Opciones de reintento y trazabilidad (incluye timeoutMs).
+     */
+    async passTwoFA(opts = {}) {
+        const config = {
+            ...DefaultConfig,
+            ...opts,
+            label: stackLabel(opts.label, "passTwoFA")
+        };
+        try {
+            logger.debug('Intentando omitir el modal de 2FA ("I will do it later")', {
+                label: config.label
+            });
+            // Delegamos en clickSafe la espera, el scroll y el reintento.
+            await clickSafe(this.driver, this.twoFAModalDismissButton, config);
+            logger.info("Modal de 2FA gestionado correctamente", {
+                label: config.label
+            });
+        }
+        catch (error) {
+            // Si falla aquí, clickSafe ya habrá emitido un warn/error detallado.
+            // Solo propagamos para que el orquestador decida si el login es fallido.
+            throw error;
+        }
     }
 }
 //# sourceMappingURL=twoFA.js.map

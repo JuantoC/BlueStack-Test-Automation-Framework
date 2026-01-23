@@ -7,8 +7,8 @@ import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import logger from "../core/utils/logger.js";
 
 /**
- * Orquestador para iniciar la creación de una nueva nota.
- * Selecciona el tipo de nota desde el dropdown inicial.
+ * Flow: Inicio de creación de nota.
+ * Centraliza el acceso al menú de creación a través del PO Maestro.
  */
 export async function createNewNote(
   driver: WebDriver,
@@ -18,33 +18,26 @@ export async function createNewNote(
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "createNewNote")
+    label: stackLabel(opts.label, "flow:createNewNote")
   };
 
   const page = new NoteEditorPage(driver);
 
   try {
-    logger.info(`Iniciando creación de nota tipo: ${noteType}`, {
-      label: config.label
-    });
+    logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
 
-    // Delegamos al sub-componente del Page Object
-    await page.creationDropdow.selectNoteType(noteType, config);
+    // Uso del componente 'creation' expuesto en NoteEditorPage
+    await page.creation.selectNoteType(noteType, config);
 
-    logger.debug(`Tipo de nota "${noteType}" seleccionado correctamente.`, {
-      label: config.label
-    });
   } catch (error: any) {
-    logger.error(`Error al seleccionar el tipo de nota [${noteType}]: ${error.message}`, {
-      label: config.label
-    });
+    logger.error(`Error en flujo de creación [${noteType}]: ${error.message}`, { label: config.label });
     throw error;
   }
 }
 
 /**
- * Orquestador para cerrar el editor de notas.
- * Ejecuta la acción de salida (Guardar, Descartar, etc.) desde el header.
+ * Flow: Finalización y salida del editor.
+ * Utiliza el getter 'actions' para interactuar con el Header de forma segura.
  */
 export async function closeNoteEditor(
   driver: WebDriver,
@@ -54,26 +47,24 @@ export async function closeNoteEditor(
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "closeNoteEditor")
+    label: stackLabel(opts.label, "flow:closeNoteEditor")
   };
 
   const page = new NoteEditorPage(driver);
 
   try {
-    logger.info(`Cerrando editor con acción: ${exitAction}`, {
-      label: config.label
-    });
+    logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
 
-    // Delegamos al componente del Header
-    await page.headerActions.clickExitAction(exitAction, config);
+    /**
+     * IMPORTANTE: Aquí llamamos a 'page.actions' (el getter) 
+     * en lugar de 'page.headerActions' (que es privado).
+     */
+    await page.actions.clickExitAction(exitAction, config);
 
-    logger.debug(`Acción de salida "${exitAction}" ejecutada con éxito.`, {
-      label: config.label
-    });
+    logger.debug(`Editor cerrado exitosamente.`, { label: config.label });
+
   } catch (error: any) {
-    logger.error(`Fallo al cerrar el editor mediante ${exitAction}: ${error.message}`, {
-      label: config.label
-    });
+    logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, { label: config.label });
     throw error;
   }
 }

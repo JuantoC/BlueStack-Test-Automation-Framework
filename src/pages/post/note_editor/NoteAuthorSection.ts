@@ -19,9 +19,9 @@ export enum AuthorType {
 export class NoteAuthorSection {
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly authorButtonMap: Record<AuthorType, Locator> = {
-    [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[text()='check_circle_outline']"),
-    [AuthorType.ANONYMOUS]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[text()='person_outline']"),
-    [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[text()='draw']"),
+    [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),
+    [AuthorType.ANONYMOUS]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='person_outline']"),
+    [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"),
   };
 
   private readonly authorDescriptionField = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
@@ -66,7 +66,6 @@ export class NoteAuthorSection {
     try {
       switch (authorType) {
         case AuthorType.INTERNAL:
-          logger.info("Configurando autor como tipo INTERNO", { label: config.label });
           return;
 
         case AuthorType.ANONYMOUS:
@@ -79,7 +78,7 @@ export class NoteAuthorSection {
           if (hasDescription) await this.fillAuthorDescription(data.authorDescription!, config);
           break;
       }
-      logger.info(`Autor configurado exitosamente como: ${authorType}`, { label: config.label });
+      logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: config.label });
     } catch (error) {
       // Propagamos: el error detallado ya fue logueado en las piezas atómicas.
       throw error;
@@ -101,7 +100,6 @@ export class NoteAuthorSection {
 
     logger.debug(`Escribiendo nombre de autor`, { label: config.label });
     const element = await writeSafe(this.driver, this.authorNameField, name, config);
-    await assertValueEquals(element, this.authorNameField, name, config);
   }
 
   async fillAuthorDescription(description: string, opts: RetryOptions = {}): Promise<void> {
@@ -109,6 +107,5 @@ export class NoteAuthorSection {
 
     logger.debug(`Escribiendo descripción de autor`, { label: config.label });
     const element = await writeSafe(this.driver, this.authorDescriptionField, description, config);
-    await assertValueEquals(element, this.authorDescriptionField, description, config);
   }
 }

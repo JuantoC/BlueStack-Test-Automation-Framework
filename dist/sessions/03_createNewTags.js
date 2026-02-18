@@ -10,13 +10,15 @@ import { goToPost } from "../core/actions/goToPost.js";
 import { DefaultConfig } from "../core/config/default.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import logger from "../core/utils/logger.js";
+import { checkConsoleErrors } from "../core/utils/browserLogs.js";
 async function createNewTags(tagsList) {
     const sessionLabel = "DEV_UTILITY:CreateTags";
     const opts = { ...DefaultConfig, label: sessionLabel };
     const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password);
-    let driver;
+    let session = null;
     try {
-        driver = await initializeDriver({ isHeadless: false }, opts);
+        session = await initializeDriver({ isHeadless: false }, opts);
+        const driver = session.driver;
         logger.info(`Iniciando utilidad de creación de ${tagsList.length} tags`, { label: sessionLabel });
         await driver.get(authUrl);
         await passLogin(driver, adminCredentials, opts);
@@ -39,11 +41,25 @@ async function createNewTags(tagsList) {
         }
     }
     catch (error) {
-        logger.error(`Fallo en el script de utilidad: ${error.message}`, { label: sessionLabel });
+        if (error instanceof Error) {
+            let errorMessage = error.message;
+            const diff = error?.diff;
+            if (diff) {
+                errorMessage += `\n>>> DETALLE DEL FALLO DE TEXTO <<<${diff}`;
+            }
+            logger.error(`❌ FALLO CRÍTICO en ${sessionLabel}`, {
+                label: sessionLabel,
+                stack: error.stack,
+                details: errorMessage
+            });
+            throw error;
+        }
     }
     finally {
-        if (driver) {
-            await quitDriver(driver, { ...opts, timeoutMs: 3000 });
+        if (session) {
+            await checkConsoleErrors(session.driver, sessionLabel);
+            logger.info("Limpiando entorno y cerrando sesión...", { label: sessionLabel });
+            await quitDriver(session, opts);
         }
     }
 }

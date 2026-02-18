@@ -91,14 +91,14 @@ export class NoteHeaderActions {
           break;
 
         case NoteExitAction.PUBLISH_ONLY:
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, config);
+          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, {...config, initialDelayMs: 10000});
           break;
 
         case NoteExitAction.PUBLISH_AND_EXIT:
           await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, config);
           // Usamos el config heredado; si se requiere más tiempo para publicar, 
           // el orquestador superior debe pasar un timeoutMs mayor en 'opts'.
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, config);
+          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, {...config, initialDelayMs: 10000});
           break;
 
         case NoteExitAction.SCHEDULE_AND_EXIT:

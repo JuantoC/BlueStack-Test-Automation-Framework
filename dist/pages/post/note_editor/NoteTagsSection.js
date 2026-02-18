@@ -45,7 +45,7 @@ export class NoteTagsSection {
                 // El salto de línea \n actúa como la tecla ENTER para confirmar el tag en el componente UI
                 await writeSafe(this.driver, locator, `${sanitizedTag}\n`, config);
             }
-            logger.info(`Se agregaron ${tags.length} etiquetas exitosamente al campo ${type}`, { label: config.label });
+            logger.debug(`Se agregaron ${tags.length} etiquetas exitosamente al campo ${type}`, { label: config.label });
         }
         catch (error) {
             // Propagamos: writeSafe ya reportó cuál tag falló o si el campo no era interactuable

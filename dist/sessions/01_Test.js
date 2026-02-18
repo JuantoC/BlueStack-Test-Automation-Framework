@@ -1,4 +1,4 @@
-import { noteData } from "../dataTest/noteData.js";
+import { notesData } from "../dataTest/noteData.js";
 import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig } from "../core/config/default.js";
@@ -35,9 +35,9 @@ async function runNoteCreationSession() {
         await passLogin(driver, testEditorCredentials, opts);
         await createNewNote(driver, NoteType.POST, opts);
         // Usamos la data del set de pruebas #1
-        await fillNote(driver, noteData[1], opts);
+        await fillNote(driver, notesData[1], opts);
         // Definimos un timeout específico para el cierre/guardado que suele ser más pesado
-        await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, {
+        await closeNoteEditor(driver, NoteExitAction.PUBLISH_ONLY, {
             ...opts,
             timeoutMs: 15000
         });

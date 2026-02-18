@@ -20,7 +20,7 @@ export async function passLogin(driver, credentials, opts = {}) {
     const page = new AuthPage(driver);
     try {
         // 2. Log de hito de negocio (INFO).
-        logger.info(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, {
+        logger.debug(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, {
             label: config.label
         });
         // 3. Delegación al Page Object.

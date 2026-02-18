@@ -42,7 +42,7 @@ export class NoteCreationDropdown {
             logger.debug(`Seleccionando opción: ${typeData.displayName}`, { label: config.label });
             await clickSafe(this.driver, optionLocator, config);
             // Uso de logger.info para hito de negocio
-            logger.info(`Tipo de nota "${typeData.displayName}" seleccionado exitosamente.`, { label: config.label });
+            logger.debug(`Tipo de nota "${typeData.displayName}" seleccionado exitosamente.`, { label: config.label });
         }
         catch (error) {
             // Regla de Oro: No redundancia. clickSafe ya logueó el error, nosotros solo propagamos.

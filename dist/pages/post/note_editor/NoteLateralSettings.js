@@ -43,7 +43,7 @@ export class NoteLateralSettings {
             await clickSafe(this.driver, this.SECTION_COMBO, config);
             logger.debug("Seleccionando la primera opción del listbox", { label: config.label });
             await clickSafe(this.driver, this.FIRST_SECTION_OPT, config);
-            logger.info("Sección seleccionada exitosamente (primera de la lista)", { label: config.label });
+            logger.debug("Sección seleccionada exitosamente (primera de la lista)", { label: config.label });
         }
         catch (error) {
             // Propagamos el error; clickSafe ya se encargó del log detallado.

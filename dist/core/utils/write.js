@@ -1,3 +1,4 @@
+import { Key } from "selenium-webdriver";
 import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
 /**
@@ -7,16 +8,15 @@ import { stackLabel } from "../utils/stackLabel.js";
 export async function writeToEditable(element, text, label) {
     const configLabel = stackLabel(label, "writeToEditable");
     try {
-        logger.debug("Preparando elemento contenteditable (focus & clear via JS)", {
+        logger.debug("Limpiando contenteditable via CTRL+ A + DELETE", {
             label: configLabel
         });
-        const driver = element.getDriver();
-        // Limpiamos e inyectamos foco vía script para asegurar receptividad
-        await driver.executeScript("arguments[0].focus(); arguments[0].innerHTML = '';", element);
+        await element.sendKeys(Key.chord(Key.CONTROL, "a"), Key.DELETE);
         await element.sendKeys(text);
     }
     catch (error) {
-        logger.error(`Error en escritura editable: ${error.message}`, {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Error en escritura editable: ${message}`, {
             label: configLabel
         });
         throw error;

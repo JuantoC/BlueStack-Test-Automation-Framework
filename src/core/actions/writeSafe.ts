@@ -6,6 +6,7 @@ import { stackLabel } from "../utils/stackLabel.js";
 import { clickSafe } from "./clickSafe.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
+import { assertValueEquals } from "../utils/assertValueEquals.js";
 
 /**
  * Orquestador de alto nivel para escribir texto.
@@ -32,7 +33,6 @@ export async function writeSafe(
     // Desactivamos reintentos internos en los sub-pasos para que el orquestador controle el flujo.
     const internalOpts = { ...config, supressRetry: true };
 
-    try {
       logger.debug(`Iniciando flujo de escritura para: ${locator.toString()}`, {
         label: config.label,
       });
@@ -54,19 +54,14 @@ export async function writeSafe(
         await writeToStandard(element, text);
       }
 
-      logger.info(`Texto ingresado correctamente en el elemento`, {
+        // 4. Verificación: Confirmamos que el texto se haya ingresado correctamente.
+        await assertValueEquals(element, locator, text, internalOpts);
+        
+      logger.debug(`Texto ingresado correctamente en el elemento`, {
         label: config.label,
         text: text.length > 20 ? `${text.substring(0, 20)}...` : text // Logueo seguro de datos
       });
 
       return element;
-    } catch (error: any) {
-      // Si el error ocurre dentro de un reintento que no es el último, usamos WARN.
-      // El logger.error definitivo se reserva para cuando la excepción sale del wrapper 'retry'.
-      logger.warn(`Intento de escritura fallido: ${error.message}`, {
-        label: config.label,
-      });
-      throw error;
-    }
   }, config);
 }

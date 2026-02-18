@@ -21,7 +21,7 @@ export async function createNewNote(
     label: stackLabel(opts.label, "flow:createNewNote")
   };
 
-  const page = new NoteEditorPage(driver);
+  const page = new NoteEditorPage(driver, noteType);
 
   try {
     logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
@@ -53,7 +53,7 @@ export async function closeNoteEditor(
   const page = new NoteEditorPage(driver);
 
   try {
-    logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
+    logger.debug(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
 
     /**
      * IMPORTANTE: Aquí llamamos a 'page.actions' (el getter) 

@@ -1,6 +1,5 @@
 import { By } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
 import { DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
@@ -45,12 +44,11 @@ export class NoteTextContentSection {
         const locator = this.LOCATORS[field];
         try {
             logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: config.label });
-            // writeSafe se encarga de la interacción inicial y reintentos.
-            const element = await writeSafe(this.driver, locator, value, config);
-            // Verificación de integridad del dato ingresado.
-            // Se pasa 'config' para que el assert mantenga la trazabilidad del label.
-            await assertValueEquals(element, locator, value, config);
-            logger.info(`Campo "${field}" completado y verificado.`, { label: config.label });
+            if (field === NoteTextField.TITLE) {
+                value = value + " | Creado por BlueStack_Test_Automation Framework";
+            }
+            await writeSafe(this.driver, locator, value, config);
+            logger.debug(`Campo "${field}" completado y verificado.`, { label: config.label });
         }
         catch (error) {
             // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).

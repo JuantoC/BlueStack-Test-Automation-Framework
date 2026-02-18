@@ -15,7 +15,7 @@ export async function fillNote(driver, data, opts = {}) {
     };
     const editor = new NoteEditorPage(driver);
     try {
-        logger.info(`Iniciando llenado dinámico de campos presentes en data`, {
+        logger.debug(`Iniciando llenado dinámico de campos presentes en data`, {
             label: config.label
         });
         /**
@@ -24,7 +24,7 @@ export async function fillNote(driver, data, opts = {}) {
          * "Si el campo existe y tiene valor, lo escribo; si no, lo ignoro".
          */
         await editor.fillFullNote(data, config);
-        logger.info(`Llenado dinámico finalizado con éxito`, { label: config.label });
+        logger.debug(`Llenado dinámico finalizado con éxito`, { label: config.label });
     }
     catch (error) {
         // Captura de fallo en el nivel más alto del flujo de edición

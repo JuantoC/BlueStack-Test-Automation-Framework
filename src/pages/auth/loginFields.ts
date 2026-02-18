@@ -68,7 +68,7 @@ export class LoginFields {
       await this.fillPassword(password, config);
       await this.clickLogin(config);
 
-      logger.info(`Formulario de login completado para: ${username}`, { label: config.label });
+      logger.debug(`Formulario de login completado para: ${username}`, { label: config.label });
     } catch (error: any) {
       // Dejamos que el error se propague; writeSafe/clickSafe ya habrán logueado el detalle técnico.
       throw error;

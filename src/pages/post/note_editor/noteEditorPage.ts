@@ -1,51 +1,39 @@
-import { WebDriver } from 'selenium-webdriver';
-import { NoteAuthorSection } from "./NoteAuthorSection.js";
-// import { NoteFooterBtn } from "./footerBtn.js"; // Pendiente sanitizar
-import { NoteHeaderActions } from "./NoteHeaderActions.js";
-import { NoteLateralSettings } from "./NoteLateralSettings.js";
-import { NoteTextContentSection, NoteTextField } from "./NoteTextContentSection.js";
-// import { NoteImageFields } from "./imageFields.js"; // Pendiente sanitizar
-import { NoteCreationDropdown } from "./NoteCreationDropdown.js";
-import { NoteTagsSection, NoteTagField } from './NoteTagsSection.js';
-import { NoteListicleSection } from './NoteListicleSection.js';
-
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
-import { NoteData } from "../../../dataTest/noteDataInterface.js";
-import { stackLabel } from '../../../core/utils/stackLabel.js';
-import logger from "../../../core/utils/logger.js";
 
 /**
  * Page Object Maestro para la edición de notas.
  * Centraliza y coordina todas las secciones del editor.
- */
+*/
 export class NoteEditorPage {
   // ========== SECCIONES (Private para forzar uso del Orquestador) ==========
+  private driver: WebDriver;
+
+  private readonly noteType: NoteType
   public readonly tags: NoteTagsSection;
-  public readonly listicle: NoteListicleSection;
+  public readonly listicle: ListicleSection;
+  public readonly liveBlog: LiveBlogSection;
   public readonly author: NoteAuthorSection;
   public readonly header: NoteHeaderActions;
   public readonly settings: NoteLateralSettings;
   public readonly text: NoteTextContentSection;
   public readonly creation: NoteCreationDropdown;
 
-  private driver: WebDriver;
-
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, noteType?: NoteType) {
     this.driver = driver;
+    this.noteType = noteType = NoteType.POST;
     this.tags = new NoteTagsSection(driver);
-    this.listicle = new NoteListicleSection(driver);
     this.author = new NoteAuthorSection(driver);
     this.header = new NoteHeaderActions(driver);
     this.settings = new NoteLateralSettings(driver);
     this.text = new NoteTextContentSection(driver);
     this.creation = new NoteCreationDropdown(driver);
-    // this.image = new NoteImageFields(driver); // Ajustar cuando se sanitice
+    this.listicle = new ListicleSection(driver);
+    this.liveBlog = new LiveBlogSection(driver);
   }
 
   /**
    * Orquestador Principal: Rellena la nota de forma integral.
    * Coordina la ejecución de cada sub-sección con trazabilidad completa.
-   */
+  */
   async fillFullNote(data: Partial<NoteData>, opts: RetryOptions = {}): Promise<void> {
     const config = {
       ...DefaultConfig,
@@ -83,7 +71,12 @@ export class NoteEditorPage {
 
       // 3. Listicle
       if (data.listicleItems?.length) {
-        await this.listicle.fillListicleItems(data.listicleItems, config);
+        // Definimos qué sección usar basándonos en el tipo de nota
+        const listSection = (this.noteType === NoteType.LIVEBLOG)
+          ? this.liveBlog
+          : this.listicle;
+
+        await listSection.fillItems(data.listicleItems, config);
       }
 
       // 4. Autor y Configuración Lateral
@@ -105,4 +98,18 @@ export class NoteEditorPage {
   public get actions(): NoteHeaderActions {
     return this.header;
   }
+
 }
+
+import { WebDriver } from 'selenium-webdriver';
+import { NoteAuthorSection } from "./NoteAuthorSection.js";
+import { NoteHeaderActions } from "./NoteHeaderActions.js";
+import { NoteLateralSettings } from "./NoteLateralSettings.js";
+import { NoteTextContentSection, NoteTextField } from "./NoteTextContentSection.js";
+import { NoteCreationDropdown, NoteType } from "./NoteCreationDropdown.js";
+import { NoteTagsSection, NoteTagField } from './NoteTagsSection.js';
+import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { stackLabel } from '../../../core/utils/stackLabel.js';
+import logger from "../../../core/utils/logger.js";
+import { ListicleSection, LiveBlogSection } from './noteList/NoteListicleItemSection.js';

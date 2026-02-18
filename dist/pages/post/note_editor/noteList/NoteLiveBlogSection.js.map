@@ -1,0 +1,1 @@
+{"version":3,"file":"NoteLiveBlogSection.js","sourceRoot":"","sources":["../../../../../src/pages/post/note_editor/noteList/NoteLiveBlogSection.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,mBAAmB,EAAE,MAAM,8BAA8B,CAAC;AACnE,OAAO,EAAE,gBAAgB,EAAE,MAAM,kCAAkC,CAAC;AAEpE,MAAM,OAAO,eAAgB,SAAQ,mBAAmB;IAEtD,YAAY,MAAiB;QAC3B,KAAK,CAAC,MAAM,EAAE,IAAI,gBAAgB,EAAE,CAAC,CAAC;IACxC,CAAC;CAGF"}

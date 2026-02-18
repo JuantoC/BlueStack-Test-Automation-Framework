@@ -26,7 +26,7 @@ export async function clickSafe(driver, locator, opts = {}) {
             await waitClickable(driver, element, internalOpts);
             // 4. Ejecución
             await element.click();
-            logger.info(`Click ejecutado correctamente`, { label: config.label });
+            logger.debug(`Click ejecutado correctamente`, { label: config.label });
             return element;
         }
         catch (error) {

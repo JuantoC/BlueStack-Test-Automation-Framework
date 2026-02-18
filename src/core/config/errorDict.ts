@@ -30,6 +30,7 @@ export const APP_RETRIABLE_MESSAGES = [
   'Internal Server Error',
   'Gateway Timeout',
   'Service Unavailable',
+  "ElementNotInteractableError",
   'Error al procesar la solicitud, intente de nuevo'
 ];
 

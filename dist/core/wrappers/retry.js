@@ -21,13 +21,21 @@ export async function retry(action, options = {}) {
         logger.debug(`Ejecución directa (reintentos suprimidos)`, { label });
         return await action();
     }
+    const logThreshold = Math.round(retries * 0.6);
     let attempt = 1;
     while (true) {
         try {
             const result = await action();
             // Solo logueamos en DEBUG si hubo éxito tras intentos previos para no saturar.
             if (attempt > 1) {
-                logger.info(`Acción recuperada con éxito en el intento ${attempt}`, { label });
+                // Si superó el umbral, fue un problema serio que se resolvió. INFO.
+                if (attempt >= logThreshold) {
+                    logger.info(`✅ Acción recuperada en intento ${attempt} (Estuvo cerca del límite)`, { label });
+                }
+                else {
+                    // Si fue antes del umbral, fue un glitch menor. DEBUG.
+                    logger.debug(`Acción recuperada silenciosamente en intento ${attempt}`, { label });
+                }
             }
             else {
                 logger.debug(`Acción completada en el primer intento`, { label });
@@ -44,15 +52,25 @@ export async function retry(action, options = {}) {
             }
             // 3. Caso: Límite de intentos alcanzado
             if (attempt >= retries) {
-                logger.error(`Límite de reintentos alcanzado (${retries}). Abortando. Último error: ${errorMsg}`, { label });
                 throw err;
             }
             // 4. Caso: Error reintentable (Timeout, StaleElement, etc.)
             const delay = calcBackoff(attempt, initialDelayMs, backoffFactor, maxDelayMs);
-            logger.warn(`Fallo en intento ${attempt}/${retries}. Reintentando en ${delay}ms... Motivo: ${errorMsg}`, {
-                label,
-                category
-            });
+            // --- LOGGING PROGRESIVO ---
+            if (attempt >= logThreshold) {
+                // Obtenemos solo la primera línea del error para el WARN (limpieza visual)
+                const shortMsg = errorMsg.split('\n')[0];
+                // Si es UNKNOWN, le ponemos una etiqueta especial para diferenciarlo de timeouts normales
+                const prefix = category === ErrorCategory.UNKNOWN ? '[⚠️ Error Raro/Unknown]' : '⚠️';
+                logger.warn(`${prefix} Inestabilidad en intento ${attempt}/${retries}. Reintentando en ${delay}ms... | Motivo: ${shortMsg}`, {
+                    label,
+                    category
+                });
+            }
+            else {
+                // Intentos tempranos (Glitch): Silencio total (o Debug)
+                logger.debug(`Fallo silencioso intento ${attempt}/${retries}. Reintentando...`, { label });
+            }
             await sleep(delay);
             attempt++;
         }

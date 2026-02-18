@@ -28,7 +28,7 @@ export async function passLogin(
 
   try {
     // 2. Log de hito de negocio (INFO).
-    logger.info(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, { 
+    logger.debug(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, { 
       label: config.label 
     });
 

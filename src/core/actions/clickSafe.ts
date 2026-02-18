@@ -37,7 +37,7 @@ export async function clickSafe(
       // 4. Ejecución
       await element.click();
 
-      logger.info(`Click ejecutado correctamente`, { label: config.label });
+      logger.debug(`Click ejecutado correctamente`, { label: config.label });
       return element;
 
     } catch (error: any) {

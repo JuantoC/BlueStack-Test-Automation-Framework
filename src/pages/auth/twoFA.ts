@@ -35,7 +35,7 @@ export class TwoFAFields {
       // Delegamos en clickSafe la espera, el scroll y el reintento.
       await clickSafe(this.driver, this.twoFAModalDismissButton, config);
 
-      logger.info("Modal de 2FA gestionado correctamente", {
+      logger.debug("Modal de 2FA gestionado correctamente", {
         label: config.label
       });
 

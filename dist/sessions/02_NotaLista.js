@@ -1,18 +1,3 @@
-import { listicleData } from "../dataTest/noteData.js";
-import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
-import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
-import { DefaultConfig } from "../core/config/default.js";
-// Core Tools
-import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import logger from "../core/utils/logger.js";
-// Business Flows
-import { passLogin } from "../flows/manageAuth.js";
-import { fillNote } from "../flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
-// Enums
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 /**
  * TEST CASE: 02 - Creación de Nota tipo Listicle
  * Valida la generación dinámica de ítems y la salida con descarte de cambios.
@@ -36,10 +21,9 @@ async function runListicleSession() {
         // 3. Creación de Listicle
         await createNewNote(driver, NoteType.LISTICLE, opts);
         // 4. Llenado Dinámico 
-        // El flow fillNote detectará los 'listicleItems' en data y actuará en consecuencia
-        await fillNote(driver, listicleData[0], opts);
-        // 5. Salida (Simulando descarte de cambios vía botón Back)
-        await closeNoteEditor(driver, NoteExitAction.BACK_EXIT_DISCARD, opts);
+        await fillNote(driver, listicleData[3], opts);
+        // 5. Salida
+        await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
         logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
     }
     catch (error) {
@@ -57,4 +41,19 @@ async function runListicleSession() {
 }
 // Bootstrap de la sesión
 runListicleSession().catch(() => process.exit(1));
+import { listicleData } from "../dataTest/noteData.js";
+import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
+import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
+import { DefaultConfig } from "../core/config/default.js";
+// Core Tools
+import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import logger from "../core/utils/logger.js";
+// Business Flows
+import { passLogin } from "../flows/manageAuth.js";
+import { fillNote } from "../flows/fillNote.js";
+import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
+// Enums
+import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
+import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 //# sourceMappingURL=02_NotaLista.js.map

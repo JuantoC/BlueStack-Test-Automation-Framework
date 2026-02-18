@@ -1,6 +1,6 @@
-import { By, Key, WebDriver } from "selenium-webdriver";
+import { By, Key } from "selenium-webdriver";
 import { clickSafe } from "../core/actions/clickSafe.js";
-import { initializeDriver, quitDriver } from "../core/actions/driverManager.js";
+import { DriverSession, initializeDriver, quitDriver } from "../core/actions/driverManager.js";
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
@@ -10,16 +10,18 @@ import { goToPost } from "../core/actions/goToPost.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import logger from "../core/utils/logger.js";
+import { checkConsoleErrors } from "../core/utils/browserLogs.js";
 
 async function createNewTags(tagsList: string[]): Promise<void> {
     const sessionLabel = "DEV_UTILITY:CreateTags";
     const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
 
     const authUrl = getAuthUrl(MainConfig.BASE_URL, basicAuthCredentials.username, basicAuthCredentials.password);
-    let driver: WebDriver | undefined;
+    let session: DriverSession | null = null;
 
     try {
-        driver = await initializeDriver({ isHeadless: false }, opts);
+        session = await initializeDriver({ isHeadless: false }, opts);
+        const driver = session.driver
 
         logger.info(`Iniciando utilidad de creación de ${tagsList.length} tags`, { label: sessionLabel });
 
@@ -52,10 +54,27 @@ async function createNewTags(tagsList: string[]): Promise<void> {
         }
 
     } catch (error: any) {
-        logger.error(`Fallo en el script de utilidad: ${error.message}`, { label: sessionLabel });
+        if (error instanceof Error) {
+            let errorMessage = error.message;
+
+            const diff = (error as any)?.diff;
+            if (diff) {
+                errorMessage += `\n>>> DETALLE DEL FALLO DE TEXTO <<<${diff}`;
+            }
+
+            logger.error(`❌ FALLO CRÍTICO en ${sessionLabel}`, {
+                label: sessionLabel,
+                stack: error.stack,
+                details: errorMessage
+            });
+
+            throw error;
+        }
     } finally {
-        if (driver) {
-            await quitDriver(driver, { ...opts, timeoutMs: 3000 });
+        if (session) {
+            await checkConsoleErrors(session.driver, sessionLabel)
+            logger.info("Limpiando entorno y cerrando sesión...", { label: sessionLabel });
+            await quitDriver(session, opts);
         }
     }
 }

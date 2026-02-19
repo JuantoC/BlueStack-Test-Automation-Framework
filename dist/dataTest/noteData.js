@@ -1,60 +1,69 @@
 import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
 export const notesData = [
     {
-        title: "Impacto económico del sector tecnológico",
-        subTitle: "Cómo evolucionan las startups",
-        halfTitle: "Informe 2025",
-        body: "El sector tecnológico continúa expandiéndose con ritmos acelerados...",
-        tags: ["economía", "tecnología", "startups"],
-        hiddenTags: ["internal-report", "confidential"],
-        authorName: "Departamento de Investigación",
-        authorDescription: "Equipo interno especializado en análisis macroeconómico.",
-        authorType: AuthorType.MANUAL
+        title: "Avances en baterías de estado sólido prometen duplicar la autonomía de los vehículos eléctricos",
+        subTitle: "Un consorcio europeo anunció pruebas exitosas con celdas más seguras y de carga ultrarrápida",
+        halfTitle: "Baterías de estado sólido duplican autonomía",
+        body: `Un consorcio de investigación europeo confirmó esta semana resultados positivos en el desarrollo de baterías de estado sólido capaces de duplicar la autonomía actual de los vehículos eléctricos. Según los datos preliminares, las nuevas celdas alcanzan densidades energéticas superiores a los 450 Wh/kg, lo que permitiría recorrer más de 900 kilómetros con una sola carga en modelos de gama media.
+
+A diferencia de las baterías de ion-litio tradicionales, la tecnología de estado sólido reemplaza el electrolito líquido por un material sólido, reduciendo significativamente el riesgo de incendios y mejorando la estabilidad térmica. Además, los investigadores aseguran que el tiempo de carga podría reducirse a menos de 15 minutos para alcanzar el 80% de la capacidad.
+
+Las primeras pruebas en prototipos industriales demostraron un rendimiento estable tras más de 1.000 ciclos de carga completa. Aunque aún restan desafíos en la escalabilidad y los costos de producción, varias automotrices ya iniciaron acuerdos estratégicos para incorporar esta tecnología en sus próximos modelos eléctricos hacia 2028.
+
+Especialistas del sector energético destacan que este avance podría acelerar la transición hacia la movilidad sostenible y disminuir la dependencia de combustibles fósiles en los próximos años.`,
+        tags: ["Tecnología", "Movilidad eléctrica", "Innovación", "Energía"],
+        hiddenTags: ["baterías estado sólido", "autonomía vehículos eléctricos", "carga rápida"],
+        authorName: "Mariana López",
+        authorDescription: "Periodista especializada en tecnología e innovación energética."
     },
     {
-        title: "Experiencia en eventos masivos",
-        body: `
-Asistí a un festival con más de 50.000 personas y noté varios puntos críticos que vale la pena analizar desde una mirada organizativa y operativa.
+        title: "Inteligencia artificial generativa transforma la atención al cliente en América Latina",
+        subTitle: "Empresas regionales integran asistentes conversacionales para reducir costos y mejorar tiempos de respuesta",
+        halfTitle: "IA generativa redefine atención al cliente",
+        body: `La adopción de inteligencia artificial generativa crece de forma sostenida en América Latina, especialmente en áreas de atención al cliente. Empresas de telecomunicaciones, banca y comercio electrónico comenzaron a implementar asistentes conversacionales capaces de resolver consultas complejas en tiempo real y en múltiples idiomas.
 
-Desde el ingreso, la logística mostró fortalezas y debilidades. Los accesos estaban correctamente señalizados, pero los tiempos de espera superaron lo previsto en horarios pico. La validación de entradas funcionó de manera ágil cuando el sistema respondía con normalidad, aunque ante pequeños retrasos en la conectividad se generaban cuellos de botella que impactaban directamente en la experiencia del público.
+De acuerdo con consultoras del sector, las organizaciones que integraron estos sistemas reportaron reducciones de hasta un 35% en costos operativos y mejoras significativas en los niveles de satisfacción del usuario. Los nuevos modelos permiten comprender contexto, historial del cliente y matices del lenguaje natural, ofreciendo respuestas más precisas y personalizadas.
 
-En materia de seguridad, la distribución del personal fue visible y estratégica en zonas de alta circulación, como accesos, escenarios principales y áreas gastronómicas. Sin embargo, en sectores intermedios la supervisión era menor, lo que dificultaba la rápida resolución de incidentes menores.
+Sin embargo, expertos advierten sobre la importancia de establecer marcos éticos claros, proteger los datos personales y mantener supervisión humana en procesos críticos. La transparencia en el uso de algoritmos y la capacitación interna son factores clave para una implementación responsable.
 
-La infraestructura general estuvo bien dimensionada para el volumen de asistentes: sanitarios suficientes, múltiples puntos de hidratación y una oferta gastronómica variada. Aun así, en momentos de alta demanda se evidenció la necesidad de reforzar la reposición y limpieza continua para sostener estándares adecuados.
-
-Otro punto relevante fue la gestión de la información en tiempo real. Las pantallas y anuncios oficiales ayudaban a ordenar los flujos de personas, aunque hubiera sido útil contar con notificaciones más dinámicas a través de una aplicación oficial o canales digitales para anticipar cambios de horario o ajustes en la programación.
-
-En términos generales, la experiencia fue positiva, pero este tipo de eventos masivos exige planificación minuciosa, monitoreo constante y capacidad de reacción inmediata. Los pequeños detalles operativos, cuando se multiplican por decenas de miles de personas, pueden convertirse rápidamente en factores críticos.
-  `,
-        tags: ["eventos", "seguridad"],
-        hiddenTags: ["anonymous"],
-        authorName: "Anónimo",
-        authorDescription: "El autor decidió no revelar su identidad.",
-        authorType: AuthorType.MANUAL
+Analistas proyectan que, en los próximos tres años, más del 60% de las interacciones digitales en la región estarán mediadas por sistemas de inteligencia artificial, consolidando un cambio estructural en la relación entre empresas y consumidores.`,
+        tags: ["Inteligencia artificial", "Transformación digital", "Empresas", "América Latina"],
+        hiddenTags: ["IA generativa", "chatbots empresariales", "automatización atención cliente"],
+        authorName: "Santiago Ferrer",
+        authorDescription: "Editor de negocios y tecnología con foco en transformación digital."
     },
     {
-        title: "Guía rápida de mantenimiento",
-        secondaryTitle: "Equipo de impresión industrial",
-        subTitle: "Modelo XT-900",
-        body: "Para comenzar con el mantenimiento básico es necesario...",
-        summary: "Pasos esenciales para mantenimiento preventivo.",
-        tags: ["mantenimiento", "industria"],
-        hiddenTags: [],
-        authorName: "Carlos Pérez",
-        authorDescription: "Técnico especializado en maquinaria industrial.",
-        authorType: AuthorType.MANUAL
+        title: "Descubren un nuevo exoplaneta potencialmente habitable a 120 años luz de la Tierra",
+        subTitle: "El planeta orbita una estrella similar al Sol y presenta condiciones compatibles con agua líquida",
+        halfTitle: "Nuevo exoplaneta con potencial habitable",
+        body: `Un equipo internacional de astrónomos anunció el hallazgo de un exoplaneta ubicado a 120 años luz de la Tierra que podría reunir condiciones aptas para albergar agua líquida en su superficie. El descubrimiento fue realizado mediante observaciones combinadas de telescopios terrestres y satelitales especializados en la detección de tránsito planetario.
+
+El nuevo mundo, clasificado como supertierra por su tamaño y masa, orbita dentro de la denominada "zona habitable" de su estrella, una región donde la temperatura permitiría la existencia de agua en estado líquido. Los análisis preliminares indican que posee una atmósfera densa y un período orbital de aproximadamente 37 días.
+
+Si bien todavía no es posible confirmar la presencia de vida, los científicos consideran que se trata de uno de los candidatos más prometedores identificados en los últimos años. Próximas misiones espaciales buscarán estudiar su composición atmosférica con mayor precisión para detectar posibles biofirmas.
+
+El hallazgo refuerza la hipótesis de que planetas con características similares a la Tierra podrían ser más comunes de lo que se creía en la galaxia.`,
+        tags: ["Ciencia", "Astronomía", "Espacio", "Investigación"],
+        hiddenTags: ["exoplaneta", "zona habitable", "supertierra", "vida extraterrestre"],
+        authorName: "Lucía Andrade",
+        authorDescription: "Divulgadora científica especializada en astronomía y exploración espacial."
     },
     {
-        title: "Arquitectura distribuida en sistemas de noticias en tiempo real",
-        subTitle: "Diseño aplicado en grandes redacciones digitales",
-        halfTitle: "Versión técnica 2025",
-        body: `Los sistemas modernos de publicación de noticias requieren infraestructura capaz de soportar miles de operaciones concurrentes por minuto sin comprometer la latencia de lectura ni los tiempos de indexación. Este informe detalla la arquitectura distribuida utilizada para garantizar: - Replicación eventual con consistencia fuerte en segmentos críticos. - Persistencia optimizada para contenido temporal (drafts) y contenido permanente. - Colas de procesamiento para normalización, etiquetado automático y validación semántica. - Servicios de locking granular por nota para evitar “writing collisions” entre editores. Además, se documenta la estrategia de tolerancia a fallos aplicada mediante split-brain handling en escenarios de partición de red, así como las mejoras introducidas para acelerar el cierre editorial automatizado.`,
-        tags: ["arquitectura", "distributed-systems", "newsroom-tech", "scalability"],
-        hiddenTags: ["internal-design", "infra-deepdive"],
-        authorName: "Equipo de Plataforma Editorial",
-        authorDescription: "Área interna r esponsable del diseño e implementación de sistemas críticos de publicación.",
-        authorType: AuthorType.MANUAL
-    },
+        title: "Uruguay impulsa un plan nacional para expandir la conectividad 5G en zonas rurales",
+        subTitle: "El proyecto busca reducir la brecha digital y fortalecer el desarrollo productivo del interior",
+        halfTitle: "Plan 5G para zonas rurales",
+        body: `El gobierno presentó un nuevo plan nacional orientado a ampliar la cobertura 5G en localidades rurales y pequeñas ciudades del interior del país. La iniciativa contempla inversiones público-privadas para desplegar infraestructura de telecomunicaciones en áreas donde actualmente el acceso a internet de alta velocidad es limitado.
+
+El programa incluye la instalación de nuevas antenas, actualización de redes existentes y subsidios para operadores que amplíen su cobertura en regiones estratégicas. Según autoridades del sector, el objetivo es mejorar la competitividad de productores agropecuarios, facilitar el acceso a educación digital y potenciar el comercio electrónico local.
+
+Especialistas en transformación digital sostienen que la conectividad de alta velocidad puede generar impactos directos en la productividad y la inclusión social, permitiendo el desarrollo de soluciones de telemedicina, monitoreo agrícola inteligente y capacitación remota.
+
+El despliegue comenzará en el segundo semestre del año y se prevé que alcance a más del 85% del territorio nacional en los próximos tres años.`,
+        tags: ["Uruguay", "Telecomunicaciones", "5G", "Desarrollo"],
+        hiddenTags: ["conectividad rural", "brecha digital", "infraestructura telecom"],
+        authorName: "Federico Núñez",
+        authorDescription: "Periodista especializado en políticas públicas y tecnología."
+    }
 ];
 export const listicleData = [
     {

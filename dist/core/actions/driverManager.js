@@ -8,13 +8,17 @@ export async function initializeDriver(options, opts = {}) {
         const chromeOptions = setChromeOptions(options);
         // Selenium 4 gestiona el driver automáticamente. 
         // Solo usamos ServiceBuilder si necesitamos pasar argumentos específicos al proceso del driver.
-        const service = new ServiceBuilder()
-            .setStdio('ignore'); // Evita logs innecesarios del driver
-        const driver = await new Builder()
+        const builder = new Builder()
             .forBrowser('chrome')
-            .setChromeOptions(chromeOptions)
-            .setChromeService(service)
-            .build();
+            .setChromeOptions(chromeOptions);
+        if (options.useGrid) {
+            builder.usingServer(options.gridUrl ?? 'http://localhost:4444');
+        }
+        else {
+            const service = new ServiceBuilder().setStdio('ignore');
+            builder.setChromeService(service);
+        }
+        const driver = await builder.build();
         await driver.manage().setTimeouts({
             pageLoad: 30000, // Tiempo límite para que cargue la URL
             script: 30000 // Tiempo límite para ejecución de JS

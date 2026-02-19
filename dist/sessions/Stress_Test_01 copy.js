@@ -14,7 +14,7 @@ async function runNoteCreationSession() {
     try {
         logger.info(`>>> Iniciando Sesión de Prueba: ${sessionLabel} <<<`, { label: sessionLabel });
         // 1. Setup del Entorno
-        session = await initializeDriver({ isHeadless: false }, opts);
+        session = await initializeDriver({ isHeadless: false, useGrid: true }, opts);
         const driver = session.driver;
         // 2. Acceso y Autenticación
         await driver.get(authUrl);
@@ -23,12 +23,12 @@ async function runNoteCreationSession() {
         // 3. Creación de Nota tipo Post
         await createNewNote(driver, NoteType.POST, opts);
         // 4. Llenado Dinámico de la Nota
-        await fillNote(driver, notesData[0], opts);
+        await fillNote(driver, notesData[2], opts);
         // 5. Salida
         await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, opts);
         await sleep(1000 * 60 * 10);
         await createNewNote(driver, NoteType.POST, opts);
-        await fillNote(driver, notesData[1], opts);
+        await fillNote(driver, notesData[3], opts);
         await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
         await sleep(1000 * 60 * 1);
         logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
@@ -77,4 +77,4 @@ import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
 import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import { checkConsoleErrors } from "../core/utils/browserLogs.js";
 import { sleep } from "../core/utils/backOff.js";
-//# sourceMappingURL=Stress_Test_01.js.map
+//# sourceMappingURL=Stress_Test_01%20copy.js.map

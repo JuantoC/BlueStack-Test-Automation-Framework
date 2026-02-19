@@ -1,16 +1,9 @@
-/**
- * TEST CASE: Creación de Nota tipo Post - 01
- * Valida el ciclo completo desde el login hasta el persistido en base de datos.
- */
 async function runNoteCreationSession(): Promise<void> {
-  const sessionLabel = "Stress_TC-01";
-
-  // Unificamos configuración global para esta sesión
+  const sessionLabel = "Docker_Test";
   const opts: RetryOptions = {
     ...DefaultConfig,
     label: sessionLabel
   };
-
   const authUrl = getAuthUrl(
     MainConfig.BASE_URL,
     basicAuthCredentials.username,
@@ -18,39 +11,16 @@ async function runNoteCreationSession(): Promise<void> {
   );
 
   let session: DriverSession | null = null;
-
   try {
     logger.info(`>>> Iniciando Sesión de Prueba: ${sessionLabel} <<<`, { label: sessionLabel });
 
     // 1. Setup del Entorno
-    session = await initializeDriver({ isHeadless: false }, opts);
+    session = await initializeDriver({ isHeadless: true, useGrid: true }, opts);
     const driver = session.driver;
-
     // 2. Acceso y Autenticación
-    await driver.get(authUrl);
-    await passLogin(driver, testEditorCredentials, opts);
+    await driver.get(authUrl);;
 
-    await sleep(1000 * 60 * 2)
-
-    // 3. Creación de Nota tipo Post
-    await createNewNote(driver, NoteType.POST, opts);
-
-    // 4. Llenado Dinámico de la Nota
-    await fillNote(driver, notesData[0], opts);
-
-    // 5. Salida
-    await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, opts);
-
-    await sleep(1000 * 60 * 10)
-
-    await createNewNote(driver, NoteType.POST, opts);
-
-    await fillNote(driver, notesData[1], opts);
-
-    await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
-
-    await sleep(1000 * 60 * 1)
-
+    await sleep(1000 * 10)
     logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
 
   } catch (error: unknown) {
@@ -84,24 +54,12 @@ runNoteCreationSession().catch(() => {
   process.exit(1);
 });
 
-import { notesData } from "../dataTest/noteData.js";
-import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
-import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
-
-// Herramientas Core
 import { DriverSession, initializeDriver, quitDriver } from "../core/actions/driverManager.js";
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import logger from "../core/utils/logger.js";
-
-// Business Flows (La capa de inteligencia)
-import { passLogin } from "../flows/manageAuth.js";
-import { fillNote } from "../flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
-
-// Enums de Dominio
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import { checkConsoleErrors } from "../core/utils/browserLogs.js";
 import { sleep } from "../core/utils/backOff.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
+import { basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 

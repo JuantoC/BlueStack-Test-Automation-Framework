@@ -34,11 +34,10 @@ async function runLiveBlogSession(): Promise<void> {
         await createNewNote(driver, NoteType.LIVEBLOG, opts);
 
         // 4. Llenado Dinámico 
-        await fillNote(driver, liveblogData[0], opts);
+        await fillNote(driver, LiveBlogData[0], opts);
 
         // 5. Salida
-        //await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
-        await sleep(10000); // Pausa para inspección visual antes de cerrar
+        await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
 
         logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
 
@@ -71,7 +70,7 @@ async function runLiveBlogSession(): Promise<void> {
 // Bootstrap de la sesión
 runLiveBlogSession().catch(() => process.exit(1));
 
-import { liveblogData } from "../dataTest/noteData.js";
+import { LiveBlogData } from "../dataTest/noteData.js";
 import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
@@ -88,6 +87,6 @@ import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js
 
 // Enums
 import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { sleep } from "../core/utils/backOff.js"; 
 import { checkConsoleErrors } from "../core/utils/browserLogs.js";
+import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 

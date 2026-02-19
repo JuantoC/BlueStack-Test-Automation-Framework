@@ -1,477 +1,169 @@
-import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
-export const notesData = [
+export const PostData = [
     {
-        title: "Avances en baterías de estado sólido prometen duplicar la autonomía de los vehículos eléctricos",
-        subTitle: "Un consorcio europeo anunció pruebas exitosas con celdas más seguras y de carga ultrarrápida",
-        halfTitle: "Baterías de estado sólido duplican autonomía",
-        body: `Un consorcio de investigación europeo confirmó esta semana resultados positivos en el desarrollo de baterías de estado sólido capaces de duplicar la autonomía actual de los vehículos eléctricos. Según los datos preliminares, las nuevas celdas alcanzan densidades energéticas superiores a los 450 Wh/kg, lo que permitiría recorrer más de 900 kilómetros con una sola carga en modelos de gama media.
-
-A diferencia de las baterías de ion-litio tradicionales, la tecnología de estado sólido reemplaza el electrolito líquido por un material sólido, reduciendo significativamente el riesgo de incendios y mejorando la estabilidad térmica. Además, los investigadores aseguran que el tiempo de carga podría reducirse a menos de 15 minutos para alcanzar el 80% de la capacidad.
-
-Las primeras pruebas en prototipos industriales demostraron un rendimiento estable tras más de 1.000 ciclos de carga completa. Aunque aún restan desafíos en la escalabilidad y los costos de producción, varias automotrices ya iniciaron acuerdos estratégicos para incorporar esta tecnología en sus próximos modelos eléctricos hacia 2028.
-
-Especialistas del sector energético destacan que este avance podría acelerar la transición hacia la movilidad sostenible y disminuir la dependencia de combustibles fósiles en los próximos años.`,
-        tags: ["Tecnología", "Movilidad eléctrica", "Innovación", "Energía"],
-        hiddenTags: ["baterías estado sólido", "autonomía vehículos eléctricos", "carga rápida"],
-        authorName: "Mariana López",
-        authorDescription: "Periodista especializada en tecnología e innovación energética."
+        title: "La inteligencia artificial redefine el trabajo en 2026",
+        subTitle: "Empresas adoptan modelos híbridos entre humanos y automatización",
+        halfTitle: "El futuro del trabajo ya llegó",
+        body: "Durante el último año, la inteligencia artificial ha pasado de ser una herramienta complementaria a convertirse en un pilar estratégico en múltiples industrias. Empresas tecnológicas y tradicionales han comenzado a rediseñar sus estructuras operativas, integrando asistentes inteligentes en procesos clave como atención al cliente, análisis de datos y generación de contenido.\n\nEste cambio ha generado tanto entusiasmo como incertidumbre. Por un lado, se incrementa la productividad y se reducen costos; por otro, surge el desafío de la reconversión laboral. Especialistas coinciden en que las habilidades más demandadas serán aquellas relacionadas con la supervisión de sistemas automatizados, pensamiento crítico y creatividad.\n\nEn América Latina, la adopción avanza de forma desigual, pero con un crecimiento sostenido. Uruguay, en particular, se posiciona como un hub emergente gracias a su ecosistema tecnológico y talento calificado.",
+        tags: ["tecnología", "inteligencia artificial", "trabajo", "innovación"],
+        hiddenTags: ["ai-trends", "future-of-work"],
+        authorName: "Lucía Fernández",
+        authorDescription: "Periodista especializada en tecnología y transformación digital con más de 10 años de experiencia en medios regionales."
     },
     {
-        title: "Inteligencia artificial generativa transforma la atención al cliente en América Latina",
-        subTitle: "Empresas regionales integran asistentes conversacionales para reducir costos y mejorar tiempos de respuesta",
-        halfTitle: "IA generativa redefine atención al cliente",
-        body: `La adopción de inteligencia artificial generativa crece de forma sostenida en América Latina, especialmente en áreas de atención al cliente. Empresas de telecomunicaciones, banca y comercio electrónico comenzaron a implementar asistentes conversacionales capaces de resolver consultas complejas en tiempo real y en múltiples idiomas.
-
-De acuerdo con consultoras del sector, las organizaciones que integraron estos sistemas reportaron reducciones de hasta un 35% en costos operativos y mejoras significativas en los niveles de satisfacción del usuario. Los nuevos modelos permiten comprender contexto, historial del cliente y matices del lenguaje natural, ofreciendo respuestas más precisas y personalizadas.
-
-Sin embargo, expertos advierten sobre la importancia de establecer marcos éticos claros, proteger los datos personales y mantener supervisión humana en procesos críticos. La transparencia en el uso de algoritmos y la capacitación interna son factores clave para una implementación responsable.
-
-Analistas proyectan que, en los próximos tres años, más del 60% de las interacciones digitales en la región estarán mediadas por sistemas de inteligencia artificial, consolidando un cambio estructural en la relación entre empresas y consumidores.`,
-        tags: ["Inteligencia artificial", "Transformación digital", "Empresas", "América Latina"],
-        hiddenTags: ["IA generativa", "chatbots empresariales", "automatización atención cliente"],
-        authorName: "Santiago Ferrer",
-        authorDescription: "Editor de negocios y tecnología con foco en transformación digital."
+        title: "El auge de las ciudades sostenibles en América Latina",
+        subTitle: "Nuevas políticas urbanas apuntan a reducir la huella ambiental",
+        halfTitle: "Ciudades más verdes",
+        body: "Las ciudades latinoamericanas enfrentan un desafío histórico: crecer sin comprometer el medio ambiente. En respuesta, diversos gobiernos han comenzado a implementar políticas públicas orientadas a la sostenibilidad urbana, incluyendo la expansión del transporte eléctrico, la creación de espacios verdes y la promoción de energías renovables.\n\nMontevideo ha sido destacada recientemente por sus iniciativas de movilidad sostenible, con proyectos que incentivan el uso de bicicletas y mejoran el transporte público. Estas medidas no solo reducen las emisiones de carbono, sino que también mejoran la calidad de vida de los ciudadanos.\n\nExpertos advierten que el éxito de estas políticas dependerá de la continuidad en el tiempo y la participación activa de la población. La educación ambiental y la innovación tecnológica serán claves para consolidar este cambio.",
+        tags: ["medio ambiente", "sostenibilidad", "ciudades", "latam"],
+        hiddenTags: ["green-cities", "urban-policy"],
+        authorName: "Martín Rodríguez",
+        authorDescription: "Analista urbano y consultor en políticas públicas, enfocado en desarrollo sostenible en América Latina."
     },
     {
-        title: "Descubren un nuevo exoplaneta potencialmente habitable a 120 años luz de la Tierra",
-        subTitle: "El planeta orbita una estrella similar al Sol y presenta condiciones compatibles con agua líquida",
-        halfTitle: "Nuevo exoplaneta con potencial habitable",
-        body: `Un equipo internacional de astrónomos anunció el hallazgo de un exoplaneta ubicado a 120 años luz de la Tierra que podría reunir condiciones aptas para albergar agua líquida en su superficie. El descubrimiento fue realizado mediante observaciones combinadas de telescopios terrestres y satelitales especializados en la detección de tránsito planetario.
-
-El nuevo mundo, clasificado como supertierra por su tamaño y masa, orbita dentro de la denominada "zona habitable" de su estrella, una región donde la temperatura permitiría la existencia de agua en estado líquido. Los análisis preliminares indican que posee una atmósfera densa y un período orbital de aproximadamente 37 días.
-
-Si bien todavía no es posible confirmar la presencia de vida, los científicos consideran que se trata de uno de los candidatos más prometedores identificados en los últimos años. Próximas misiones espaciales buscarán estudiar su composición atmosférica con mayor precisión para detectar posibles biofirmas.
-
-El hallazgo refuerza la hipótesis de que planetas con características similares a la Tierra podrían ser más comunes de lo que se creía en la galaxia.`,
-        tags: ["Ciencia", "Astronomía", "Espacio", "Investigación"],
-        hiddenTags: ["exoplaneta", "zona habitable", "supertierra", "vida extraterrestre"],
-        authorName: "Lucía Andrade",
-        authorDescription: "Divulgadora científica especializada en astronomía y exploración espacial."
-    },
-    {
-        title: "Uruguay impulsa un plan nacional para expandir la conectividad 5G en zonas rurales",
-        subTitle: "El proyecto busca reducir la brecha digital y fortalecer el desarrollo productivo del interior",
-        halfTitle: "Plan 5G para zonas rurales",
-        body: `El gobierno presentó un nuevo plan nacional orientado a ampliar la cobertura 5G en localidades rurales y pequeñas ciudades del interior del país. La iniciativa contempla inversiones público-privadas para desplegar infraestructura de telecomunicaciones en áreas donde actualmente el acceso a internet de alta velocidad es limitado.
-
-El programa incluye la instalación de nuevas antenas, actualización de redes existentes y subsidios para operadores que amplíen su cobertura en regiones estratégicas. Según autoridades del sector, el objetivo es mejorar la competitividad de productores agropecuarios, facilitar el acceso a educación digital y potenciar el comercio electrónico local.
-
-Especialistas en transformación digital sostienen que la conectividad de alta velocidad puede generar impactos directos en la productividad y la inclusión social, permitiendo el desarrollo de soluciones de telemedicina, monitoreo agrícola inteligente y capacitación remota.
-
-El despliegue comenzará en el segundo semestre del año y se prevé que alcance a más del 85% del territorio nacional en los próximos tres años.`,
-        tags: ["Uruguay", "Telecomunicaciones", "5G", "Desarrollo"],
-        hiddenTags: ["conectividad rural", "brecha digital", "infraestructura telecom"],
-        authorName: "Federico Núñez",
-        authorDescription: "Periodista especializado en políticas públicas y tecnología."
+        title: "El crecimiento del streaming redefine el consumo cultural",
+        subTitle: "Plataformas digitales lideran la nueva era del entretenimiento",
+        halfTitle: "Streaming sin límites",
+        body: "El consumo de contenido audiovisual ha cambiado radicalmente en la última década, impulsado por el crecimiento de plataformas de streaming. Series, películas, documentales y contenido en vivo están ahora al alcance de millones de usuarios en cualquier momento y lugar.\n\nEste fenómeno ha transformado no solo la forma en que se consume entretenimiento, sino también cómo se produce. Las plataformas invierten cada vez más en contenido original, generando oportunidades para creadores independientes y diversificando la oferta cultural.\n\nSin embargo, también surgen desafíos relacionados con la saturación de contenido y la fragmentación de audiencias. Los usuarios deben navegar entre múltiples servicios, lo que plantea nuevas dinámicas de competencia en la industria.",
+        tags: ["streaming", "entretenimiento", "cultura", "medios"],
+        hiddenTags: ["vod", "digital-content"],
+        authorName: "Sofía Méndez",
+        authorDescription: "Crítica cultural y redactora enfocada en tendencias de medios digitales y consumo audiovisual."
     }
 ];
-export const listicleData = [
+export const ListicleData = [
     {
-        "title": "Guía Maestra para el Trabajo Remoto",
-        "subTitle": "Cómo mantener el enfoque y la productividad desde casa",
-        "body": "El trabajo remoto ofrece flexibilidad, pero también presenta desafíos únicos de organización. Esta guía explora puntos clave para optimizar tu jornada laboral.",
-        authorName: "Dra. Elena Quantum",
-        authorDescription: "Investigadora principal en sistemas emergentes y divulgadora científica.",
-        authorType: AuthorType.MANUAL,
-        "listicleItems": [
-            {
-                "title": "Diseña un espacio dedicado",
-                "body": "Tener un lugar físico separado para trabajar ayuda a tu cerebro a entrar en modo laboral y facilita la desconexión al terminar."
-            },
-            {
-                "title": "Establece bloques de tiempo",
-                "body": "Utiliza técnicas como Pomodoro para alternar periodos de alta concentración con breves descansos necesarios."
-            },
-            {
-                "title": "Comunicación asíncrona",
-                "body": "Prioriza mensajes claros y documentados para reducir la necesidad de reuniones constantes que interrumpen el flujo de trabajo."
-            }
-        ]
-    },
-    {
-        "title": "Maximizando tu Potencial Diario",
-        "subTitle": "Guía completa con 22 estrategias probadas para optimizar tu tiempo y energía.",
-        "body": "La productividad no se trata de hacer más cosas, sino de hacer las cosas correctas de manera eficiente. Esta lista detalla hábitos prácticos que puedes implementar hoy mismo para transformar tu flujo de trabajo.",
-        "listicleItems": [
-            {
-                "title": "La Regla de los 2 Minutos",
-                "body": "Si una tarea toma menos de dos minutos, hazla de inmediato en lugar de posponerla."
-            },
-            {
-                "title": "Técnica Pomodoro",
-                "body": "Trabaja en bloques de 25 minutos seguidos de 5 minutos de descanso para mantener la agudeza mental."
-            },
-            {
-                "title": "Priorización Eat the Frog",
-                "body": "Realiza la tarea más difícil o importante a primera hora de la mañana."
-            },
-            {
-                "title": "Bloqueo de Tiempo (Time Blocking)",
-                "body": "Asigna espacios específicos en tu calendario para tareas particulares."
-            },
-            {
-                "title": "Eliminación de Notificaciones",
-                "body": "Desactiva las alertas no esenciales en tu móvil y ordenador para evitar distracciones."
-            },
-            {
-                "title": "Revisión Semanal",
-                "body": "Dedica un tiempo cada domingo para planificar los objetivos de la semana entrante."
-            },
-            {
-                "title": "Delegación Efectiva",
-                "body": "Identifica tareas que otros pueden hacer mejor o más rápido y delégalas."
-            },
-            {
-                "title": "Espacio de Trabajo Limpio",
-                "body": "Mantén tu escritorio ordenado para reducir la carga cognitiva y el estrés visual."
-            },
-            {
-                "title": "Establecimiento de Límites",
-                "body": "Aprende a decir 'no' a compromisos que no alinean con tus metas principales."
-            },
-            {
-                "title": "Uso de Listas de Tareas",
-                "body": "Escribe todo lo que necesitas hacer para liberar espacio mental."
-            },
-            {
-                "title": "Descansos Activos",
-                "body": "Levántate y camina unos minutos cada hora para mejorar la circulación y el enfoque."
-            },
-            {
-                "title": "Sueño Reparador",
-                "body": "Duerme entre 7 y 8 horas para que tu cerebro pueda procesar la información correctamente."
-            },
-            {
-                "title": "Meditación y Mindfulness",
-                "body": "Practica la atención plena para reducir el estrés y mejorar la concentración."
-            },
-            {
-                "title": "Automatización de Procesos",
-                "body": "Usa herramientas digitales para automatizar tareas repetitivas como correos o facturas."
-            },
-            {
-                "title": "Agrupación de Tareas (Batching)",
-                "body": "Realiza tareas similares al mismo tiempo, como responder todos los emails de una vez."
-            },
-            {
-                "title": "Hidratación Constante",
-                "body": "Beber agua regularmente mantiene tus niveles de energía y claridad mental."
-            },
-            {
-                "title": "Matriz de Eisenhower",
-                "body": "Clasifica tus tareas por urgencia e importancia para decidir qué atender primero."
-            },
-            {
-                "title": "Lectura Diaria",
-                "body": "Dedica 15 minutos al día a leer algo que aporte valor a tu carrera o vida personal."
-            },
-            {
-                "title": "Diario de Logros",
-                "body": "Anota tres cosas que lograste al final del día para mantener la motivación alta."
-            },
-            {
-                "title": "Preparación la Noche Anterior",
-                "body": "Prepara tu ropa y tu agenda la noche antes para reducir la fatiga de decisión por la mañana."
-            },
-            {
-                "title": "Aprendizaje Continuo",
-                "body": "Dedica tiempo a aprender nuevas habilidades que simplifiquen tu trabajo."
-            },
-            {
-                "title": "Desconexión Digital",
-                "body": "Establece una hora límite para dejar de usar pantallas antes de dormir."
-            }
-        ]
-    },
-    {
-        title: "La Frontera del Mañana",
-        subTitle: "Innovaciones que están transformando nuestra realidad cotidiana",
-        body: "Desde la integración profunda de la IA hasta la computación cuántica accesible, este año marca un punto de inflexión en la evolución digital de la humanidad.",
-        tags: ["Tecnología", "Innovación", "IA", "Futuro"],
-        hiddenTags: ["tech_trends_2026", "future_is_now", "quantum_computing"],
-        authorName: "Dra. Elena Quantum",
-        authorDescription: "Investigadora principal en sistemas emergentes y divulgadora científica.",
-        authorType: AuthorType.MANUAL,
+        title: "25 tendencias tecnológicas que están definiendo el futuro",
+        subTitle: "Un recorrido completo por las innovaciones más relevantes del momento",
+        body: "La tecnología avanza a un ritmo sin precedentes, impactando todos los aspectos de la vida moderna. Desde inteligencia artificial hasta biotecnología, estas tendencias están transformando industrias completas.\n\nA continuación, un repaso detallado de las principales tendencias que marcarán el futuro cercano.",
+        tags: ["tecnología", "innovación", "futuro"],
+        hiddenTags: ["tech-trends", "innovation"],
+        authorName: "Lucía Fernández",
+        authorDescription: "Periodista especializada en tecnología y transformación digital.",
         listicleItems: [
-            {
-                title: "IA Generativa de Video en Tiempo Real",
-                body: "Capacidad de generar entornos visuales dinámicos mientras el usuario interactúa con ellos."
-            },
-            {
-                title: "Baterías de Estado Sólido",
-                body: "Mayor autonomía y carga ultra rápida para vehículos eléctricos comerciales."
-            },
-            {
-                title: "Interfaces Cerebro-Computadora",
-                body: "Avances significativos en dispositivos no invasivos para controlar interfaces con el pensamiento."
-            },
-            {
-                title: "Medicina Personalizada por ADN",
-                body: "Tratamientos diseñados específicamente según el código genético individual en tiempo récord."
-            },
-            {
-                title: "Redes 6G Experimentales",
-                body: "Primeras pruebas de conectividad con latencia casi nula en centros urbanos seleccionados."
-            },
-            {
-                title: "Gemelos Digitales Urbanos",
-                body: "Simulaciones exactas de ciudades para optimizar el tráfico y el consumo energético."
-            },
-            {
-                title: "Agricultura Vertical Automatizada",
-                body: "Producción masiva de alimentos en entornos urbanos controlados por robots."
-            },
-            {
-                title: "Computación Cuántica en la Nube",
-                body: "Acceso democratizado para empresas a procesadores cuánticos para cálculos complejos."
-            },
-            {
-                title: "Robótica de Asistencia Doméstica",
-                body: "Humanoides capaces de realizar tareas del hogar con destreza motriz fina."
-            },
-            {
-                title: "Gafas de Realidad Aumentada Estilizadas",
-                body: "Dispositivos que lucen como gafas normales pero proyectan información persistente."
-            },
-            {
-                title: "Sistemas de Captura de Carbono",
-                body: "Nuevas plantas de filtrado de aire con eficiencia mejorada para combatir el cambio climático."
-            },
-            {
-                title: "Entrega por Drones Autónomos",
-                body: "Logística de última milla completamente automatizada en zonas residenciales."
-            },
-            {
-                title: "Ciberseguridad Cuántica",
-                body: "Protocolos de encriptación diseñados para resistir ataques de ordenadores cuánticos."
-            },
-            {
-                title: "Telas Inteligentes",
-                body: "Ropa que monitorea signos vitales y ajusta su temperatura térmicamente."
-            },
-            {
-                title: "Edición Genética CRISPR in-vivo",
-                body: "Terapias directas para corregir mutaciones genéticas dentro del cuerpo humano."
-            },
-            {
-                title: "Internet de las Cosas Aeroespacial",
-                body: "Constelaciones de satélites que conectan dispositivos en los puntos más remotos."
-            },
-            {
-                title: "IA Ética y Explicable",
-                body: "Algoritmos que pueden detallar el 'por qué' de sus decisiones para evitar sesgos."
-            },
-            {
-                title: "Micro-LEDs en Pantallas",
-                body: "Nueva tecnología de visualización con brillo extremo y consumo mínimo de energía."
-            },
-            {
-                title: "Bioplásticos de Tercera Generación",
-                body: "Materiales biodegradables fabricados a partir de algas y residuos orgánicos."
-            },
-            {
-                title: "Traducción de Voz Instantánea",
-                body: "Auriculares que traducen idiomas en milisegundos sin necesidad de internet."
-            },
-            {
-                title: "Almacenamiento de Datos en ADN",
-                body: "Prototipos de archivo de información masiva con durabilidad de miles de años."
-            },
-            {
-                title: "Metaverso de Trabajo Colaborativo",
-                body: "Espacios de oficina virtuales que reemplazan por completo a las videollamadas tradicionales."
-            }
+            { title: "IA generativa avanzada", body: "Modelos capaces de crear contenido más preciso, creativo y contextual." },
+            { title: "Automatización inteligente", body: "Procesos empresariales completamente automatizados con supervisión mínima." },
+            { title: "Computación cuántica", body: "Resolución de problemas complejos imposibles para computadoras tradicionales." },
+            { title: "Edge computing", body: "Procesamiento de datos más cerca del usuario para reducir latencia." },
+            { title: "5G y más allá", body: "Conectividad ultra rápida que habilita nuevas experiencias digitales." },
+            { title: "Gemelos digitales", body: "Simulación virtual de objetos físicos para optimizar rendimiento." },
+            { title: "Ciberseguridad con IA", body: "Defensas automatizadas frente a amenazas cada vez más sofisticadas." },
+            { title: "Realidad aumentada", body: "Integración de lo digital con el mundo físico en tiempo real." },
+            { title: "Metaverso corporativo", body: "Espacios virtuales para trabajo y colaboración remota." },
+            { title: "Blockchain empresarial", body: "Transacciones seguras y descentralizadas en múltiples industrias." },
+            { title: "Biotecnología avanzada", body: "Innovaciones en salud, genética y medicina personalizada." },
+            { title: "Robótica colaborativa", body: "Robots trabajando junto a humanos en entornos productivos." },
+            { title: "Vehículos autónomos", body: "Transporte sin conductor cada vez más presente." },
+            { title: "Energías renovables inteligentes", body: "Optimización del consumo energético mediante tecnología." },
+            { title: "Internet de las cosas (IoT)", body: "Dispositivos conectados que recopilan y comparten datos." },
+            { title: "Interfaces cerebro-computadora", body: "Conexión directa entre humanos y máquinas." },
+            { title: "Impresión 3D industrial", body: "Producción rápida y personalizada a gran escala." },
+            { title: "Datos como servicio (DaaS)", body: "Acceso a datos en tiempo real como recurso estratégico." },
+            { title: "Low-code / no-code", body: "Desarrollo de software accesible sin conocimientos avanzados." },
+            { title: "Cloud distribuido", body: "Infraestructura más flexible y escalable." },
+            { title: "Analítica predictiva", body: "Anticipación de comportamientos mediante datos." },
+            { title: "Automatización de QA", body: "Testing continuo integrado en pipelines de desarrollo." },
+            { title: "DevSecOps", body: "Seguridad integrada desde el inicio del desarrollo." },
+            { title: "Experiencias personalizadas", body: "Contenido adaptado a cada usuario en tiempo real." },
+            { title: "Economía digital", body: "Transformación de modelos de negocio tradicionales." }
         ]
     },
     {
-        title: "El fin de las contraseñas: La biometría cuántica llega a los hogares",
-        subTitle: "Cómo los nuevos sensores de pulso cardíaco están reemplazando al reconocimiento facial.",
-        body: "Durante décadas, confiamos en lo que sabíamos (contraseñas) y luego en lo que éramos (huellas). Sin embargo, el robo de datos biométricos estáticos ha forzado a la industria a ``buscar soluciones dinámicas. La biometría de ritmo cardíaco utiliza sensores infrarrojos para mapear la firma eléctrica única de nuestro corazón, un dato que no se puede fotocopiar ni replicar con IA profunda. Esta tecnología ya no es exclusiva de búnkeres militares; este mes, los principales fabricantes de smartphones han anunciado su integración masiva.",
-        tags: ["Tecnología", "Ciberseguridad", "Innovación", "Biometría"],
-        hiddenTags: ["futurismo-2026", "seguridad-bancaria", "hardware-scans"],
-        authorType: AuthorType.MANUAL,
-        authorName: "Alex Rivers",
-        authorDescription: "Especialista en seguridad informática con 15 años de trayectoria en el análisis de vulnerabilidades de hardware.",
+        title: "22 hábitos para maximizar tu productividad diaria",
+        subTitle: "Estrategias prácticas para mejorar tu rendimiento personal y profesional",
+        body: "La productividad no depende únicamente de trabajar más, sino de trabajar mejor. Adoptar hábitos efectivos puede marcar una gran diferencia en tu desempeño diario.\n\nEsta lista reúne prácticas comprobadas que ayudan a optimizar el tiempo y la concentración.",
+        tags: ["productividad", "hábitos", "rendimiento"],
+        hiddenTags: ["self-improvement", "productivity-hacks"],
+        authorName: "Martín Rodríguez",
+        authorDescription: "Consultor en desarrollo profesional y optimización de procesos.",
         listicleItems: [
-            {
-                title: "Inviolabilidad",
-                body: "A diferencia de una foto, el ritmo cardíaco requiere que el usuario esté vivo y presente."
-            },
-            {
-                title: "Pasividad",
-                body: "No necesitas mirar a la cámara ni poner el dedo; el reloj detecta quién eres al ponértelo."
-            },
-            {
-                title: "Compatibilidad",
-                body: "Se integra con los protocolos bancarios actuales sin necesidad de nuevas apps."
-            }
-        ]
-    },
-    {
-        title: "25 estrategias prácticas para mejorar la productividad en equipos tecnológicos",
-        subTitle: "Una guía completa con acciones concretas para optimizar tiempos, procesos y resultados",
-        body: `
-La productividad en equipos tecnológicos no depende únicamente de trabajar más horas, sino de implementar procesos claros, herramientas adecuadas y hábitos sostenibles.
-
-En esta lista recopilamos estrategias concretas que pueden aplicarse en equipos de desarrollo, QA, producto y tecnología en general, con foco en eficiencia, calidad y colaboración.
-`,
-        tags: [
-            "Productividad",
-            "Tecnología",
-            "Equipos",
-            "Desarrollo",
-            "QA",
-            "Gestión"
-        ],
-        hiddenTags: [
-            "nota-lista-productividad",
-            "guia-equipos-tech",
-            "contenido-evergreen-2026"
-        ],
-        authorName: "Equipo Editorial Tech",
-        authorDescription: "Especialistas en gestión de equipos tecnológicos, metodologías ágiles y optimización de procesos digitales.",
-        listicleItems: [
-            {
-                title: "1. Definir objetivos trimestrales claros",
-                body: "Establecer metas medibles y alineadas al negocio permite que todo el equipo entienda prioridades y enfoque sus esfuerzos correctamente."
-            },
-            {
-                title: "2. Utilizar metodologías ágiles",
-                body: "Frameworks como Scrum o Kanban ayudan a organizar el trabajo en ciclos cortos y mejorar la visibilidad del avance."
-            },
-            {
-                title: "3. Limitar el trabajo en progreso (WIP)",
-                body: "Reducir la cantidad de tareas simultáneas mejora la concentración y disminuye la tasa de errores."
-            },
-            {
-                title: "4. Automatizar tareas repetitivas",
-                body: "La automatización en testing, despliegues o integraciones continuas reduce tiempos y evita errores manuales."
-            },
-            {
-                title: "5. Implementar revisiones de código",
-                body: "El code review mejora la calidad técnica y fomenta el aprendizaje compartido dentro del equipo."
-            },
-            {
-                title: "6. Mantener reuniones breves y estructuradas",
-                body: "Las dailies o reuniones de seguimiento deben tener un objetivo claro y duración limitada para no afectar el flujo de trabajo."
-            },
-            {
-                title: "7. Documentar decisiones técnicas",
-                body: "Registrar decisiones clave evita retrabajos y facilita la incorporación de nuevos integrantes."
-            },
-            {
-                title: "8. Priorizar tareas según impacto",
-                body: "Trabajar primero en lo que genera mayor valor permite optimizar recursos y tiempo."
-            },
-            {
-                title: "9. Fomentar la comunicación asincrónica",
-                body: "Reducir interrupciones constantes mejora la concentración y permite responder en momentos adecuados."
-            },
-            {
-                title: "10. Establecer estándares de calidad",
-                body: "Definir criterios claros de aceptación y definición de terminado ayuda a evitar ambigüedades."
-            },
-            {
-                title: "11. Implementar integración continua",
-                body: "Integrar cambios frecuentemente reduce conflictos y facilita detectar errores tempranamente."
-            },
-            {
-                title: "12. Medir métricas relevantes",
-                body: "Indicadores como lead time, throughput o tasa de bugs permiten identificar oportunidades de mejora."
-            },
-            {
-                title: "13. Promover la capacitación constante",
-                body: "Invertir en formación técnica y habilidades blandas mejora el rendimiento general del equipo."
-            },
-            {
-                title: "14. Reducir dependencias externas",
-                body: "Minimizar bloqueos entre equipos acelera la entrega y mejora la autonomía."
-            },
-            {
-                title: "15. Crear un backlog priorizado y ordenado",
-                body: "Un backlog claro facilita la planificación y evita discusiones innecesarias durante los sprints."
-            },
-            {
-                title: "16. Realizar retrospectivas periódicas",
-                body: "Analizar qué funcionó y qué no permite ajustar procesos de manera continua."
-            },
-            {
-                title: "17. Definir roles y responsabilidades claras",
-                body: "Evitar superposición de funciones reduce conflictos y mejora la eficiencia operativa."
-            },
-            {
-                title: "18. Establecer tiempos de foco sin interrupciones",
-                body: "Bloques de trabajo profundo aumentan la productividad en tareas técnicas complejas."
-            },
-            {
-                title: "19. Mejorar la experiencia del desarrollador",
-                body: "Optimizar entornos, tiempos de build y herramientas impacta directamente en la velocidad de entrega."
-            },
-            {
-                title: "20. Fomentar la cultura de feedback",
-                body: "El feedback constructivo fortalece el crecimiento profesional y la calidad del trabajo."
-            },
-            {
-                title: "21. Planificar releases realistas",
-                body: "Evitar plazos poco alcanzables reduce estrés y mejora la calidad final del producto."
-            },
-            {
-                title: "22. Celebrar logros del equipo",
-                body: "Reconocer avances y resultados refuerza la motivación y el compromiso."
-            },
-            {
-                title: "23. Revisar procesos periódicamente",
-                body: "Los procesos deben evolucionar junto al equipo y al producto para mantener su efectividad."
-            },
-            {
-                title: "24. Centralizar la gestión de tareas",
-                body: "Utilizar una única herramienta de seguimiento evita desorden y pérdida de información."
-            },
-            {
-                title: "25. Mantener foco en el usuario final",
-                body: "Recordar el impacto real del producto ayuda a priorizar correctamente y tomar mejores decisiones."
-            }
+            { title: "Definir objetivos claros", body: "Tener metas específicas mejora el enfoque diario." },
+            { title: "Planificar el día", body: "Organizar tareas con anticipación evita pérdidas de tiempo." },
+            { title: "Priorizar tareas importantes", body: "Enfocarse en lo que genera mayor impacto." },
+            { title: "Evitar multitarea", body: "Trabajar en una sola tarea mejora la calidad." },
+            { title: "Usar bloques de tiempo", body: "Asignar períodos específicos para cada actividad." },
+            { title: "Tomar descansos", body: "Pausas regulares aumentan la concentración." },
+            { title: "Eliminar distracciones", body: "Reducir interrupciones mejora el rendimiento." },
+            { title: "Delegar cuando sea posible", body: "Optimizar recursos distribuyendo tareas." },
+            { title: "Automatizar tareas repetitivas", body: "Ahorrar tiempo en procesos rutinarios." },
+            { title: "Mantener un entorno ordenado", body: "Un espacio limpio favorece la claridad mental." },
+            { title: "Establecer límites de tiempo", body: "Evitar que las tareas se extiendan innecesariamente." },
+            { title: "Revisar avances diarios", body: "Evaluar progreso permite ajustar estrategias." },
+            { title: "Dormir bien", body: "El descanso adecuado mejora la productividad." },
+            { title: "Hacer ejercicio", body: "La actividad física aumenta energía y enfoque." },
+            { title: "Evitar reuniones innecesarias", body: "Optimizar el uso del tiempo laboral." },
+            { title: "Aprender a decir no", body: "Evitar sobrecarga de tareas." },
+            { title: "Usar herramientas digitales", body: "Aprovechar apps para organizar trabajo." },
+            { title: "Reducir consumo de redes sociales", body: "Minimizar distracciones digitales." },
+            { title: "Establecer rutinas", body: "Crear hábitos consistentes mejora el rendimiento." },
+            { title: "Dividir tareas grandes", body: "Hacerlas más manejables y ejecutables." },
+            { title: "Celebrar logros", body: "Reconocer avances motiva a continuar." },
+            { title: "Aprender continuamente", body: "Mejorar habilidades incrementa eficiencia." }
         ]
     }
 ];
-export const liveblogData = [
+export const LiveBlogData = [
     {
-        title: "Minuto a minuto: Conferencia y presentación oficial del nuevo proyecto tecnológico en Montevideo",
-        subTitle: "Seguimos en vivo cada anuncio, declaraciones y reacciones desde el auditorio principal",
-        halfTitle: "EN VIVO: Presentación tecnológica en Montevideo",
-        /* tags: [
-            "En Vivo",
-            "LiveBlog",
-            "Tecnología",
-            "Montevideo",
-            "Conferencia",
-            "Innovación"
-        ],
-        hiddenTags: [
-            "live-blog-interno",
-            "cobertura-tiempo-real",
-            "evento-tecnologico-2026"
-         */
-        //],
-        authorName: "Redacción Digital",
-        authorDescription: "Equipo especializado en coberturas en vivo, eventos tecnológicos y entrevistas en tiempo real.",
+        title: "Cobertura en vivo: Cumbre global de tecnología 2026",
+        subTitle: "Anuncios, lanzamientos y reacciones en tiempo real desde el evento",
+        halfTitle: "Cumbre tech en vivo",
+        tags: ["tecnología", "evento", "liveblog"],
+        hiddenTags: ["live-tech", "coverage"],
+        authorName: "Lucía Fernández",
+        authorDescription: "Periodista especializada en tecnología cubriendo eventos en vivo.",
         listicleItems: [
-            {
-                title: "09:00 - Comienza el ingreso del público al auditorio",
-                body: "Se abren las puertas del auditorio principal. Los primeros asistentes comienzan a ocupar sus lugares mientras se proyecta un video institucional en pantalla gigante."
-            },
-            {
-                title: "09:07 - Expectativa y sala casi completa",
-                body: "El auditorio ya se encuentra al 80% de su capacidad. Se observa presencia de prensa, desarrolladores y representantes del sector empresarial."
-            },
-            {
-                title: "09:12 - Inicia la transmisión oficial",
-                body: "Las pantallas laterales muestran la placa de 'Transmisión en vivo'. El equipo técnico confirma que el streaming está activo."
-            },
-            {
-                title: "09:15 - Apertura a cargo del moderador",
-                body: "El moderador da la bienvenida y presenta la agenda del día. Adelanta que habrá una demostración técnica en tiempo real."
-            },
+            { title: "09:00 - Inicio del evento", body: "Arranca la transmisión en vivo con una presentación introductoria sobre el estado actual de la tecnología." },
+            { title: "09:15 - Keynote principal", body: "El CEO abre el evento destacando avances en inteligencia artificial." },
+            { title: "09:30 - Anuncio de nueva IA", body: "Se presenta un modelo de IA con capacidades autónomas mejoradas." },
+            { title: "09:45 - Reacción del público", body: "El auditorio responde con entusiasmo al anuncio principal." },
+            { title: "10:00 - Panel de expertos", body: "Especialistas debaten sobre el futuro del trabajo." },
+            { title: "10:20 - Demo en vivo", body: "Se muestra una herramienta que automatiza procesos complejos." },
+            { title: "10:40 - Actualización", body: "Se confirma integración con múltiples plataformas." },
+            { title: "11:00 - Networking", body: "Participantes comparten impresiones iniciales." },
+            { title: "11:20 - Startup destacada", body: "Una nueva empresa presenta innovación en robótica." },
+            { title: "11:40 - Entrevista en vivo", body: "Ejecutivo comenta impacto de las nuevas tecnologías." },
+            { title: "12:00 - Pausa", body: "Break del evento con cobertura de ambiente." },
+            { title: "12:30 - Reanudación", body: "Se retoman actividades con foco en ciberseguridad." },
+            { title: "13:00 - Lanzamiento producto", body: "Nueva plataforma cloud es presentada oficialmente." },
+            { title: "13:30 - Reacciones en redes", body: "Usuarios comentan en tiempo real los anuncios." },
+            { title: "14:00 - Panel de innovación", body: "Debate sobre startups emergentes." },
+            { title: "14:30 - Caso de éxito", body: "Empresa comparte resultados con IA aplicada." },
+            { title: "15:00 - Demo técnica", body: "Ingenieros muestran capacidades avanzadas." },
+            { title: "15:30 - Actualización en vivo", body: "Se anuncian nuevas alianzas estratégicas." },
+            { title: "16:00 - Cierre del evento", body: "Resumen de los principales anuncios." },
+            { title: "16:30 - Conclusiones", body: "Expertos analizan impacto global." },
+            { title: "17:00 - Post-evento", body: "Se comparten impresiones finales y próximos pasos." }
+        ]
+    },
+    {
+        title: "Minuto a minuto: Final del torneo internacional de fútbol",
+        subTitle: "Seguimiento en vivo del partido decisivo con jugadas y reacciones",
+        halfTitle: "Final en vivo",
+        tags: ["deportes", "fútbol", "liveblog"],
+        hiddenTags: ["live-match", "sports"],
+        authorName: "Martín Rodríguez",
+        authorDescription: "Periodista deportivo cubriendo eventos en tiempo real.",
+        listicleItems: [
+            { title: "18:00 - Inicio del partido", body: "Comienza la final con ambos equipos mostrando intensidad." },
+            { title: "18:05 - Primer ataque", body: "El equipo local genera la primera llegada de peligro." },
+            { title: "18:10 - Falta cerca del área", body: "Oportunidad de tiro libre para el visitante." },
+            { title: "18:15 - Gol anulado", body: "El VAR invalida un gol por fuera de juego." },
+            { title: "18:20 - Tarjeta amarilla", body: "Primera amonestación del partido." },
+            { title: "18:25 - Atajada clave", body: "El arquero evita el primer gol con gran reacción." },
+            { title: "18:30 - Gol del local", body: "Se abre el marcador con un remate desde el área." },
+            { title: "18:35 - Reacción visitante", body: "El equipo rival adelanta líneas en busca del empate." },
+            { title: "18:40 - Remate al palo", body: "El visitante casi iguala el partido." },
+            { title: "18:45 - Final del primer tiempo", body: "El local se va al descanso en ventaja." },
+            { title: "19:00 - Inicio segundo tiempo", body: "Se reanuda el partido con cambios tácticos." },
+            { title: "19:05 - Gol del empate", body: "El visitante iguala tras jugada colectiva." },
+            { title: "19:10 - Partido intenso", body: "Ambos equipos buscan la victoria." },
+            { title: "19:20 - Nueva amarilla", body: "Fuerte entrada sancionada por el árbitro." },
+            { title: "19:30 - Cambios", body: "Ambos entrenadores realizan modificaciones." },
+            { title: "19:40 - Oportunidad clara", body: "El local falla una ocasión frente al arco." },
+            { title: "19:50 - Gol decisivo", body: "El visitante marca el segundo gol." },
+            { title: "19:55 - Tiempo agregado", body: "Se adicionan minutos finales." },
+            { title: "20:00 - Final del partido", body: "El visitante se consagra campeón." },
+            { title: "20:10 - Celebración", body: "Jugadores festejan el título." },
+            { title: "20:20 - Declaraciones", body: "Entrenadores analizan el resultado." }
         ]
     }
 ];

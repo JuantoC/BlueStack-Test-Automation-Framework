@@ -23,7 +23,7 @@ async function runNoteCreationSession(): Promise<void> {
     logger.info(`>>> Iniciando Sesión de Prueba: ${sessionLabel} <<<`, { label: sessionLabel });
 
     // 1. Setup del Entorno
-    session = await initializeDriver({ isHeadless: false }, opts);
+    session = await initializeDriver({ isHeadless: false, useGrid: true }, opts);
     const driver = session.driver;
 
     // 2. Acceso y Autenticación
@@ -36,16 +36,16 @@ async function runNoteCreationSession(): Promise<void> {
     await createNewNote(driver, NoteType.POST, opts);
 
     // 4. Llenado Dinámico de la Nota
-    await fillNote(driver, notesData[0], opts);
+    await fillNote(driver, PostData[1], opts);
 
     // 5. Salida
     await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, opts);
 
-    await sleep(1000 * 60 * 10)
+    await sleep(1000 * 60 * 2)
 
     await createNewNote(driver, NoteType.POST, opts);
 
-    await fillNote(driver, notesData[1], opts);
+    await fillNote(driver, PostData[2], opts);
 
     await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
 
@@ -84,7 +84,7 @@ runNoteCreationSession().catch(() => {
   process.exit(1);
 });
 
-import { notesData } from "../dataTest/noteData.js";
+import { PostData } from "../dataTest/noteData.js";
 import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";

@@ -14,7 +14,7 @@ async function runListicleSession() {
     try {
         logger.info(`>>> Iniciando Sesión: ${sessionLabel} <<<`, { label: sessionLabel });
         // 1. Setup
-        session = await initializeDriver({ isHeadless: false }, opts);
+        session = await initializeDriver({ isHeadless: false, useGrid: true }, opts);
         const driver = session.driver;
         // 2. Acceso y Autenticación
         await driver.get(authUrl);
@@ -22,7 +22,7 @@ async function runListicleSession() {
         // 3. Creación de Listicle
         await createNewNote(driver, NoteType.LISTICLE, opts);
         // 4. Llenado Dinámico 
-        await fillNote(driver, listicleData[4], opts);
+        await fillNote(driver, ListicleData[0], opts);
         // 5. Salida
         await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
         logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
@@ -52,7 +52,7 @@ async function runListicleSession() {
 }
 // Bootstrap de la sesión
 runListicleSession().catch(() => process.exit(1));
-import { listicleData } from "../dataTest/noteData.js";
+import { ListicleData } from "../dataTest/noteData.js";
 import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig } from "../core/config/default.js";

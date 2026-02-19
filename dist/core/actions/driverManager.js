@@ -3,7 +3,6 @@
  */
 export async function initializeDriver(options, opts = {}) {
     const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "initializeDriver") };
-    logger.debug(`Configurando navegador (Headless: ${options.isHeadless})`, { label: config.label });
     try {
         const chromeOptions = setChromeOptions(options);
         // Selenium 4 gestiona el driver automáticamente. 
@@ -12,9 +11,11 @@ export async function initializeDriver(options, opts = {}) {
             .forBrowser('chrome')
             .setChromeOptions(chromeOptions);
         if (options.useGrid) {
+            logger.info(`Usando Selenium Grid en ${options.gridUrl ?? 'http://localhost:4444'}`, { label: config.label });
             builder.usingServer(options.gridUrl ?? 'http://localhost:4444');
         }
         else {
+            logger.info('Iniciando WebDriver localmente', { label: config.label });
             const service = new ServiceBuilder().setStdio('ignore');
             builder.setChromeService(service);
         }

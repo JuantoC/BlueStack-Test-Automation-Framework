@@ -22,22 +22,29 @@ export async function startNetworkMonitoring(
     const caps = await driver.getCapabilities();
     let cdpUrl = caps.get('se:cdp');
 
-    // --- LÓGICA DE RESCATE (NUEVO) ---
+    // --- LÓGICA DE RESCATE (ACTUALIZADA PARA LOCAL) ---
     if (!cdpUrl) {
-      logger.warn("🟡 Capability 'se:cdp' no encontrada. Intentando construir URL manual...", { label });
+      logger.warn("🟡 Capability 'se:cdp' no encontrada. Intentando obtener CDP local...", { label });
 
-      // 1. Necesitamos el Session ID del driver
-      const session = await driver.getSession();
-      const sessionId = session.getId();
+      // Buscamos la dirección del debugger local en las capabilities de Chrome
+      const chromeOptions = caps.get('goog:chromeOptions');
 
-      if (sessionId) {
-        // 2. Construimos la URL estándar de Selenium Grid 4
-        // Asumimos localhost:4444 porque es tu config de Docker.
-        // Si usaras otro puerto, deberías pasarlo como config.
-        cdpUrl = `ws://localhost:4444/session/${sessionId}/se/cdp`;
-        logger.info(`🛠️ URL CDP construida manualmente: ${cdpUrl}`, { label });
+      if (chromeOptions && chromeOptions.debuggerAddress) {
+        try {
+          // El debuggerAddress es algo como "localhost:63660"
+          // Hacemos una petición HTTP a esa dirección para pedirle la URL del WebSocket
+          const response = await fetch(`http://${chromeOptions.debuggerAddress}/json/version`);
+          const data = (await response.json()) as { webSocketDebuggerUrl: string };
+          cdpUrl = data.webSocketDebuggerUrl;
+
+          logger.info(`🛠️ URL CDP local obtenida con éxito: ${cdpUrl}`, { label });
+
+        } catch (fetchError) {
+          logger.error(`❌ Error al consultar la URL de DevTools local: ${fetchError}`, { label });
+          return null;
+        }
       } else {
-        logger.error("❌ No se pudo recuperar Session ID. Imposible conectar CDP.", { label });
+        logger.error("❌ No se encontró 'se:cdp' ni 'goog:chromeOptions.debuggerAddress'. Imposible conectar CDP.", { label });
         return null;
       }
     }

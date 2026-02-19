@@ -62,7 +62,7 @@ export class NoteHeaderActions {
     const config = {
       ...DefaultConfig,
       ...opts,
-      label: stackLabel(opts.label, `clickExitAction(${action})`)
+      label: stackLabel(opts.label, `clickExitAction`)
     };
 
     const initialLocator = this.locatorMap[action];

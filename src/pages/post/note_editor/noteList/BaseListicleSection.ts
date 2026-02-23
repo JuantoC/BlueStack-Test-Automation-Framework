@@ -16,16 +16,18 @@ export abstract class BaseListicleSection {
      * Recibe el objeto parcial y decide si debe ejecutar el llenado.
      */
   async fillAll(data: ListicleData | LiveBlogData, opts: RetryOptions = {}): Promise<void> {
-    // Aquí centralizamos la validación de si hay data
-    if (!data.listicleItems || data.listicleItems.length === 0) {
-      return;
-    }
-
     const config = {
       ...DefaultConfig,
       ...opts,
       label: stackLabel(opts.label, "BaseListicle.fillAll")
     };
+
+    await this.fillEventSection(data, config);
+
+    // Aquí centralizamos la validación de si hay data
+    if (!data.listicleItems || data.listicleItems.length === 0) {
+      return;
+    }
 
     // Llamamos a tu método existente fillItems
     await this.fillItems(data.listicleItems, config);
@@ -45,6 +47,10 @@ export abstract class BaseListicleSection {
   }
 
   // --- Métodos de Acción ---
+
+  protected async fillEventSection(data: LiveBlogData, config: RetryOptions): Promise<void> {
+    // Virtual method: default no-op
+  }
 
   /**
    * Determina el estado y expande/colapsa según sea necesario.
@@ -115,7 +121,8 @@ export abstract class BaseListicleSection {
     for (let i = 0; i < normalizedItems.length; i++) {
       const uiIndex = i + 1;
       const item = normalizedItems[i];
-
+      console.log(normalizedItems)
+      
       await this.toggleExpansion(uiIndex, 'expand', config);
 
       if (item.title) {

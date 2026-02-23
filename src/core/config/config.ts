@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+const isHeadlessEnv = process.env.IS_HEADLESS;
 /**
  * Helper para centralizar la configuración del framework.
  * Lee las variables del .env y las expone de forma tipada.
@@ -14,7 +15,7 @@ export const CONFIG = {
 
     // --- NAVEGADOR ---
     browser: {
-        isHeadless: process.env.IS_HEADLESS === 'true',
+        isHeadless: isHeadlessEnv === 'false' ? false : true,
     },
 
     // --- ENTORNO DE PRUEBAS ---

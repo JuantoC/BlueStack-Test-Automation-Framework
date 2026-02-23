@@ -18,7 +18,10 @@ export function setChromeOptions(options: DriverOptions): ChromeOptions {
     if (options.isHeadless) {
         chromeOptions.addArguments('--headless=new');
     }
-
+    // Si estás en local (debug), a veces ayuda maximizar
+    if (!options.isHeadless) {
+        chromeOptions.addArguments('--start-maximized');
+    }
     chromeOptions.addArguments(
         '--no-sandbox',
         '--disable-dev-shm-usage',

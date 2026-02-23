@@ -9,5 +9,5 @@ export const StandardStrategy: ListicleStrategy = {
 
 
 export const LiveBlogStrategy: ListicleStrategy = {
-  normalizeItems: (items) => [...items].reverse()
+  normalizeItems: (items) => items.reverse()
 };

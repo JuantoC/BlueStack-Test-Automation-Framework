@@ -16,6 +16,7 @@ export class NoteEditorPage {
   public readonly settings: NoteLateralSettings;
   public readonly text: NoteTextContentSection;
   public readonly creation: NoteCreationDropdown;
+  public readonly images: NoteImageSection;
 
   constructor(driver: WebDriver, noteType?: NoteType) {
     this.driver = driver;
@@ -28,6 +29,7 @@ export class NoteEditorPage {
     this.creation = new NoteCreationDropdown(driver);
     this.listicle = new ListicleSection(driver);
     this.liveBlog = new LiveBlogSection(driver);
+    this.images = new NoteImageSection(driver);
   }
 
   /**
@@ -47,9 +49,14 @@ export class NoteEditorPage {
       // 3. Lógica de tipo de nota: Encapsulada
       await this.fillListicleOrLiveblog(data, config);
 
-      // 4. Otros
+      // 4. Autor
       await this.author.fillAll(data, config);
+
+      // 5. Combo de secciones en settings
       await this.settings.selectFirstSectionOption(config);
+
+      // 6. Imagenes
+      await this.images.addFirstImage(config);
 
     } catch (error) {
       throw error;
@@ -84,3 +91,4 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
 import { ListicleSection, LiveBlogSection } from './noteList/NoteListicleItemSection.js';
+import { NoteImageSection } from './NoteImagesSection.js';

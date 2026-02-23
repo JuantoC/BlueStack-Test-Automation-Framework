@@ -19,7 +19,7 @@ export async function fillNote(
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "flow:fillNote")
+    label: stackLabel(opts.label, "fillNote")
   };
 
   const editor = new NoteEditorPage(driver);
@@ -29,7 +29,7 @@ export async function fillNote(
     stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
     try {
-      logger.debug(`Iniciando llenado dinámico de campos presentes en data`, {
+      logger.info(`Iniciando llenado dinámico de campos presentes en data`, {
         label: config.label
       });
 

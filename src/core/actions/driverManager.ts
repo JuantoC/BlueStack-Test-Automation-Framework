@@ -7,6 +7,11 @@ import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { sleep } from '../utils/backOff.js';
 
+declare global {
+    // var es necesario aquí para que se fusione con el scope global
+    var activeMonitor: NetworkMonitorHandle | undefined;
+}
+
 export interface DriverSession {
     driver: WebDriver;
     networkMonitor: NetworkMonitorHandle | null;
@@ -32,7 +37,9 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
 
         // Activación del monitor CDP con ACK Sync
         const networkMonitor = await startNetworkMonitoring(driver, config.label);
-
+        if (networkMonitor) {
+            global.activeMonitor = networkMonitor;
+        }
         logger.info('🚀 WebDriver y CDP listos', { label: config.label });
 
         return { driver, networkMonitor };
@@ -48,11 +55,8 @@ export async function quitDriver(session: DriverSession | null, opts: RetryOptio
 
     try {
         if (opts.timeoutMs) await sleep(opts.timeoutMs);
-
-        // Detener monitor primero para adjuntar logs a Allure antes de cerrar sesión
-        await session.networkMonitor?.stop();
         await session.driver.quit();
-
+        global.activeMonitor = undefined;
         logger.info('🏁 Sesión cerrada', { label });
     } catch (error: any) {
         if (!error.message.includes('NoSuchSession')) {

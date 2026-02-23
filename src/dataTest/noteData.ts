@@ -2,75 +2,75 @@ import { NoteData } from "./noteDataInterface.js";
 import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
 
 export const PostData: NoteData[] = [
-    {
-        title: "La inteligencia artificial redefine el trabajo en 2026",
-        subTitle: "Empresas adoptan modelos híbridos entre humanos y automatización",
-        halfTitle: "El futuro del trabajo ya llegó",
-        body: "Durante el último año, la inteligencia artificial ha pasado de ser una herramienta complementaria a convertirse en un pilar estratégico en múltiples industrias. Empresas tecnológicas y tradicionales han comenzado a rediseñar sus estructuras operativas, integrando asistentes inteligentes en procesos clave como atención al cliente, análisis de datos y generación de contenido.\n\nEste cambio ha generado tanto entusiasmo como incertidumbre. Por un lado, se incrementa la productividad y se reducen costos; por otro, surge el desafío de la reconversión laboral. Especialistas coinciden en que las habilidades más demandadas serán aquellas relacionadas con la supervisión de sistemas automatizados, pensamiento crítico y creatividad.\n\nEn América Latina, la adopción avanza de forma desigual, pero con un crecimiento sostenido. Uruguay, en particular, se posiciona como un hub emergente gracias a su ecosistema tecnológico y talento calificado.",
-        tags: ["tecnología", "inteligencia artificial", "trabajo", "innovación"],
-        hiddenTags: ["ai-trends", "future-of-work"],
-        authorName: "Lucía Fernández",
-        authorDescription: "Periodista especializada en tecnología y transformación digital con más de 10 años de experiencia en medios regionales."
-    },
-    {
-        title: "El auge de las ciudades sostenibles en América Latina",
-        subTitle: "Nuevas políticas urbanas apuntan a reducir la huella ambiental",
-        halfTitle: "Ciudades más verdes",
-        body: "Las ciudades latinoamericanas enfrentan un desafío histórico: crecer sin comprometer el medio ambiente. En respuesta, diversos gobiernos han comenzado a implementar políticas públicas orientadas a la sostenibilidad urbana, incluyendo la expansión del transporte eléctrico, la creación de espacios verdes y la promoción de energías renovables.\n\nMontevideo ha sido destacada recientemente por sus iniciativas de movilidad sostenible, con proyectos que incentivan el uso de bicicletas y mejoran el transporte público. Estas medidas no solo reducen las emisiones de carbono, sino que también mejoran la calidad de vida de los ciudadanos.\n\nExpertos advierten que el éxito de estas políticas dependerá de la continuidad en el tiempo y la participación activa de la población. La educación ambiental y la innovación tecnológica serán claves para consolidar este cambio.",
-        tags: ["medio ambiente", "sostenibilidad", "ciudades", "latam"],
-        hiddenTags: ["green-cities", "urban-policy"],
-        authorName: "Martín Rodríguez",
-        authorDescription: "Analista urbano y consultor en políticas públicas, enfocado en desarrollo sostenible en América Latina."
-    },
-    {
-        title: "El crecimiento del streaming redefine el consumo cultural",
-        subTitle: "Plataformas digitales lideran la nueva era del entretenimiento",
-        halfTitle: "Streaming sin límites",
-        body: "El consumo de contenido audiovisual ha cambiado radicalmente en la última década, impulsado por el crecimiento de plataformas de streaming. Series, películas, documentales y contenido en vivo están ahora al alcance de millones de usuarios en cualquier momento y lugar.\n\nEste fenómeno ha transformado no solo la forma en que se consume entretenimiento, sino también cómo se produce. Las plataformas invierten cada vez más en contenido original, generando oportunidades para creadores independientes y diversificando la oferta cultural.\n\nSin embargo, también surgen desafíos relacionados con la saturación de contenido y la fragmentación de audiencias. Los usuarios deben navegar entre múltiples servicios, lo que plantea nuevas dinámicas de competencia en la industria.",
-        tags: ["streaming", "entretenimiento", "cultura", "medios"],
-        hiddenTags: ["vod", "digital-content"],
-        authorName: "Sofía Méndez",
-        authorDescription: "Crítica cultural y redactora enfocada en tendencias de medios digitales y consumo audiovisual."
-    }
+  {
+    title: "Gran avance en la computación cuántica",
+    subTitle: "Científicos logran estabilidad en cúbits a temperatura ambiente",
+    halfTitle: "Tecnología del Futuro",
+    body: "Un equipo internacional de investigadores ha marcado un hito histórico al mantener la coherencia cuántica durante más de 10 minutos sin necesidad de refrigeración extrema...",
+    tags: ["Tecnología", "Ciencia", "Computación"],
+    hiddenTags: ["Quantum", "BreakingNews", "Tech2026"],
+    authorName: "Dra. Elena Galán",
+    authorDescription: "Especialista en física de partículas y divulgadora tecnológica.",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "La selección nacional clasifica al mundial",
+    subTitle: "Victoria agónica en el último minuto frente al clásico rival",
+    halfTitle: "Deportes",
+    body: "Con un gol de media distancia en el minuto 94, el conjunto dirigido por Scaloni selló su pase directo a la próxima cita mundialista en un estadio colmado...",
+    tags: ["Fútbol", "Selección", "Eliminatorias"],
+    hiddenTags: ["Mundial", "DeportesVivos", "AFA"],
+    authorName: "Juan Pablo Relator",
+    authorDescription: "Cronista deportivo con 20 años cubriendo la actualidad del fútbol.",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "5 Destinos exóticos para visitar en 2026",
+    subTitle: "Desde las costas de Albania hasta las montañas de Bután",
+    halfTitle: "Tendencias de Viaje",
+    body: "El turismo post-pandemia ha mutado hacia la búsqueda de experiencias auténticas y desconexión total. Aquí te presentamos los lugares que serán tendencia...",
+    tags: ["Viajes", "Turismo", "Aventura"],
+    hiddenTags: ["Travel2026", "Destinos", "Verano"],
+    authorName: "Martina Viajera",
+    authorDescription: "Editora de contenidos de estilo de vida y trotamundos profesional.",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "Nueva política económica: ¿Qué significa para tu bolsillo?",
+    subTitle: "Análisis detallado de los cambios en el impuesto a las ganancias",
+    halfTitle: "Economía Hoy",
+    body: "El Ministerio de Economía anunció una serie de medidas que buscan incentivar el consumo interno a través de una reducción impositiva para la clase media...",
+    tags: ["Economía", "Finanzas", "Impuestos"],
+    hiddenTags: ["Bolsillo", "Mercados", "EconoCheck"],
+    authorName: "Lic. Carlos Inversión",
+    authorDescription: "Analista financiero y consultor de mercados emergentes.",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "Reseña: El último gran estreno de ciencia ficción",
+    subTitle: "Una obra maestra visual que redefine el género en el cine",
+    halfTitle: "Cine y Series",
+    body: "La nueva película de Christopher Nolan no solo desafía las leyes de la física, sino también la paciencia del espectador con una narrativa no lineal fascinante...",
+    tags: ["Cine", "Estrenos", "Sci-Fi"],
+    hiddenTags: ["Nolan", "Hollywood", "Crítica"],
+    authorName: "Sofía Butaca",
+    authorDescription: "Crítica de cine y conductora de podcasts sobre cultura pop.",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "Receta: El secreto del mejor asado argentino",
+    subTitle: "Técnicas ancestrales para dominar el fuego y la carne",
+    halfTitle: "Gastronomía",
+    body: "No se trata solo de la calidad del corte, sino del tiempo, la leña y la paciencia. En esta guía te enseñamos paso a paso cómo lograr el punto perfecto...",
+    tags: ["Cocina", "Asado", "Tradición"],
+    hiddenTags: ["Foodie", "Parrilla", "Gourmet"],
+    authorName: "Maestro Parrillero",
+    authorDescription: "Chef especializado en cocina a fuegos abiertos.",
+    authorType: AuthorType.MANUAL
+  }
 ];
 
 export const ListicleData: NoteData[] = [
-    {
-        title: "25 tendencias tecnológicas que están definiendo el futuro",
-        subTitle: "Un recorrido completo por las innovaciones más relevantes del momento",
-        body: "La tecnología avanza a un ritmo sin precedentes, impactando todos los aspectos de la vida moderna. Desde inteligencia artificial hasta biotecnología, estas tendencias están transformando industrias completas.\n\nA continuación, un repaso detallado de las principales tendencias que marcarán el futuro cercano.",
-        tags: ["tecnología", "innovación", "futuro"],
-        hiddenTags: ["tech-trends", "innovation"],
-        authorName: "Lucía Fernández",
-        authorDescription: "Periodista especializada en tecnología y transformación digital.",
-        listicleItems: [
-            { title: "IA generativa avanzada", body: "Modelos capaces de crear contenido más preciso, creativo y contextual." },
-            { title: "Automatización inteligente", body: "Procesos empresariales completamente automatizados con supervisión mínima." },
-            { title: "Computación cuántica", body: "Resolución de problemas complejos imposibles para computadoras tradicionales." },
-            { title: "Edge computing", body: "Procesamiento de datos más cerca del usuario para reducir latencia." },
-            { title: "5G y más allá", body: "Conectividad ultra rápida que habilita nuevas experiencias digitales." },
-            { title: "Gemelos digitales", body: "Simulación virtual de objetos físicos para optimizar rendimiento." },
-            { title: "Ciberseguridad con IA", body: "Defensas automatizadas frente a amenazas cada vez más sofisticadas." },
-            { title: "Realidad aumentada", body: "Integración de lo digital con el mundo físico en tiempo real." },
-            { title: "Metaverso corporativo", body: "Espacios virtuales para trabajo y colaboración remota." },
-            { title: "Blockchain empresarial", body: "Transacciones seguras y descentralizadas en múltiples industrias." },
-            { title: "Biotecnología avanzada", body: "Innovaciones en salud, genética y medicina personalizada." },
-            { title: "Robótica colaborativa", body: "Robots trabajando junto a humanos en entornos productivos." },
-            { title: "Vehículos autónomos", body: "Transporte sin conductor cada vez más presente." },
-            { title: "Energías renovables inteligentes", body: "Optimización del consumo energético mediante tecnología." },
-            { title: "Internet de las cosas (IoT)", body: "Dispositivos conectados que recopilan y comparten datos." },
-            { title: "Interfaces cerebro-computadora", body: "Conexión directa entre humanos y máquinas." },
-            { title: "Impresión 3D industrial", body: "Producción rápida y personalizada a gran escala." },
-            { title: "Datos como servicio (DaaS)", body: "Acceso a datos en tiempo real como recurso estratégico." },
-            { title: "Low-code / no-code", body: "Desarrollo de software accesible sin conocimientos avanzados." },
-            { title: "Cloud distribuido", body: "Infraestructura más flexible y escalable." },
-            { title: "Analítica predictiva", body: "Anticipación de comportamientos mediante datos." },
-            { title: "Automatización de QA", body: "Testing continuo integrado en pipelines de desarrollo." },
-            { title: "DevSecOps", body: "Seguridad integrada desde el inicio del desarrollo." },
-            { title: "Experiencias personalizadas", body: "Contenido adaptado a cada usuario en tiempo real." },
-            { title: "Economía digital", body: "Transformación de modelos de negocio tradicionales." }
-        ]
-    },
     {
         title: "22 hábitos para maximizar tu productividad diaria",
         subTitle: "Estrategias prácticas para mejorar tu rendimiento personal y profesional",

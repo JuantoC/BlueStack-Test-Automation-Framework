@@ -10,8 +10,15 @@ enum NetworkErrorCategory {
   SECURITY_BLOCK = "[SECURITY/CORS]"
 }
 
+// 1. Definimos qué devuelve el stop
+export interface NetworkSummary {
+  errorCount: number;
+  logs: string[];
+}
+
+// 2. Corregimos la interfaz del Handle
 export interface NetworkMonitorHandle {
-  stop(): Promise<void>;
+  stop(): Promise<NetworkSummary>; // <--- CAMBIO AQUÍ (antes era void)
 }
 
 export async function startNetworkMonitoring(
@@ -71,7 +78,7 @@ export async function startNetworkMonitoring(
         if (msg.id === 4 && msg.result) {
           logger.debug("CDP Network Monitoring sincronizado", { label });
           resolve({
-            stop: async () => {
+            stop: async (): Promise<NetworkSummary> => {
               const errorCount = networkLogs.length;
               if (errorCount > 0) {
                 // 1. El adjunto que ya tienes

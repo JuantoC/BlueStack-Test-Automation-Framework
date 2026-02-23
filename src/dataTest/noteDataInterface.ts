@@ -22,4 +22,11 @@ export interface NoteData {
         title: string;
         body: string;
     }>;
+
+    eventLiveBlog?: {
+        eventTitle: string;
+        eventDescription: string;
+        placeOfEvent: string;
+        eventAdress: string;
+    }
 }

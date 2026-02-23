@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   selenium-hub:
     image: selenium/hub:4.38.0
@@ -17,4 +16,4 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_MAX_SESSIONS=1
     deploy:
-      replicas: 1 # Esto se escala vía CLI: --scale chrome-node=X
+      replicas: ${MAX_INSTANCES:-1}

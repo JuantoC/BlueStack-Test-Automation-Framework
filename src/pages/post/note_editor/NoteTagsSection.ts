@@ -3,11 +3,17 @@ import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
+import { NoteData } from "../../../dataTest/noteDataInterface.js";
 
 export enum NoteTagField {
   TAGS = 'tags',
   HIDDEN_TAGS = 'hiddenTags'
 }
+
+/**
+ * Representa solo la parte de NoteData que esta sección sabe manejar.
+ */
+export type NoteTagsData = Pick<NoteData, 'tags' | 'hiddenTags'>;
 
 /**
  * Gestiona la sección de etiquetas (Tags) y etiquetas ocultas de la nota.
@@ -20,6 +26,27 @@ export class NoteTagsSection {
   };
 
   constructor(private driver: WebDriver) { }
+
+  /**
+     * Método de alto nivel para llenar todos los tags disponibles en la data.
+     */
+  async fillAll(data: NoteTagsData, opts: RetryOptions = {}): Promise<void> {
+    const config = {
+      ...DefaultConfig,
+      ...opts,
+      label: stackLabel(opts.label, "NoteTagsSection.fillAll")
+    };
+
+    // La lógica de "si existe, hacelo" vive aquí. 
+    // El orquestador ya no tiene que preguntar.
+    if (data.tags?.length) {
+      await this.addTags(NoteTagField.TAGS, data.tags, config);
+    }
+
+    if (data.hiddenTags?.length) {
+      await this.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags, config);
+    }
+  }
 
   /**
    * Agrega múltiples tags presionando Enter después de cada uno para procesarlos.

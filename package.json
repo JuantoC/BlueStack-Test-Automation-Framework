@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf logs/* allure-results/* allure-report/*",
-    "grid:up": "docker compose up -d --scale chrome-node=${MAX_INSTANCES:-1}",
+    "grid:up": "docker compose up -d && sleep 5",
     "grid:down": "docker compose down",
     "test": "cross-env NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:pick": "cross-env NODE_OPTIONS='--experimental-vm-modules' TEST_FILE=$npm_config_file jest",
-    "test:stress": "npm run clean && npm run grid:up && npm run test:ci",
-    "test:ci": "npm run test || true && npm run grid:down && npm run report:gen",
-    "report:gen": "npx allure generate allure-results --clean -o allure-report",
+    "test:pick": "cross-env NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:local": "npm run clean && npm run grid:up && npm run test || true ; npm run grid:down && npm run report:gen && npm run report:open",
+    "test:ci": "npm run clean && npm run grid:up && npm run test",
+    "report:gen": "npx allure generate allure-results -o allure-report",
     "report:open": "npx serve allure-report -p 9999"
   },
   "dependencies": {

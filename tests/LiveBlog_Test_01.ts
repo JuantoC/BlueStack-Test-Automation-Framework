@@ -2,9 +2,8 @@
  * TEST CASE: Creación de Nota tipo LiveBlog - 01
  * Valida la generación dinámica de ítems y la salida con descarte de cambios.
  */
-export async function run(sessionLabel: string): Promise<void> {
+runSession("Crear LiveBlog exitosamente", async (sessionLabel: string) => {
     const sessionTransport = addSessionTransport(sessionLabel);
-    // Configuración centralizada
     const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
 
     // Obtenemos credenciales y URL desde el CONFIG centralizado
@@ -58,25 +57,26 @@ export async function run(sessionLabel: string): Promise<void> {
             await quitDriver(session, opts);
         }
     }
-}
+});
 
 import * as allure from "allure-js-commons";
-import { LiveBlogData } from "../dataTest/noteData.js";
-import { DefaultConfig, RetryOptions } from "../core/config/default.js";
+import { LiveBlogData } from "../src/dataTest/noteData.js";
+import { DefaultConfig, RetryOptions } from "../src/core/config/default.js";
 
 // Core Tools
-import { DriverSession, initializeDriver, quitDriver } from "../core/actions/driverManager.js";
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import logger, { addSessionTransport } from "../core/utils/logger.js";
+import { DriverSession, initializeDriver, quitDriver } from "../src/core/actions/driverManager.js";
+import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
+import logger, { addSessionTransport } from "../src/core/utils/logger.js";
 
 // Business Flows
-import { passLogin } from "../flows/manageAuth.js";
-import { fillNote } from "../flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
+import { passLogin } from "../src/flows/manageAuth.js";
+import { fillNote } from "../src/flows/fillNote.js";
+import { createNewNote, closeNoteEditor } from "../src/flows/noteLifecycleManager.js";
 
 // Enums
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { checkConsoleErrors } from "../core/utils/browserLogs.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
-import { CONFIG } from "../core/config/config.js";
+import { NoteType } from "../src/pages/post/note_editor/NoteCreationDropdown.js";
+import { checkConsoleErrors } from "../src/core/utils/browserLogs.js";
+import { NoteExitAction } from "../src/pages/post/note_editor/NoteHeaderActions.js";
+import { CONFIG } from "../src/core/config/config.js";
+import { runSession } from "../src/core/wrappers/testWrapper.js";
 

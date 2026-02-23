@@ -1,9 +1,9 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
+import { NoteData } from "../../../dataTest/noteDataInterface.js";
 
 export enum NoteTextField {
   TITLE = 'title',
@@ -13,6 +13,7 @@ export enum NoteTextField {
   BODY = 'body',
   SUMMARY = 'summary'
 }
+export type NoteTextData = Pick<NoteData, 'title' | 'secondaryTitle' | 'subTitle' | 'halfTitle' | 'body' | 'summary'>;
 
 /**
  * Gestiona los campos de texto principales y enriquecidos (CKEditor) de la nota.
@@ -30,6 +31,24 @@ export class NoteTextContentSection {
 
   constructor(private driver: WebDriver) { }
 
+  async fillAll(data: Partial<NoteData>, config: RetryOptions): Promise<void> {
+    const textMapping: Array<{ key: keyof NoteData; type: NoteTextField }> = [
+      { key: 'title', type: NoteTextField.TITLE },
+      { key: 'secondaryTitle', type: NoteTextField.SECONDARY_TITLE },
+      { key: 'subTitle', type: NoteTextField.SUB_TITLE },
+      { key: 'halfTitle', type: NoteTextField.HALF_TITLE },
+      { key: 'body', type: NoteTextField.BODY },
+      { key: 'summary', type: NoteTextField.SUMMARY },
+    ];
+
+    for (const { key, type } of textMapping) {
+      const value = data[key];
+      if (typeof value === 'string' && value.trim()) {
+        await this.fillField(type, value as string, config);
+      }
+    }
+  }
+
   /**
    * Rellena un campo de texto específico y verifica que el contenido sea correcto.
    * Maneja automáticamente la diferencia entre inputs estándar y editores enriquecidos.
@@ -40,7 +59,7 @@ export class NoteTextContentSection {
     const config = {
       ...DefaultConfig,
       ...opts,
-      label: stackLabel(opts.label, `fillField(${field})`)
+      label: stackLabel(opts.label, `NoteTextContentSection.fillField(${field})`)
     };
 
     const locator = this.LOCATORS[field];
@@ -48,10 +67,10 @@ export class NoteTextContentSection {
     try {
       logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: config.label });
 
-      if (field === NoteTextField.TITLE){
+      if (field === NoteTextField.TITLE) {
         value = value + " | Creado por BlueStack_Test_Automation Framework"
       }
-      
+
       await writeSafe(this.driver, locator, value, config);
 
       logger.debug(`Campo "${field}" completado y verificado.`, { label: config.label });

@@ -72,11 +72,20 @@ export async function startNetworkMonitoring(
           logger.debug("CDP Network Monitoring sincronizado", { label });
           resolve({
             stop: async () => {
-              if (networkLogs.length > 0) {
+              const errorCount = networkLogs.length;
+              if (errorCount > 0) {
+                // 1. El adjunto que ya tienes
                 await allure.attachment(`Network_Issues_${label}`, networkLogs.join('\n'), "text/plain");
+                // 2. Nueva etiqueta para filtrar en el reporte web
+                await allure.tag("network-issues");
+                // 3. Añadir un mensaje descriptivo al test (opcional)
+                await allure.descriptionHtml(`<b>Atención:</b> Se detectaron ${errorCount} errores de red.`);
               }
               ws.removeAllListeners();
               ws.close();
+
+              // IMPORTANTE: Retornamos el conteo para que el test sepa qué pasó
+              return { errorCount, logs: networkLogs };
             }
           });
         }

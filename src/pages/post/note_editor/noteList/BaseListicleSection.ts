@@ -1,3 +1,6 @@
+export type ListicleData = Pick<NoteData, 'listicleItems'>;
+export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
+
 export abstract class BaseListicleSection {
   // Selectores fijos (Se mantienen igual)
   private readonly CREATE_MENU = By.css('.dropdown-noteList button');
@@ -8,13 +11,32 @@ export abstract class BaseListicleSection {
     protected strategy: ListicleStrategy
   ) { }
 
+  /**
+     * Punto de entrada unificado para el Orquestador.
+     * Recibe el objeto parcial y decide si debe ejecutar el llenado.
+     */
+  async fillAll(data: ListicleData | LiveBlogData, opts: RetryOptions = {}): Promise<void> {
+    // Aquí centralizamos la validación de si hay data
+    if (!data.listicleItems || data.listicleItems.length === 0) {
+      return;
+    }
+
+    const config = {
+      ...DefaultConfig,
+      ...opts,
+      label: stackLabel(opts.label, "BaseListicle.fillAll")
+    };
+
+    // Llamamos a tu método existente fillItems
+    await this.fillItems(data.listicleItems, config);
+  }
+
   // --- Generadores de Locators (Validados con tu versión funcional) ---
 
   private getIconLocator(uiIndex: number): Locator {
     // Usamos la estructura exacta que ya te funciona
     return By.xpath(`//div[@id="note-list-${uiIndex}"]//mat-icon[contains(@class, "icon-up") or contains(@class, "icon-down")]`);
   }
-
   private getFieldLocator(uiIndex: number, type: 'title' | 'body'): Locator {
     const base = `//div[@id="note-list-${uiIndex}"]`;
     return type === 'body'
@@ -117,3 +139,4 @@ import { RetryOptions, DefaultConfig } from "../../../../core/config/default.js"
 import { clickSafe } from "../../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
+import { NoteData } from "../../../../dataTest/noteDataInterface.js";

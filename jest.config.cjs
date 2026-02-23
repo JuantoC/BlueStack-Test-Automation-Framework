@@ -1,19 +1,24 @@
 require('dotenv').config();
 
-const maxInstances = (process.env.MAX_INSTANCES || "1", 10);
+// 1. CORRECCIÓN SDET: Agregamos parseInt para que lea el .env correctamente
+const maxInstances = parseInt(process.env.MAX_INSTANCES || "1", 10);
 
 module.exports = {
     preset: 'ts-jest/presets/default-esm',
     testEnvironment: "allure-jest/node",
+    testTimeout: 1200000,
     testEnvironmentOptions: {
         resultsDir: "allure-results",
     },
-    // 1. LIMITAR BÚSQUEDA: Solo buscamos en la carpeta tests y src
     roots: ['<rootDir>/tests', '<rootDir>/src'],
+
+    // 2. ARQUITECTURA:
+    // Jest descubre cada sesión como un ente independiente.
+    // Si hay 5 archivos acá, levantará hasta 5 workers (según maxInstances).
     testMatch: [
-        "**/runner.test.ts"
+        "**/src/sessions/**/*.test.ts"
     ],
-    // 2. IGNORAR CARPETAS PESADAS explícitamente
+
     testPathIgnorePatterns: ['/node_modules/', '/dist/'],
     maxWorkers: maxInstances,
     moduleNameMapper: {
@@ -22,7 +27,6 @@ module.exports = {
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             useESM: true,
-            isolatedModules: true
         }],
     },
 };

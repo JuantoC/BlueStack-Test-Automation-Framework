@@ -6,6 +6,7 @@ import { DriverSession, initializeDriver, quitDriver } from "../core/actions/dri
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import logger, { addSessionTransport } from "../core/utils/logger.js";
 import { checkConsoleErrors } from "../core/utils/browserLogs.js";
+import { runSession } from "../core/wrappers/testWrapper.js";
 
 // Business Flows
 import { passLogin } from "../flows/manageAuth.js";
@@ -19,9 +20,9 @@ import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
 
 /**
- * TEST CASE: Creación de Nota tipo Post - 01
+ * TEST CASE: Creación de Nota tipo Listicle - 01
  */
-export async function run(sessionLabel: string): Promise<void> {
+runSession("Crear Listicle exitosamente", async (sessionLabel: string) => {
   const sessionTransport = addSessionTransport(sessionLabel);
   const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
 
@@ -74,4 +75,4 @@ export async function run(sessionLabel: string): Promise<void> {
     }
     logger.remove(sessionTransport);
   }
-}
+});

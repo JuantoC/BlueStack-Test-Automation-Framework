@@ -24,7 +24,7 @@ export async function fillNote(
 
   const editor = new NoteEditorPage(driver);
 
-  await allure.step(`Llenanando nota con datos dinámicos`, async (stepContext) => {
+  await allure.step(`Llenando nota con datos dinámicos`, async (stepContext) => {
     stepContext.parameter("Data Keys", Object.keys(data).join(", "));
     stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 

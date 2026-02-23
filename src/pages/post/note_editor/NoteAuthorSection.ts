@@ -3,14 +3,15 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { assertValueEquals } from "../../../core/utils/assertValueEquals.js";
 import logger from "../../../core/utils/logger.js";
+import { NoteData } from "../../../dataTest/noteDataInterface.js";
 
 export enum AuthorType {
   INTERNAL = 'internal',
   ANONYMOUS = 'anonymous',
   MANUAL = 'manual'
 }
+export type NoteAuthorData = Pick<NoteData, 'authorType' | 'authorName' | 'authorDescription'>;
 
 /**
  * Representa la sección de autoría dentro del Editor de Notas.
@@ -39,8 +40,8 @@ export class NoteAuthorSection {
    * Determina y ejecuta la configuración de autor según los datos proporcionados.
    * @param data Subconjunto de NoteData necesario para el autor.
    */
-  async fillAuthorData(
-    data: { authorType?: string, authorName?: string, authorDescription?: string },
+  async fillAll(
+    data: { authorType?: AuthorType, authorName?: string, authorDescription?: string },
     opts: RetryOptions = {}
   ): Promise<void> {
     const config = {
@@ -53,7 +54,7 @@ export class NoteAuthorSection {
     const hasName = !!data.authorName?.trim();
 
     // Inferencia de tipo de autor si no viene explícito
-    let authorType: AuthorType | undefined = data.authorType as AuthorType;
+    let authorType: AuthorType | undefined = data.authorType;
     if (!authorType) {
       if (hasName || hasDescription) {
         authorType = AuthorType.MANUAL;

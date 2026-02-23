@@ -35,61 +35,33 @@ export class NoteEditorPage {
    * Coordina la ejecución de cada sub-sección con trazabilidad completa.
   */
   async fillFullNote(data: Partial<NoteData>, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "NoteEditorPage")
-    };
-
-    logger.info(`Iniciando llenado integral de la nota: "${data.title || 'Sin Título'}"`, { label: config.label });
+    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NoteEditorPage") };
 
     try {
-      // 1. Procesamiento de Textos Principales
-      const textMapping: Array<{ key: keyof NoteData; type: NoteTextField }> = [
-        { key: 'title', type: NoteTextField.TITLE },
-        { key: 'secondaryTitle', type: NoteTextField.SECONDARY_TITLE },
-        { key: 'subTitle', type: NoteTextField.SUB_TITLE },
-        { key: 'halfTitle', type: NoteTextField.HALF_TITLE },
-        { key: 'body', type: NoteTextField.BODY },
-        { key: 'summary', type: NoteTextField.SUMMARY },
-      ];
+      // 1. Delegación total: El orquestador no sabe qué campos de texto existen
+      await this.text.fillAll(data, config);
 
-      for (const { key, type } of textMapping) {
-        const value = data[key];
-        if (typeof value === 'string' && value.trim()) {
-          await this.text.fillField(type, value, config);
-        }
-      }
+      // 2. Tags: La sección de tags debería manejar internamente si vienen vacíos
+      await this.tags.fillAll(data, config);
 
-      // 2. Tags
-      if (data.tags?.length) {
-        await this.tags.addTags(NoteTagField.TAGS, data.tags, config);
-      }
-      if (data.hiddenTags?.length) {
-        await this.tags.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags, config);
-      }
+      // 3. Lógica de tipo de nota: Encapsulada
+      await this.fillListicleOrLiveblog(data, config);
 
-      // 3. Listicle
-      if (data.listicleItems?.length) {
-        // Definimos qué sección usar basándonos en el tipo de nota
-        const listSection = (this.noteType === NoteType.LIVEBLOG)
-          ? this.liveBlog
-          : this.listicle;
-
-        await listSection.fillItems(data.listicleItems, config);
-      }
-
-      // 4. Autor y Configuración Lateral
-      await this.author.fillAuthorData(data, config);
+      // 4. Otros
+      await this.author.fillAll(data, config);
       await this.settings.selectFirstSectionOption(config);
 
-      logger.info("Llenado integral de la nota finalizado exitosamente.", { label: config.label });
-
     } catch (error) {
-      // Regla de Oro: No logueamos el error aquí porque las funciones hijas ya lo hicieron.
-      // Solo propagamos para que el Test Runner marque la falla.
       throw error;
     }
+  }
+
+  // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
+  private async fillListicleOrLiveblog(data: Partial<NoteData>, config: any) {
+    if (!data.listicleItems?.length) return;
+
+    const section = (this.noteType === NoteType.LIVEBLOG) ? this.liveBlog : this.listicle;
+    await section.fillItems(data.listicleItems, config);
   }
 
   /**
@@ -111,5 +83,4 @@ import { NoteTagsSection, NoteTagField } from './NoteTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
-import logger from "../../../core/utils/logger.js";
 import { ListicleSection, LiveBlogSection } from './noteList/NoteListicleItemSection.js';

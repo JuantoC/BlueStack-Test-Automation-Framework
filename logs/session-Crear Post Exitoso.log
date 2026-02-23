@@ -1,0 +1,414 @@
+2026-02-23 12:59:56 info: >>> Iniciando Sesión: Crear Post Exitoso <<<
+2026-02-23 13:00:01 debug: CDP Network Monitoring sincronizado
+2026-02-23 13:00:01 info: 🚀 WebDriver y CDP listos
+2026-02-23 13:00:08 debug: Iniciando proceso de autenticación para el usuario: QAuno
+2026-02-23 13:00:08 debug: Iniciando componentes de autenticación...
+2026-02-23 13:00:08 debug: Ingresando nombre de usuario
+2026-02-23 13:00:08 debug: Iniciando flujo de escritura para: By(css selector, *[id="username-field-log"])
+2026-02-23 13:00:08 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:08 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:08 debug: Buscando elemento: {"using":"css selector","value":"*[id=\"username-field-log\"]"}
+2026-02-23 13:00:09 debug: Elemento encontrado: {"using":"css selector","value":"*[id=\"username-field-log\"]"}
+2026-02-23 13:00:09 debug: Verificando estado interactuable...
+2026-02-23 13:00:09 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:09 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:09 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:09 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:09 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:09 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:09 debug: Click ejecutado correctamente
+2026-02-23 13:00:09 debug: Modo de escritura detectado: Standard
+2026-02-23 13:00:09 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:00:09 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:00:10 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:00:10 debug: Acción completada en el primer intento
+2026-02-23 13:00:10 debug: Ingresando contraseña (valor oculto)
+2026-02-23 13:00:10 debug: Iniciando flujo de escritura para: By(css selector, *[id="password-field-log"])
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Buscando elemento: {"using":"css selector","value":"*[id=\"password-field-log\"]"}
+2026-02-23 13:00:10 debug: Elemento encontrado: {"using":"css selector","value":"*[id=\"password-field-log\"]"}
+2026-02-23 13:00:10 debug: Verificando estado interactuable...
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:10 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:10 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:10 debug: Click ejecutado correctamente
+2026-02-23 13:00:10 debug: Modo de escritura detectado: Standard
+2026-02-23 13:00:10 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:00:10 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:00:11 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:00:11 debug: Acción completada en el primer intento
+2026-02-23 13:00:11 debug: Ejecutando click en botón de acceso
+2026-02-23 13:00:11 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Buscando elemento: {"using":"css selector","value":"button[data-testid=\"qa-login\"]"}
+2026-02-23 13:00:11 debug: Elemento encontrado: {"using":"css selector","value":"button[data-testid=\"qa-login\"]"}
+2026-02-23 13:00:11 debug: Verificando estado interactuable...
+2026-02-23 13:00:11 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:11 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:11 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:11 debug: Click ejecutado correctamente
+2026-02-23 13:00:11 debug: Acción completada en el primer intento
+2026-02-23 13:00:11 debug: Formulario de login completado para: QAuno
+2026-02-23 13:00:11 debug: Intentando omitir el modal de 2FA ("I will do it later")
+2026-02-23 13:00:11 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:11 debug: Buscando elemento: {"using":"css selector","value":"[data-testid=\"btn-next\"]"}
+2026-02-23 13:00:12 debug: Elemento encontrado: {"using":"css selector","value":"[data-testid=\"btn-next\"]"}
+2026-02-23 13:00:12 debug: Verificando estado interactuable...
+2026-02-23 13:00:12 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:12 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:12 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:12 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:12 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:12 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:12 debug: Click ejecutado correctamente
+2026-02-23 13:00:12 debug: Acción completada en el primer intento
+2026-02-23 13:00:12 debug: Modal de 2FA gestionado correctamente
+2026-02-23 13:00:12 info: Flujo AuthPage completado correctamente
+2026-02-23 13:00:12 debug: Autenticación completada exitosamente para QAuno
+2026-02-23 13:00:12 info: Abriendo editor para nueva nota: POST
+2026-02-23 13:00:12 debug: Abriendo selector de creación de nota
+2026-02-23 13:00:12 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:12 debug: Buscando elemento: {"using":"css selector","value":"button.btn-create-note"}
+2026-02-23 13:00:17 debug: Elemento encontrado: {"using":"css selector","value":"button.btn-create-note"}
+2026-02-23 13:00:17 debug: Verificando estado interactuable...
+2026-02-23 13:00:17 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:17 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:17 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:17 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:17 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:17 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:18 debug: Click ejecutado correctamente
+2026-02-23 13:00:18 debug: Acción completada en el primer intento
+2026-02-23 13:00:18 debug: Seleccionando opción: New Post
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Buscando elemento: {"using":"css selector","value":"#option-dropdown-0 label"}
+2026-02-23 13:00:18 debug: Elemento encontrado: {"using":"css selector","value":"#option-dropdown-0 label"}
+2026-02-23 13:00:18 debug: Verificando estado interactuable...
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:18 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:18 debug: Click ejecutado correctamente
+2026-02-23 13:00:18 debug: Acción completada en el primer intento
+2026-02-23 13:00:18 debug: Tipo de nota "New Post" seleccionado exitosamente.
+2026-02-23 13:00:18 debug: Iniciando llenado dinámico de campos presentes en data
+2026-02-23 13:00:18 info: Iniciando llenado integral de la nota: "La inteligencia artificial redefine el trabajo en 2026"
+2026-02-23 13:00:18 debug: Escribiendo contenido en el campo: title
+2026-02-23 13:00:18 debug: Iniciando flujo de escritura para: By(css selector, div[id="titulo-content"] textarea.content__input-title.main__title-height)
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:18 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"titulo-content\"] textarea.content__input-title.main__title-height"}
+2026-02-23 13:00:22 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"titulo-content\"] textarea.content__input-title.main__title-height"}
+2026-02-23 13:00:22 debug: Verificando estado interactuable...
+2026-02-23 13:00:22 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:22 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:22 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:22 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:22 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:22 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:23 debug: Click ejecutado correctamente
+2026-02-23 13:00:23 debug: Modo de escritura detectado: Standard
+2026-02-23 13:00:23 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:00:25 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:00:25 debug: Acción completada en el primer intento
+2026-02-23 13:00:25 debug: Campo "title" completado y verificado.
+2026-02-23 13:00:25 debug: Escribiendo contenido en el campo: subTitle
+2026-02-23 13:00:25 debug: Iniciando flujo de escritura para: By(css selector, ckeditor[data-testid="copete-content"] div.ck-editor__editable)
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Buscando elemento: {"using":"css selector","value":"ckeditor[data-testid=\"copete-content\"] div.ck-editor__editable"}
+2026-02-23 13:00:25 debug: Elemento encontrado: {"using":"css selector","value":"ckeditor[data-testid=\"copete-content\"] div.ck-editor__editable"}
+2026-02-23 13:00:25 debug: Verificando estado interactuable...
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:25 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:25 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:26 debug: Click ejecutado correctamente
+2026-02-23 13:00:26 debug: Modo de escritura detectado: ContentEditable
+2026-02-23 13:00:26 debug: Limpiando contenteditable via CTRL+ A + DELETE
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:00:30 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:00:30 debug: Acción completada en el primer intento
+2026-02-23 13:00:30 debug: Campo "subTitle" completado y verificado.
+2026-02-23 13:00:30 debug: Escribiendo contenido en el campo: halfTitle
+2026-02-23 13:00:30 debug: Iniciando flujo de escritura para: By(css selector, div[id="volanta-content"] input[type="text"])
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"volanta-content\"] input[type=\"text\"]"}
+2026-02-23 13:00:30 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"volanta-content\"] input[type=\"text\"]"}
+2026-02-23 13:00:30 debug: Verificando estado interactuable...
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:30 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:30 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:30 debug: Click ejecutado correctamente
+2026-02-23 13:00:30 debug: Modo de escritura detectado: Standard
+2026-02-23 13:00:30 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:00:31 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:00:31 debug: Acción completada en el primer intento
+2026-02-23 13:00:31 debug: Campo "halfTitle" completado y verificado.
+2026-02-23 13:00:31 debug: Escribiendo contenido en el campo: body
+2026-02-23 13:00:31 debug: Iniciando flujo de escritura para: By(css selector, div[id="cuerpo-content"] div.ck-editor__editable)
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"cuerpo-content\"] div.ck-editor__editable"}
+2026-02-23 13:00:31 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"cuerpo-content\"] div.ck-editor__editable"}
+2026-02-23 13:00:31 debug: Verificando estado interactuable...
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Esperando visibilidad del elemento...
+2026-02-23 13:00:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:00:31 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:00:31 debug: Elemento listo para recibir interacción
+2026-02-23 13:00:31 debug: Click ejecutado correctamente
+2026-02-23 13:00:31 debug: Modo de escritura detectado: ContentEditable
+2026-02-23 13:00:32 debug: Limpiando contenteditable via CTRL+ A + DELETE
+2026-02-23 13:01:18 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:19 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:01:19 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:19 debug: Acción completada en el primer intento
+2026-02-23 13:01:19 debug: Campo "body" completado y verificado.
+2026-02-23 13:01:19 debug: Procesando tag: "tecnología"
+2026-02-23 13:01:19 debug: Iniciando flujo de escritura para: By(css selector, div[id="claves-content"] input[role="combobox"])
+2026-02-23 13:01:19 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:19 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:19 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:20 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:20 debug: Verificando estado interactuable...
+2026-02-23 13:01:20 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:20 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:20 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:20 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:20 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:20 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:22 debug: Click ejecutado correctamente
+2026-02-23 13:01:23 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:23 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:24 debug: Acción completada en el primer intento
+2026-02-23 13:01:24 debug: Procesando tag: "inteligencia artificial"
+2026-02-23 13:01:24 debug: Iniciando flujo de escritura para: By(css selector, div[id="claves-content"] input[role="combobox"])
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:24 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:24 debug: Verificando estado interactuable...
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:24 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:24 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:24 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:25 debug: Click ejecutado correctamente
+2026-02-23 13:01:25 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:25 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:25 debug: Acción completada en el primer intento
+2026-02-23 13:01:25 debug: Procesando tag: "trabajo"
+2026-02-23 13:01:25 debug: Iniciando flujo de escritura para: By(css selector, div[id="claves-content"] input[role="combobox"])
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:25 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:25 debug: Verificando estado interactuable...
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:25 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:25 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:25 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:26 debug: Click ejecutado correctamente
+2026-02-23 13:01:26 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:26 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:26 debug: Acción completada en el primer intento
+2026-02-23 13:01:26 debug: Procesando tag: "innovación"
+2026-02-23 13:01:26 debug: Iniciando flujo de escritura para: By(css selector, div[id="claves-content"] input[role="combobox"])
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:26 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"claves-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:26 debug: Verificando estado interactuable...
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:26 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:26 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:26 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:26 debug: Click ejecutado correctamente
+2026-02-23 13:01:26 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:26 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:27 debug: Acción completada en el primer intento
+2026-02-23 13:01:27 debug: Se agregaron 4 etiquetas exitosamente al campo tags
+2026-02-23 13:01:27 debug: Procesando tag: "ai-trends"
+2026-02-23 13:01:27 debug: Iniciando flujo de escritura para: By(css selector, div[id="clavesOcultas-content"] input[role="combobox"])
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"clavesOcultas-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:27 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"clavesOcultas-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:27 debug: Verificando estado interactuable...
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:27 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:27 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:27 debug: Click ejecutado correctamente
+2026-02-23 13:01:27 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:27 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:27 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:28 debug: Acción completada en el primer intento
+2026-02-23 13:01:28 debug: Procesando tag: "future-of-work"
+2026-02-23 13:01:28 debug: Iniciando flujo de escritura para: By(css selector, div[id="clavesOcultas-content"] input[role="combobox"])
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Buscando elemento: {"using":"css selector","value":"div[id=\"clavesOcultas-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:28 debug: Elemento encontrado: {"using":"css selector","value":"div[id=\"clavesOcultas-content\"] input[role=\"combobox\"]"}
+2026-02-23 13:01:28 debug: Verificando estado interactuable...
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:28 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:28 debug: Click ejecutado correctamente
+2026-02-23 13:01:28 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:28 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:28 debug: Acción completada en el primer intento
+2026-02-23 13:01:28 debug: Se agregaron 2 etiquetas exitosamente al campo hiddenTags
+2026-02-23 13:01:28 debug: Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.
+2026-02-23 13:01:28 debug: Seleccionando tipo de autor: manual
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Buscando elemento: {"using":"xpath","value":"//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"}
+2026-02-23 13:01:28 debug: Elemento encontrado: {"using":"xpath","value":"//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"}
+2026-02-23 13:01:28 debug: Verificando estado interactuable...
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:28 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:28 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:28 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:29 debug: Click ejecutado correctamente
+2026-02-23 13:01:29 debug: Acción completada en el primer intento
+2026-02-23 13:01:29 debug: Escribiendo nombre de autor
+2026-02-23 13:01:29 debug: Iniciando flujo de escritura para: By(css selector, .image-container_description input[type='text'])
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:29 debug: Buscando elemento: {"using":"css selector","value":".image-container_description input[type='text']"}
+2026-02-23 13:01:29 debug: Elemento encontrado: {"using":"css selector","value":".image-container_description input[type='text']"}
+2026-02-23 13:01:29 debug: Verificando estado interactuable...
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:29 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:29 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:29 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:29 debug: Click ejecutado correctamente
+2026-02-23 13:01:29 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:29 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:29 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:01:30 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:30 debug: Acción completada en el primer intento
+2026-02-23 13:01:30 debug: Escribiendo descripción de autor
+2026-02-23 13:01:30 debug: Iniciando flujo de escritura para: By(xpath, //div[contains(@class,'author-description')]//textarea[@type='text'])
+2026-02-23 13:01:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Buscando elemento: {"using":"xpath","value":"//div[contains(@class,'author-description')]//textarea[@type='text']"}
+2026-02-23 13:01:30 debug: Elemento encontrado: {"using":"xpath","value":"//div[contains(@class,'author-description')]//textarea[@type='text']"}
+2026-02-23 13:01:30 debug: Verificando estado interactuable...
+2026-02-23 13:01:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:30 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:30 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:30 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:30 debug: Click ejecutado correctamente
+2026-02-23 13:01:30 debug: Modo de escritura detectado: Standard
+2026-02-23 13:01:30 debug: Limpiando campo estándar e ingresando texto
+2026-02-23 13:01:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:31 debug: Validación exitosa: Valor coincide.
+2026-02-23 13:01:31 debug: Texto ingresado correctamente en el elemento
+2026-02-23 13:01:31 debug: Acción completada en el primer intento
+2026-02-23 13:01:31 debug: Autor configurado exitosamente como: manual
+2026-02-23 13:01:31 debug: Abriendo combo de selección de secciones
+2026-02-23 13:01:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:31 debug: Buscando elemento: {"using":"css selector","value":"mat-select[data-testid=\"section-options\"]"}
+2026-02-23 13:01:31 debug: Elemento encontrado: {"using":"css selector","value":"mat-select[data-testid=\"section-options\"]"}
+2026-02-23 13:01:31 debug: Verificando estado interactuable...
+2026-02-23 13:01:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:31 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:31 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:32 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:32 debug: Click ejecutado correctamente
+2026-02-23 13:01:32 debug: Acción completada en el primer intento
+2026-02-23 13:01:32 debug: Seleccionando la primera opción del listbox
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Buscando elemento: {"using":"css selector","value":"div[role='listbox'] mat-option:first-of-type"}
+2026-02-23 13:01:32 debug: Elemento encontrado: {"using":"css selector","value":"div[role='listbox'] mat-option:first-of-type"}
+2026-02-23 13:01:32 debug: Verificando estado interactuable...
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:32 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:32 debug: Click ejecutado correctamente
+2026-02-23 13:01:32 debug: Acción completada en el primer intento
+2026-02-23 13:01:32 debug: Sección seleccionada exitosamente (primera de la lista)
+2026-02-23 13:01:32 info: Llenado integral de la nota finalizado exitosamente.
+2026-02-23 13:01:32 debug: Llenado dinámico finalizado con éxito
+2026-02-23 13:01:32 info: Ejecutando salida del editor: save only
+2026-02-23 13:01:32 debug: Iniciando secuencia de salida: save only
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Buscando elemento: {"using":"css selector","value":"[data-testid=\"btn-save-post\"] button[data-testid=\"dropdown-action\"]"}
+2026-02-23 13:01:32 debug: Elemento encontrado: {"using":"css selector","value":"[data-testid=\"btn-save-post\"] button[data-testid=\"dropdown-action\"]"}
+2026-02-23 13:01:32 debug: Verificando estado interactuable...
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Esperando visibilidad del elemento...
+2026-02-23 13:01:32 debug: Ejecución directa (reintentos suprimidos)
+2026-02-23 13:01:32 debug: Esperando que el elemento esté habilitado (Enabled)...
+2026-02-23 13:01:32 debug: Elemento listo para recibir interacción
+2026-02-23 13:01:32 debug: Click ejecutado correctamente
+2026-02-23 13:01:32 debug: Acción completada en el primer intento
+2026-02-23 13:01:32 info: Acción de salida ejecutada correctamente: save only
+2026-02-23 13:01:32 debug: Editor cerrado exitosamente.
+2026-02-23 13:01:32 info: ✅ Prueba Crear Post Exitoso finalizada con éxito.
+2026-02-23 13:01:32 warn: ⚠️ Errores de JS detectados en [Crear Post Exitoso]:
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "[\"Your session has expired (failed to identify the intended token)\"]"
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "[\"Your session has expired (failed to identify the intended token)\"]"
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "Failed to execute 'open' on 'XMLHttpRequest': Invalid URL undefined"
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "Failed to execute 'open' on 'XMLHttpRequest': Invalid URL undefined"
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "Failed to execute 'open' on 'XMLHttpRequest': Invalid URL undefined"
+🟠 [JS ERROR] https://testing.d39hyz3zgpw7gd.amplifyapp.com/main.d269a9f5c1b92be4.js 8:10679360 "ERROR" "Failed to execute 'open' on 'XMLHttpRequest': Invalid URL undefined"
+2026-02-23 13:01:38 info: 🏁 Sesión cerrada

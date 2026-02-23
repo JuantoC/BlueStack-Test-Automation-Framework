@@ -6,5 +6,13 @@
  * @returns La URL completa con las credenciales inyectadas.
  */
 export function getAuthUrl(baseURL: string, username: string, password: string): string {
-    return `https://${username}:${encodeURIComponent(password)}@${baseURL}`;
+    const hasProtocol = /^https?:\/\//i.test(baseURL);
+
+    const urlWithoutProtocol = baseURL.replace(/^https?:\/\//i, '');
+
+    const protocol = hasProtocol
+        ? baseURL.match(/^https?:\/\//i)?.[0] ?? 'https://'
+        : 'https://';
+
+    return `${protocol}${username}:${encodeURIComponent(password)}@${urlWithoutProtocol}`;
 }

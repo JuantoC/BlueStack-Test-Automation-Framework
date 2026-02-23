@@ -1,32 +1,28 @@
 import { WebDriver, logging } from "selenium-webdriver";
 import logger from "./logger.js";
+import * as allure from "allure-js-commons";
 
-/**
- * Verifica si hay errores en la consola del navegador.
- * @param driver Instancia del WebDriver
- * @returns Array de mensajes de error encontrados
- */
 export async function checkConsoleErrors(driver: WebDriver, label: string = "BrowserLogs") {
     try {
-        // Obtenemos los logs de tipo BROWSER
         const entries = await driver.manage().logs().get(logging.Type.BROWSER);
-
-        // Filtramos solo los SEVERE (Errores rojos de consola)
         const errors = entries.filter(entry => entry.level.name === 'SEVERE');
 
         if (errors.length > 0) {
-            // 1. Convertimos los errores a un String con formato lista
             const formattedErrors = errors
-                .map(e => `   🟠 [JS ERROR] ${e.message}`)
-                .join('\n'); // Unimos con salto de línea
+                .map(e => `🟠 [JS ERROR] ${e.message}`)
+                .join('\n');
 
-            // 2. Lo inyectamos en el mensaje principal
-            logger.warn(`⚠️ Se detectaron ${errors.length} errores de JS en la consola del navegador:\n${formattedErrors}`, {
-                label
-            });
+            // 1. Log en archivos/consola
+            logger.warn(`⚠️ Errores de JS detectados en [${label}]:\n${formattedErrors}`, { label });
+
+            // 2. Adjunto para Allure (Fuera del logger)
+            await allure.attachment(
+                `Console_Errors_${label}`,
+                formattedErrors,
+                "text/plain"
+            );
         }
     } catch (e) {
-        logger.warn("No se pudieron extraer los logs de la consola (posiblemente no soportado en este modo).");
-        return [];
+        logger.warn(`No se pudieron extraer los logs de consola para ${label}.`, { label });
     }
 }

@@ -5,6 +5,8 @@ import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
 import { NoteEditorPage } from "../pages/post/note_editor/NoteEditorPage.js";
 import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
 import logger from "../core/utils/logger.js";
+import * as allure from "allure-js-commons";
+
 
 /**
  * Flow: Inicio de creación de nota.
@@ -18,21 +20,24 @@ export async function createNewNote(
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "flow:createNewNote")
+    label: stackLabel(opts.label, "createNewNote")
   };
 
   const page = new NoteEditorPage(driver, noteType);
 
-  try {
-    logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
+  await allure.step(`Creando nueva nota: ${noteType}`, async (stepContext) => {
+    allure.parameter("Note Type", noteType);
+    allure.parameter("Timeout", `${config.timeoutMs}ms`);
 
-    // Uso del componente 'creation' expuesto en NoteEditorPage
-    await page.creation.selectNoteType(noteType, config);
+    try {
+      logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
+      await page.creation.selectNoteType(noteType, config);
 
-  } catch (error: any) {
-    logger.error(`Error en flujo de creación [${noteType}]: ${error.message}`, { label: config.label });
-    throw error;
-  }
+    } catch (error: any) {
+      logger.error(`Error en flujo de creación [${noteType}]: ${error.message}`, { label: config.label });
+      throw error;
+    }
+  });
 }
 
 /**
@@ -52,19 +57,22 @@ export async function closeNoteEditor(
 
   const page = new NoteEditorPage(driver);
 
-  try {
-    logger.debug(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
+  await allure.step(`Cerrando editor de nota con acción: ${exitAction}`, async (stepContext) => {
+    stepContext.parameter("Exit Action", exitAction);
+    stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
-    /**
-     * IMPORTANTE: Aquí llamamos a 'page.actions' (el getter) 
-     * en lugar de 'page.headerActions' (que es privado).
-     */
-    await page.actions.clickExitAction(exitAction, config);
+    try {
+      logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
+      await page.actions.clickExitAction(exitAction, config);
+      logger.debug(`Editor cerrado exitosamente.`, { label: config.label });
 
-    logger.debug(`Editor cerrado exitosamente.`, { label: config.label });
-
-  } catch (error: any) {
-    logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, { label: config.label });
-    throw error;
-  }
+    } catch (error: any) {
+      logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, { 
+        label: config.label,
+        exitAction: exitAction,
+        error: error.message
+      });
+      throw error;
+    }
+  });
 }

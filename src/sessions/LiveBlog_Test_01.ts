@@ -2,20 +2,15 @@
  * TEST CASE: Creación de Nota tipo LiveBlog - 01
  * Valida la generación dinámica de ítems y la salida con descarte de cambios.
  */
-async function runLiveBlogSession(): Promise<void> {
-    const sessionLabel = "LiveBlog_TC-01";
-
+export async function run(sessionLabel: string): Promise<void> {
+    const sessionTransport = addSessionTransport(sessionLabel);
     // Configuración centralizada
-    const opts: RetryOptions = {
-        ...DefaultConfig,
-        label: sessionLabel
-    };
+    const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
 
-    const authUrl = getAuthUrl(
-        MainConfig.BASE_URL,
-        basicAuthCredentials.username,
-        basicAuthCredentials.password
-    );
+    // Obtenemos credenciales y URL desde el CONFIG centralizado
+    const { user, pass } = CONFIG.getCredentials('editor');
+    const { user: bUser, pass: bPass } = CONFIG.auth.basic;
+    const authUrl = getAuthUrl(CONFIG.baseUrl, bUser, bPass);
 
     let session: DriverSession | null = null;
 
@@ -23,12 +18,16 @@ async function runLiveBlogSession(): Promise<void> {
         logger.info(`>>> Iniciando Sesión: ${sessionLabel} <<<`, { label: sessionLabel });
 
         // 1. Setup
-        session = await initializeDriver({ isHeadless: false }, opts);
-        const driver = session.driver;
+        session = await initializeDriver({
+            isHeadless: CONFIG.browser.isHeadless,
+            useGrid: CONFIG.grid.useGrid
+        }, opts);
+
+        const { driver } = session;
 
         // 2. Acceso y Autenticación
         await driver.get(authUrl);
-        await passLogin(driver, testEditorCredentials, opts);
+        await passLogin(driver, { username: user, password: pass }, opts);
 
         // 3. Creación de LiveBlog
         await createNewNote(driver, NoteType.LIVEBLOG, opts);
@@ -42,22 +41,16 @@ async function runLiveBlogSession(): Promise<void> {
         logger.info(`✅ Prueba ${sessionLabel} finalizada exitosamente.`, { label: sessionLabel });
 
     } catch (error: any) {
-        if (error instanceof Error) {
-            let errorMessage = error.message;
-
-            const diff = (error as any)?.diff;
-            if (diff) {
-                errorMessage += `\n>>> DETALLE DEL FALLO DE TEXTO <<<${diff}`;
-            }
-
-            logger.error(`❌ FALLO CRÍTICO en ${sessionLabel}`, {
-                label: sessionLabel,
-                stack: error.stack,
-                details: errorMessage
-            });
-
-            throw error;
+        // Evidencia visual solo en caso de error
+        if (session?.driver) {
+            const screenshot = await session.driver.takeScreenshot();
+            await allure.attachment(`Fallo_${sessionLabel}`, Buffer.from(screenshot, 'base64'), 'image/png');
         }
+
+        const msg = error.diff ? `${error.message}\n>>> DIFF <<< ${error.diff}` : error.message;
+        logger.error(`❌ FALLO CRÍTICO en ${sessionLabel}`, { label: sessionLabel, details: msg });
+
+        throw error;
     } finally {
         if (session) {
             await checkConsoleErrors(session.driver, sessionLabel)
@@ -67,18 +60,14 @@ async function runLiveBlogSession(): Promise<void> {
     }
 }
 
-// Bootstrap de la sesión
-runLiveBlogSession().catch(() => process.exit(1));
-
+import * as allure from "allure-js-commons";
 import { LiveBlogData } from "../dataTest/noteData.js";
-import { testEditorCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
-import { MainConfig } from "../environments/Dev_SAAS/env.config.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
 
 // Core Tools
 import { DriverSession, initializeDriver, quitDriver } from "../core/actions/driverManager.js";
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import logger from "../core/utils/logger.js";
+import logger, { addSessionTransport } from "../core/utils/logger.js";
 
 // Business Flows
 import { passLogin } from "../flows/manageAuth.js";
@@ -89,4 +78,5 @@ import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js
 import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
 import { checkConsoleErrors } from "../core/utils/browserLogs.js";
 import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
+import { CONFIG } from "../core/config/config.js";
 

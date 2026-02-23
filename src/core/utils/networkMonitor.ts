@@ -1,6 +1,7 @@
-import { WebDriver } from "selenium-webdriver";
 import WebSocket from 'ws';
+import { WebDriver } from "selenium-webdriver";
 import logger from "./logger.js";
+import * as allure from "allure-js-commons";
 
 enum NetworkErrorCategory {
   SERVER_ERROR = "[SERVER 5xx]",
@@ -17,168 +18,97 @@ export async function startNetworkMonitoring(
   driver: WebDriver,
   label: string = "NetworkMonitor"
 ): Promise<NetworkMonitorHandle | null> {
-
   try {
     const caps = await driver.getCapabilities();
-    let cdpUrl = caps.get('se:cdp');
+    let cdpUrl = caps.get('se:cdp') as string;
 
-    // --- LÓGICA DE RESCATE (ACTUALIZADA PARA LOCAL) ---
+    // --- Lógica de Rescate para Local (WSL/Windows) ---
     if (!cdpUrl) {
-      logger.warn("🟡 Capability 'se:cdp' no encontrada. Intentando obtener CDP local...", { label });
-
-      // Buscamos la dirección del debugger local en las capabilities de Chrome
-      const chromeOptions = caps.get('goog:chromeOptions');
-
-      if (chromeOptions && chromeOptions.debuggerAddress) {
-        try {
-          // El debuggerAddress es algo como "localhost:63660"
-          // Hacemos una petición HTTP a esa dirección para pedirle la URL del WebSocket
-          const response = await fetch(`http://${chromeOptions.debuggerAddress}/json/version`);
-          const data = (await response.json()) as { webSocketDebuggerUrl: string };
-          cdpUrl = data.webSocketDebuggerUrl;
-
-          logger.info(`🛠️ URL CDP local obtenida con éxito: ${cdpUrl}`, { label });
-
-        } catch (fetchError) {
-          logger.error(`❌ Error al consultar la URL de DevTools local: ${fetchError}`, { label });
-          return null;
-        }
-      } else {
-        logger.error("❌ No se encontró 'se:cdp' ni 'goog:chromeOptions.debuggerAddress'. Imposible conectar CDP.", { label });
-        return null;
+      const chromeOptions = caps.get('goog:chromeOptions') as any;
+      if (chromeOptions?.debuggerAddress) {
+        const response = await fetch(`http://${chromeOptions.debuggerAddress}/json/version`);
+        const data = await response.json() as any;
+        cdpUrl = data.webSocketDebuggerUrl;
       }
     }
-    // ----------------------------------
 
-    // Parche de seguridad (igual que antes)
+    if (!cdpUrl) return null;
+
+    // Parche para Docker Grid en localhost
     if (cdpUrl.includes('172.') && cdpUrl.includes(':4444')) {
       cdpUrl = cdpUrl.replace(/172\.\d+\.\d+\.\d+/, 'localhost');
     }
 
-    logger.debug(`🔗 Conectando a WebSocket: ${cdpUrl}`, { label });
-
     const ws = new WebSocket(cdpUrl);
     let attachedSessionId: string | null = null;
+    let networkLogs: string[] = [];
 
     return new Promise((resolve) => {
+      ws.on('open', () => ws.send(JSON.stringify({ id: 1, method: "Target.getTargets" })));
 
-      ws.on('open', () => {
-        logger.debug("Socket Browser abierto. Buscando pestaña...", { label });
-        // 1. Buscar Targets
-        ws.send(JSON.stringify({ id: 1, method: "Target.getTargets", params: {} }));
-      });
+      ws.on('message', async (data) => {
+        const msg = JSON.parse(data.toString());
 
-      ws.on('message', (data: any) => {
-        try {
-          const msg = JSON.parse(data.toString());
-
-          // --- FASE 1: DESCUBRIMIENTO ---
-          if (msg.id === 1 && msg.result && msg.result.targetInfos) {
-            const pageTarget = msg.result.targetInfos.find((t: any) => t.type === 'page');
-            if (pageTarget) {
-              // 2. Adjuntar a la pestaña (Attach)
-              ws.send(JSON.stringify({
-                id: 2,
-                method: "Target.attachToTarget",
-                params: { targetId: pageTarget.targetId, flatten: true }
-              }));
-            }
+        // FASE 1: Descubrimiento y Attach
+        if (msg.id === 1 && msg.result?.targetInfos) {
+          const page = msg.result.targetInfos.find((t: any) => t.type === 'page');
+          if (page) {
+            ws.send(JSON.stringify({
+              id: 2, method: "Target.attachToTarget",
+              params: { targetId: page.targetId, flatten: true }
+            }));
           }
+        }
 
-          // --- FASE 2: ACTIVACIÓN ---
-          if (msg.id === 2 && msg.result && msg.result.sessionId) {
-            attachedSessionId = msg.result.sessionId;
-            logger.info(`🟢 Monitor CDP activo. SessionID: ${attachedSessionId}`, { label });
+        // FASE 2: Activación de Protocolos
+        if (msg.id === 2 && msg.result?.sessionId) {
+          attachedSessionId = msg.result.sessionId;
+          ws.send(JSON.stringify({ id: 3, method: "Network.enable", sessionId: attachedSessionId }));
+          ws.send(JSON.stringify({ id: 4, method: "Page.enable", sessionId: attachedSessionId }));
+        }
 
-            // 3. Habilitar Red (Usando sessionId)
-            ws.send(JSON.stringify({
-              id: 3,
-              method: "Network.enable",
-              params: { maxTotalBufferSize: 10000000, maxResourceBufferSize: 5000000 },
-              sessionId: attachedSessionId
-            }));
-
-            // 4. Habilitar Página (Para asegurar ciclo de vida)
-            ws.send(JSON.stringify({
-              id: 4,
-              method: "Page.enable",
-              params: {},
-              sessionId: attachedSessionId
-            }));
-
-            resolve({
-              stop: async () => {
-                ws.removeAllListeners();
-                ws.close();
-                logger.info("Monitor detenido correctamente.", { label });
+        // FASE 3: Confirmación (ACK) - Solo aquí el driver está "listo"
+        if (msg.id === 4 && msg.result) {
+          logger.debug("CDP Network Monitoring sincronizado", { label });
+          resolve({
+            stop: async () => {
+              if (networkLogs.length > 0) {
+                await allure.attachment(`Network_Issues_${label}`, networkLogs.join('\n'), "text/plain");
               }
-            });
-          }
-
-          // --- FASE 3: TRÁFICO ---
-          // Filtramos por sessionId para asegurar que es tráfico de NUESTRA pestaña
-          if (msg.method && (!msg.sessionId || msg.sessionId === attachedSessionId)) {
-
-            if (msg.method === 'Network.responseReceived') {
-              handleResponse(msg.params, label);
+              ws.removeAllListeners();
+              ws.close();
             }
-            else if (msg.method === 'Network.loadingFailed') {
-              handleFailure(msg.params, label);
+          });
+        }
+
+        // FASE 4: Captura de Tráfico
+        if (msg.sessionId === attachedSessionId) {
+          if (msg.method === 'Network.responseReceived') {
+            const { response, type } = msg.params;
+            if (['XHR', 'Fetch', 'Document'].includes(type) && response.status >= 400) {
+              const category = response.status >= 500 ? NetworkErrorCategory.SERVER_ERROR : NetworkErrorCategory.CLIENT_ERROR;
+              const logMsg = `${category} Status: ${response.status} | URL: ${response.url}`;
+              networkLogs.push(logMsg);
+              logger.warn(logMsg, { label });
             }
           }
-
-        } catch (e) { }
+          if (msg.method === 'Network.loadingFailed') {
+            const { errorText, canceled } = msg.params;
+            if (!canceled) {
+              const logMsg = `${NetworkErrorCategory.CONNECTION_FAILED} Reason: ${errorText}`;
+              networkLogs.push(logMsg);
+              logger.error(logMsg, { label });
+            }
+          }
+        }
       });
 
       ws.on('error', (err) => {
-        logger.error(`❌ Error WebSocket CDP: ${err.message}`, { label });
+        logger.error(`Error CDP: ${err.message}`, { label });
         resolve(null);
       });
     });
-
-  } catch (error: any) {
-    logger.warn(`Excepción monitor: ${error?.message}`, { label });
+  } catch (e) {
     return null;
   }
-}
-
-// --- HELPERS DE NEGOCIO (Limpios) ---
-
-function handleResponse(params: any, label: string) {
-  const { response, type } = params;
-
-  // Filtro estricto: Solo lo que importa
-  if (type !== 'Document' && type !== 'XHR' && type !== 'Fetch') return;
-
-  const status = response.status;
-  const url = response.url ?? 'unknown';
-
-  // LÓGICA DE VISIBILIDAD:
-  // >= 400: ERROR/WARN (Se muestra siempre)
-  // < 400:  DEBUG (Solo se ve si configuras logger level a debug, para no ensuciar)
-
-  if (status >= 400) {
-    const category = status >= 500 ? NetworkErrorCategory.SERVER_ERROR : NetworkErrorCategory.CLIENT_ERROR;
-    logNetworkIssue(category, status, url, label);
-  } else {
-    // Cambiado a debug para producción limpia
-    // logger.debug(`[OK ${status}] ${url}`, { label }); 
-  }
-}
-
-function handleFailure(params: any, label: string) {
-  const { errorText, canceled, type } = params;
-  if (canceled) return;
-  const category = classifyNetworkError(errorText);
-  logger.error(`${category} Type: ${type} | Reason: ${errorText}`, { label });
-}
-
-function logNetworkIssue(category: NetworkErrorCategory, status: number, url: string, label: string) {
-  const message = `${category} Status: ${status} | URL: ${url}`;
-  if (status >= 500) { logger.error(message, { label }); } else { logger.warn(message, { label }); }
-}
-
-function classifyNetworkError(errorText: string): NetworkErrorCategory {
-  if (errorText.includes('ERR_SSL') || errorText.includes('CORS')) return NetworkErrorCategory.SECURITY_BLOCK;
-  return NetworkErrorCategory.CONNECTION_FAILED;
 }

@@ -4,6 +4,8 @@ import { stackLabel } from "../core/utils/stackLabel.js";
 import { NoteData } from "../dataTest/noteDataInterface.js";
 import { NoteEditorPage } from "../pages/post/note_editor/NoteEditorPage.js";
 import logger from "../core/utils/logger.js";
+import * as allure from "allure-js-commons";
+
 
 /**
  * Flow de Negocio: Rellenado Dinámico de Nota.
@@ -14,7 +16,6 @@ export async function fillNote(
   data: Partial<NoteData>,
   opts: RetryOptions = {}
 ): Promise<void> {
-  // 1. Configuración de trazabilidad
   const config = {
     ...DefaultConfig,
     ...opts,
@@ -23,25 +24,31 @@ export async function fillNote(
 
   const editor = new NoteEditorPage(driver);
 
-  try {
-    logger.debug(`Iniciando llenado dinámico de campos presentes en data`, {
-      label: config.label
-    });
+  await allure.step(`Llenanando nota con datos dinámicos`, async (stepContext) => {
+    stepContext.parameter("Data Keys", Object.keys(data).join(", "));
+    stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
-    /**
-     * Delegamos la inteligencia al método maestro del NoteEditorPage.
-     * Como usamos Partial<NoteData>, fillFullNote ya tiene la lógica de:
-     * "Si el campo existe y tiene valor, lo escribo; si no, lo ignoro".
-     */
-    await editor.fillFullNote(data, config);
+    try {
+      logger.debug(`Iniciando llenado dinámico de campos presentes en data`, {
+        label: config.label
+      });
 
-    logger.debug(`Llenado dinámico finalizado con éxito`, { label: config.label });
+      /**
+       * Delegamos la inteligencia al método maestro del NoteEditorPage.
+       * Como usamos Partial<NoteData>, fillFullNote ya tiene la lógica de:
+       * "Si el campo existe y tiene valor, lo escribo; si no, lo ignoro".
+       */
+      await editor.fillFullNote(data, config);
 
-  } catch (error: any) {
-    // Captura de fallo en el nivel más alto del flujo de edición
-    logger.error(`Fallo en el flow de edición: ${error.message}`, {
-      label: config.label
-    });
-    throw error;
-  }
+      logger.debug(`Llenado dinámico finalizado con éxito`, { label: config.label });
+
+    } catch (error: any) {
+      // Captura de fallo en el nivel más alto del flujo de edición
+      logger.error(`Fallo en el flow de edición: ${error.message}`, {
+        label: config.label,
+        error: error.message
+      });
+      throw error;
+    }
+  });
 }

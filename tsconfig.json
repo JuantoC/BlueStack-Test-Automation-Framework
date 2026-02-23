@@ -1,27 +1,28 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext", // Fundamental para ESM y Jest
     "esModuleInterop": true,
-    "allowImportingTsExtensions": false,
-    "rootDir": "./src",
+    "rootDir": ".", // Ahora permite archivos en src/ y tests/
     "outDir": "./dist",
-    "noEmit": false,
     "lib": [
       "es2022"
     ],
     "types": [
       "node",
-      "selenium-webdriver"
+      "selenium-webdriver",
+      "jest" // Agregado para quitar el error de 'describe'
     ],
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "declaration": false
+    "declaration": false,
+    "isolatedModules": true
   },
   "include": [
-    "src"
+    "src/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules"

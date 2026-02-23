@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  selenium-hub:
+    image: selenium/hub:4.38.0
+    container_name: selenium-hub
+    ports:
+      - "4442-4444:4442-4444"
+
+  chrome-node:
+    image: selenium/node-chrome:4.38.0 # Versión sincronizada
+    shm_size: 2gb # Reemplaza el volumen /dev/shm de forma más limpia
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=1
+    deploy:
+      replicas: 1 # Esto se escala vía CLI: --scale chrome-node=X

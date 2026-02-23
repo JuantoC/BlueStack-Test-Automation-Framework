@@ -1,22 +1,20 @@
 import winston from 'winston';
 import fs from 'fs';
 import path from 'path';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
-// 1. Crear la carpeta de logs si no existe
 const logDir = 'logs';
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir);
 }
 
-// 2. Definir el formato de los logs
 const logFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    winston.format.errors({ stack: true }), // Para capturar el stack trace del error
+    winston.format.errors({ stack: true }),
     winston.format.splat(),
     winston.format.json()
 );
 
-// 3. Formato amigable para la consola (con colores)
 const consoleFormat = winston.format.combine(
     winston.format.colorize(),
     winston.format.printf(({ timestamp, level, message, label }) => {
@@ -26,25 +24,39 @@ const consoleFormat = winston.format.combine(
 );
 
 const logger = winston.createLogger({
-    level: 'debug', // Nivel base: captura todo desde debug hacia arriba
+    level: 'debug',
     format: logFormat,
     transports: [
-        // Guarda TODOS los logs (incluyendo debug y reintentos)
-        new winston.transports.File({ 
-            filename: path.join(logDir, 'combined.log'),
-            level: 'debug' 
+        new DailyRotateFile({
+            filename: 'logs/application-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '3d'
         }),
-        // Guarda SOLO los errores críticos
-        new winston.transports.File({ 
-            filename: path.join(logDir, 'errors.log'), 
-            level: 'error' 
-        }),
-        // Mostra en CONSOLA solo lo importante (info, warn, error)
         new winston.transports.Console({
             level: 'info',
             format: consoleFormat
         })
     ],
 });
+
+/**
+ * Crea un transport dedicado para una sesión y lo añade al logger global.
+ * @returns El transport creado para poder removerlo luego.
+ */
+export function addSessionTransport(sessionLabel: string) {
+    const sessionFile = new winston.transports.File({
+        filename: path.join(logDir, `session-${sessionLabel}.log`),
+        level: 'debug',
+        // Formato simple para que el log de sesión sea legible como texto
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
+        )
+    });
+    logger.add(sessionFile);
+    return sessionFile;
+}
 
 export default logger;

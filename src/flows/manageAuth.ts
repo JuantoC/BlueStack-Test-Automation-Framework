@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import * as allure from "allure-js-commons";
-import { AuthPage } from "../pages/auth/authPage.js";
+import { AuthPage } from "../pages/login_page/authPage.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import logger from "../core/utils/logger.js";

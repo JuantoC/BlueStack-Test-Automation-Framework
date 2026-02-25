@@ -1,9 +1,9 @@
 import { WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteEditorPage } from "../pages/post/note_editor/NoteEditorPage.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
+import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import logger from "../core/utils/logger.js";
 import * as allure from "allure-js-commons";
 
@@ -16,7 +16,7 @@ export async function createNewNote(
   driver: WebDriver,
   noteType: NoteType,
   opts: RetryOptions = {}
-): Promise<void> {
+): Promise<NoteEditorPage> {
   const config = {
     ...DefaultConfig,
     ...opts,
@@ -32,12 +32,13 @@ export async function createNewNote(
     try {
       logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
       await page.creation.selectNoteType(noteType, config);
-
+      logger.debug(`Editor de nota abierto exitosamente para tipo: ${noteType}`, { label: config.label });
     } catch (error: any) {
       logger.error(`Error en flujo de creación [${noteType}]: ${error.message}`, { label: config.label });
       throw error;
     }
   });
+  return page;
 }
 
 /**

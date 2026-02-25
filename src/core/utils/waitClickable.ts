@@ -35,13 +35,11 @@ export async function waitClickable(
       logger.debug(`Elemento listo para recibir interacción`, { label: fullOpts.label });
       return element;
 
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.TimeoutError) {
-        logger.error(`El elemento no alcanzó el estado 'interactuable' tras ${fullOpts.timeoutMs / 1000}s`, {
-          label: fullOpts.label
-        });
+        err.message = `El elemento no fue interactuable tras ${fullOpts.timeoutMs / 1000}s. ${err.message}`;
       }
-      throw err; // El error debe subir para que el retryWrapper lo capture
+      throw err; 
     }
   }, fullOpts);
 }

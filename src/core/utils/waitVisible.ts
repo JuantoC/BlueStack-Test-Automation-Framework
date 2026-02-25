@@ -35,12 +35,13 @@ export async function waitVisible(
             return element;
         } catch (err) {
             if (err instanceof error.TimeoutError) {
-                logger.warn(`Timeout de visibilidad alcanzado. Intentando scrollIntoView como recuperación...`, { label: config.label });
+                logger.debug(`Timeout de visibilidad alcanzado. Intentando scrollIntoView como recuperación...`, { label: config.label });
                 // Intentamos scroll para ayudar al diagnóstico o a un reintento posterior
                 try {
                     await scrollIntoView(element);
                 } catch (scrollErr: any) {
                     logger.debug(`No se pudo realizar el scroll: ${scrollErr.message}`, { label: config.label });
+                    err.message += ` Además, el intento de scroll para recuperar la visibilidad falló: ${scrollErr.message}`;
                 }
             }
             // Relanzamos el error original para que el retryWrapper o el test decidan el siguiente paso

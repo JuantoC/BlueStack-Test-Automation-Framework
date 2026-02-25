@@ -3,29 +3,41 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "// --- 🧹 MANTENIMIENTO ---": "",
-    "clean": "rm -rf logs/* allure-results/* allure-report/*",
+    "// --- 1. MANTENIMIENTO ---": "",
+    "clean": "rm -rf allure-results/* allure-report/* blob-report/*",
+    "clean:reports": "rm -rf allure-report/*",
 
-    "// --- 🐳 INFRAESTRUCTURA (DOCKER) ---": "",
-    "infra:up": "docker compose up -d && sleep 5",
+    "// --- 2. INFRAESTRUCTURA (DOCKER) ---": "",
+    "// Úsalo UNA VEZ al iniciar tu día o sesión de pruebas grid": "",
+    "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
     "infra:restart": "npm run infra:down && npm run infra:up",
 
-    "// --- 🧪 EJECUCIÓN DE TESTS ---": "",
-    "// 1. MODO DESARROLLO: Local, navegador visible, sin Docker, uno por uno (serial)": "",
-    "test:dev": "cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false jest --runInBand",
+    "// --- 3. EJECUCIÓN (CORE) ---": "",
+    "// Estos scripts solo corren tests. Asumen que el entorno (Local o Docker) ya está listo.": "",
+    
+    "// DEV: Navegador visible. Ideal para debug y creación de scripts.": "",
+    "exec:dev": "cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false jest",
 
-    "// 2. MODO GRID: Local, pero usando el Grid de Docker, headless, paralelo": "",
-    "test:grid": "npm run clean && npm run infra:up && cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true jest || (npm run infra:down && exit 1)",
+    "// GRID: Headless apuntando al puerto de Docker.": "",
+    "exec:grid": "cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true jest",
 
-    "// 3. MODO CI: Igual al Grid, pero sin limpieza automática posterior (el CI mata el contenedor)": "",
-  "test:ci": "npm run clean && npm run infra:up && cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true jest --ci --runInBand --colors",
+    "// --- 4. WORKFLOWS (COMANDOS COMPUESTOS) ---": "",
+    
+    "// Alias rápido para desarrollo local (sin Docker)": "",
+    "test:dev": "npm run exec:dev --",
 
-    "// --- 📊 REPORTES ---": "",
+    "// Alias rápido para correr en Grid (REQUIERE 'npm run infra:up' PREVIO)": "",
+    "test:grid": "npm run exec:grid --",
+
+    "// CI: Flujo completo. Limpia -> Levanta Docker -> Corre -> Baja Docker. (Para Jenkins/GitHub Actions)": "",
+    "test:ci": "npm run clean && npm run infra:up && npm run exec:grid -- --ci --runInBand --colors --forceExit && npm run infra:down",
+
+    "// --- 5. REPORTES ---": "",
     "report:gen": "npx allure generate allure-results -o allure-report",
-    "report:open": "npx serve allure-report -p 9999",
+    "report:open": "npx allure open allure-report",
     "report:show": "npm run report:gen && npm run report:open"
-  },
+},
   "dependencies": {
     "axios": "^1.13.2",
     "selenium-webdriver": "^4.38.0",

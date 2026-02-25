@@ -1,4 +1,4 @@
-import { AuthorType } from "../pages/post/note_editor/NoteAuthorSection.js";
+import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js";
 
 export interface NoteData {
     // Campos de texto principales
@@ -24,9 +24,9 @@ export interface NoteData {
     }>;
 
     eventLiveBlog?: {
-        eventTitle: string;
-        eventDescription: string;
-        placeOfEvent: string;
-        eventAdress: string;
+        eventTitle?: string;
+        eventDescription?: string;
+        placeOfEvent?: string;
+        eventAdress?: string;
     }
 }

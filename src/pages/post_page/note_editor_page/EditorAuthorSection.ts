@@ -17,7 +17,7 @@ export type NoteAuthorData = Pick<NoteData, 'authorType' | 'authorName' | 'autho
  * Representa la sección de autoría dentro del Editor de Notas.
  * Maneja la selección de tipo de autor y la carga de metadatos asociados.
  */
-export class NoteAuthorSection {
+export class EditorAuthorSection {
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly authorButtonMap: Record<AuthorType, Locator> = {
     [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),

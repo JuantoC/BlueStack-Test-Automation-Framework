@@ -22,7 +22,7 @@ export abstract class BaseListicleSection {
       label: stackLabel(opts.label, "BaseListicle.fillAll")
     };
 
-    await this.fillEventSection(data, config);
+    await this.fillEventSection(data as LiveBlogData, config);
 
     // Aquí centralizamos la validación de si hay data
     if (!data.listicleItems || data.listicleItems.length === 0) {
@@ -110,7 +110,7 @@ export abstract class BaseListicleSection {
 
     // 🔹 1. Normalizar según estrategia
     const normalizedItems = this.strategy.normalizeItems(items);
-
+    
     // 🔹 2. Crear slots (siempre hay 1 base)
     for (let i = 1; i < normalizedItems.length; i++) {
       await clickSafe(this.driver, this.CREATE_MENU, config);
@@ -121,8 +121,7 @@ export abstract class BaseListicleSection {
     for (let i = 0; i < normalizedItems.length; i++) {
       const uiIndex = i + 1;
       const item = normalizedItems[i];
-      console.log(normalizedItems)
-      
+
       await this.toggleExpansion(uiIndex, 'expand', config);
 
       if (item.title) {

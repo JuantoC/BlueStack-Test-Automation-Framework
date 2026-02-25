@@ -8,7 +8,7 @@ import logger from "../../../core/utils/logger.js";
  * Maneja el panel lateral de configuración de la nota (Settings).
  * Incluye la gestión de secciones y metadatos laterales.
  */
-export class NoteLateralSettings {
+export class EditorLateralSettings {
   private driver: WebDriver;
 
   // ========== LOCATORS (Respetando originales y encapsulando) ==========

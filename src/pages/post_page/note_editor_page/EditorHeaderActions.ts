@@ -19,7 +19,7 @@ export enum NoteExitAction {
  * Orquestador de acciones del Header en el Editor de Notas.
  * Gestiona secuencias complejas de clics (Dropdown -> Opción -> Modal).
  */
-export class NoteHeaderActions {
+export class EditorHeaderActions {
   private driver: WebDriver;
 
   // ========== LOCATORS (Respetando originales) ==========

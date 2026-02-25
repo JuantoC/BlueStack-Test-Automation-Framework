@@ -12,8 +12,8 @@ runSession("Crear LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await driver.get(authUrl);
     await passLogin(driver, { username: user, password: pass }, opts);
 
-    await createNewNote(driver, NoteType.LIVEBLOG, opts);
-    await fillNote(driver, LiveBlogData[0], opts);
+    const editorPage = await createNewNote(driver, NoteType.LIVEBLOG, opts);
+    await editorPage.fillFullNote(LiveBlogData[0], opts);
     await closeNoteEditor(driver, NoteExitAction.SAVE_ONLY, opts);
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
@@ -27,8 +27,8 @@ import { passLogin } from "../flows/manageAuth.js";
 import { fillNote } from "../flows/fillNote.js";
 import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
 // Enums
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
+import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { CONFIG } from "../core/config/config.js";
 import { runSession } from "../core/wrappers/testWrapper.js";
 

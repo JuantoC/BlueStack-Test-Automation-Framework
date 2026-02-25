@@ -8,8 +8,8 @@ import { fillNote } from "../flows/fillNote.js";
 import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
 // Data y Enums
 import { ListicleData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
+import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 
 /**
  * TEST CASE: Creación de Nota tipo Listicle - 01

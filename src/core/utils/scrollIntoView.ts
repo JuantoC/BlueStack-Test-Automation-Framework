@@ -36,11 +36,8 @@ export async function scrollIntoView(
       return element;
 
     } catch (error: any) {
-      // Si falla por StaleElement o porque el driver se desconectó, registramos advertencia.
-      // El retry decidirá si volver a intentar u orquestar el fallo.
-      logger.warn(`Intento de scroll fallido: ${error.message}`, {
-        label: config.label
-      });
+      logger.debug(`Fallo scroll (reintentable): ${error.message}`, { label: config.label });
+      error.message = `scrollIntoView falló: ${error.message}`;
       throw error;
     }
   }, config);

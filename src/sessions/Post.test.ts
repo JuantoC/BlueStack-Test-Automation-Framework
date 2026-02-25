@@ -4,8 +4,8 @@ import { passLogin } from "../flows/manageAuth.js";
 import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
 import { fillNote } from "../flows/fillNote.js";
 import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post/note_editor/NoteCreationDropdown.js";
-import { NoteExitAction } from "../pages/post/note_editor/NoteHeaderActions.js";
+import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { CONFIG } from "../core/config/config.js";
 
 runSession('Crear Post Exitosamente', async ({ driver, opts, log }) => {

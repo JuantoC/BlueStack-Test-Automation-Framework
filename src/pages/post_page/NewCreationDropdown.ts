@@ -1,8 +1,8 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
-import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
-import logger from "../../../core/utils/logger.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { stackLabel } from "../../core/utils/stackLabel.js";
+import logger from "../../core/utils/logger.js";
 
 export enum NoteType {
   POST = 'POST',
@@ -10,7 +10,7 @@ export enum NoteType {
   LIVEBLOG = 'LIVEBLOG'
 }
 
-export class NoteCreationDropdown {
+export class NewCreationDropdown {
   private static readonly NOTE_TYPE_CONFIG: Record<NoteType, { index: number; displayName: string }> = {
     [NoteType.POST]: { index: 0, displayName: 'New Post' },
     [NoteType.LISTICLE]: { index: 1, displayName: 'New Listicle' },
@@ -31,9 +31,9 @@ export class NoteCreationDropdown {
       label: stackLabel(opts.label, `selectNoteType(${noteType})`)
     };
 
-    const typeData = NoteCreationDropdown.NOTE_TYPE_CONFIG[noteType];
+    const typeData = NewCreationDropdown.NOTE_TYPE_CONFIG[noteType];
     if (!typeData) {
-      throw new Error(`[NoteCreationDropdown] Tipo de nota "${noteType}" no está en la configuración.`);
+      throw new Error(`[NewCreationDropdown] Tipo de nota "${noteType}" no está en la configuración.`);
     }
 
     const optionLocator = By.css(`#option-dropdown-${typeData.index} label`);

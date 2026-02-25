@@ -8,28 +8,28 @@ export class NoteEditorPage {
   private driver: WebDriver;
 
   private readonly noteType: NoteType
-  public readonly tags: NoteTagsSection;
+  public readonly tags: EditorTagsSection;
   public readonly listicle: ListicleSection;
   public readonly liveBlog: LiveBlogSection;
-  public readonly author: NoteAuthorSection;
-  public readonly header: NoteHeaderActions;
-  public readonly settings: NoteLateralSettings;
-  public readonly text: NoteTextContentSection;
-  public readonly creation: NoteCreationDropdown;
-  public readonly images: NoteImageSection;
+  public readonly author: EditorAuthorSection;
+  public readonly header: EditorHeaderActions;
+  public readonly settings: EditorLateralSettings;
+  public readonly text: EditorTextSection;
+  public readonly creation: NewCreationDropdown;
+  public readonly images: EditorImageSection;
 
-  constructor(driver: WebDriver, noteType?: NoteType) {
+  constructor(driver: WebDriver, noteType: NoteType = NoteType.POST) {
     this.driver = driver;
-    this.noteType = noteType = NoteType.POST;
-    this.tags = new NoteTagsSection(driver);
-    this.author = new NoteAuthorSection(driver);
-    this.header = new NoteHeaderActions(driver);
-    this.settings = new NoteLateralSettings(driver);
-    this.text = new NoteTextContentSection(driver);
-    this.creation = new NoteCreationDropdown(driver);
+    this.noteType = noteType;
+    this.tags = new EditorTagsSection(driver);
+    this.author = new EditorAuthorSection(driver);
+    this.header = new EditorHeaderActions(driver);
+    this.settings = new EditorLateralSettings(driver);
+    this.text = new EditorTextSection(driver);
+    this.creation = new NewCreationDropdown(driver);
     this.listicle = new ListicleSection(driver);
     this.liveBlog = new LiveBlogSection(driver);
-    this.images = new NoteImageSection(driver);
+    this.images = new EditorImageSection(driver);
   }
 
   /**
@@ -65,30 +65,37 @@ export class NoteEditorPage {
 
   // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
   private async fillListicleOrLiveblog(data: Partial<NoteData>, config: any) {
-    if (!data.listicleItems?.length) return;
+    const hasItems = data.listicleItems && data.listicleItems.length > 0;
+    const hasEvent = this.noteType === NoteType.LIVEBLOG && data.eventLiveBlog;
 
+    if (!hasItems && !hasEvent) return;
+
+    // Selección de la estrategia
     const section = (this.noteType === NoteType.LIVEBLOG) ? this.liveBlog : this.listicle;
-    await section.fillItems(data.listicleItems, config);
+
+    // Ejecutar
+    await section.fillAll(data as LiveBlogData, config);
   }
 
   /**
    * Expone acciones del header (Guardar/Publicar) de forma controlada.
    */
-  public get actions(): NoteHeaderActions {
+  public get actions(): EditorHeaderActions {
     return this.header;
   }
 
 }
 
 import { WebDriver } from 'selenium-webdriver';
-import { NoteAuthorSection } from "./NoteAuthorSection.js";
-import { NoteHeaderActions } from "./NoteHeaderActions.js";
-import { NoteLateralSettings } from "./NoteLateralSettings.js";
-import { NoteTextContentSection, NoteTextField } from "./NoteTextContentSection.js";
-import { NoteCreationDropdown, NoteType } from "./NoteCreationDropdown.js";
-import { NoteTagsSection, NoteTagField } from './NoteTagsSection.js';
+import { EditorAuthorSection } from "./EditorAuthorSection.js";
+import { EditorHeaderActions } from "./EditorHeaderActions.js";
+import { EditorLateralSettings } from "./EditorLateralSettings.js";
+import { EditorTextSection, NoteTextField } from "./EditorTextSection.js";
+import { NewCreationDropdown, NoteType } from "../NewCreationDropdown.js";
+import { EditorTagsSection, NoteTagField } from './EditorTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
-import { ListicleSection, LiveBlogSection } from './noteList/NoteListicleItemSection.js';
-import { NoteImageSection } from './NoteImagesSection.js';
+import { ListicleSection, LiveBlogSection } from './noteList/ListicleItemSection.js';
+import { EditorImageSection } from './EditorImagesSection.js';import { LiveBlogData } from './noteList/BaseListicleSection.js';
+

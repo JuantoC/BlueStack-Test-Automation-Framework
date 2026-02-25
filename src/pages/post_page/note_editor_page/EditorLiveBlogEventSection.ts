@@ -3,6 +3,7 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
+import { LiveBlogData } from "./noteList/BaseListicleSection.js";
 
 export enum LiveBlogEventField {
     EVENT_TITLE = 'eventTitle',
@@ -11,7 +12,7 @@ export enum LiveBlogEventField {
     EVENT_ADDRESS = 'eventAddress'
 }
 
-export class NoteLiveBlogEventSection {
+export class EditorLiveBlogEventSection {
     // ========== LOCATORS (Private & Readonly) ==========
     private readonly LOCATORS: Record<LiveBlogEventField, Locator> = {
         [LiveBlogEventField.EVENT_TITLE]: By.css('div[id="event-note"] input.mda-form-control'),
@@ -22,16 +23,20 @@ export class NoteLiveBlogEventSection {
 
     constructor(private driver: WebDriver) { }
 
-    async fillEventTitle(value: string, opts: RetryOptions = {}): Promise<void> {
+    async fillEventTitle(value: LiveBlogData, opts: RetryOptions = {}): Promise<void> {
         const config = {
             ...DefaultConfig,
             ...opts,
-            label: stackLabel(opts.label, "NoteLiveBlogEventSection.fillEventTitle")
+            label: stackLabel(opts.label, "EditorLiveBlogEventSection.fillEventTitle")
         };
 
         try {
+            if(!value.eventLiveBlog?.eventTitle) {
+                logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: config.label });
+                return;
+            }
             logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: config.label });
-            await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value, config);
+            await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, config);
         } catch (error) {
             // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
             throw error;

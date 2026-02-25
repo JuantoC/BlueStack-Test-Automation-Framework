@@ -18,7 +18,7 @@ export type NoteTagsData = Pick<NoteData, 'tags' | 'hiddenTags'>;
 /**
  * Gestiona la sección de etiquetas (Tags) y etiquetas ocultas de la nota.
  */
-export class NoteTagsSection {
+export class EditorTagsSection {
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly LOCATORS: Record<NoteTagField, Locator> = {
     [NoteTagField.TAGS]: By.css('div[id="claves-content"] input[role="combobox"]'),

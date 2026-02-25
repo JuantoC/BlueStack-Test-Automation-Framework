@@ -18,7 +18,7 @@ export type NoteTextData = Pick<NoteData, 'title' | 'secondaryTitle' | 'subTitle
 /**
  * Gestiona los campos de texto principales y enriquecidos (CKEditor) de la nota.
  */
-export class NoteTextContentSection {
+export class EditorTextSection {
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly LOCATORS: Record<NoteTextField, Locator> = {
     [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),

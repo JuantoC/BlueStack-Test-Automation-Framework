@@ -1,10 +1,10 @@
 import { WebDriver } from "selenium-webdriver";
-import { LoginFields } from "./loginFields.js";
-import { TwoFAFields } from "./twoFA.js";
+import { LoginFields } from "./LoginSection.js";
+import { TwoFAFields } from "./TwoFASection.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
-import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js"; // Sugerencia de nueva interfaz
+import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js";
 
 export class AuthPage {
   public driver: WebDriver;
@@ -44,8 +44,6 @@ export class AuthPage {
       logger.info("Flujo AuthPage completado correctamente", { label: config.label });
 
     } catch (error: any) {
-      // No re-logueamos el error aquí para evitar redundancia, 
-      // ya que fillLogin o passTwoFA ya habrán emitido sus propios errores/warns.
       throw error;
     }
   }

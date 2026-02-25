@@ -4,7 +4,7 @@ import { passLogin } from "../flows/manageAuth.js";
 import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
 import { fillNote } from "../flows/fillNote.js";
 import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteType } from "../pages/sidebar_options/NewNoteBtn.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { CONFIG } from "../core/config/config.js";
 

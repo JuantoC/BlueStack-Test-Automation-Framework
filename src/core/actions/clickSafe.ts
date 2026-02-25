@@ -3,16 +3,16 @@ import { retry } from "../wrappers/retry.js";
 import { RetryOptions, DefaultConfig } from "../config/default.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
-import { waitFind } from "../utils/waitFind.js"; 
-import { waitClickable } from "../utils/waitClickable.js"; 
+import { waitFind } from "../utils/waitFind.js";
+import { waitClickable } from "../utils/waitClickable.js";
 
 /**
  * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
- * Orquesta la búsqueda, validación de estado y el clic físico en un único bloque de reintento.
+ * Orquesta la búsqueda (si es necesario), validación de estado y el clic físico en un único bloque de reintento.
  */
 export async function clickSafe(
   driver: WebDriver,
-  locator: Locator,
+  ID: Locator | WebElement,
   opts: RetryOptions = {}
 ): Promise<WebElement> {
 
@@ -28,7 +28,9 @@ export async function clickSafe(
     const internalOpts = { ...config, supressRetry: true };
     try {
       // 2. Localización
-      const element = await waitFind(driver, locator, internalOpts);
+      const element = (ID instanceof WebElement)
+        ? ID
+        : await waitFind(driver, ID as Locator, internalOpts);
 
       // 3. Sincronización: Espera a que no haya loaders o animaciones bloqueantes.
       logger.debug(`Verificando estado interactuable...`, { label: config.label });

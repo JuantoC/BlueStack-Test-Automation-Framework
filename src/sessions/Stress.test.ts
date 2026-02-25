@@ -8,7 +8,7 @@ import { fillNote } from "../flows/fillNote.js";
 import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
 // Data y Enums
 import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post_page/NewCreationDropdown.js";
+import { NoteType } from "../pages/sidebar_options/NewNoteBtn.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { sleep } from "../core/utils/backOff.js";
 

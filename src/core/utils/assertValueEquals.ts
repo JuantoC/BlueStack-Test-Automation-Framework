@@ -1,14 +1,13 @@
 /**
  * Valida que el contenido de un elemento coincida con un valor esperado.
- * Posee capacidad de reintento autónoma o suprimida por orquestadores superiores.
- * * @param element - El WebElement a inspeccionar.
- * @param locator - Locator original para trazabilidad en errores.
+ * @param element - El WebElement a inspeccionar.
+ * @param identifier - Locator o WebElement original para trazabilidad en errores.
  * @param expected - Valor que se espera encontrar.
  * @param opts - Opciones de reintento y trazabilidad.
 */
 export async function assertValueEquals(
   element: WebElement,
-  locator: Locator,
+  identifier: Locator | WebElement,
   expected: string,
   opts: RetryOptions = {}
 ): Promise<void> {
@@ -18,6 +17,11 @@ export async function assertValueEquals(
     label: stackLabel(opts.label, "assertValueEquals"),
   };
 
+  // Normalizamos el identificador para el mensaje de error
+  const elementTag = (identifier instanceof WebElement)
+    ? "[WebElement]"
+    : identifier.toString();
+
   return await retry(async () => {
     try {
       const isEditable = await isContentEditable(element);
@@ -25,7 +29,6 @@ export async function assertValueEquals(
         return;
       }
 
-      // ... (código de extracción igual que antes) ...
       let actual: string;
       if (isEditable) {
         actual = await element.getDriver().executeScript<string>(
@@ -40,7 +43,6 @@ export async function assertValueEquals(
       const normalizedExpected = isEditable ? normalizeEditableText(expected) : expected;
 
       if (normalizedActual !== normalizedExpected) {
-
         const diffIndex = getFirstDiffIndex(normalizedExpected, normalizedActual);
 
         if (diffIndex !== -1) {
@@ -50,11 +52,9 @@ export async function assertValueEquals(
           const expectedSnippet = normalizedExpected.slice(contextStart, contextEnd);
           const actualSnippet = normalizedActual.slice(contextStart, contextEnd);
 
-          // --- MEJORA DEL MENSAJE DE ERROR ---
-          // Obtenemos los códigos ASCII/Unicode para desambiguar caracteres invisibles o parecidos
           const expChar = diffIndex < normalizedExpected.length
             ? normalizedExpected.charCodeAt(diffIndex)
-            : 'EOF'; // End of File/String
+            : 'EOF';
 
           const actChar = diffIndex < normalizedActual.length
             ? normalizedActual.charCodeAt(diffIndex)
@@ -69,24 +69,22 @@ export async function assertValueEquals(
             : '[Texto extra]';
 
           throw new Error(
-            `Valor no coincide para ${locator.toString()}.
+            `Valor no coincide para ${elementTag}.
 >> Diferencia en índice ${diffIndex}:
-   Esperado: [${expChar}] '${expCharStr}' 
-   Obtenido: [${actChar}] '${actCharStr}'
+   Esperado: [${expChar}] ${expCharStr} 
+   Obtenido: [${actChar}] ${actCharStr}
 --------------------------------------------------
 Esperado (frag): "...${expectedSnippet}..."
 Obtenido (frag): "...${actualSnippet}..."`
           );
         }
 
-        // fallback
         throw new Error(
-          `Valor no coincide para ${locator.toString()}. Longitud ${normalizedExpected.length} vs ${normalizedActual.length}`
+          `Valor no coincide para ${elementTag}. Longitud ${normalizedExpected.length} vs ${normalizedActual.length}`
         );
       }
 
-      // Log de éxito en DEBUG para no ensuciar si sale bien a la primera
-      logger.debug(`Validación exitosa: Valor coincide.`, { label: config.label });
+      logger.debug(`Validación exitosa: Valor coincide en ${elementTag}.`, { label: config.label });
 
     } catch (error: any) {
       throw error;

@@ -70,7 +70,6 @@ export class LoginFields {
 
       logger.debug(`Formulario de login completado para: ${username}`, { label: config.label });
     } catch (error: any) {
-      // Dejamos que el error se propague; writeSafe/clickSafe ya habrán logueado el detalle técnico.
       throw error;
     }
   }

@@ -15,7 +15,7 @@ export class NoteEditorPage {
   public readonly header: EditorHeaderActions;
   public readonly settings: EditorLateralSettings;
   public readonly text: EditorTextSection;
-  public readonly creation: NewCreationDropdown;
+  public readonly creation: NewNoteBtn;
   public readonly images: EditorImageSection;
 
   constructor(driver: WebDriver, noteType: NoteType = NoteType.POST) {
@@ -26,7 +26,7 @@ export class NoteEditorPage {
     this.header = new EditorHeaderActions(driver);
     this.settings = new EditorLateralSettings(driver);
     this.text = new EditorTextSection(driver);
-    this.creation = new NewCreationDropdown(driver);
+    this.creation = new NewNoteBtn(driver);
     this.listicle = new ListicleSection(driver);
     this.liveBlog = new LiveBlogSection(driver);
     this.images = new EditorImageSection(driver);
@@ -90,9 +90,9 @@ import { WebDriver } from 'selenium-webdriver';
 import { EditorAuthorSection } from "./EditorAuthorSection.js";
 import { EditorHeaderActions } from "./EditorHeaderActions.js";
 import { EditorLateralSettings } from "./EditorLateralSettings.js";
-import { EditorTextSection, NoteTextField } from "./EditorTextSection.js";
-import { NewCreationDropdown, NoteType } from "../NewCreationDropdown.js";
-import { EditorTagsSection, NoteTagField } from './EditorTagsSection.js';
+import { EditorTextSection } from "./EditorTextSection.js";
+import { NewNoteBtn, NoteType } from "../../sidebar_options/NewNoteBtn.js";
+import { EditorTagsSection } from './EditorTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';

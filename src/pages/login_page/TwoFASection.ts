@@ -5,7 +5,7 @@ import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 
 /**
- * Componente para gestionar el modal de Doble Autenticación (2FA).
+ * Componente para gestionar la pagina de Doble Autenticación (2FA).
  * En este flujo actual, se encarga de descartar el modal para continuar.
  */
 export class TwoFAFields {
@@ -28,7 +28,7 @@ export class TwoFAFields {
     };
 
     try {
-      logger.debug('Intentando omitir el modal de 2FA ("I will do it later")', {
+      logger.debug('Intentando omitir pagina de 2FA (con btn "I will do it later")', {
         label: config.label
       });
 
@@ -40,8 +40,6 @@ export class TwoFAFields {
       });
 
     } catch (error: any) {
-      // Si falla aquí, clickSafe ya habrá emitido un warn/error detallado.
-      // Solo propagamos para que el orquestador decida si el login es fallido.
       throw error;
     }
   }

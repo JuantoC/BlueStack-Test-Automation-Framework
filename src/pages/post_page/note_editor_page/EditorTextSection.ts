@@ -13,7 +13,6 @@ export enum NoteTextField {
   BODY = 'body',
   SUMMARY = 'summary'
 }
-export type NoteTextData = Pick<NoteData, 'title' | 'secondaryTitle' | 'subTitle' | 'halfTitle' | 'body' | 'summary'>;
 
 /**
  * Gestiona los campos de texto principales y enriquecidos (CKEditor) de la nota.

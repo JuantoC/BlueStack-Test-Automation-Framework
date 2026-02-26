@@ -47,16 +47,24 @@ export async function writeToStandard(
   const configLabel = stackLabel(label, "writeToStandard");
 
   try {
-    logger.debug("Limpiando campo estándar e ingresando texto", {
-      label: configLabel
+    logger.debug(`Escribiendo texto: "${text.substring(0, 15)}..."`, { label: configLabel });
+
+    // --- ESTRATEGIA HÍBRIDA / CONTINGENCIA ---
+    const cmdCtrl = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL; // Mac o Windows
+
+    // 1. Enviamos la secuencia de borrado + el texto nuevo en UN SOLO comando.
+    // Esto reduce la latencia y la probabilidad de que el DOM cambie a mitad de camino.
+    await element.sendKeys(Key.chord(cmdCtrl, "a"), Key.BACK_SPACE, text);
+
+  } catch (error: any) {
+    const isStale = error.name === 'StaleElementReferenceError' || error.message?.includes('stale');
+
+    logger.error(`Fallo al escribir en input estándar.`, {
+      label: configLabel,
+      error: error.message,
+      suggestion: isStale ? "El elemento murió durante la escritura. El retry superior debe manejarlo." : "Verificar si el elemento es interactuable."
     });
 
-    await element.clear();
-    await element.sendKeys(text);
-  } catch (error: any) {
-    logger.error(`Error en escritura estándar: ${error.message}`, {
-      label: configLabel
-    });
     throw error;
   }
 }

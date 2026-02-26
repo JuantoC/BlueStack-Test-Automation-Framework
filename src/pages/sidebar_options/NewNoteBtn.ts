@@ -15,11 +15,12 @@ export class NewNoteBtn {
   private static readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
     [NoteType.POST]: new Set(['New post', "Crear noticia", "Nova notícia"]),
     [NoteType.LISTICLE]: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
-    [NoteType.LIVEBLOG]: new Set(['New liveBlog', "Crear liveblog", "Nova liveblog"])
+    [NoteType.LIVEBLOG]: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
   };
 
   private readonly openDropdownBtn: Locator = By.css("button.btn-create-note");
-  private readonly dropdownItemsLocator: Locator = By.css('div[id^="option-create-"]');
+  private readonly dropdownContainer: Locator = By.css('div[data-testid="dropdown-menu"]');
+  private readonly noteTypeLabels: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
 
   private driver: WebDriver;
 
@@ -36,8 +37,9 @@ export class NewNoteBtn {
 
     await this.clickOnNewNoteButton(config);
 
-    const element = await this.matchNoteType(noteType, config);
-    await clickSafe(this.driver, element, config);
+    const elementToClick = await this.matchNoteType(noteType, config);
+    logger.debug(`Intentando hacer click en la opción "${noteType}"...`, config);
+    await clickSafe(this.driver, elementToClick, config);
   }
 
   /**
@@ -47,46 +49,61 @@ export class NewNoteBtn {
   async matchNoteType(noteType: NoteType, opts: RetryOptions): Promise<WebElement> {
     const config = { ...DefaultConfig, ...opts };
 
-    // 1. Esperamos a que los elementos estén presentes en el DOM
-    await this.driver.wait(
-      until.elementsLocated(this.dropdownItemsLocator),
-      config.timeoutMs,
-      "No se encontraron opciones en el dropdown de notas"
-    );
+    // 1. Esperar a que el contenedor del menú sea visible en pantalla
+    // Esto evita el error "Wait timed out" si el menú tarda en animarse
+    try {
+      const menuContainer = await this.driver.wait(
+        until.elementLocated(this.dropdownContainer),
+        config.timeoutMs,
+        "El menú dropdown no se encuentra en el DOM"
+      );
+      await this.driver.wait(
+        until.elementIsVisible(menuContainer),
+        config.timeoutMs,
+        "El menú dropdown existe pero no es visible"
+      );
+    } catch (error) {
+      logger.error("El menú no se desplegó correctamente.", config);
+      throw error;
+    }
 
-    // 2. Traemos todos los elementos
-    const elements = await this.driver.findElements(this.dropdownItemsLocator);
+    // 2. Buscar todos los labels candidatos
+    const elements = await this.driver.findElements(this.noteTypeLabels);
 
-    logger.debug(`Se encontraron ${elements.length} opciones en el dropdown. Buscando: ${noteType}`, {label: config.label});
+    if (elements.length === 0) {
+      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.noteTypeLabels}`);
+    }
 
-    // 3. Iteramos dinámicamente sobre lo que encontró el driver
+    logger.debug(`Analizando ${elements.length} opciones disponibles...`, config);
+
+    // 3. Iterar dinámicamente
     for (const element of elements) {
-      const label = await element.getText();
+      // Obtenemos el texto limpio (trim)
+      const text = await element.getText();
+      const cleanLabel = text.trim();
 
-      if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(label)) {
-        logger.debug(`Opción encontrada: "${label}" coincide con "${noteType}".`, {label: config.label});
+      if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
+        logger.debug(`Match encontrado: "${cleanLabel}"`, config);
         return element;
       }
     }
 
-    // 4. Si termina el bucle y no retornó nada, lanzamos error
-    throw new Error(`No se encontró ninguna opción de menú que coincida con el tipo de nota: ${noteType}`);
+    throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
   }
-
   async clickOnNewNoteButton(opts: RetryOptions): Promise<void> {
     const config = {
       ...DefaultConfig,
       ...opts,
-      label: stackLabel(opts.label, "clickOnNewNoteButton"),
+      label: stackLabel(opts.label, "NewNoteBtn.clickOnNewNoteButton"),
     };
 
     const isVisible = await this.isDropdownVisible(config);
 
     if (!isVisible) {
-      logger.debug("Abriendo el dropdown de opciones...", {label: config.label});
+      logger.debug("Abriendo el dropdown de opciones...", { label: config.label });
       await clickSafe(this.driver, this.openDropdownBtn, config);
     } else {
-      logger.debug("El dropdown ya estaba abierto.", {label: config.label});
+      logger.debug("El dropdown ya estaba abierto.", { label: config.label });
     }
   }
 
@@ -94,7 +111,7 @@ export class NewNoteBtn {
     const config = {
       ...DefaultConfig,
       ...opts,
-      label: stackLabel(opts.label, "isDropdownVisible"),
+      label: stackLabel(opts.label, "NewNoteBtn.isDropdownVisible"),
     };
 
     const element = await waitFind(this.driver, this.openDropdownBtn, config);

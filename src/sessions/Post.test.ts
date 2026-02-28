@@ -19,7 +19,7 @@ runSession('Crear Post Exitosamente', async ({ driver, opts, log }) => {
   await passLogin(driver, { username: user, password: pass }, opts);
 
   await createNewNote(driver, NoteType.POST, opts);
-  await fillNote(driver, PostData[0], opts);
+  await fillNote(driver, PostData[4], opts);
   await closeNoteEditor(driver, NoteExitAction.SAVE_ONLY, opts);
 
   log.info("✅ Prueba de creación de Post exitosa.");

@@ -39,28 +39,28 @@ export class NoteEditorPage {
   async fillFullNote(data: Partial<NoteData>, opts: RetryOptions = {}): Promise<void> {
     const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NoteEditorPage") };
 
-    try {
-      // 1. Delegación total: El orquestador no sabe qué campos de texto existen
-      await this.text.fillAll(data, config);
+    await step("Completar formulario integral de la Nota", async (stepContext) => {
+      // 1. Adjuntamos el payload completo de datos para tener contexto si falla
+      attachment("Test Data (Payload)", JSON.stringify(data, null, 2), "application/json");
+      stepContext.parameter("Note Type", this.noteType);
 
-      // 2. Tags: La sección de tags debería manejar internamente si vienen vacíos
-      await this.tags.fillAll(data, config);
+      try {
+          await this.text.fillAll(data, config);
+        
+          await this.tags.fillAll(data, config);
+        
+          await this.fillListicleOrLiveblog(data, config);
 
-      // 3. Lógica de tipo de nota: Encapsulada
-      await this.fillListicleOrLiveblog(data, config);
+          await this.author.fillAll(data, config);
 
-      // 4. Autor
-      await this.author.fillAll(data, config);
+          await this.settings.selectFirstSectionOption(config);
 
-      // 5. Combo de secciones en settings
-      await this.settings.selectFirstSectionOption(config);
+          await this.images.addFirstImage(config);
 
-      // 6. Imagenes
-      await this.images.addFirstImage(config);
-
-    } catch (error) {
-      throw error;
-    }
+      } catch (error) {
+        throw error;
+      }
+    });
   }
 
   // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
@@ -97,5 +97,5 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
 import { ListicleSection, LiveBlogSection } from './noteList/ListicleItemSection.js';
-import { EditorImageSection } from './EditorImagesSection.js';import { LiveBlogData } from './noteList/BaseListicleSection.js';
-
+import { EditorImageSection } from './EditorImagesSection.js'; import { LiveBlogData } from './noteList/BaseListicleSection.js';
+import { step, parameter, attachment } from "allure-js-commons";

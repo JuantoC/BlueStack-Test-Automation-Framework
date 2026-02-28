@@ -5,6 +5,7 @@ import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { step } from "allure-js-commons";
 
 export enum AuthorType {
   INTERNAL = 'internal',
@@ -49,43 +50,47 @@ export class EditorAuthorSection {
       ...opts,
       label: stackLabel(opts.label, "fillAuthorData")
     };
+    await step("Asignar Autor", async (stepContext) => {
+      stepContext.parameter("Author Type", `${data.authorType || 'undefined'}`);
+      stepContext.parameter("Author Name", `${data.authorName || 'undefined'}`);
+      stepContext.parameter("Author Description", `${data.authorDescription || 'undefined'}`);
 
-    const hasDescription = !!data.authorDescription?.trim();
-    const hasName = !!data.authorName?.trim();
+      const hasDescription = !!data.authorDescription?.trim();
+      const hasName = !!data.authorName?.trim();
 
-    // Inferencia de tipo de autor si no viene explícito
-    let authorType: AuthorType | undefined = data.authorType;
-    if (!authorType) {
-      if (hasName || hasDescription) {
-        authorType = AuthorType.MANUAL;
-        logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: config.label });
-      } else {
-        return; // Nada que hacer
+      // Inferencia de tipo de autor si no viene explícito
+      let authorType: AuthorType | undefined = data.authorType;
+      if (!authorType) {
+        if (hasName || hasDescription) {
+          authorType = AuthorType.MANUAL;
+          logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: config.label });
+        } else {
+          return; // Nada que hacer
+        }
       }
-    }
 
-    try {
-      switch (authorType) {
-        case AuthorType.INTERNAL:
-          return;
+      try {
+        switch (authorType) {
+          case AuthorType.INTERNAL:
+            return;
 
-        case AuthorType.ANONYMOUS:
-          await this.selectAuthorType(AuthorType.ANONYMOUS, config);
-          break;
+          case AuthorType.ANONYMOUS:
+            await this.selectAuthorType(AuthorType.ANONYMOUS, config);
+            break;
 
-        case AuthorType.MANUAL:
-          await this.selectAuthorType(AuthorType.MANUAL, config);
-          if (hasName) await this.fillAuthorName(data.authorName!, config);
-          if (hasDescription) await this.fillAuthorDescription(data.authorDescription!, config);
-          break;
+          case AuthorType.MANUAL:
+            await this.selectAuthorType(AuthorType.MANUAL, config);
+            if (hasName) await this.fillAuthorName(data.authorName!, config);
+            if (hasDescription) await this.fillAuthorDescription(data.authorDescription!, config);
+            break;
+        }
+        logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: config.label });
+      } catch (error) {
+        // Propagamos: el error detallado ya fue logueado en las piezas atómicas.
+        throw error;
       }
-      logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: config.label });
-    } catch (error) {
-      // Propagamos: el error detallado ya fue logueado en las piezas atómicas.
-      throw error;
-    }
+    });
   }
-
   // ========== PIEZAS LEGO (Atómicas) ==========
 
   async selectAuthorType(type: AuthorType, opts: RetryOptions = {}): Promise<void> {

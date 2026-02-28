@@ -57,7 +57,7 @@ export async function writeSafe(
     }
 
     // 4. Verificación: Confirmamos que el texto se haya ingresado correctamente.
-    await assertValueEquals(element, ID, text, internalOpts);
+    await assertValueEquals(element, text, internalOpts);
 
     logger.debug(`Texto ingresado correctamente en el elemento`, {
       label: config.label,

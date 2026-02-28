@@ -1,16 +1,16 @@
-import { CONFIG } from "../core/config/config.js";
+import { CONFIG } from "../src/core/config/config.js";
 // Herramientas Core
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import { runSession } from "../core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
+import { runSession } from "../src/core/wrappers/testWrapper.js";
 // Business Flows
-import { passLogin } from "../flows/manageAuth.js";
-import { fillNote } from "../flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
+import { passLogin } from "../src/flows/manageAuth.js";
+import { fillNote } from "../src/flows/fillNote.js";
+import { createNewNote, closeNoteEditor } from "../src/flows/noteLifecycleManager.js";
 // Data y Enums
-import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/sidebar_options/NewNoteBtn.js";
-import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { sleep } from "../core/utils/backOff.js";
+import { PostData } from "../src/dataTest/noteData.js";
+import { NoteType } from "../src/pages/sidebar_options/NewNoteBtn.js";
+import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
+import { sleep } from "../src/core/utils/backOff.js";
 
 /**
  * TEST CASE: Creación de Notas tipo Post con stress del CMS - 02

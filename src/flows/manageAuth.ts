@@ -31,13 +31,13 @@ export async function passLogin(
     stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
     try {
-      logger.debug(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, { 
+      logger.info(`Iniciando proceso de autenticación para el usuario: ${credentials.username}`, { 
         label: config.label 
       });
 
       await page.passAuth(credentials, config);
 
-      logger.debug(`Autenticación completada exitosamente para ${credentials.username}`, { 
+      logger.info(`Autenticación completada exitosamente para ${credentials.username}`, { 
         label: config.label 
       });
 

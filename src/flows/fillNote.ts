@@ -24,7 +24,7 @@ export async function fillNote(
 
   const editor = new NoteEditorPage(driver);
 
-  await allure.step(`Llenando nota con datos dinámicos`, async (stepContext) => {
+  await allure.step(`Rellenando la nota con datos dinámicos`, async (stepContext) => {
     stepContext.parameter("Data Keys", Object.keys(data).join(", "));
     stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
@@ -40,7 +40,7 @@ export async function fillNote(
        */
       await editor.fillFullNote(data, config);
 
-      logger.debug(`Llenado dinámico finalizado con éxito`, { label: config.label });
+      logger.info(`Llenado dinámico finalizado con éxito`, { label: config.label });
 
     } catch (error: any) {
       // Captura de fallo en el nivel más alto del flujo de edición

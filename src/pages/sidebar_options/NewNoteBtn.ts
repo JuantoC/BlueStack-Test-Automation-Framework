@@ -90,6 +90,7 @@ export class NewNoteBtn {
 
     throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
   }
+
   async clickOnNewNoteButton(opts: RetryOptions): Promise<void> {
     const config = {
       ...DefaultConfig,

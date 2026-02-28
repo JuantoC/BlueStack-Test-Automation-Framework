@@ -4,6 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { step } from "allure-js-commons";
 
 export enum NoteTagField {
   TAGS = 'tags',
@@ -31,21 +32,25 @@ export class EditorTagsSection {
      * Método de alto nivel para llenar todos los tags disponibles en la data.
      */
   async fillAll(data: NoteTagsData, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "NoteTagsSection.fillAll")
-    };
+    await step("Rellenar Tags", async (stepContext) => {
+      stepContext.parameter("Tags Count", `${data.tags?.length || 0}`);
+      stepContext.parameter("Hidden Tags Count", `${data.hiddenTags?.length || 0}`);
+      const config = {
+        ...DefaultConfig,
+        ...opts,
+        label: stackLabel(opts.label, "NoteTagsSection.fillAll")
+      };
 
-    // La lógica de "si existe, hacelo" vive aquí. 
-    // El orquestador ya no tiene que preguntar.
-    if (data.tags?.length) {
-      await this.addTags(NoteTagField.TAGS, data.tags, config);
-    }
+      // La lógica de "si existe, hacelo" vive aquí. 
+      // El orquestador ya no tiene que preguntar.
+      if (data.tags?.length) {
+        await this.addTags(NoteTagField.TAGS, data.tags, config);
+      }
 
-    if (data.hiddenTags?.length) {
-      await this.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags, config);
-    }
+      if (data.hiddenTags?.length) {
+        await this.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags, config);
+      }
+    });
   }
 
   /**

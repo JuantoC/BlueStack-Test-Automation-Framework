@@ -1,4 +1,3 @@
-// src/core/wrappers/testWrapper.ts
 import * as allure from "allure-js-commons";
 import { WebDriver } from "selenium-webdriver";
 import { CONFIG } from "../config/config.js";
@@ -6,6 +5,16 @@ import { DefaultConfig, RetryOptions } from "../config/default.js";
 import { initializeDriver, quitDriver, DriverSession } from "../actions/driverManager.js";
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
+
+// 1. Definimos la interfaz para la metadata opcional
+export interface TestMetadata {
+  epic?: string;
+  feature?: string;
+  story?: string;
+  severity?: "blocker" | "critical" | "normal" | "minor" | "trivial";
+  issueId?: string; // Para el ticket de Jira/Bug
+  tags?: string[];
+}
 
 // Definimos qué recibe el test
 interface TestContext {
@@ -15,18 +24,35 @@ interface TestContext {
   log: typeof logger;
 }
 
+// 2. Actualizamos la firma del wrapper (añadimos metadata = {})
 export function runSession(
   sessionLabel: string,
-  testLogic: (context: TestContext) => Promise<void>
+  testLogic: (context: TestContext) => Promise<void>,
+  metadata: TestMetadata = {} // <-- Opcional para no romper tests existentes
 ) {
-  const targetFile = process.env.TEST_FILE;
-  if (targetFile && !sessionLabel.includes(targetFile)) return;
 
   test(`Sesión: ${sessionLabel}`, async () => {
-    // --- 1. CONFIGURACIÓN INICIAL ---
-    await allure.owner("Bluestack-Test-Automation");
-    await allure.parameter("Session", sessionLabel);
+    // --- SECCIÓN A: INYECCIÓN DE METADATA EN ALLURE ---
 
+    // A.1 Inyectar Metadata de Negocio (del test)
+    if (metadata.epic) await allure.epic(metadata.epic);
+    if (metadata.feature) await allure.feature(metadata.feature);
+    if (metadata.story) await allure.story(metadata.story);
+    if (metadata.severity) await allure.severity(metadata.severity);
+    if (metadata.tags) {
+      for (const tag of metadata.tags) {
+        await allure.label("tag", tag);
+      }
+    }
+
+    // Links a Jira / Test Management (Allure los hace clickeables en el reporte)
+    if (metadata.issueId) await allure.issue("Jira", `https://bluestack-cms.atlassian.net/browse/${metadata.issueId}`);
+
+    // A.2 Inyectar Metadata de Entorno (Automático desde el .env)
+    // Esto es clave para que Allure sepa en qué entorno corrió esta ejecución
+    await allure.owner("BlueStack Automation Team");
+    await allure.parameter("Execution", CONFIG.grid.useGrid === true ? "Grid Docker" : "Local");
+    await allure.parameter("Headless", CONFIG.browser.isHeadless === true ? "true" : "false");
     const sessionTransport = addSessionTransport(sessionLabel);
     const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
     let session: DriverSession | null = null;

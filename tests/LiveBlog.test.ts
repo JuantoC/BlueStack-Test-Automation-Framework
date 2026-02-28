@@ -13,22 +13,22 @@ runSession("Crear LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await passLogin(driver, { username: user, password: pass }, opts);
 
     const editorPage = await createNewNote(driver, NoteType.LIVEBLOG, opts);
-    await editorPage.fillFullNote(LiveBlogData[0], opts);
+    await editorPage.fillFullNote(LiveBlogData[1], opts);
     await closeNoteEditor(driver, NoteExitAction.SAVE_ONLY, opts);
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
 });
 
-import { LiveBlogData } from "../dataTest/noteData.js";
+import { LiveBlogData } from "../src/dataTest/noteData.js";
 // Core Tools
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 // Business Flows
-import { passLogin } from "../flows/manageAuth.js";
-import { fillNote } from "../flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../flows/noteLifecycleManager.js";
+import { passLogin } from "../src/flows/manageAuth.js";
+import { fillNote } from "../src/flows/fillNote.js";
+import { createNewNote, closeNoteEditor } from "../src/flows/noteLifecycleManager.js";
 // Enums
-import { NoteType } from "../pages/sidebar_options/NewNoteBtn.js";
-import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { CONFIG } from "../core/config/config.js";
-import { runSession } from "../core/wrappers/testWrapper.js";
+import { NoteType } from "../src/pages/sidebar_options/NewNoteBtn.js";
+import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
+import { CONFIG } from "../src/core/config/config.js";
+import { runSession } from "../src/core/wrappers/testWrapper.js";
 

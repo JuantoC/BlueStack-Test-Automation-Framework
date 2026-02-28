@@ -5,8 +5,7 @@ import { NoteType } from "../pages/sidebar_options/NewNoteBtn.js";
 import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import logger from "../core/utils/logger.js";
-import * as allure from "allure-js-commons";
-
+import { step, parameter, attachment } from "allure-js-commons";
 
 /**
  * Flow: Inicio de creación de nota.
@@ -25,9 +24,9 @@ export async function createNewNote(
 
   const page = new NoteEditorPage(driver, noteType);
 
-  await allure.step(`Creando nueva nota: ${noteType}`, async (stepContext) => {
-    allure.parameter("Note Type", noteType);
-    allure.parameter("Timeout", `${config.timeoutMs}ms`);
+  await step(`Creando nueva nota: ${noteType}`, async (stepContext) => {
+    stepContext.parameter("Note Type", noteType);
+    stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
     try {
       logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
@@ -53,19 +52,19 @@ export async function closeNoteEditor(
   const config = {
     ...DefaultConfig,
     ...opts,
-    label: stackLabel(opts.label, "flow:closeNoteEditor")
+    label: stackLabel(opts.label, "closeNoteEditor")
   };
 
   const page = new NoteEditorPage(driver);
 
-  await allure.step(`Cerrando editor de nota con acción: ${exitAction}`, async (stepContext) => {
+  await step(`Cerrando editor de nota con acción: ${exitAction}`, async (stepContext) => {
     stepContext.parameter("Exit Action", exitAction);
     stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
     try {
       logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
       await page.actions.clickExitAction(exitAction, config);
-      logger.debug(`Editor cerrado exitosamente.`, { label: config.label });
+      logger.info(`Editor cerrado exitosamente.`, { label: config.label });
 
     } catch (error: any) {
       logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, { 

@@ -4,6 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { LiveBlogData } from "./noteList/BaseListicleSection.js";
+import { step } from "allure-js-commons";
 
 export enum LiveBlogEventField {
     EVENT_TITLE = 'eventTitle',
@@ -29,17 +30,18 @@ export class EditorLiveBlogEventSection {
             ...opts,
             label: stackLabel(opts.label, "EditorLiveBlogEventSection.fillEventTitle")
         };
-
-        try {
-            if(!value.eventLiveBlog?.eventTitle) {
-                logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: config.label });
-                return;
+        await step("Rellenar evento de Liveblog", async () => {
+            try {
+                if (!value.eventLiveBlog?.eventTitle) {
+                    logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: config.label });
+                    return;
+                }
+                logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: config.label });
+                await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, config);
+            } catch (error) {
+                // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
+                throw error;
             }
-            logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: config.label });
-            await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, config);
-        } catch (error) {
-            // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
-            throw error;
-        }
+        });
     }
 }

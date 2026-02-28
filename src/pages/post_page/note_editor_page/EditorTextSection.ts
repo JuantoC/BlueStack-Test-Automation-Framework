@@ -4,6 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { step } from "allure-js-commons";
 
 export enum NoteTextField {
   TITLE = 'title',
@@ -31,22 +32,25 @@ export class EditorTextSection {
   constructor(private driver: WebDriver) { }
 
   async fillAll(data: Partial<NoteData>, config: RetryOptions): Promise<void> {
-    const textMapping: Array<{ key: keyof NoteData; type: NoteTextField }> = [
-      { key: 'title', type: NoteTextField.TITLE },
-      { key: 'secondaryTitle', type: NoteTextField.SECONDARY_TITLE },
-      { key: 'subTitle', type: NoteTextField.SUB_TITLE },
-      { key: 'halfTitle', type: NoteTextField.HALF_TITLE },
-      { key: 'body', type: NoteTextField.BODY },
-      { key: 'summary', type: NoteTextField.SUMMARY },
-    ];
+    await step("Rellenar campos de texto", async () => {
+      const textMapping: Array<{ key: keyof NoteData; type: NoteTextField }> = [
+        { key: 'title', type: NoteTextField.TITLE },
+        { key: 'secondaryTitle', type: NoteTextField.SECONDARY_TITLE },
+        { key: 'subTitle', type: NoteTextField.SUB_TITLE },
+        { key: 'halfTitle', type: NoteTextField.HALF_TITLE },
+        { key: 'body', type: NoteTextField.BODY },
+        { key: 'summary', type: NoteTextField.SUMMARY },
+      ];
 
-    for (const { key, type } of textMapping) {
-      const value = data[key];
-      if (typeof value === 'string' && value.trim()) {
-        await this.fillField(type, value as string, config);
+      for (const { key, type } of textMapping) {
+        const value = data[key];
+        if (typeof value === 'string' && value.trim()) {
+          await this.fillField(type, value as string, config);
+        }
       }
-    }
+    });
   }
+
 
   /**
    * Rellena un campo de texto específico y verifica que el contenido sea correcto.

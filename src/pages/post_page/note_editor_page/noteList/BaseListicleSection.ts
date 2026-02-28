@@ -101,39 +101,42 @@ export abstract class BaseListicleSection {
     opts: RetryOptions = {}
   ) {
     if (!items?.length) return;
-
     const config = {
       ...DefaultConfig,
       ...opts,
       label: stackLabel(opts.label, "fillItems")
     };
+    await step("Rellenar items Listicle o Liveblog", async (stepContext) => {
+      stepContext.parameter("Número de items", `${items.length}`);
+      stepContext.parameter("Estrategia de Normalización", this.strategy.constructor.name);
 
-    // 🔹 1. Normalizar según estrategia
-    const normalizedItems = this.strategy.normalizeItems(items);
-    
-    // 🔹 2. Crear slots (siempre hay 1 base)
-    for (let i = 1; i < normalizedItems.length; i++) {
-      await clickSafe(this.driver, this.CREATE_MENU, config);
-      await clickSafe(this.driver, this.ADD_OPTION, config);
-    }
+      // 🔹 1. Normalizar según estrategia
+      const normalizedItems = this.strategy.normalizeItems(items);
 
-    // 🔹 3. Poblar datos (orden DOM real)
-    for (let i = 0; i < normalizedItems.length; i++) {
-      const uiIndex = i + 1;
-      const item = normalizedItems[i];
-
-      await this.toggleExpansion(uiIndex, 'expand', config);
-
-      if (item.title) {
-        const titleLoc = this.getFieldLocator(uiIndex, 'title');
-        await writeSafe(this.driver, titleLoc, item.title, config);
+      // 🔹 2. Crear slots (siempre hay 1 base)
+      for (let i = 1; i < normalizedItems.length; i++) {
+        await clickSafe(this.driver, this.CREATE_MENU, config);
+        await clickSafe(this.driver, this.ADD_OPTION, config);
       }
 
-      if (item.body) {
-        const bodyLoc = this.getFieldLocator(uiIndex, 'body');
-        await writeSafe(this.driver, bodyLoc, item.body, config);
+      // 🔹 3. Poblar datos (orden DOM real)
+      for (let i = 0; i < normalizedItems.length; i++) {
+        const uiIndex = i + 1;
+        const item = normalizedItems[i];
+
+        await this.toggleExpansion(uiIndex, 'expand', config);
+
+        if (item.title) {
+          const titleLoc = this.getFieldLocator(uiIndex, 'title');
+          await writeSafe(this.driver, titleLoc, item.title, config);
+        }
+
+        if (item.body) {
+          const bodyLoc = this.getFieldLocator(uiIndex, 'body');
+          await writeSafe(this.driver, bodyLoc, item.body, config);
+        }
       }
-    }
+    });
   }
 }
 
@@ -145,4 +148,5 @@ import { RetryOptions, DefaultConfig } from "../../../../core/config/default.js"
 import { clickSafe } from "../../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
-import { NoteData } from "../../../../dataTest/noteDataInterface.js";
+import { NoteData } from "../../../../dataTest/noteDataInterface.js"; import { step } from "allure-js-commons";
+

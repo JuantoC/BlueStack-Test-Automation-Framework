@@ -41,7 +41,7 @@ export class AuthPage {
       // 2. Fase de Segundo Factor
       await this.twoFA.passTwoFA(config);
 
-      logger.info("Flujo AuthPage completado correctamente", { label: config.label });
+      logger.debug("Flujo AuthPage completado correctamente", { label: config.label });
 
     } catch (error: any) {
       throw error;

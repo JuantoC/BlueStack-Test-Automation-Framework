@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "// --- 1. MANTENIMIENTO ---": "",
-    "clean": "rm -rf allure-results/* allure-report/* blob-report/*",
-    "clean:reports": "rm -rf allure-report/*",
+    "clean": "rm -rf allure-results allure-report blob-report allure-history.jsonl",
+    "clean:safe": "rm -rf allure-results",
 
     "// --- 2. INFRAESTRUCTURA (DOCKER) ---": "",
     "// Úsalo UNA VEZ al iniciar tu día o sesión de pruebas grid": "",
@@ -15,29 +15,28 @@
 
     "// --- 3. EJECUCIÓN (CORE) ---": "",
     "// Estos scripts solo corren tests. Asumen que el entorno (Local o Docker) ya está listo.": "",
-    
     "// DEV: Navegador visible. Ideal para debug y creación de scripts.": "",
     "exec:dev": "cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false jest",
-
     "// GRID: Headless apuntando al puerto de Docker.": "",
     "exec:grid": "cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true jest",
 
     "// --- 4. WORKFLOWS (COMANDOS COMPUESTOS) ---": "",
-    
-    "// Alias rápido para desarrollo local (sin Docker)": "",
-    "test:dev": "npm run exec:dev --",
-
-    "// Alias rápido para correr en Grid (REQUIERE 'npm run infra:up' PREVIO)": "",
+    "// Limpia y corre desarrollo local (sin Docker)": "",
+    "test:dev": "npm run clean:safe && npm run exec:dev --",
+    "// Alias: Igual pero para modo DEV": "",
+    "test:dev:show": "npm run test:dev || true && npm run report:show",
+    "// Limpia y corre en un Grid con Docker": "",
     "test:grid": "npm run exec:grid --",
-
+    "test:grid:show": "npm run test:grid || true && npm run report:show",
     "// CI: Flujo completo. Limpia -> Levanta Docker -> Corre -> Baja Docker. (Para Jenkins/GitHub Actions)": "",
-    "test:ci": "npm run clean && npm run infra:up && npm run exec:grid -- --ci --runInBand --colors --forceExit && npm run infra:down",
+    "test:ci": "npm run clean:safe && npm run infra:up && npm run exec:grid -- --ci --runInBand --colors --forceExit && npm run infra:down",
 
-    "// --- 5. REPORTES ---": "",
-    "report:gen": "npx allure generate allure-results -o allure-report",
+  "// --- 5. REPORTES ---": "",
+    "report:clean": "rm -rf allure-report",
+    "report:gen": "npm run report:clean && npx allure generate allure-results -o allure-report --config allure.config.json",
     "report:open": "npx allure open allure-report",
     "report:show": "npm run report:gen && npm run report:open"
-},
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "selenium-webdriver": "^4.38.0",
@@ -50,6 +49,7 @@
     "@types/node": "^20.x.x",
     "@types/selenium-webdriver": "^4.1.22",
     "@types/ws": "^8.5.10",
+    "allure": "^3.3.1",
     "allure-jest": "^3.4.5",
     "allure-js-commons": "^3.4.5",
     "cross-env": "^10.1.0",

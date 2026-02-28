@@ -27,7 +27,7 @@ export async function waitFind(
         until.elementLocated(locator),
         config.timeoutMs
       );
-      logger.debug(`Elemento encontrado: ${JSON.stringify(locator)}`, { label: config.label });
+      logger.debug(`Elemento encontrado`, { label: config.label });
       return element;
     } catch (err) {
       if (err instanceof error.TimeoutError) {

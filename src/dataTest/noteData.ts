@@ -172,6 +172,9 @@ export const LiveBlogData: NoteData[] = [
       { title: "20:00 - Final del partido", body: "El visitante se consagra campeón." },
       { title: "20:10 - Celebración", body: "Jugadores festejan el título." },
       { title: "20:20 - Declaraciones", body: "Entrenadores analizan el resultado." }
-    ]
+    ],
+    eventLiveBlog: {
+      eventTitle: "Cumbre global de tecnología 2026",
+    }
   }
 ];

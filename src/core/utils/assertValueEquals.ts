@@ -7,7 +7,6 @@
 */
 export async function assertValueEquals(
   element: WebElement,
-  identifier: Locator | WebElement,
   expected: string,
   opts: RetryOptions = {}
 ): Promise<void> {
@@ -18,9 +17,7 @@ export async function assertValueEquals(
   };
 
   // Normalizamos el identificador para el mensaje de error
-  const elementTag = (identifier instanceof WebElement)
-    ? "[WebElement]"
-    : identifier.toString();
+  const elementTag = "[WebElement]";
 
   return await retry(async () => {
     try {
@@ -36,7 +33,13 @@ export async function assertValueEquals(
           element
         );
       } else {
-        actual = (await element.getAttribute("value")) ?? "";
+        // Verificamos si es un input/textarea. Si no lo es, leemos con getText().
+        const tagName = await element.getTagName();
+        if (tagName === 'input' || tagName === 'textarea') {
+          actual = (await element.getAttribute("value")) ?? "";
+        } else {
+          actual = await element.getText();
+        }
       }
 
       const normalizedActual = isEditable ? normalizeEditableText(actual) : actual;

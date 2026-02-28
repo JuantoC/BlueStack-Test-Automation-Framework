@@ -5,6 +5,7 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { waitFind } from "../../../core/utils/waitFind.js";
+import { step } from "allure-js-commons";
 
 export class EditorImageSection {
   // ========== LOCATORS (Private & Readonly) ==========
@@ -21,20 +22,22 @@ export class EditorImageSection {
       ...opts,
       label: stackLabel(opts.label, "NoteImageSection.addFirstImage")
     };
+    await step("Adjuntar imagen principal", async () => {
 
-    try {
-      logger.debug(`Agregando primera imagen como Imagen Principal`, { label: config.label });
-      await clickSafe(this.driver, this.MAIN_IMAGE_LOCATOR, config);
-      logger.debug(`Esperando a que el selector de CKEditor esté visible`, { label: config.label });
-      const imageElement = await waitFind(this.driver, this.FIRST_IMAGE_CKEDITOR_SELECTOR_LOCATOR, config);
-      await this.driver.executeScript("arguments[0].click();", imageElement);
-      await clickSafe(this.driver, this.DONE_BTN_CKEDITOR_SELECTOR_LOCATOR, config);
-      logger.debug(`Primera imagen agregada exitosamente`, { label: config.label });
-      await writeSafe(this.driver, this.MAIN_IMAGE_DESCRIPTION_LOCATOR, "Auto Generated Description by BlueStack_Test_Automation Framework", config);
-      logger.debug(`Descripción de la imagen agregada exitosamente`, { label: config.label });
-    } catch (error) {
-      // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
-      throw error;
-    }
+      try {
+        logger.debug(`Agregando primera imagen como Imagen Principal`, { label: config.label });
+        await clickSafe(this.driver, this.MAIN_IMAGE_LOCATOR, config);
+        logger.debug(`Esperando a que el selector de CKEditor esté visible`, { label: config.label });
+        const imageElement = await waitFind(this.driver, this.FIRST_IMAGE_CKEDITOR_SELECTOR_LOCATOR, config);
+        await this.driver.executeScript("arguments[0].click();", imageElement);
+        await clickSafe(this.driver, this.DONE_BTN_CKEDITOR_SELECTOR_LOCATOR, config);
+        logger.debug(`Primera imagen agregada exitosamente`, { label: config.label });
+        await writeSafe(this.driver, this.MAIN_IMAGE_DESCRIPTION_LOCATOR, "Auto Generated Description by BlueStack_Test_Automation Framework", config);
+        logger.debug(`Descripción de la imagen agregada exitosamente`, { label: config.label });
+      } catch (error) {
+        // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
+        throw error;
+      }
+    });
   }
 }

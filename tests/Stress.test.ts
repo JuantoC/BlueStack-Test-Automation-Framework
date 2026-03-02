@@ -3,12 +3,12 @@ import { CONFIG } from "../src/core/config/config.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 // Business Flows
-import { passLogin } from "../src/flows/manageAuth.js";
-import { fillNote } from "../src/flows/fillNote.js";
-import { createNewNote, closeNoteEditor } from "../src/flows/noteLifecycleManager.js";
+import { passLogin } from "../src/flows/userSession.js";
+import { fillNote } from "../src/flows/populateNoteEditorFields.js";
+import { createNewNote, closeNoteEditor } from "../src/flows/openCloseNote.js";
 // Data y Enums
 import { PostData } from "../src/dataTest/noteData.js";
-import { NoteType } from "../src/pages/sidebar_options/NewNoteBtn.js";
+import { NoteType } from "../src/pages/post_page/SideBarNewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { sleep } from "../src/core/utils/backOff.js";
 

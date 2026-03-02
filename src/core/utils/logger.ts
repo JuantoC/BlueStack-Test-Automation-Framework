@@ -52,7 +52,10 @@ export function addSessionTransport(sessionLabel: string) {
         // Formato simple para que el log de sesión sea legible como texto
         format: winston.format.combine(
             winston.format.timestamp(),
-            winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
+            winston.format.printf(({ timestamp, level, message, label }) => {
+                const tag = label ? `[${label}] ` : '';
+                return `${timestamp} ${level}: ${tag}${message}`;
+            })
         )
     });
     logger.add(sessionFile);

@@ -30,12 +30,6 @@ export async function waitFind(
       logger.debug(`Elemento encontrado`, { label: config.label });
       return element;
     } catch (err) {
-      if (err instanceof error.TimeoutError) {
-        // Logueamos el error de timeout con el detalle del locator para facilitar el debug
-        logger.error(`Timeout: Elemento no encontrado ${JSON.stringify(locator)} tras ${config.timeoutMs}ms`, {
-          label: config.label
-        });
-      }
       // Propagamos el error para que sea el orquestador quien lo maneje
       throw err;
     }

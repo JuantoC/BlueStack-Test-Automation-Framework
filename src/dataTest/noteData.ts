@@ -1,107 +1,158 @@
 import { NoteData } from "./noteDataInterface.js";
 import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js";
 
-export const PostData: NoteData[] = [
+export const PostData = [
   {
-    title: "Gran avance en la computación cuántica",
-    subTitle: "Científicos logran estabilidad en cúbits a temperatura ambiente",
-    halfTitle: "Tecnología del Futuro",
-    body: "Un equipo internacional de investigadores ha marcado un hito histórico al mantener la coherencia cuántica durante más de 10 minutos sin necesidad de refrigeración extrema...",
-    tags: ["Tecnología", "Ciencia", "Computación"],
-    hiddenTags: ["Quantum", "BreakingNews", "Tech2026"],
-    authorName: "Dra. Elena Galán",
-    authorDescription: "Especialista en física de partículas y divulgadora tecnológica.",
+    title: "Optimización de performance en aplicaciones Angular",
+    subTitle: "Buenas prácticas para mejorar tiempos de carga",
+    halfTitle: "Performance Angular",
+    body: "En este artículo exploramos distintas estrategias para optimizar el rendimiento en aplicaciones Angular, incluyendo lazy loading, change detection strategy y uso eficiente de observables.",
+    tags: ["angular", "performance", "frontend"],
+    hiddenTags: ["internal", "optimization"],
+    authorName: "Juan Pérez",
+    authorDescription: "Frontend Developer especializado en Angular",
     authorType: AuthorType.MANUAL
   },
   {
-    title: "La selección nacional clasifica al mundial",
-    subTitle: "Victoria agónica en el último minuto frente al clásico rival",
-    halfTitle: "Deportes",
-    body: "Con un gol de media distancia en el minuto 94, el conjunto dirigido por Scaloni selló su pase directo a la próxima cita mundialista en un estadio colmado...",
-    tags: ["Fútbol", "Selección", "Eliminatorias"],
-    hiddenTags: ["Mundial", "DeportesVivos", "AFA"],
-    authorName: "Juan Pablo Relator",
-    authorDescription: "Cronista deportivo con 20 años cubriendo la actualidad del fútbol.",
+    title: "Testing end-to-end con Playwright",
+    subTitle: "Automatización moderna para aplicaciones web",
+    halfTitle: "E2E Testing",
+    body: "Playwright se ha convertido en una herramienta clave para testing E2E. Permite automatizar escenarios complejos con múltiples navegadores y mejorar la calidad del software.",
+    tags: ["testing", "playwright", "qa"],
+    hiddenTags: ["automation", "e2e"],
+    authorName: "María Gómez",
+    authorDescription: "QA Engineer enfocada en automatización",
     authorType: AuthorType.MANUAL
   },
   {
-    title: "5 Destinos exóticos para visitar en 2026",
-    subTitle: "Desde las costas de Albania hasta las montañas de Bután",
-    halfTitle: "Tendencias de Viaje",
-    body: "El turismo post-pandemia ha mutado hacia la búsqueda de experiencias auténticas y desconexión total. Aquí te presentamos los lugares que serán tendencia...",
-    tags: ["Viajes", "Turismo", "Aventura"],
-    hiddenTags: ["Travel2026", "Destinos", "Verano"],
-    authorName: "Martina Viajera",
-    authorDescription: "Editora de contenidos de estilo de vida y trotamundos profesional.",
+    title: "Gestión de estado en frontend",
+    subTitle: "Comparativa entre NgRx y señales",
+    halfTitle: "State Management",
+    body: "Analizamos diferentes enfoques para manejar estado en aplicaciones frontend, comparando NgRx con nuevas alternativas como signals en Angular.",
+    tags: ["angular", "state", "ngrx"],
+    hiddenTags: ["signals", "architecture"],
+    authorName: "Carlos Rodríguez",
+    authorDescription: "Arquitecto de software",
     authorType: AuthorType.MANUAL
   },
   {
-    title: "Nueva política económica: ¿Qué significa para tu bolsillo?",
-    subTitle: "Análisis detallado de los cambios en el impuesto a las ganancias",
-    halfTitle: "Economía Hoy",
-    body: "El Ministerio de Economía anunció una serie de medidas que buscan incentivar el consumo interno a través de una reducción impositiva para la clase media...",
-    tags: ["Economía", "Finanzas", "Impuestos"],
-    hiddenTags: ["Bolsillo", "Mercados", "EconoCheck"],
-    authorName: "Lic. Carlos Inversión",
-    authorDescription: "Analista financiero y consultor de mercados emergentes.",
+    title: "Buenas prácticas en diseño de APIs",
+    subTitle: "Cómo estructurar servicios escalables",
+    halfTitle: "API Design",
+    body: "Diseñar una API robusta implica seguir estándares como REST, manejo adecuado de errores y versionado. Esto facilita la integración y mantenimiento a largo plazo.",
+    tags: ["api", "backend", "rest"],
+    hiddenTags: ["design", "best-practices"],
+    authorName: "Lucía Fernández",
+    authorDescription: "Backend Developer con experiencia en microservicios",
     authorType: AuthorType.MANUAL
   },
   {
-    title: "Reseña: El último gran estreno de ciencia ficción",
-    subTitle: "Una obra maestra visual que redefine el género en el cine",
-    halfTitle: "Cine y Series",
-    body: "La nueva película de Christopher Nolan no solo desafía las leyes de la física, sino también la paciencia del espectador con una narrativa no lineal fascinante...",
-    tags: ["Cine", "Estrenos", "Sci-Fi"],
-    hiddenTags: ["Nolan", "Hollywood", "Crítica"],
-    authorName: "Sofía Butaca",
-    authorDescription: "Crítica de cine y conductora de podcasts sobre cultura pop.",
+    title: "Introducción a Docker para desarrolladores",
+    subTitle: "Contenerización de aplicaciones paso a paso",
+    halfTitle: "Docker Basics",
+    body: "Docker permite empaquetar aplicaciones junto con sus dependencias, facilitando la portabilidad y consistencia entre entornos de desarrollo y producción.",
+    tags: ["docker", "devops", "containers"],
+    hiddenTags: ["infrastructure", "deployment"],
+    authorName: "Andrés Silva",
+    authorDescription: "DevOps Engineer",
     authorType: AuthorType.MANUAL
   },
   {
-    title: "Receta: El secreto del mejor asado argentino",
-    subTitle: "Técnicas ancestrales para dominar el fuego y la carne",
-    halfTitle: "Gastronomía",
-    body: "No se trata solo de la calidad del corte, sino del tiempo, la leña y la paciencia. En esta guía te enseñamos paso a paso cómo lograr el punto perfecto...",
-    tags: ["Cocina", "Asado", "Tradición"],
-    hiddenTags: ["Foodie", "Parrilla", "Gourmet"],
-    authorName: "Maestro Parrillero",
-    authorDescription: "Chef especializado en cocina a fuegos abiertos.",
+    title: "Accesibilidad en aplicaciones web",
+    subTitle: "Cómo construir interfaces inclusivas",
+    halfTitle: "Web Accessibility",
+    body: "La accesibilidad es clave para garantizar que todas las personas puedan utilizar una aplicación. Incluye buenas prácticas como uso de ARIA, contraste de colores y navegación por teclado.",
+    tags: ["accessibility", "frontend", "ux"],
+    hiddenTags: ["a11y", "inclusive-design"],
+    authorName: "Sofía Martínez",
+    authorDescription: "UX/UI Designer especializada en accesibilidad",
     authorType: AuthorType.MANUAL
   }
 ];
 
 export const ListicleData: NoteData[] = [
   {
-    title: "22 hábitos para maximizar tu productividad diaria",
-    subTitle: "Estrategias prácticas para mejorar tu rendimiento personal y profesional",
-    body: "La productividad no depende únicamente de trabajar más, sino de trabajar mejor. Adoptar hábitos efectivos puede marcar una gran diferencia en tu desempeño diario.\n\nEsta lista reúne prácticas comprobadas que ayudan a optimizar el tiempo y la concentración.",
-    tags: ["productividad", "hábitos", "rendimiento"],
-    hiddenTags: ["self-improvement", "productivity-hacks"],
-    authorName: "Martín Rodríguez",
-    authorDescription: "Consultor en desarrollo profesional y optimización de procesos.",
+    title: "5 estrategias para mejorar la performance en Angular",
+    subTitle: "Optimización clave para aplicaciones modernas",
+    body: "Estas estrategias ayudan a mejorar significativamente el rendimiento en aplicaciones Angular, reduciendo tiempos de carga y mejorando la experiencia de usuario.",
+    tags: ["angular", "performance", "frontend"],
+    hiddenTags: ["optimization", "internal"],
+    authorName: "Juan Pérez",
+    authorDescription: "Frontend Developer especializado en Angular",
+    authorType: AuthorType.MANUAL,
     listicleItems: [
-      { title: "Definir objetivos claros", body: "Tener metas específicas mejora el enfoque diario." },
-      { title: "Planificar el día", body: "Organizar tareas con anticipación evita pérdidas de tiempo." },
-      { title: "Priorizar tareas importantes", body: "Enfocarse en lo que genera mayor impacto." },
-      { title: "Evitar multitarea", body: "Trabajar en una sola tarea mejora la calidad." },
-      { title: "Usar bloques de tiempo", body: "Asignar períodos específicos para cada actividad." },
-      { title: "Tomar descansos", body: "Pausas regulares aumentan la concentración." },
-      { title: "Eliminar distracciones", body: "Reducir interrupciones mejora el rendimiento." },
-      { title: "Delegar cuando sea posible", body: "Optimizar recursos distribuyendo tareas." },
-      { title: "Automatizar tareas repetitivas", body: "Ahorrar tiempo en procesos rutinarios." },
-      { title: "Mantener un entorno ordenado", body: "Un espacio limpio favorece la claridad mental." },
-      { title: "Establecer límites de tiempo", body: "Evitar que las tareas se extiendan innecesariamente." },
-      { title: "Revisar avances diarios", body: "Evaluar progreso permite ajustar estrategias." },
-      { title: "Dormir bien", body: "El descanso adecuado mejora la productividad." },
-      { title: "Hacer ejercicio", body: "La actividad física aumenta energía y enfoque." },
-      { title: "Evitar reuniones innecesarias", body: "Optimizar el uso del tiempo laboral." },
-      { title: "Aprender a decir no", body: "Evitar sobrecarga de tareas." },
-      { title: "Usar herramientas digitales", body: "Aprovechar apps para organizar trabajo." },
-      { title: "Reducir consumo de redes sociales", body: "Minimizar distracciones digitales." },
-      { title: "Establecer rutinas", body: "Crear hábitos consistentes mejora el rendimiento." },
-      { title: "Dividir tareas grandes", body: "Hacerlas más manejables y ejecutables." },
-      { title: "Celebrar logros", body: "Reconocer avances motiva a continuar." },
-      { title: "Aprender continuamente", body: "Mejorar habilidades incrementa eficiencia." }
+      { title: "Lazy Loading", body: "Carga módulos solo cuando son necesarios para reducir el bundle inicial." },
+      { title: "OnPush Change Detection", body: "Optimiza la detección de cambios evitando renders innecesarios." },
+      { title: "TrackBy en ngFor", body: "Mejora el rendimiento en listas evitando recrear elementos." },
+      { title: "Uso eficiente de RxJS", body: "Evita suscripciones innecesarias y memory leaks." },
+      { title: "Code Splitting", body: "Divide el código en partes más pequeñas para mejorar tiempos de carga." }
+    ]
+  },
+  {
+    title: "4 buenas prácticas en testing E2E",
+    subTitle: "Cómo mejorar la estabilidad de tus tests",
+    body: "Aplicar buenas prácticas en testing end-to-end permite reducir la flakiness y mejorar la confiabilidad de los resultados.",
+    tags: ["testing", "qa", "automation"],
+    hiddenTags: ["e2e", "playwright"],
+    authorName: "María Gómez",
+    authorDescription: "QA Engineer experta en automatización",
+    authorType: AuthorType.MANUAL,
+    listicleItems: [
+      { title: "Evitar sleeps fijos", body: "Usar esperas dinámicas basadas en condiciones reales." },
+      { title: "Selectores estables", body: "Preferir data-testid sobre clases o textos." },
+      { title: "Tests independientes", body: "Cada test debe poder ejecutarse aislado." },
+      { title: "Ambientes controlados", body: "Reducir dependencias externas para mayor estabilidad." }
+    ]
+  },
+  {
+    title: "6 tips para diseñar APIs escalables",
+    subTitle: "Arquitectura backend eficiente",
+    body: "Diseñar APIs escalables requiere considerar estructura, versionado y manejo adecuado de errores.",
+    tags: ["api", "backend", "rest"],
+    hiddenTags: ["design", "scalability"],
+    authorName: "Carlos Rodríguez",
+    authorDescription: "Backend Developer y arquitecto de software",
+    authorType: AuthorType.MANUAL,
+    listicleItems: [
+      { title: "Versionado de API", body: "Permite evolucionar sin romper clientes existentes." },
+      { title: "Manejo de errores consistente", body: "Respuestas claras y estandarizadas." },
+      { title: "Paginación", body: "Evita sobrecargar respuestas con grandes volúmenes de datos." },
+      { title: "Autenticación robusta", body: "Protege endpoints con mecanismos seguros." },
+      { title: "Documentación clara", body: "Facilita la integración con otros equipos." },
+      { title: "Uso de caching", body: "Reduce carga en el servidor y mejora tiempos de respuesta." }
+    ]
+  },
+  {
+    title: "5 claves para una buena accesibilidad web",
+    subTitle: "Interfaces inclusivas para todos",
+    body: "La accesibilidad es fundamental para garantizar que cualquier usuario pueda interactuar con una aplicación.",
+    tags: ["accessibility", "ux", "frontend"],
+    hiddenTags: ["a11y", "inclusive"],
+    authorName: "Sofía Martínez",
+    authorDescription: "UX/UI Designer especializada en accesibilidad",
+    authorType: AuthorType.MANUAL,
+    listicleItems: [
+      { title: "Uso de etiquetas semánticas", body: "Mejora la interpretación por lectores de pantalla." },
+      { title: "Contraste de colores", body: "Asegura legibilidad para usuarios con dificultades visuales." },
+      { title: "Navegación por teclado", body: "Permite interacción sin mouse." },
+      { title: "ARIA labels", body: "Proveen contexto adicional a elementos interactivos." },
+      { title: "Textos alternativos", body: "Describe imágenes para usuarios con discapacidad visual." }
+    ]
+  },
+  {
+    title: "4 fundamentos de Docker para developers",
+    subTitle: "Contenerización simplificada",
+    body: "Docker facilita la creación de entornos consistentes y portables para desarrollo y producción.",
+    tags: ["docker", "devops", "containers"],
+    hiddenTags: ["infrastructure", "deployment"],
+    authorName: "Andrés Silva",
+    authorDescription: "DevOps Engineer",
+    authorType: AuthorType.MANUAL,
+    listicleItems: [
+      { title: "Imágenes", body: "Plantillas inmutables para crear contenedores." },
+      { title: "Contenedores", body: "Instancias ejecutables de una imagen." },
+      { title: "Dockerfile", body: "Define cómo construir una imagen." },
+      { title: "Docker Compose", body: "Orquesta múltiples contenedores fácilmente." }
     ]
   }
 ];
@@ -178,3 +229,7 @@ export const LiveBlogData: NoteData[] = [
     }
   }
 ];
+
+export const DebugData: NoteData = {
+  secondaryTitle: "Prueba de titulo secundario"
+}

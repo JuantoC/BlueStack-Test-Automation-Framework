@@ -4,7 +4,7 @@ import { DriverSession, initializeDriver, quitDriver } from "../src/core/actions
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { adminCredentials, basicAuthCredentials } from "../environments/Dev_SAAS/credentials.js";
 import { MainConfig } from "../src/environments/Dev_SAAS/env.config.js";
-import { passLogin } from "../src/flows/manageAuth.js";
+import { passLogin } from "../src/flows/userSession.js";
 import { writeSafe } from "../src/core/actions/writeSafe.js";
 import { goToPost } from "../src/core/actions/goToPost.js";
 import { DefaultConfig, RetryOptions } from "../src/core/config/default.js";

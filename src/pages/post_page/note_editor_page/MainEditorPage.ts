@@ -91,7 +91,7 @@ import { EditorAuthorSection } from "./EditorAuthorSection.js";
 import { EditorHeaderActions } from "./EditorHeaderActions.js";
 import { EditorLateralSettings } from "./EditorLateralSettings.js";
 import { EditorTextSection } from "./EditorTextSection.js";
-import { NewNoteBtn, NoteType } from "../../sidebar_options/NewNoteBtn.js";
+import { NewNoteBtn, NoteType } from "../SideBarNewNoteBtn.js";
 import { EditorTagsSection } from './EditorTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";

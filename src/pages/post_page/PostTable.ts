@@ -1,14 +1,15 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../../core/config/default.js";
-import { waitFind } from "../../../core/utils/waitFind.js";
-import logger from "../../../core/utils/logger.js";
-import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { retry } from "../../../core/wrappers/retry.js";
-import { writeToStandard } from "../../../core/utils/write.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { waitEnabled } from "../../../core/utils/waitEnabled.js";
-import { waitVisible } from "../../../core/utils/waitVisible.js";
-import { sleep } from "../../../core/utils/backOff.js";
+import { RetryOptions } from "../../core/config/default.js";
+import { waitFind } from "../../core/utils/waitFind.js";
+import logger from "../../core/utils/logger.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
+import { retry } from "../../core/wrappers/retry.js";
+import { writeToStandard } from "../../core/utils/write.js";
+import { stackLabel } from "../../core/utils/stackLabel.js";
+import { waitEnabled } from "../../core/utils/waitEnabled.js";
+import { waitVisible } from "../../core/utils/waitVisible.js";
+import { sleep } from "../../core/utils/backOff.js";
+import { step } from "allure-js-commons";
 
 export class PostTable {
   private readonly driver: WebDriver;
@@ -42,7 +43,6 @@ export class PostTable {
    */
   async getPostContainerByTitle(title: string, opts: RetryOptions): Promise<WebElement> {
     const config = {
-      ...DefaultConfig,
       ...opts,
       label: stackLabel(opts.label, `getPostContainerByTitle`)
     };
@@ -52,9 +52,11 @@ export class PostTable {
     }
     try {
 
+      logger.debug("Buscando y revisando si la tabla de notas existe y es visible...", config.label)
       const element = await waitFind(this.driver, this.postTableBodyLocator, { ...config, timeoutMs: 7000 });
       await waitEnabled(this.driver, element, { ...config, timeoutMs: 7000 });
       await waitVisible(this.driver, element, { ...config, timeoutMs: 7000 });
+      logger.debug("Tabla lista para interactuar.", config.label)
 
       for (let i = 0; i < limit; i++) {
         // 1. Obtenemos el contenedor padre (La fila)
@@ -92,7 +94,7 @@ export class PostTable {
     * Orquesta la lógica llamando a los helpers específicos.
     */
   async changePostTitle(postContainer: WebElement, opts: RetryOptions): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "changePostTitle") };
+    const config = { ...opts, label: stackLabel(opts.label, "changePostTitle") };
 
     return await retry(async () => {
       logger.debug("Iniciando orquestación de cambio de título...", config.label);
@@ -118,7 +120,7 @@ export class PostTable {
    * Clickea el botón de editar de una fila específica.
    */
   async clickEditorButton(postContainer: WebElement, opts: RetryOptions): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "clickEditorButton") };
+    const config = { ...opts, label: stackLabel(opts.label, "clickEditorButton") };
 
     try {
       logger.debug("Buscando botón de editar en el contenedor...", config.label);
@@ -137,7 +139,7 @@ export class PostTable {
    * HELPER 1: Lee el texto del Label o del Input intentando evadir StaleElements.
    */
   private async extractCurrentTitle(postContainer: WebElement, opts: RetryOptions): Promise<string> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "extractCurrentTitle") };
+    const config = { ...opts, label: stackLabel(opts.label, "extractCurrentTitle") };
     try {
       logger.debug("Intentando leer el texto del label...", config.label);
       const labels = await postContainer.findElements(this.postTitleLabelLocator);
@@ -162,7 +164,7 @@ export class PostTable {
    * HELPER 2: Revisa si el input está visible. Si no lo está, hace click en el label.
    */
   private async activateEditModeIfNeeded(postContainer: WebElement, opts: RetryOptions): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "activateEditModeIfNeeded") };
+    const config = { ...opts, label: stackLabel(opts.label, "activateEditModeIfNeeded") };
 
     let isInputVisible = false;
     const inputs = await postContainer.findElements(this.postTitleInputLocator);
@@ -189,7 +191,7 @@ export class PostTable {
    * HELPER 3: Busca el input activado, escribe, espera la renderización de Angular y confirma.
    */
   private async writeAndValidateTitle(postContainer: WebElement, newTitle: string, opts: RetryOptions): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "writeAndValidateTitle") };
+    const config = { ...opts, label: stackLabel(opts.label, "writeAndValidateTitle") };
 
 
     logger.debug("Esperando presencia del input en el DOM...", config.label);

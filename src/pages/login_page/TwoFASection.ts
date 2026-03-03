@@ -8,35 +8,31 @@ import logger from "../../core/utils/logger.js";
  * Componente para gestionar la pagina de Doble Autenticación (2FA).
  * En este flujo actual, se encarga de descartar el modal para continuar.
  */
-export class TwoFAFields {
+export class TwoFASection {
   private readonly twoFAModalDismissButton: Locator = By.css('[data-testid="btn-next"]');
   private driver: WebDriver;
+  private config: RetryOptions
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "TwoFASection") }
   }
 
   /**
    * Omite el modal de 2FA haciendo clic en el botón de continuar/descartar.
    * @param opts - Opciones de reintento y trazabilidad (incluye timeoutMs).
    */
-  async passTwoFA(opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "passTwoFA")
-    };
-
+  async passTwoFA(): Promise<void> {
     try {
       logger.debug('Intentando omitir pagina de 2FA (con btn "I will do it later")', {
-        label: config.label
+        label: this.config.label
       });
 
       // Delegamos en clickSafe la espera, el scroll y el reintento.
-      await clickSafe(this.driver, this.twoFAModalDismissButton, config);
+      await clickSafe(this.driver, this.twoFAModalDismissButton, this.config);
 
       logger.debug("Modal de 2FA gestionado correctamente", {
-        label: config.label
+        label: this.config.label
       });
 
     } catch (error: any) {

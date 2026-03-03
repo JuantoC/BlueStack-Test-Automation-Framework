@@ -2,7 +2,7 @@ import { runSession } from "../core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { passLogin } from "../flows/userSession.js";
 import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
-import { fillNote } from "../flows/populateNoteEditorFields.js";
+import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
 import { PostData } from "../dataTest/noteData.js";
 import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
@@ -22,7 +22,7 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
   await passLogin(driver, { username: user, password: pass }, opts);
 
   await createNewNote(driver, NoteType.POST, opts);
-  await fillNote(driver, PostData[1], opts);
+  await dynimicDataFilling(driver, PostData[1], opts);
   await closeNoteEditor(driver, NoteExitAction.PUBLISH_AND_EXIT, opts);
 
   log.info("✅ Prueba de creación de Post exitosa.");

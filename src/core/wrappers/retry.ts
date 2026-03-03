@@ -1,7 +1,7 @@
 import logger from "../utils/logger.js";
 import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig, RetryOptions } from "../config/default.js";
-import { classifyError, ErrorCategory } from "../utils/errorHandler.js";
+import { classifyError, ErrorCategory } from "../errors/errorHandler.js";
 
 /**
  * Wrapper de resiliencia con Exponential Backoff.

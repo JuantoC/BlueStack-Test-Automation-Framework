@@ -5,7 +5,7 @@ import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
 import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import logger from "../core/utils/logger.js";
-import { step, parameter, attachment } from "allure-js-commons";
+import { step } from "allure-js-commons";
 
 /**
  * Flow: Inicio de creación de nota.
@@ -22,7 +22,7 @@ export async function createNewNote(
     label: stackLabel(opts.label, "createNewNote")
   };
 
-  const page = new NoteEditorPage(driver, noteType);
+  const page = new NoteEditorPage(driver, config, noteType);
 
   await step(`Creando nueva nota: ${noteType}`, async (stepContext) => {
     stepContext.parameter("Note Type", noteType);
@@ -55,7 +55,7 @@ export async function closeNoteEditor(
     label: stackLabel(opts.label, "closeNoteEditor")
   };
 
-  const page = new NoteEditorPage(driver);
+  const page = new NoteEditorPage(driver, config);
 
   await step(`Cerrando editor de nota con acción: ${exitAction}`, async (stepContext) => {
     stepContext.parameter("Exit Action", exitAction);
@@ -67,7 +67,7 @@ export async function closeNoteEditor(
       logger.info(`Editor cerrado exitosamente.`, { label: config.label });
 
     } catch (error: any) {
-      logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, { 
+      logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, {
         label: config.label,
         exitAction: exitAction,
         error: error.message

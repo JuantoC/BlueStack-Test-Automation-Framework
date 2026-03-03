@@ -14,6 +14,9 @@ export enum LiveBlogEventField {
 }
 
 export class EditorLiveBlogEventSection {
+    private driver: WebDriver;
+    private config: RetryOptions;
+
     // ========== LOCATORS (Private & Readonly) ==========
     private readonly LOCATORS: Record<LiveBlogEventField, Locator> = {
         [LiveBlogEventField.EVENT_TITLE]: By.css('div[id="event-note"] input.mda-form-control'),
@@ -22,22 +25,20 @@ export class EditorLiveBlogEventSection {
         [LiveBlogEventField.EVENT_ADDRESS]: By.css('div[id="event-note"] input#search-input'),
     }
 
-    constructor(private driver: WebDriver) { }
+    constructor(driver: WebDriver, config: RetryOptions = {}) {
+        this.driver = driver;
+        this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, "EditorLiveBlogEventSection") };
+    }
 
-    async fillEventTitle(value: LiveBlogData, opts: RetryOptions = {}): Promise<void> {
-        const config = {
-            ...DefaultConfig,
-            ...opts,
-            label: stackLabel(opts.label, "EditorLiveBlogEventSection.fillEventTitle")
-        };
+    async fillEventTitle(value: LiveBlogData): Promise<void> {
         await step("Rellenar evento de Liveblog", async () => {
             try {
                 if (!value.eventLiveBlog?.eventTitle) {
-                    logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: config.label });
+                    logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: this.config.label });
                     return;
                 }
-                logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: config.label });
-                await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, config);
+                logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
+                await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
             } catch (error) {
                 // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
                 throw error;

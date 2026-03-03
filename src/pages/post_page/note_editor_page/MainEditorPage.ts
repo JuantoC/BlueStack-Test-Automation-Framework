@@ -6,7 +6,7 @@
 export class NoteEditorPage {
   // ========== SECCIONES (Private para forzar uso del Orquestador) ==========
   private driver: WebDriver;
-
+  private config: RetryOptions;
   private readonly noteType: NoteType
   public readonly tags: EditorTagsSection;
   public readonly listicle: ListicleSection;
@@ -18,44 +18,43 @@ export class NoteEditorPage {
   public readonly creation: NewNoteBtn;
   public readonly images: EditorImageSection;
 
-  constructor(driver: WebDriver, noteType: NoteType = NoteType.POST) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}, noteType?: NoteType) {
     this.driver = driver;
-    this.noteType = noteType;
-    this.tags = new EditorTagsSection(driver);
-    this.author = new EditorAuthorSection(driver);
-    this.header = new EditorHeaderActions(driver);
-    this.settings = new EditorLateralSettings(driver);
-    this.text = new EditorTextSection(driver);
-    this.creation = new NewNoteBtn(driver);
-    this.listicle = new ListicleSection(driver);
-    this.liveBlog = new LiveBlogSection(driver);
-    this.images = new EditorImageSection(driver);
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NoteEditorPage") };
+    this.noteType = noteType || NoteType.POST;
+    this.tags = new EditorTagsSection(driver, this.config);
+    this.author = new EditorAuthorSection(driver, this.config);
+    this.header = new EditorHeaderActions(driver, this.config);
+    this.settings = new EditorLateralSettings(driver, this.config);
+    this.text = new EditorTextSection(driver, this.config);
+    this.creation = new NewNoteBtn(driver, this.config);
+    this.listicle = new ListicleSection(driver, this.config);
+    this.liveBlog = new LiveBlogSection(driver, this.config);
+    this.images = new EditorImageSection(driver, this.config);
   }
 
   /**
    * Orquestador Principal: Rellena la nota de forma integral.
    * Coordina la ejecución de cada sub-sección con trazabilidad completa.
   */
-  async fillFullNote(data: Partial<NoteData>, opts: RetryOptions = {}): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NoteEditorPage") };
-
+  async fillFullNote(data: Partial<NoteData>): Promise<void> {
     await step("Completar formulario integral de la Nota", async (stepContext) => {
       // 1. Adjuntamos el payload completo de datos para tener contexto si falla
       attachment("Test Data (Payload)", JSON.stringify(data, null, 2), "application/json");
       stepContext.parameter("Note Type", this.noteType);
 
       try {
-          await this.text.fillAll(data, config);
-        
-          await this.tags.fillAll(data, config);
-        
-          await this.fillListicleOrLiveblog(data, config);
+        await this.text.fillAll(data);
 
-          await this.author.fillAll(data, config);
+        await this.tags.fillAll(data);
 
-          await this.settings.selectFirstSectionOption(config);
+        await this.fillListicleOrLiveblog(data);
 
-          await this.images.addFirstImage(config);
+        await this.author.fillAll(data);
+
+        await this.settings.selectFirstSectionOption();
+
+        await this.images.addFirstImage();
 
       } catch (error) {
         throw error;
@@ -64,7 +63,7 @@ export class NoteEditorPage {
   }
 
   // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
-  private async fillListicleOrLiveblog(data: Partial<NoteData>, config: any) {
+  private async fillListicleOrLiveblog(data: Partial<NoteData>) {
     const hasItems = data.listicleItems && data.listicleItems.length > 0;
     const hasEvent = this.noteType === NoteType.LIVEBLOG && data.eventLiveBlog;
 
@@ -74,7 +73,7 @@ export class NoteEditorPage {
     const section = (this.noteType === NoteType.LIVEBLOG) ? this.liveBlog : this.listicle;
 
     // Ejecutar
-    await section.fillAll(data as LiveBlogData, config);
+    await section.fillAll(data as LiveBlogData);
   }
 
   /**

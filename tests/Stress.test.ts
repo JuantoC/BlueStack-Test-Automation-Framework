@@ -4,7 +4,7 @@ import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 // Business Flows
 import { passLogin } from "../src/flows/userSession.js";
-import { fillNote } from "../src/flows/populateNoteEditorFields.js";
+import { dynimicDataFilling } from "../src/flows/populateNoteEditorFields.js";
 import { createNewNote, closeNoteEditor } from "../src/flows/openCloseNote.js";
 // Data y Enums
 import { PostData } from "../src/dataTest/noteData.js";
@@ -28,13 +28,13 @@ runSession("Stress Test", async ({ driver, opts, log }) => {
   await sleep(1000 * 60 * 2)
 
   await createNewNote(driver, NoteType.POST, opts);
-  await fillNote(driver, PostData[1], opts);
+  await dynimicDataFilling(driver, PostData[1], opts);
   await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, opts);
 
   await sleep(1000 * 60 * 2)
 
   await createNewNote(driver, NoteType.POST, opts);
-  await fillNote(driver, PostData[2], opts);
+  await dynimicDataFilling(driver, PostData[2], opts);
   await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
 
   await sleep(1000 * 60 * 2)

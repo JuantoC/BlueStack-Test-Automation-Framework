@@ -1,47 +1,46 @@
 import { WebDriver } from "selenium-webdriver";
-import { LoginFields } from "./LoginSection.js";
-import { TwoFAFields } from "./TwoFASection.js";
+import { LoginSection } from "./LoginSection.js";
+import { TwoFASection } from "./TwoFASection.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js";
+import { parameter } from "allure-js-commons";
 
-export class AuthPage {
+export class MainLoginPage {
   public driver: WebDriver;
-  public login: LoginFields;
-  public twoFA: TwoFAFields;
+  public login: LoginSection;
+  public twoFA: TwoFASection;
+  public config: RetryOptions;
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
+    this.config = {
+      ...DefaultConfig,
+      ...opts,
+      label: stackLabel(opts.label, "MainLoginPage")
+    };
     this.driver = driver;
-    this.login = new LoginFields(driver);
-    this.twoFA = new TwoFAFields(driver);
+    this.login = new LoginSection(driver, this.config);
+    this.twoFA = new TwoFASection(driver, this.config);
   }
 
   /**
    * Coordina el flujo completo de autenticación: Login + 2FA.
    * @param credentials - Objeto con usuario y contraseña (Interfaz AuthCredentials).
-   * @param opts - Opciones que incluyen timeoutMs, retries y label.
    */
-  async passAuth(
+  async passLoginAndTwoFA(
     credentials: AuthCredentials,
-    opts: RetryOptions = {}
   ): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "passAuth")
-    };
 
     try {
-      logger.debug("Iniciando componentes de autenticación...", { label: config.label });
+      logger.debug('Rellenando version del CMS...')
+      parameter("CMS_Version", await this.login.getVersionLabel(this.config));
 
-      // 1. Fase de Login
-      await this.login.fillLogin(credentials.username, credentials.password, config);
+      logger.debug("Iniciando componentes de autenticación...", { label: this.config.label });
+      await this.login.passLogin(credentials.username, credentials.password);
+      await this.twoFA.passTwoFA();
 
-      // 2. Fase de Segundo Factor
-      await this.twoFA.passTwoFA(config);
-
-      logger.debug("Flujo AuthPage completado correctamente", { label: config.label });
+      logger.debug("Flujo AuthPage completado correctamente", { label: this.config.label });
 
     } catch (error: any) {
       throw error;

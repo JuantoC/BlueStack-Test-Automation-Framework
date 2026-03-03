@@ -21,6 +21,7 @@ export enum NoteExitAction {
  */
 export class EditorHeaderActions {
   private driver: WebDriver;
+  private config: RetryOptions;
 
   // ========== LOCATORS (Respetando originales) ==========
   private readonly SAVE_BTN = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
@@ -51,30 +52,25 @@ export class EditorHeaderActions {
     [NoteExitAction.BACK_EXIT_DISCARD]: this.BACK_BTN,
   };
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorHeaderActions") }
   }
 
   /**
    * Ejecuta una secuencia de salida o guardado basada en el enum NoteExitAction.
    */
-  public async clickExitAction(action: NoteExitAction, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, `clickExitAction`)
-    };
-
+  public async clickExitAction(action: NoteExitAction): Promise<void> {
     const initialLocator = this.locatorMap[action];
     if (!initialLocator) {
       throw new Error(`Acción de salida no mapeada en el componente: ${action}`);
     }
 
     try {
-      logger.debug(`Iniciando secuencia de salida: ${action}`, { label: config.label });
+      logger.debug(`Iniciando secuencia de salida: ${action}`, { label: this.config.label });
 
       // 1. Clic inicial (Abrir dropdown o clic directo)
-      await clickSafe(this.driver, initialLocator, config);
+      await clickSafe(this.driver, initialLocator, this.config);
 
       // 2. Manejo de sub-pasos (Máquina de estados)
       switch (action) {
@@ -82,39 +78,39 @@ export class EditorHeaderActions {
           break;
 
         case NoteExitAction.SAVE_AND_EXIT:
-          await clickSafe(this.driver, this.SAVE_AND_EXIT_OPT, config);
+          await clickSafe(this.driver, this.SAVE_AND_EXIT_OPT, this.config);
           break;
 
         case NoteExitAction.EXIT_WITHOUT_SAVING:
-          await clickSafe(this.driver, this.EXIT_WITHOUT_SAVING_OPT, config);
-          await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, config);
+          await clickSafe(this.driver, this.EXIT_WITHOUT_SAVING_OPT, this.config);
+          await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, this.config);
           break;
 
         case NoteExitAction.PUBLISH_ONLY:
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, {...config, initialDelayMs: 10000});
+          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
           break;
 
         case NoteExitAction.PUBLISH_AND_EXIT:
-          await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, config);
+          await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, this.config);
           // Usamos el config heredado; si se requiere más tiempo para publicar, 
           // el orquestador superior debe pasar un timeoutMs mayor en 'opts'.
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, {...config, initialDelayMs: 10000});
+          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
           break;
 
         case NoteExitAction.SCHEDULE_AND_EXIT:
-          await clickSafe(this.driver, this.SCHEDULE_OPT, config);
+          await clickSafe(this.driver, this.SCHEDULE_OPT, this.config);
           break;
 
         case NoteExitAction.BACK_SAVE_AND_EXIT:
-          await clickSafe(this.driver, this.MODAL_SAVE_AND_EXIT_BTN, config);
+          await clickSafe(this.driver, this.MODAL_SAVE_AND_EXIT_BTN, this.config);
           break;
 
         case NoteExitAction.BACK_EXIT_DISCARD:
-          await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, config);
+          await clickSafe(this.driver, this.MODAL_DISCARD_EXIT_BTN, this.config);
           break;
       }
 
-      logger.debug(`Acción de salida ejecutada correctamente: ${action}`, { label: config.label });
+      logger.debug(`Acción de salida ejecutada correctamente: ${action}`, { label: this.config.label });
 
     } catch (error) {
       // No logueamos error aquí, ya lo hizo clickSafe. Solo propagamos.

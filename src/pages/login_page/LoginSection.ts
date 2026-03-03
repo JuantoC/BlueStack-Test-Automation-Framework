@@ -1,76 +1,118 @@
-import { By, Locator, WebDriver } from 'selenium-webdriver';
+import { By, Locator, WebDriver, WebElement } from 'selenium-webdriver';
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
+import { waitFind } from '../../core/utils/waitFind.js';
+import { BusinessLogicError } from '../../core/errors/bussinesLogicError.js';
 
 /**
  * Componente de campos de Login.
  * Maneja la interacción atómica con los inputs de credenciales y el botón de acceso.
  */
-export class LoginFields {
-  private readonly usernameField: Locator = By.id('username-field-log');
-  private readonly passwordField: Locator = By.id('password-field-log');
-  private readonly loginButton: Locator = By.css('button[data-testid="qa-login"]');
+export class LoginSection {
   private driver: WebDriver;
+  private config: RetryOptions;
 
-  constructor(driver: WebDriver) {
+  private readonly usernameFieldLocator: Locator = By.id('username-field-log');
+  private readonly passwordFieldLocator: Locator = By.id('password-field-log');
+  private readonly loginButtonLocator: Locator = By.css('button[data-testid="qa-login"]');
+  private readonly errorLabel: Locator = By.css('span.field-error')
+  private readonly versionLabelLocator: Locator = By.css('div.security-footer-text')
+
+
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "LoginSection") };
   }
 
-  async fillUsername(username: string, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "fillUsername")
-    };
+  async fillUsername(username: string): Promise<WebElement> {
 
-    logger.debug(`Ingresando nombre de usuario`, { label: config.label });
-    await writeSafe(this.driver, this.usernameField, username, config);
+    logger.debug(`Ingresando nombre de usuario...`, { label: this.config.label });
+    const element = await writeSafe(this.driver, this.usernameFieldLocator, username, this.config);
+
+    return element
   }
 
-  async fillPassword(password: string, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "fillPassword")
-    };
+  async fillPassword(password: string): Promise<WebElement> {
 
-    // Seguridad: Logueamos la acción, pero NUNCA el valor de la contraseña.
-    logger.debug(`Ingresando contraseña (valor oculto)`, { label: config.label });
-    await writeSafe(this.driver, this.passwordField, password, config);
+    logger.debug(`Ingresando contraseña...`, { label: this.config.label });
+    const element = await writeSafe(this.driver, this.passwordFieldLocator, password, this.config);
+
+    return element
   }
 
-  async clickLogin(opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "clickLogin")
-    };
+  async clickLoginBtn(): Promise<void> {
 
-    logger.debug(`Ejecutando click en botón de acceso`, { label: config.label });
-    await clickSafe(this.driver, this.loginButton, config);
+    logger.debug(`Ejecutando click en botón de acceso`, { label: this.config.label });
+    await clickSafe(this.driver, this.loginButtonLocator, this.config);
   }
 
   /**
-   * Orquestador de nivel de componente: Completa el formulario de acceso.
+   * Método atómico para verificar si existe un error en pantalla.
+   * Utiliza findElements para no lanzar excepciones si el elemento no existe.
    */
-  async fillLogin(username: string, password: string, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "fillLogin")
-    };
+  async getLoginErrorText(): Promise<string | null> {
+    logger.debug('Verificando si se generaron labels de error en el login...');
+    // Pausa muy breve para dar tiempo al renderizado del DOM (ajustar según tu app)
+    await this.driver.sleep(500);
 
-    try {
-      await this.fillUsername(username, config);
-      await this.fillPassword(password, config);
-      await this.clickLogin(config);
-
-      logger.debug(`Formulario de login completado para: ${username}`, { label: config.label });
-    } catch (error: any) {
-      throw error;
+    const errors = await this.driver.findElements(this.errorLabel);
+    if (errors.length > 0) {
+      const errorMsg = await errors[0].getText();
+      logger.debug(`Error detectado: ${errorMsg}`);
+      return errorMsg;
     }
+
+    return null; // Si no hay error, retorna null
+  }
+
+  /**
+   * Intención 1: Login Estricto (Falla rápido si hay error)
+   */
+  async passLogin(username: string, password: string): Promise<void> {
+
+    // 1. Llenamos campos y enviamos
+    await this.fillUsername(username);
+    await this.fillPassword(password);
+    await this.clickLoginBtn();
+
+    // 2. Revisamos si hay error en pantalla
+    const errorMessage = await this.getLoginErrorText();
+
+    // 3. Match sistema de resiliencia
+    if (errorMessage) {
+      // retry() lanzará el error en el intento 1.
+      throw new BusinessLogicError(`El login falló intencionalmente por reglas de negocio. UI Error: ${errorMessage}`);
+    }
+
+    logger.debug(`Login exitoso comprobado para: ${username}`, { label: this.config.label });
+  }
+
+  /**
+   * Intención 2: Intento de Login (Retorna el estado, no lanza error - Para flujos negativos/retries lógicos)
+   */
+  async attemptLogin(username: string, password: string): Promise<{ success: boolean, errorMessage: string | null }> {
+
+    await this.fillUsername(username);
+    await this.fillPassword(password);
+    await this.clickLoginBtn();
+
+    const errorMessage = await this.getLoginErrorText();
+
+    return {
+      success: errorMessage === null,
+      errorMessage: errorMessage
+    };
+  }
+
+  async getVersionLabel(opts: RetryOptions): Promise<string> {
+
+    logger.debug('Ejecutando busqueda del contenedor del label con la version del CMS...')
+    const labelField = await waitFind(this.driver, this.versionLabelLocator, this.config)
+
+    const version = labelField.getText()
+    return version;
   }
 }

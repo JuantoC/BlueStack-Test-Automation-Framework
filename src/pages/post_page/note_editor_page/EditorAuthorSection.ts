@@ -19,6 +19,9 @@ export type NoteAuthorData = Pick<NoteData, 'authorType' | 'authorName' | 'autho
  * Maneja la selección de tipo de autor y la carga de metadatos asociados.
  */
 export class EditorAuthorSection {
+  private driver: WebDriver;
+  private config: RetryOptions;
+
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly authorButtonMap: Record<AuthorType, Locator> = {
     [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),
@@ -29,10 +32,10 @@ export class EditorAuthorSection {
   private readonly authorDescriptionField = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
   private readonly authorNameField = By.css(".image-container_description input[type='text']");
 
-  private driver: WebDriver;
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorAuthorSection") }
   }
 
   // ========== MÉTODOS PÚBLICOS (Orquestadores de Componente) ==========
@@ -42,14 +45,8 @@ export class EditorAuthorSection {
    * @param data Subconjunto de NoteData necesario para el autor.
    */
   async fillAll(
-    data: { authorType?: AuthorType, authorName?: string, authorDescription?: string },
-    opts: RetryOptions = {}
+    data: { authorType?: AuthorType, authorName?: string, authorDescription?: string }
   ): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "fillAuthorData")
-    };
     await step("Asignar Autor", async (stepContext) => {
       stepContext.parameter("Author Type", `${data.authorType || 'undefined'}`);
       stepContext.parameter("Author Name", `${data.authorName || 'undefined'}`);
@@ -63,7 +60,7 @@ export class EditorAuthorSection {
       if (!authorType) {
         if (hasName || hasDescription) {
           authorType = AuthorType.MANUAL;
-          logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: config.label });
+          logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: this.config.label });
         } else {
           return; // Nada que hacer
         }
@@ -75,16 +72,16 @@ export class EditorAuthorSection {
             return;
 
           case AuthorType.ANONYMOUS:
-            await this.selectAuthorType(AuthorType.ANONYMOUS, config);
+            await this.selectAuthorType(AuthorType.ANONYMOUS);
             break;
 
           case AuthorType.MANUAL:
-            await this.selectAuthorType(AuthorType.MANUAL, config);
-            if (hasName) await this.fillAuthorName(data.authorName!, config);
-            if (hasDescription) await this.fillAuthorDescription(data.authorDescription!, config);
+            await this.selectAuthorType(AuthorType.MANUAL);
+            if (hasName) await this.fillAuthorName(data.authorName!);
+            if (hasDescription) await this.fillAuthorDescription(data.authorDescription!);
             break;
         }
-        logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: config.label });
+        logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: this.config.label });
       } catch (error) {
         // Propagamos: el error detallado ya fue logueado en las piezas atómicas.
         throw error;
@@ -93,25 +90,20 @@ export class EditorAuthorSection {
   }
   // ========== PIEZAS LEGO (Atómicas) ==========
 
-  async selectAuthorType(type: AuthorType, opts: RetryOptions = {}): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "selectAuthorType") };
+  async selectAuthorType(type: AuthorType): Promise<void> {
     const locator = this.authorButtonMap[type];
 
-    logger.debug(`Seleccionando tipo de autor: ${type}`, { label: config.label });
-    await clickSafe(this.driver, locator, config);
+    logger.debug(`Seleccionando tipo de autor: ${type}`, { label: this.config.label });
+    await clickSafe(this.driver, locator, this.config);
   }
 
-  async fillAuthorName(name: string, opts: RetryOptions = {}): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "fillAuthorName") };
-
-    logger.debug(`Escribiendo nombre de autor`, { label: config.label });
-    const element = await writeSafe(this.driver, this.authorNameField, name, config);
+  async fillAuthorName(name: string): Promise<void> {
+    logger.debug(`Escribiendo nombre de autor`, { label: this.config.label });
+    const element = await writeSafe(this.driver, this.authorNameField, name, this.config);
   }
 
-  async fillAuthorDescription(description: string, opts: RetryOptions = {}): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "fillAuthorDescription") };
-
-    logger.debug(`Escribiendo descripción de autor`, { label: config.label });
-    const element = await writeSafe(this.driver, this.authorDescriptionField, description, config);
+  async fillAuthorDescription(description: string): Promise<void> {
+    logger.debug(`Escribiendo descripción de autor`, { label: this.config.label });
+    const element = await writeSafe(this.driver, this.authorDescriptionField, description, this.config);
   }
 }

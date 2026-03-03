@@ -12,6 +12,9 @@ export enum NoteType {
 }
 
 export class NewNoteBtn {
+  private driver: WebDriver;
+  private config: RetryOptions;
+
   private static readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
     [NoteType.POST]: new Set(['New post', "Crear noticia", "Nova notícia"]),
     [NoteType.LISTICLE]: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
@@ -22,48 +25,40 @@ export class NewNoteBtn {
   private readonly dropdownContainer: Locator = By.css('div[data-testid="dropdown-menu"]');
   private readonly noteTypeLabels: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
 
-  private driver: WebDriver;
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NewNoteBtn") };
   }
 
-  async selectNoteType(noteType: NoteType, opts: RetryOptions): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "NewNoteBtn.selectNoteType"),
-    };
+  async selectNoteType(noteType: NoteType): Promise<void> {
+    await this.clickOnNewNoteButton();
 
-    await this.clickOnNewNoteButton(config);
-
-    const elementToClick = await this.matchNoteType(noteType, config);
-    logger.debug(`Intentando hacer click en la opción "${noteType}"...`, config);
-    await clickSafe(this.driver, elementToClick, config);
+    const elementToClick = await this.matchNoteType(noteType);
+    logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
+    await clickSafe(this.driver, elementToClick, this.config);
   }
 
   /**
    * Busca en la lista de opciones desplegadas el WebElement que coincide con el NoteType.
    * Retorna el elemento para ser clickeado posteriormente.
    */
-  async matchNoteType(noteType: NoteType, opts: RetryOptions): Promise<WebElement> {
-    const config = { ...DefaultConfig, ...opts };
-
+  async matchNoteType(noteType: NoteType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     // Esto evita el error "Wait timed out" si el menú tarda en animarse
     try {
       const menuContainer = await this.driver.wait(
         until.elementLocated(this.dropdownContainer),
-        config.timeoutMs,
+        this.config.timeoutMs,
         "El menú dropdown no se encuentra en el DOM"
       );
       await this.driver.wait(
         until.elementIsVisible(menuContainer),
-        config.timeoutMs,
+        this.config.timeoutMs,
         "El menú dropdown existe pero no es visible"
       );
     } catch (error) {
-      logger.error("El menú no se desplegó correctamente.", config);
+      logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
       throw error;
     }
 
@@ -74,7 +69,7 @@ export class NewNoteBtn {
       throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.noteTypeLabels}`);
     }
 
-    logger.debug(`Analizando ${elements.length} opciones disponibles...`, config);
+    logger.debug(`Analizando ${elements.length} opciones disponibles...`, { label: this.config.label });
 
     // 3. Iterar dinámicamente
     for (const element of elements) {
@@ -83,7 +78,7 @@ export class NewNoteBtn {
       const cleanLabel = text.trim();
 
       if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
-        logger.debug(`Match encontrado: "${cleanLabel}"`, config);
+        logger.debug(`Match encontrado: "${cleanLabel}"`, { label: this.config.label });
         return element;
       }
     }
@@ -91,31 +86,19 @@ export class NewNoteBtn {
     throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
   }
 
-  async clickOnNewNoteButton(opts: RetryOptions): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "NewNoteBtn.clickOnNewNoteButton"),
-    };
-
-    const isVisible = await this.isDropdownVisible(config);
+  async clickOnNewNoteButton(): Promise<void> {
+    const isVisible = await this.isDropdownVisible();
 
     if (!isVisible) {
-      logger.debug("Abriendo el dropdown de opciones...", { label: config.label });
-      await clickSafe(this.driver, this.openDropdownBtn, config);
+      logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
+      await clickSafe(this.driver, this.openDropdownBtn, this.config);
     } else {
-      logger.debug("El dropdown ya estaba abierto.", { label: config.label });
+      logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
     }
   }
 
-  async isDropdownVisible(opts: RetryOptions): Promise<boolean> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "NewNoteBtn.isDropdownVisible"),
-    };
-
-    const element = await waitFind(this.driver, this.openDropdownBtn, config);
+  async isDropdownVisible(): Promise<boolean> {
+    const element = await waitFind(this.driver, this.openDropdownBtn, this.config);
 
     // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");

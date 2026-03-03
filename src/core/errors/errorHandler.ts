@@ -1,4 +1,4 @@
-import * as Dict from '../config/errorDict.js';
+import * as Dict from './errorDict.js';
 
 export const ErrorCategory = {
     RETRIABLE: 'RETRIABLE', // Fallos temporales (Red, DOM, Assertions en polling)

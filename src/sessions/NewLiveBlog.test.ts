@@ -9,7 +9,6 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
 
     const { user, pass } = CONFIG.getCredentials('editor');
     const authUrl = getAuthUrl(CONFIG.baseUrl, CONFIG.auth.basic.user, CONFIG.auth.basic.pass);
-
     await driver.get(authUrl);
     await passLogin(driver, { username: user, password: pass }, opts);
 

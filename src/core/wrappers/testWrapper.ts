@@ -32,6 +32,10 @@ export function runSession(
 ) {
 
   test(`Sesión: ${sessionLabel}`, async () => {
+    const sessionTransport = addSessionTransport(sessionLabel);
+    const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
+    let session: DriverSession | null = null;
+
     // --- SECCIÓN A: INYECCIÓN DE METADATA EN ALLURE ---
 
     // A.1 Inyectar Metadata de Negocio (del test)
@@ -53,9 +57,6 @@ export function runSession(
     await allure.owner("BlueStack Automation Team");
     await allure.parameter("Execution", CONFIG.grid.useGrid === true ? "Grid Docker" : "Local");
     await allure.parameter("Headless", CONFIG.browser.isHeadless === true ? "true" : "false");
-    const sessionTransport = addSessionTransport(sessionLabel);
-    const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
-    let session: DriverSession | null = null;
 
     try {
       logger.info(`>>> Iniciando Sesión: ${sessionLabel} <<<`, { label: sessionLabel });

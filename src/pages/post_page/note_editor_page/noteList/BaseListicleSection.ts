@@ -2,27 +2,26 @@ export type ListicleData = Pick<NoteData, 'listicleItems'>;
 export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 
 export abstract class BaseListicleSection {
+  protected config: RetryOptions;
   // Selectores fijos (Se mantienen igual)
   private readonly CREATE_MENU = By.css('.dropdown-noteList button');
   private readonly ADD_OPTION = By.id('option-dropdown-0');
 
   constructor(
     protected driver: WebDriver,
-    protected strategy: ListicleStrategy
-  ) { }
+    protected strategy: ListicleStrategy,
+    opts: RetryOptions = {}
+  ) {
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "BaseListicleSection") }
+  }
 
   /**
      * Punto de entrada unificado para el Orquestador.
      * Recibe el objeto parcial y decide si debe ejecutar el llenado.
      */
-  async fillAll(data: ListicleData | LiveBlogData, opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "BaseListicle.fillAll")
-    };
+  async fillAll(data: ListicleData | LiveBlogData): Promise<void> {
 
-    await this.fillEventSection(data as LiveBlogData, config);
+    await this.fillEventSection(data as LiveBlogData);
 
     // Aquí centralizamos la validación de si hay data
     if (!data.listicleItems || data.listicleItems.length === 0) {
@@ -30,7 +29,7 @@ export abstract class BaseListicleSection {
     }
 
     // Llamamos a tu método existente fillItems
-    await this.fillItems(data.listicleItems, config);
+    await this.fillItems(data.listicleItems);
   }
 
   // --- Generadores de Locators (Validados con tu versión funcional) ---
@@ -48,7 +47,7 @@ export abstract class BaseListicleSection {
 
   // --- Métodos de Acción ---
 
-  protected async fillEventSection(data: LiveBlogData, config: RetryOptions): Promise<void> {
+  protected async fillEventSection(data: LiveBlogData): Promise<void> {
     // Virtual method: default no-op
   }
 
@@ -56,21 +55,12 @@ export abstract class BaseListicleSection {
    * Determina el estado y expande/colapsa según sea necesario.
    * Basado en ensureItemExpanded de tu versión vieja pero más flexible.
    */
-  async toggleExpansion(
-    uiIndex: number,
-    target: 'expand' | 'collapse',
-    opts: RetryOptions = {}
-  ) {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, `${target}(#${uiIndex})`)
-    };
+  async toggleExpansion(uiIndex: number, target: 'expand' | 'collapse') {
 
     const iconLocator = this.getIconLocator(uiIndex);
 
     try {
-      const iconEl = await waitFind(this.driver, iconLocator, config);
+      const iconEl = await waitFind(this.driver, iconLocator, this.config);
       const className = await iconEl.getAttribute('class');
       const isExpanded = className.includes('icon-up');
 
@@ -80,14 +70,14 @@ export abstract class BaseListicleSection {
       ) {
         logger.debug(
           `${target === 'expand' ? 'Expandiendo' : 'Colapsando'} ítem #${uiIndex}`,
-          { label: config.label }
+          { label: this.config.label }
         );
-        await clickSafe(this.driver, iconLocator, config);
+        await clickSafe(this.driver, iconLocator, this.config);
       }
     } catch (error) {
       logger.warn(
         `No se pudo interactuar con el icono del ítem #${uiIndex}`,
-        { label: config.label }
+        { label: this.config.label }
       );
     }
   }
@@ -96,16 +86,8 @@ export abstract class BaseListicleSection {
   /**
    * Provee y rellena múltiples ítems.
   */
-  async fillItems(
-    items: Array<{ title?: string; body?: string }>,
-    opts: RetryOptions = {}
-  ) {
+  async fillItems(items: Array<{ title?: string; body?: string }>) {
     if (!items?.length) return;
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "fillItems")
-    };
     await step("Rellenar items Listicle o Liveblog", async (stepContext) => {
       stepContext.parameter("Número de items", `${items.length}`);
       stepContext.parameter("Estrategia de Normalización", this.strategy.constructor.name);
@@ -115,8 +97,8 @@ export abstract class BaseListicleSection {
 
       // 🔹 2. Crear slots (siempre hay 1 base)
       for (let i = 1; i < normalizedItems.length; i++) {
-        await clickSafe(this.driver, this.CREATE_MENU, config);
-        await clickSafe(this.driver, this.ADD_OPTION, config);
+        await clickSafe(this.driver, this.CREATE_MENU, this.config);
+        await clickSafe(this.driver, this.ADD_OPTION, this.config);
       }
 
       // 🔹 3. Poblar datos (orden DOM real)
@@ -124,16 +106,16 @@ export abstract class BaseListicleSection {
         const uiIndex = i + 1;
         const item = normalizedItems[i];
 
-        await this.toggleExpansion(uiIndex, 'expand', config);
+        await this.toggleExpansion(uiIndex, 'expand');
 
         if (item.title) {
           const titleLoc = this.getFieldLocator(uiIndex, 'title');
-          await writeSafe(this.driver, titleLoc, item.title, config);
+          await writeSafe(this.driver, titleLoc, item.title, this.config);
         }
 
         if (item.body) {
           const bodyLoc = this.getFieldLocator(uiIndex, 'body');
-          await writeSafe(this.driver, bodyLoc, item.body, config);
+          await writeSafe(this.driver, bodyLoc, item.body, this.config);
         }
       }
     });

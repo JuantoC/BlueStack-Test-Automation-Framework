@@ -5,7 +5,8 @@ export const FATAL_ERRORS = new Set([
   'SyntaxError',
   'ReferenceError',
   'TypeError',
-  'InvalidArgumentError'
+  'InvalidArgumentError',
+  'BusinessLogicError'
 ]);
 
 // Errores que sabemos que son "flaky" por naturaleza

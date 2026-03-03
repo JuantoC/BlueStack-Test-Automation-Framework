@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../core/config/default.js";
-import { PostTable } from "../pages/post_page/postTable.js";
+import { PostTable } from "../pages/post_page/PostTable.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
 import logger from "../core/utils/logger.js";
@@ -12,7 +12,7 @@ export async function changePostTitle(driver: WebDriver, title: string, opts: Re
         label: stackLabel(opts.label, "changePostTitle")
     };
 
-    const page = new PostTable(driver)
+    const page = new PostTable(driver, config)
 
     await step(`Cambiando titulo de la nota: "${title}"`, async (stepContext) => {
         stepContext.parameter("Titulo de la nota", title);
@@ -20,10 +20,10 @@ export async function changePostTitle(driver: WebDriver, title: string, opts: Re
 
         try {
             logger.debug("Ejecutando busqueda del contenedor para el titulo de la nota...", config.label)
-            const postContainer = await page.getPostContainerByTitle(title, config);
+            const postContainer = await page.getPostContainerByTitle(title);
 
             logger.debug("Ejecutando el cambio de titulo.")
-            await page.changePostTitle(postContainer, config);
+            await page.changePostTitle(postContainer);
             return page;
         } catch (error: any) {
             logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
@@ -43,17 +43,17 @@ export async function enterToEditorPage(driver: WebDriver, postTitle: string, op
         label: stackLabel(opts.label, "createNewNote")
     };
 
-    const page = new PostTable(driver)
+    const page = new PostTable(driver, config)
 
     await step(`Entrando a la edicion de la nota: "${postTitle}"`, async (stepContext) => {
         stepContext.parameter("Titulo de la nota", postTitle);
         stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
         try {
-            const postContainer = await page.getPostContainerByTitle(postTitle, config);
+            const postContainer = await page.getPostContainerByTitle(postTitle);
 
             logger.debug("Ejecutando el click en el boton de edicion", config.label)
-            await page.clickEditorButton(postContainer, config);
+            await page.clickEditorButton(postContainer);
             return page;
         } catch (error: any) {
             logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {

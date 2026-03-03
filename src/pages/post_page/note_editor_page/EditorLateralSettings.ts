@@ -11,14 +11,16 @@ import { step } from "allure-js-commons";
  */
 export class EditorLateralSettings {
   private driver: WebDriver;
+  private config: RetryOptions;
 
   // ========== LOCATORS (Respetando originales y encapsulando) ==========
   private readonly SETTINGS_TOGGLE_BTN: Locator = By.css("a.btn-toggle button.btn-dropdown");
   private readonly SECTION_COMBO: Locator = By.css('mat-select[data-testid="section-options"]');
   private readonly FIRST_SECTION_OPT: Locator = By.css("div[role='listbox'] mat-option:first-of-type");
 
-  constructor(driver: WebDriver) {
+  constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorLateralSettings") }
   }
 
   // ========== MÉTODOS ==========
@@ -26,35 +28,24 @@ export class EditorLateralSettings {
   /**
    * Abre o cierra el panel lateral de configuraciones.
    */
-  async toggleSettingsPanel(opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "toggleSettingsPanel")
-    };
-
-    logger.debug("Cambiando estado del panel lateral de configuración", { label: config.label });
-    await clickSafe(this.driver, this.SETTINGS_TOGGLE_BTN, config);
+  async toggleSettingsPanel(): Promise<void> {
+    logger.debug("Cambiando estado del panel lateral de configuración", { label: this.config.label });
+    await clickSafe(this.driver, this.SETTINGS_TOGGLE_BTN, this.config);
   }
 
   /**
    * Orquestador de componente: Abre el selector de secciones y selecciona la primera disponible.
    */
-  async selectFirstSectionOption(opts: RetryOptions = {}): Promise<void> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "selectFirstSectionOption")
-    };
+  async selectFirstSectionOption(): Promise<void> {
     await step("Seleccionar primera sección de Settings", async () => {
       try {
-        logger.debug("Abriendo combo de selección de secciones", { label: config.label });
-        await clickSafe(this.driver, this.SECTION_COMBO, config);
+        logger.debug("Abriendo combo de selección de secciones", { label: this.config.label });
+        await clickSafe(this.driver, this.SECTION_COMBO, this.config);
 
-        logger.debug("Seleccionando la primera opción del listbox", { label: config.label });
-        await clickSafe(this.driver, this.FIRST_SECTION_OPT, config);
+        logger.debug("Seleccionando la primera opción del listbox", { label: this.config.label });
+        await clickSafe(this.driver, this.FIRST_SECTION_OPT, this.config);
 
-        logger.debug("Sección seleccionada exitosamente (primera de la lista)", { label: config.label });
+        logger.debug("Sección seleccionada exitosamente (primera de la lista)", { label: this.config.label });
       } catch (error) {
         // Propagamos el error; clickSafe ya se encargó del log detallado.
         throw error;

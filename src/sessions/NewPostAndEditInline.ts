@@ -3,7 +3,7 @@ import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { passLogin } from "../flows/userSession.js";
 import { PostData } from "../dataTest/noteData.js";
 import { CONFIG } from "../core/config/config.js";
-import { fillNote } from "../flows/populateNoteEditorFields.js";
+import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
 import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { closeNoteEditor, createNewNote } from "../flows/openCloseNote.js";
@@ -23,7 +23,7 @@ runSession('Creacion de nota, titulo inline y edicion', async ({ driver, opts, l
   await passLogin(driver, { username: user, password: pass }, opts);
 
   await createNewNote(driver, NoteType.POST, opts);
-  await fillNote(driver, PostData[0], opts);
+  await dynimicDataFilling(driver, PostData[0], opts);
   await closeNoteEditor(driver, NoteExitAction.SAVE_AND_EXIT, opts);
 
   await changePostTitle(driver, PostData[0].title!, opts)

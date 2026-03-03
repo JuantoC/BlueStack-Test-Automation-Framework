@@ -4,7 +4,7 @@ import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { runSession } from "../core/wrappers/testWrapper.js";
 // Business Flows
 import { passLogin } from "../flows/userSession.js";
-import { fillNote } from "../flows/populateNoteEditorFields.js";
+import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
 import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
 // Data y Enums
 import { ListicleData } from "../dataTest/noteData.js";
@@ -28,7 +28,7 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
   await passLogin(driver, { username: user, password: pass }, opts);
 
   await createNewNote(driver, NoteType.LISTICLE, opts);
-  await fillNote(driver, ListicleData[0], opts);
+  await dynimicDataFilling(driver, ListicleData[0], opts);
   await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
 
 

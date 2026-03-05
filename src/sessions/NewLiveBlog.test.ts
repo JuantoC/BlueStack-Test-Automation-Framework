@@ -28,8 +28,8 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
 import { LiveBlogData } from "../dataTest/noteData.js";
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { passLogin } from "../flows/userSession.js";
-import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
-import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
+import { createNewNote, closeNoteEditor } from "../flows/sidebar&HeaderAction.js";
+import { NoteType } from "../pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { ENV_CONFIG } from "../core/config/envConfig.js";
 import { runSession } from "../core/wrappers/testWrapper.js";

@@ -10,12 +10,20 @@ export enum NoteType {
   LISTICLE = 'LISTICLE',
   LIVEBLOG = 'LIVEBLOG'
 }
+export enum SidebarOption {
+  COMMENTS = 'COMMENTS',
+  PLANNING = 'PLANNING',
+  NEWS = 'NEWS',
+  TAGS = 'TAGS',
+  IMAGES = 'IMAGES',
+  VIDEOS = 'VIDEOS'
+}
 
-export class NewNoteBtn {
+export class SidebarSection {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private static readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
+  private readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
     [NoteType.POST]: new Set(['New post', "Crear noticia", "Nova notícia"]),
     [NoteType.LISTICLE]: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
     [NoteType.LIVEBLOG]: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
@@ -25,18 +33,30 @@ export class NewNoteBtn {
   private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
   private readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
   private readonly SIDEBAR_CONTAINER: Locator = By.css('nav[id="cmsmedios-sidebar"]');
-  private readonly COMMENTS_BTN: Locator = By.css('a[title="Comentarios"]')
-  private readonly PLANNING_BTN: Locator = By.css('a[title="Planning"]')
-  private readonly NEWS_BTN: Locator = By.css('a[title="Noticias"]')
-  private readonly TAGS_BTN: Locator = By.css('a[title="Tags"]')
-  private readonly MULTIMEDIA_COMBO_BTN: Locator = By.css('a[title="Multimedia"]')
-  private readonly IMAGES_BTN: Locator = By.css('a[title="Imagenes"]')
-  private readonly VIDEOS_BTN: Locator = By.css('a[title="Videos"]')
+  private readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
 
+  private readonly SIDEBAR_MAP: Record<SidebarOption, Locator> = {
+    [SidebarOption.COMMENTS]: By.css('a[title="Comentarios"]'),
+    [SidebarOption.PLANNING]: By.css('a[title="Planning"]'),
+    [SidebarOption.NEWS]: By.css('a[title="Noticias"]'),
+    [SidebarOption.TAGS]: By.css('a[title="Tags"]'),
+    [SidebarOption.IMAGES]: By.css('a[title="Imagenes"]'),
+    [SidebarOption.VIDEOS]: By.css('a[title="Videos"]')
+  };
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NewNoteBtn") };
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "SidebarSection") };
+  }
+
+  async goToComponent(component: SidebarOption): Promise<any> {
+    const locator = this.SIDEBAR_MAP[component];
+
+    logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
+    if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
+      clickSafe(this.driver, this.MULTIMEDIA_FILE_BTN, this.config)
+    }
+    await clickSafe(this.driver, locator, this.config)
   }
 
   async selectNoteType(noteType: NoteType): Promise<void> {
@@ -53,7 +73,6 @@ export class NewNoteBtn {
    */
   async matchNoteType(noteType: NoteType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
-    // Esto evita el error "Wait timed out" si el menú tarda en animarse
     try {
       const menuContainer = await this.driver.wait(
         until.elementLocated(this.DROPDOWN_COMBO_MODAL),
@@ -85,7 +104,7 @@ export class NewNoteBtn {
       const text = await element.getText();
       const cleanLabel = text.trim();
 
-      if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
+      if (this.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
         logger.debug(`Match encontrado: "${cleanLabel}"`, { label: this.config.label });
         return element;
       }

@@ -5,10 +5,10 @@ import { runSession } from "../src/core/wrappers/testWrapper.js";
 // Business Flows
 import { passLogin } from "../src/flows/userSession.js";
 import { dynimicDataFilling } from "../src/flows/populateNoteEditorFields.js";
-import { createNewNote, closeNoteEditor } from "../src/flows/openCloseNote.js";
+import { createNewNote, closeNoteEditor } from "../src/flows/sidebar&HeaderAction.js";
 // Data y Enums
 import { PostData } from "../src/dataTest/noteData.js";
-import { NoteType } from "../src/pages/post_page/SideBarNewNoteBtn.js";
+import { NoteType } from "../src/pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { sleep } from "../src/core/utils/backOff.js";
 

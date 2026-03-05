@@ -5,7 +5,7 @@ import { NoteData } from "../dataTest/noteDataInterface.js";
 import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
 import logger from "../core/utils/logger.js";
 import * as allure from "allure-js-commons";
-import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
+import { NoteType } from "../pages/post_page/SidebarSection.js";
 
 
 /**

@@ -43,7 +43,7 @@ export class EditorHeaderActions {
   private readonly MODAL_PUBLISH_CONFIRM_BTN = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]');
   private readonly MODAL_PUBLISH_CANCEL_BTN = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]');
 
-  private locatorMap: Record<NoteExitAction, Locator> = {
+  private LOCATORS: Record<NoteExitAction, Locator> = {
     [NoteExitAction.SAVE_ONLY]: this.SAVE_BTN,
     [NoteExitAction.SAVE_AND_EXIT]: this.DROPDOWN_SAVE_CONTAINER,
     [NoteExitAction.EXIT_WITHOUT_SAVING]: this.DROPDOWN_SAVE_CONTAINER,
@@ -66,7 +66,7 @@ export class EditorHeaderActions {
    */
   public async clickExitAction(action: NoteExitAction): Promise<void> {
 
-    const initialLocator = this.locatorMap[action];
+    const initialLocator = this.LOCATORS[action];
     if (!initialLocator) {
       throw new Error(`Acción de salida no mapeada en el componente: ${action}`);
     }

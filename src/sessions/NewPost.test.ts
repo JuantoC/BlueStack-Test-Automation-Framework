@@ -1,10 +1,10 @@
 import { runSession } from "../core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
 import { passLogin } from "../flows/userSession.js";
-import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
+import { createNewNote, closeNoteEditor } from "../flows/sidebar&HeaderAction.js";
 import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
 import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
+import { NoteType } from "../pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { ENV_CONFIG } from "../core/config/envConfig.js";
 import { description } from "allure-js-commons";

@@ -54,14 +54,14 @@ export class LoginSection {
    * Utiliza findElements para no lanzar excepciones si el elemento no existe.
    */
   async getLoginErrorText(): Promise<string | null> {
-    logger.debug('Verificando si se generaron labels de error en el login...');
+    logger.debug('Verificando si se generaron labels de error en el login...', { label: this.config.label });
     // Pausa muy breve para dar tiempo al renderizado del DOM (ajustar según tu app)
     await this.driver.sleep(500);
 
     const errors = await this.driver.findElements(this.ERROR_LABEL);
     if (errors.length > 0) {
       const errorMsg = await errors[0].getText();
-      logger.debug(`Error detectado: ${errorMsg}`);
+      logger.debug(`Error detectado: ${errorMsg}`, { label: this.config.label });
       return errorMsg;
     }
 
@@ -109,7 +109,7 @@ export class LoginSection {
 
   async getVersionLabel(opts: RetryOptions): Promise<string> {
 
-    logger.debug('Ejecutando busqueda del contenedor del label con la version del CMS...')
+    logger.debug('Ejecutando busqueda del contenedor del label con la version del CMS...', { label: this.config.label })
     const labelField = await waitFind(this.driver, this.VERSION_LABEL, this.config)
 
     const version = labelField.getText()

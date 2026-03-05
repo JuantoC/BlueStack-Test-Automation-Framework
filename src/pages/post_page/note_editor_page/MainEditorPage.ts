@@ -15,7 +15,7 @@ export class NoteEditorPage {
   public readonly header: EditorHeaderActions;
   public readonly settings: EditorLateralSettings;
   public readonly text: EditorTextSection;
-  public readonly creation: NewNoteBtn;
+  public readonly creation: SidebarSection;
   public readonly images: EditorImageSection;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}, noteType?: NoteType) {
@@ -27,7 +27,7 @@ export class NoteEditorPage {
     this.header = new EditorHeaderActions(driver, this.config);
     this.settings = new EditorLateralSettings(driver, this.config);
     this.text = new EditorTextSection(driver, this.config);
-    this.creation = new NewNoteBtn(driver, this.config);
+    this.creation = new SidebarSection(driver, this.config);
     this.listicle = new ListicleSection(driver, this.config);
     this.liveBlog = new LiveBlogSection(driver, this.config);
     this.images = new EditorImageSection(driver, this.config);
@@ -90,7 +90,7 @@ import { EditorAuthorSection } from "./EditorAuthorSection.js";
 import { EditorHeaderActions } from "./EditorHeaderActions.js";
 import { EditorLateralSettings } from "./EditorLateralSettings.js";
 import { EditorTextSection } from "./EditorTextSection.js";
-import { NewNoteBtn, NoteType } from "../SideBarNewNoteBtn.js";
+import { SidebarSection, NoteType } from "../SidebarSection.js";
 import { EditorTagsSection } from './EditorTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";

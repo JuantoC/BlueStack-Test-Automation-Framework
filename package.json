@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "// --- 1. MANTENIMIENTO ---": "",
-    "clean": "rm -rf allure-results allure-report blob-report allure-history.jsonl",
+    "clean": "rm -rf allure-results allure-report blob-report allure-history.jsonl logs",
     "clean:safe": "rm -rf allure-results",
     "// --- 2. INFRAESTRUCTURA (DOCKER) ---": "",
     "// UNA VEZ al iniciar tu día o sesión de pruebas grid": "",

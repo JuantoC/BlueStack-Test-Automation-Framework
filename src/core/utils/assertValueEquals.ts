@@ -11,7 +11,6 @@ export async function assertValueEquals(
   opts: RetryOptions = {}
 ): Promise<void> {
   const config = {
-    ...DefaultConfig,
     ...opts,
     label: stackLabel(opts.label, "assertValueEquals"),
   };
@@ -122,6 +121,6 @@ function getFirstDiffIndex(a: string, b: string): number {
 import { WebElement, Locator } from "selenium-webdriver";
 import { isContentEditable } from "./isContentEditable.js";
 import { stackLabel } from "../utils/stackLabel.js";
-import { DefaultConfig, RetryOptions } from "../config/default.js";
+import { RetryOptions } from "../config/defaultConfig.js";
 import { retry } from "../wrappers/retry.js";
 import logger from "../utils/logger.js";

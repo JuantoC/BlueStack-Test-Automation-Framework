@@ -1,5 +1,5 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/default.js";
+import { RetryOptions } from "../config/defaultConfig.js";
 import { writeToEditable, writeToStandard } from "../utils/write.js";
 import { isContentEditable } from "../utils/isContentEditable.js";
 import { stackLabel } from "../utils/stackLabel.js";
@@ -24,7 +24,6 @@ export async function writeSafe(
   opts: RetryOptions = {}
 ): Promise<WebElement> {
   const config = {
-    ...DefaultConfig,
     ...opts,
     label: stackLabel(opts.label, "writeSafe"),
   };

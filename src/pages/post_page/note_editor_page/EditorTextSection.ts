@@ -1,12 +1,13 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { step } from "allure-js-commons";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { waitFind } from "../../../core/utils/waitFind.js";
+import { hoverOverParentContainer } from "../../../core/utils/hoverOverParentContainer.js";
 
 export enum NoteTextField {
   TITLE = 'title',
@@ -33,8 +34,8 @@ export class EditorTextSection {
     [NoteTextField.SUMMARY]: By.id('resumen-content')
   };
 
-  private readonly titleMoreOptionsBtn: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[.//mat-icon[text()='more_horiz']]");
-  private readonly addSecondaryTitleBtn: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
+  private readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
+  private readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -77,24 +78,24 @@ export class EditorTextSection {
         value = value + " | Creado por BlueStack_Test_Automation Framework";
       }
 
-      if (field === NoteTextField.SECONDARY_TITLE) {
-        logger.debug("Revisando si el campo de titulo secundario existe", { label: this.config.label });
-
-        try {
-          // Buscamos el elemento suprimiendo los reintentos para no perder tiempo si no existe
-          await waitFind(this.driver, locator, { ...this.config, supressRetry: true });
-          logger.debug("El campo de titulo secundario existe", { label: this.config.label });
-        } catch (error) {
-          // Verificamos si el error es debido a que no se encontró el elemento
-          if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'NoSuchElementError')) {
-            logger.debug("El campo de titulo secundario no existe. Procediendo a crearlo.", { label: this.config.label });
-
-            await this.createSecondaryTitleField();
-          } else {
-            throw error;
-          }
-        }
-      }
+      /*  if (field === NoteTextField.SECONDARY_TITLE) {
+         logger.debug("Revisando si el campo de titulo secundario existe", { label: this.config.label });
+ 
+         try {
+           // Buscamos el elemento suprimiendo los reintentos para no perder tiempo si no existe
+           await waitFind(this.driver, locator, { ...this.config, supressRetry: true });
+           logger.debug("El campo de titulo secundario existe", { label: this.config.label });
+         } catch (error) {
+           // Verificamos si el error es debido a que no se encontró el elemento
+           if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'NoSuchElementError')) {
+             logger.debug("El campo de titulo secundario no existe. Procediendo a crearlo.", { label: this.config.label });
+ 
+             await this.createSecondaryTitleField();
+           } else {
+             throw error;
+           }
+         }
+       } */
       await writeSafe(this.driver, locator, value, this.config);
 
       logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
@@ -107,9 +108,27 @@ export class EditorTextSection {
   /**
    * Despliega las opciones y crea el campo de título secundario.
    */
-  async createSecondaryTitleField(): Promise<void> {
-    logger.debug("Creando un nuevo titulo secundario...", { label: this.config.label });
-    await clickSafe(this.driver, this.titleMoreOptionsBtn, this.config);
-    await clickSafe(this.driver, this.addSecondaryTitleBtn, this.config);
-  }
-}
+  /*   async createSecondaryTitleField(): Promise<void> {
+      logger.debug("Creando un nuevo titulo secundario...", { label: this.config.label });
+      const element = await waitFind(this.driver, this.ADD_NEW_TITLE_BTN, this.config);
+      await this.driver.executeScript(`
+          const target = arguments[0];
+          
+          // 1. Buscamos el mat-icon (ya sea el propio elemento o uno hijo de él)
+          const icon = target.tagName.toLowerCase() === 'mat-icon' 
+              ? target 
+              : target.querySelector('mat-icon') || target;
+  
+          // 2. Le agregamos la clase que lo hace visible en tu CSS
+          icon.classList.add('content_show-icon');
+          target.classList.add('content_show-icon'); // Por si la clase va en el botón o en el <li>
+  
+          // 3. Modificamos los atributos de accesibilidad/visibilidad
+          icon.setAttribute('aria-hidden', 'false');
+          target.setAttribute('aria-hidden', 'false');
+      `, element);
+      await clickSafe(this.driver, element, this.config);
+      await clickSafe(this.driver, this.ADD_NEW_TITLE_ITEM, this.config);
+    }
+    */
+} 

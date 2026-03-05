@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../core/utils/stackLabel.js";
-import { DefaultConfig, RetryOptions } from "../core/config/default.js";
+import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
 import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
@@ -30,7 +30,7 @@ export async function createNewNote(
 
     try {
       logger.info(`Abriendo editor para nueva nota: ${noteType}`, { label: config.label });
-      await page.creation.selectNoteType(noteType, config);
+      await page.creation.selectNoteType(noteType);
       logger.debug(`Editor de nota abierto exitosamente para tipo: ${noteType}`, { label: config.label });
     } catch (error: any) {
       logger.error(`Error en flujo de creación [${noteType}]: ${error.message}`, { label: config.label });
@@ -63,7 +63,7 @@ export async function closeNoteEditor(
 
     try {
       logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: config.label });
-      await page.actions.clickExitAction(exitAction, config);
+      await page.actions.clickExitAction(exitAction);
       logger.info(`Editor cerrado exitosamente.`, { label: config.label });
 
     } catch (error: any) {

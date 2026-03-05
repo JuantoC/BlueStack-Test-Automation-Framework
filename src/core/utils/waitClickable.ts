@@ -1,5 +1,5 @@
 import { WebDriver, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
 import { stackLabel } from "./stackLabel.js";
 import { waitVisible } from "./waitVisible.js";
 import { waitEnabled } from "./waitEnabled.js";
@@ -39,7 +39,7 @@ export async function waitClickable(
       if (err instanceof error.TimeoutError) {
         err.message = `El elemento no fue interactuable tras ${fullOpts.timeoutMs / 1000}s. ${err.message}`;
       }
-      throw err; 
+      throw err;
     }
   }, fullOpts);
 }

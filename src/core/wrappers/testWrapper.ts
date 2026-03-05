@@ -1,7 +1,7 @@
 import * as allure from "allure-js-commons";
 import { WebDriver } from "selenium-webdriver";
-import { CONFIG } from "../config/config.js";
-import { DefaultConfig, RetryOptions } from "../config/default.js";
+import { ENV_CONFIG } from "../config/envConfig.js";
+import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { initializeDriver, quitDriver, DriverSession } from "../actions/driverManager.js";
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
@@ -55,16 +55,16 @@ export function runSession(
     // A.2 Inyectar Metadata de Entorno (Automático desde el .env)
     // Esto es clave para que Allure sepa en qué entorno corrió esta ejecución
     await allure.owner("BlueStack Automation Team");
-    await allure.parameter("Execution", CONFIG.grid.useGrid === true ? "Grid Docker" : "Local");
-    await allure.parameter("Headless", CONFIG.browser.isHeadless === true ? "true" : "false");
+    await allure.parameter("Execution", ENV_CONFIG.grid.useGrid === true ? "Grid Docker" : "Local");
+    await allure.parameter("Headless", ENV_CONFIG.browser.isHeadless === true ? "true" : "false");
 
     try {
       logger.info(`>>> Iniciando Sesión: ${sessionLabel} <<<`, { label: sessionLabel });
 
       // Inicializamos Driver (incluye el NetworkMonitor por tu config anterior)
       session = await initializeDriver({
-        isHeadless: CONFIG.browser.isHeadless,
-        useGrid: CONFIG.grid.useGrid
+        isHeadless: ENV_CONFIG.browser.isHeadless,
+        useGrid: ENV_CONFIG.grid.useGrid
       }, opts);
 
       // --- 2. EJECUCIÓN DEL TEST ---
@@ -84,12 +84,12 @@ export function runSession(
           const screenshot = await session.driver.takeScreenshot();
           await allure.attachment(`Fallo_Visual_${sessionLabel}`, Buffer.from(screenshot, 'base64'), 'image/png');
         } catch (scrErr) {
-          logger.error("No se pudo tomar screenshot del fallo.");
+          logger.error("No se pudo tomar screenshot del fallo.", { label: opts.label });
         }
       }
 
       const msg = error.diff ? `${error.message}\n>>> DIFF <<< ${error.diff}` : error.message;
-      logger.error(`❌ FALLO CRÍTICO en ${sessionLabel}`, { label: sessionLabel, details: msg });
+      logger.error(`❌ FALLO CRÍTICO en ${opts.label}`, { label: opts.label, details: msg });
 
       throw error; // Re-lanzamos para que Jest falle
 
@@ -97,7 +97,7 @@ export function runSession(
       // --- 4. CIERRE Y VERIFICACIÓN DE RED ---
       if (session) {
         // A. Logs de consola del browser
-        await checkConsoleErrors(session.driver, sessionLabel);
+        await checkConsoleErrors(session.driver, opts);
 
         // B. Verificación de Network Monitor (Tu requisito principal)
         let networkError = null;
@@ -109,7 +109,7 @@ export function runSession(
         }
 
         // C. Apagar Driver
-        logger.info("Cerrando sesión...", { label: sessionLabel });
+        logger.info("Cerrando sesión...", { label: opts.label });
         await quitDriver(session, opts);
 
         // D. Si hubo error de red, fallamos el test AHORA (después de cerrar todo)

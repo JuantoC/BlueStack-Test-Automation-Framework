@@ -1,6 +1,6 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
@@ -29,8 +29,8 @@ export class EditorAuthorSection {
     [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"),
   };
 
-  private readonly authorDescriptionField = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
-  private readonly authorNameField = By.css(".image-container_description input[type='text']");
+  private readonly AUTHOR_DESCRIPTION: Locator = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
+  private readonly AUTHOR_NAME: Locator = By.css(".image-container_description input[type='text']");
 
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
@@ -99,11 +99,11 @@ export class EditorAuthorSection {
 
   async fillAuthorName(name: string): Promise<void> {
     logger.debug(`Escribiendo nombre de autor`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.authorNameField, name, this.config);
+    const element = await writeSafe(this.driver, this.AUTHOR_NAME, name, this.config);
   }
 
   async fillAuthorDescription(description: string): Promise<void> {
     logger.debug(`Escribiendo descripción de autor`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.authorDescriptionField, description, this.config);
+    const element = await writeSafe(this.driver, this.AUTHOR_DESCRIPTION, description, this.config);
   }
 }

@@ -1,10 +1,11 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
 import { retry } from "../wrappers/retry.js";
-import { RetryOptions, DefaultConfig } from "../config/default.js";
+import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { waitFind } from "../utils/waitFind.js";
 import { waitClickable } from "../utils/waitClickable.js";
+import { handleUpdateModal } from "../utils/handleUpdateModal.js";
 
 /**
  * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
@@ -18,7 +19,6 @@ export async function clickSafe(
 
   // Fusionamos opciones y generamos un label de trazabilidad
   const config = {
-    ...DefaultConfig,
     ...opts,
     label: stackLabel(opts.label, `clickSafe`)
   };
@@ -43,6 +43,19 @@ export async function clickSafe(
       return element;
 
     } catch (error: any) {
+      /* // 4. Contingencia Reactiva para el Modal de Angular
+      if (error.name === 'ElementClickInterceptedError') {
+        logger.debug(`Intercepción detectada. Verificando si es el modal de actualización...`, { label: config.label });
+
+        // Timeout corto para no penalizar si la intercepción fue por otra causa
+        const modalHandled = await handleUpdateModal(driver, { ...internalOpts, timeoutMs: 1500 });
+
+        if (modalHandled) {
+          const staleError = new Error("Modal de actualización cerrado y página recargada. Forzando re-búsqueda del DOM.");
+          staleError.name = "StaleElementReferenceError";
+          throw staleError;
+        }
+      } */
       throw error;
     }
   }, config);

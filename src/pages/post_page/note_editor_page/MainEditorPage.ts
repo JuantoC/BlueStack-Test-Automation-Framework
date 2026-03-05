@@ -92,7 +92,7 @@ import { EditorLateralSettings } from "./EditorLateralSettings.js";
 import { EditorTextSection } from "./EditorTextSection.js";
 import { NewNoteBtn, NoteType } from "../SideBarNewNoteBtn.js";
 import { EditorTagsSection } from './EditorTagsSection.js';
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
 import { ListicleSection, LiveBlogSection } from './noteList/ListicleItemSection.js';

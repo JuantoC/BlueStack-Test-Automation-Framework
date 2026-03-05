@@ -1,7 +1,7 @@
 import { By, Locator, WebDriver, WebElement } from 'selenium-webdriver';
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from '../../core/utils/waitFind.js';
@@ -15,11 +15,11 @@ export class LoginSection {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly usernameFieldLocator: Locator = By.id('username-field-log');
-  private readonly passwordFieldLocator: Locator = By.id('password-field-log');
-  private readonly loginButtonLocator: Locator = By.css('button[data-testid="qa-login"]');
-  private readonly errorLabel: Locator = By.css('span.field-error')
-  private readonly versionLabelLocator: Locator = By.css('div.security-footer-text')
+  private readonly USERNAME_INPUT: Locator = By.id('username-field-log');
+  private readonly PASSWORD_INPUT: Locator = By.id('password-field-log');
+  private readonly LOGIN_BTN: Locator = By.css('button[data-testid="qa-login"]');
+  private readonly ERROR_LABEL: Locator = By.css('span.field-error')
+  private readonly VERSION_LABEL: Locator = By.css('div.security-footer-text')
 
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
@@ -30,7 +30,7 @@ export class LoginSection {
   async fillUsername(username: string): Promise<WebElement> {
 
     logger.debug(`Ingresando nombre de usuario...`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.usernameFieldLocator, username, this.config);
+    const element = await writeSafe(this.driver, this.USERNAME_INPUT, username, this.config);
 
     return element
   }
@@ -38,7 +38,7 @@ export class LoginSection {
   async fillPassword(password: string): Promise<WebElement> {
 
     logger.debug(`Ingresando contraseña...`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.passwordFieldLocator, password, this.config);
+    const element = await writeSafe(this.driver, this.PASSWORD_INPUT, password, this.config);
 
     return element
   }
@@ -46,7 +46,7 @@ export class LoginSection {
   async clickLoginBtn(): Promise<void> {
 
     logger.debug(`Ejecutando click en botón de acceso`, { label: this.config.label });
-    await clickSafe(this.driver, this.loginButtonLocator, this.config);
+    await clickSafe(this.driver, this.LOGIN_BTN, this.config);
   }
 
   /**
@@ -58,7 +58,7 @@ export class LoginSection {
     // Pausa muy breve para dar tiempo al renderizado del DOM (ajustar según tu app)
     await this.driver.sleep(500);
 
-    const errors = await this.driver.findElements(this.errorLabel);
+    const errors = await this.driver.findElements(this.ERROR_LABEL);
     if (errors.length > 0) {
       const errorMsg = await errors[0].getText();
       logger.debug(`Error detectado: ${errorMsg}`);
@@ -110,7 +110,7 @@ export class LoginSection {
   async getVersionLabel(opts: RetryOptions): Promise<string> {
 
     logger.debug('Ejecutando busqueda del contenedor del label con la version del CMS...')
-    const labelField = await waitFind(this.driver, this.versionLabelLocator, this.config)
+    const labelField = await waitFind(this.driver, this.VERSION_LABEL, this.config)
 
     const version = labelField.getText()
     return version;

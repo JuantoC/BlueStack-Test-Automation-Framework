@@ -5,7 +5,7 @@ const isHeadlessEnv = process.env.IS_HEADLESS;
  * Helper para centralizar la configuración del framework.
  * Lee las variables del .env y las expone de forma tipada.
  */
-export const CONFIG = {
+export const ENV_CONFIG = {
     // --- INFRAESTRUCTURA ---  
     grid: {
         url: process.env.GRID_URL || 'http://localhost:4444',
@@ -19,7 +19,7 @@ export const CONFIG = {
     },
 
     // --- ENTORNO DE PRUEBAS ---
-    // Dentro del objeto CONFIG
+    // Dentro del objeto ENV_CONFIG
     baseUrl: process.env.TESTING_URL || ((): string => {
         throw new Error("ERROR: TESTING_URL no definida en .env");
     })(),
@@ -48,4 +48,4 @@ export const CONFIG = {
 };
 
 // Exportación por defecto para facilitar importaciones
-export default CONFIG;
+export default ENV_CONFIG;

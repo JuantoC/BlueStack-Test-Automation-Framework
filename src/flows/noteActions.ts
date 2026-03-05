@@ -1,5 +1,5 @@
 import { WebDriver } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../core/config/default.js";
+import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import { PostTable } from "../pages/post_page/PostTable.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";

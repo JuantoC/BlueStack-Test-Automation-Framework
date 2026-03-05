@@ -1,7 +1,7 @@
 import { Builder, WebDriver } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions, DriverOptions } from "../config/chromeOptions.js";
-import { DefaultConfig, RetryOptions } from "../config/default.js";
+import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { startNetworkMonitoring, NetworkMonitorHandle } from '../utils/networkMonitor.js';
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
@@ -50,17 +50,17 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
 }
 
 export async function quitDriver(session: DriverSession | null, opts: RetryOptions = {}): Promise<void> {
-    const label = opts.label || "quitDriver";
+    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "quitDriver") };
     if (!session?.driver) return;
 
     try {
         if (opts.timeoutMs) await sleep(opts.timeoutMs);
         await session.driver.quit();
         global.activeMonitor = undefined;
-        logger.info('🏁 Sesión cerrada', { label });
+        logger.info('🏁 Sesión cerrada', { label: config.label });
     } catch (error: any) {
         if (!error.message.includes('NoSuchSession')) {
-            logger.warn(`Cierre parcial: ${error.message}`, { label });
+            logger.warn(`Cierre parcial: ${error.message}`, { label: config.label });
         }
     }
 }

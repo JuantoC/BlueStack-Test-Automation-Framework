@@ -1,17 +1,17 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginSection } from "./LoginSection.js";
 import { TwoFASection } from "./TwoFASection.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js";
 import { parameter } from "allure-js-commons";
 
 export class MainLoginPage {
-  public driver: WebDriver;
-  public login: LoginSection;
-  public twoFA: TwoFASection;
-  public config: RetryOptions;
+  private driver: WebDriver;
+  private login: LoginSection;
+  private twoFA: TwoFASection;
+  private config: RetryOptions;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.config = {

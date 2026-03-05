@@ -13,6 +13,7 @@ export const FATAL_ERRORS = new Set([
 export const RETRIABLE_ERRORS = new Set([
   'StaleElementReferenceError',
   'ElementClickInterceptedError',
+  'ElementNotInteractableError',
   'NoSuchElementException',
   'TimeoutError',
   'ServiceUnavailableError',
@@ -31,7 +32,6 @@ export const APP_RETRIABLE_MESSAGES = [
   'Internal Server Error',
   'Gateway Timeout',
   'Service Unavailable',
-  "ElementNotInteractableError",
   'Error al procesar la solicitud, intente de nuevo'
 ];
 

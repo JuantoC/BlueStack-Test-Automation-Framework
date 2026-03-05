@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
 import { stackLabel } from "./stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";

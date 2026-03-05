@@ -3,7 +3,7 @@ import { BaseListicleSection, LiveBlogData } from "./BaseListicleSection.js";
 import { LiveBlogStrategy, StandardStrategy } from "./ListicleStrategy.js";
 import { EditorLiveBlogEventSection } from "../EditorLiveBlogEventSection.js";
 import logger from "../../../../core/utils/logger.js";
-import { RetryOptions } from "../../../../core/config/default.js";
+import { RetryOptions } from "../../../../core/config/defaultConfig.js";
 
 export class LiveBlogSection extends BaseListicleSection {
   private eventSection: EditorLiveBlogEventSection;

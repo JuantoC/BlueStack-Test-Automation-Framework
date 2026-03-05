@@ -1,9 +1,10 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/default.js";
+import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
 import { scrollIntoView } from "./scrollIntoView.js";
 import { stackLabel } from "./stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
+import { hoverOverParentContainer } from "./hoverOverParentContainer.js";
 
 /**
  * Valida la visibilidad de un elemento en el DOM.
@@ -35,16 +36,27 @@ export async function waitVisible(
             return element;
         } catch (err) {
             if (err instanceof error.TimeoutError) {
-                logger.debug(`Timeout de visibilidad alcanzado. Intentando scrollIntoView como recuperación...`, { label: config.label });
-                // Intentamos scroll para ayudar al diagnóstico o a un reintento posterior
+                logger.debug(`Timeout inicial. Iniciando protocolos de recuperación...`, { label: config.label });
+
+                // 1. Intento de Scroll
                 try {
-                    await scrollIntoView(element);
-                } catch (scrollErr: any) {
-                    logger.debug(`No se pudo realizar el scroll: ${scrollErr.message}`, { label: config.label });
-                    err.message += ` Además, el intento de scroll para recuperar la visibilidad falló: ${scrollErr.message}`;
+                    await scrollIntoView(element, config);
+                } catch (e) { /* ignore scroll errors to reach hover */ }
+
+                // 2. Intento de Hover sobre el contenedor (Estrategia para Angular Material/Menus)
+                try {
+                    logger.debug(`Intentando hover sobre ancestro para forzar visibilidad...`, { label: config.label });
+                    await hoverOverParentContainer(driver, element, config);
+
+                    // Verificación final post-hover (con timeout reducido para no penalizar el flujo)
+                    await driver.wait(until.elementIsVisible(element), config.timeoutMs);
+                    logger.debug(`Recuperación por hover exitosa.`, { label: config.label });
+                    return element;
+
+                } catch (hoverErr: any) {
+                    logger.debug(`La recuperación por hover falló o no fue necesaria: ${hoverErr.message}`, { label: config.label });
                 }
             }
-            // Relanzamos el error original para que el retryWrapper o el test decidan el siguiente paso
             throw err;
         }
     }, config);

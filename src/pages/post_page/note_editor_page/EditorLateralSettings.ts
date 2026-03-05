@@ -1,6 +1,6 @@
 import { Locator, By, WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { step } from "allure-js-commons";

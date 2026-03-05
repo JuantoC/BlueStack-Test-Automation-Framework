@@ -1,8 +1,9 @@
 import { WebDriver } from "selenium-webdriver";
 import { postUrl } from "../utils/routes.js";
 import { stackLabel } from "../utils/stackLabel.js";
-import { DefaultConfig, RetryOptions } from "../config/default.js";
+import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import logger from "../utils/logger.js";
+import { step } from "allure-js-commons";
 
 /**
  * Navega directamente a la página de edición de un post específico.
@@ -23,30 +24,34 @@ export async function goToPost(
     ...opts,
     label: stackLabel(opts.label, "goToPost")
   };
-
   const url = postUrl(baseURL, id);
 
-  try {
-    // Debug: Información técnica para replicación manual si fuera necesario.
-    logger.debug(`Navegando a Post ID: ${id}. URL: ${url}`, {
-      label: config.label
-    });
 
-    // Acción de navegación nativa
-    await driver.navigate().to(url);
+  step(config.label, async (stepContext) => {
+    stepContext.parameter('url', `${url}`);
+    stepContext.parameter('id', `${id}`);
+    try {
+      // Debug: Información técnica para replicación manual si fuera necesario.
+      logger.debug(`Navegando a Post ID: ${id}. URL: ${url}`, {
+        label: config.label
+      });
 
-    // Info: Hito de navegación alcanzado.
-    logger.info(`Navegación completada al post [ID: ${id}]`, {
-      label: config.label
-    });
+      // Acción de navegación nativa
+      await driver.navigate().to(url);
 
-  } catch (error: any) {
-    // Error: Captura fallos de red, URLs malformadas o problemas de sesión.
-    logger.error(`Fallo en la navegación al post ${id}: ${error.message}`, {
-      label: config.label,
-      metadata: { url, id } // Agrupamos metadata para el log
-    });
+      // Info: Hito de navegación alcanzado.
+      logger.info(`Navegación completada al post [ID: ${id}]`, {
+        label: config.label
+      });
 
-    throw error;
-  }
+    } catch (error: any) {
+      // Error: Captura fallos de red, URLs malformadas o problemas de sesión.
+      logger.error(`Fallo en la navegación al post ${id}: ${error.message}`, {
+        label: config.label,
+        metadata: { url, id } // Agrupamos metadata para el log
+      });
+
+      throw error;
+    }
+  });
 }

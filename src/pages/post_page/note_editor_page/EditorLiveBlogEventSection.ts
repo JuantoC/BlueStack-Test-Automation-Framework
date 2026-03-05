@@ -1,6 +1,6 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { LiveBlogData } from "./noteList/BaseListicleSection.js";

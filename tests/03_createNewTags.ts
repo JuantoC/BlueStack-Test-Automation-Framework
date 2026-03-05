@@ -7,7 +7,7 @@ import { MainConfig } from "../src/environments/Dev_SAAS/env.config.js";
 import { passLogin } from "../src/flows/userSession.js";
 import { writeSafe } from "../src/core/actions/writeSafe.js";
 import { goToPost } from "../src/core/actions/goToPost.js";
-import { DefaultConfig, RetryOptions } from "../src/core/config/default.js";
+import { DefaultConfig, RetryOptions } from "../src/core/config/defaultConfig.js";
 import { stackLabel } from "../src/core/utils/stackLabel.js";
 import logger from "../src/core/utils/logger.js";
 import { checkConsoleErrors } from "../src/core/utils/browserLogs.js";

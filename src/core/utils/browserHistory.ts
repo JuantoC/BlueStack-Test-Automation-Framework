@@ -1,6 +1,7 @@
 import { WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
+import { RetryOptions } from "../config/defaultConfig.js";
 
 /**
  * Navega en el historial del navegador hacia adelante o hacia atrás.
@@ -11,13 +12,16 @@ import logger from "../utils/logger.js";
 export async function browserHistory(
   driver: WebDriver,
   direction: "back" | "forward",
-  label?: string
+  opts: RetryOptions
 ): Promise<void> {
-  const contextLabel = stackLabel(label, `browserHistory`);
+  const config = {
+    ...opts,
+    label: stackLabel(opts.label, "browserHistory"),
+  };
 
   try {
     logger.debug(`Ejecutando navegación de historial: ${direction}`, {
-      label: contextLabel
+      label: config.label
     });
 
     if (direction === "back") {
@@ -27,13 +31,13 @@ export async function browserHistory(
     }
 
     logger.info(`Navegación '${direction}' completada con éxito`, {
-      label: contextLabel
+      label: config.label
     });
 
   } catch (error: any) {
     // Reportamos el error pero no intentamos acciones costosas sobre el driver aquí
     logger.error(`Error al intentar navegar hacia ${direction}: ${error.message}`, {
-      label: contextLabel
+      label: config.label
     });
     throw error;
   }

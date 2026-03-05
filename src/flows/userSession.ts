@@ -1,7 +1,7 @@
 import { WebDriver } from "selenium-webdriver";
 import * as allure from "allure-js-commons";
 import { MainLoginPage } from "../pages/login_page/MainLoginPage.js";
-import { DefaultConfig, RetryOptions } from "../core/config/default.js";
+import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import logger from "../core/utils/logger.js";
 import { AuthCredentials } from "../environments/Dev_SAAS/env.config.js";

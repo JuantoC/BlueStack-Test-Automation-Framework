@@ -1,5 +1,5 @@
 import { By, Locator, WebDriver } from 'selenium-webdriver';
-import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
@@ -9,7 +9,7 @@ import logger from "../../core/utils/logger.js";
  * En este flujo actual, se encarga de descartar el modal para continuar.
  */
 export class TwoFASection {
-  private readonly twoFAModalDismissButton: Locator = By.css('[data-testid="btn-next"]');
+  private readonly TWOFA_DISMISS_BTN: Locator = By.css('[data-testid="btn-next"]');
   private driver: WebDriver;
   private config: RetryOptions
 
@@ -29,7 +29,7 @@ export class TwoFASection {
       });
 
       // Delegamos en clickSafe la espera, el scroll y el reintento.
-      await clickSafe(this.driver, this.twoFAModalDismissButton, this.config);
+      await clickSafe(this.driver, this.TWOFA_DISMISS_BTN, this.config);
 
       logger.debug("Modal de 2FA gestionado correctamente", {
         label: this.config.label

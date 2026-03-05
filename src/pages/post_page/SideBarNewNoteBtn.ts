@@ -1,6 +1,6 @@
 import { Locator, WebDriver, By, WebElement, until } from "selenium-webdriver";
 import { clickSafe } from "../../core/actions/clickSafe.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/default.js";
+import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/utils/waitFind.js";
@@ -21,9 +21,17 @@ export class NewNoteBtn {
     [NoteType.LIVEBLOG]: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
   };
 
-  private readonly openDropdownBtn: Locator = By.css("button.btn-create-note");
-  private readonly dropdownContainer: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private readonly noteTypeLabels: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
+  private readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
+  private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
+  private readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
+  private readonly SIDEBAR_CONTAINER: Locator = By.css('nav[id="cmsmedios-sidebar"]');
+  private readonly COMMENTS_BTN: Locator = By.css('a[title="Comentarios"]')
+  private readonly PLANNING_BTN: Locator = By.css('a[title="Planning"]')
+  private readonly NEWS_BTN: Locator = By.css('a[title="Noticias"]')
+  private readonly TAGS_BTN: Locator = By.css('a[title="Tags"]')
+  private readonly MULTIMEDIA_COMBO_BTN: Locator = By.css('a[title="Multimedia"]')
+  private readonly IMAGES_BTN: Locator = By.css('a[title="Imagenes"]')
+  private readonly VIDEOS_BTN: Locator = By.css('a[title="Videos"]')
 
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
@@ -48,7 +56,7 @@ export class NewNoteBtn {
     // Esto evita el error "Wait timed out" si el menú tarda en animarse
     try {
       const menuContainer = await this.driver.wait(
-        until.elementLocated(this.dropdownContainer),
+        until.elementLocated(this.DROPDOWN_COMBO_MODAL),
         this.config.timeoutMs,
         "El menú dropdown no se encuentra en el DOM"
       );
@@ -63,10 +71,10 @@ export class NewNoteBtn {
     }
 
     // 2. Buscar todos los labels candidatos
-    const elements = await this.driver.findElements(this.noteTypeLabels);
+    const elements = await this.driver.findElements(this.LABELS_OF_NOTE_TYPES);
 
     if (elements.length === 0) {
-      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.noteTypeLabels}`);
+      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.LABELS_OF_NOTE_TYPES}`);
     }
 
     logger.debug(`Analizando ${elements.length} opciones disponibles...`, { label: this.config.label });
@@ -91,14 +99,14 @@ export class NewNoteBtn {
 
     if (!isVisible) {
       logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
-      await clickSafe(this.driver, this.openDropdownBtn, this.config);
+      await clickSafe(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
     } else {
       logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
     }
   }
 
   async isDropdownVisible(): Promise<boolean> {
-    const element = await waitFind(this.driver, this.openDropdownBtn, this.config);
+    const element = await waitFind(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
 
     // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");

@@ -9,9 +9,9 @@ import { parameter } from "allure-js-commons";
 
 export class MainLoginPage {
   private driver: WebDriver;
-  private login: LoginSection;
-  private twoFA: TwoFASection;
-  private config: RetryOptions;
+  public login: LoginSection;
+  public twoFA: TwoFASection;
+  public config: RetryOptions;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.config = {

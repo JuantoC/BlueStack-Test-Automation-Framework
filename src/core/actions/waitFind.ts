@@ -1,6 +1,6 @@
 import { WebDriver, until, WebElement, Locator, error } from "selenium-webdriver";
 import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
-import { stackLabel } from "./stackLabel.js";
+import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
 
@@ -22,7 +22,6 @@ export async function waitFind(
     try {
       logger.debug(`Buscando elemento: ${JSON.stringify(locator)}`, { label: config.label });
 
-      // until.elementLocated verifica la presencia del elemento en el DOM (independientemente de su visibilidad)
       const element = await driver.wait(
         until.elementLocated(locator),
         config.timeoutMs
@@ -30,7 +29,6 @@ export async function waitFind(
       logger.debug(`Elemento encontrado`, { label: config.label });
       return element;
     } catch (err) {
-      // Propagamos el error para que sea el orquestador quien lo maneje
       throw err;
     }
   }, config);

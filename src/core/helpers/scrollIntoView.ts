@@ -29,7 +29,6 @@ export async function scrollIntoView(
 
       const driver = element.getDriver();
 
-      // 'true' alinea la parte superior del elemento con el viewport.
       await driver.executeScript("arguments[0].scrollIntoView(true);", element);
 
       logger.debug(`Scroll completado con éxito.`, { label: config.label });

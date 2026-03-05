@@ -15,7 +15,6 @@ export async function assertValueEquals(
     label: stackLabel(opts.label, "assertValueEquals"),
   };
 
-  // Normalizamos el identificador para el mensaje de error
   const elementTag = "[WebElement]";
 
   return await retry(async () => {
@@ -32,7 +31,6 @@ export async function assertValueEquals(
           element
         );
       } else {
-        // Verificamos si es un input/textarea. Si no lo es, leemos con getText().
         const tagName = await element.getTagName();
         if (tagName === 'input' || tagName === 'textarea') {
           actual = (await element.getAttribute("value")) ?? "";
@@ -101,7 +99,7 @@ export function normalizeEditableText(text: string): string {
     .replace(/[\u2018\u2019`]/g, "'")
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/\u2026/g, "...")
-    .replace(/\r\n/g, "\n")       // Unificar saltos de línea Windows
+    .replace(/\r\n/g, "\n")       // Unificar saltos de l ínea Windows
     .replace(/\n{2,}/g, "\n\n")   // Máximo 2 saltos de línea consecutivos
     .replace(/[ \t]+/g, " ")      // Colapsar espacios y tabs
     .trim();

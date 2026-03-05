@@ -27,12 +27,10 @@ export async function writeSafe(
     ...opts,
     label: stackLabel(opts.label, "writeSafe"),
   };
-  // Helper para logs: obtenemos una representación legible sea cual sea el tipo
   const identifierLabel = typeof ID === "object" && "toString" in ID ? ID.toString() : "WebElement";
 
 
   return await retry(async () => {
-    // Desactivamos reintentos internos en los sub-pasos para que el orquestador controle el flujo.
     const internalOpts = { ...config, supressRetry: true };
     logger.debug(`Iniciando flujo de escritura para: ${identifierLabel}`, {
       label: config.label,
@@ -60,7 +58,7 @@ export async function writeSafe(
 
     logger.debug(`Texto ingresado correctamente en el elemento`, {
       label: config.label,
-      text: text.length > 20 ? `${text.substring(0, 20)}...` : text // Logueo seguro de datos
+      text: text.length > 20 ? `${text.substring(0, 20)}...` : text
     });
 
     return element;

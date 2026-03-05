@@ -9,7 +9,6 @@ import { stackLabel } from "../utils/stackLabel.js";
 export async function handleUpdateModal(driver: WebDriver, opts: RetryOptions = {}): Promise<boolean> {
     const label = stackLabel(opts.label, `handleUpdateModal`);
 
-    // Selectores: Usamos clases de Angular CDK que son estándar para overlays
     const overlayLocator = By.css('div[id="cdk-overlay-0"]');
     const updateBtnLocator = By.css('button[data-testid="btn-calendar-confirm"]');
 

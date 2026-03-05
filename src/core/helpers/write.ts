@@ -49,11 +49,10 @@ export async function writeToStandard(
   try {
     logger.debug(`Escribiendo texto: "${text.substring(0, 15)}..."`, { label: configLabel });
 
-    // --- ESTRATEGIA HÍBRIDA / CONTINGENCIA ---
     const cmdCtrl = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL; // Mac o Windows
 
-    // 1. Enviamos la secuencia de borrado + el texto nuevo en UN SOLO comando.
-    // Esto reduce la latencia y la probabilidad de que el DOM cambie a mitad de camino.
+    // 1. Enviamos la secuencia de borrado + el texto nuevo en un comando,
+    // reduce la latencia y la probabilidad de que el DOM cambie a mitad de camino.
     await element.sendKeys(Key.chord(cmdCtrl, "a"), Key.BACK_SPACE, text);
 
   } catch (error: any) {

@@ -10,8 +10,7 @@ export function stackLabel(parent: string | undefined, current: string): string 
     return current;
   }
 
-  // 1. Validación de redundancia: Evitamos "clickSafe > clickSafe" en reintentos.
-  // Dividimos el parent por el separador y tomamos el último eslabón.
+  // Validación de redundancia:
   const pathParts = parent.split(" > ");
   const lastPart = pathParts[pathParts.length - 1];
 
@@ -19,6 +18,6 @@ export function stackLabel(parent: string | undefined, current: string): string 
     return parent;
   }
 
-  // 2. Construcción de la jerarquía.
+  // Construcción de la jerarquía.
   return `${parent} > ${current}`;
 }

@@ -1,6 +1,6 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
 import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
-import { stackLabel } from "./stackLabel.js";
+import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
 
@@ -28,7 +28,6 @@ export async function waitEnabled(
     try {
       logger.debug(`Esperando que el elemento esté habilitado (Enabled)...`, { label: config.label });
 
-      // until.elementIsEnabled verifica el atributo 'disabled' del HTML
       await driver.wait(until.elementIsEnabled(element), config.timeoutMs);
 
       return element;
@@ -38,7 +37,6 @@ export async function waitEnabled(
           label: config.label
         });
       }
-      // Propagamos el error para que el orquestador decida si reintentar
       throw err;
     }
   }, config);

@@ -4,7 +4,7 @@ import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
 
 /**
- * Encuentra un ancestro relevante (li, tr, mat-list-item, div) y realiza un hover.
+ * Encuentra un ancestro y realiza un hover.
  * Combina acciones nativas de Selenium con eventos de JavaScript para forzar
  * la detección en frameworks reactivos como Angular Material.
  */
@@ -29,7 +29,7 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
                 await actions.move({ origin: current }).perform();
                 await actions.clear(); // Limpiamos la acción para la siguiente iteración
 
-                // 2. Intento implacable con JavaScript (ideal para Angular)
+                // 2. Intento con JavaScript
                 // Esto dispara los eventos que agregan clases condicionales como 'content_show-icon'
                 await driver.executeScript(`
                     const el = arguments[0];
@@ -39,14 +39,14 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
                     }
                 `, current);
 
-                // Pequeño wait para permitir que Angular procese el cambio de estado y re-renderice (CSS/DOM)
+                // Wait para permitir que Angular procese el cambio de estado y re-renderice (CSS/DOM)
                 const isVisible = await driver.wait(async () => {
                     try {
                         return await element.isDisplayed();
                     } catch {
                         return false;
                     }
-                }, 1500); // Timeout fijo y corto por nivel para no hacer un bucle eterno
+                }, 1500);
 
                 if (isVisible) {
                     logger.debug(`Elemento visible tras hover en nivel ${depth + 1}`, { label: config.label });
@@ -54,7 +54,7 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
                 }
 
             } catch (innerErr: any) {
-                // Es normal que falle en niveles bajos (ej. <li> ocultos)
+                // Normal que falle en niveles bajos (ej. <li> ocultos)
                 logger.debug(`Fallo hover en nivel ${depth + 1} (probablemente no interactuable)`, { label: config.label });
             }
 

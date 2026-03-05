@@ -1,10 +1,10 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
 import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
-import { scrollIntoView } from "./scrollIntoView.js";
-import { stackLabel } from "./stackLabel.js";
+import { scrollIntoView } from "../helpers/scrollIntoView.js";
+import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
-import { hoverOverParentContainer } from "./hoverOverParentContainer.js";
+import { hoverOverParentContainer } from "../helpers/hoverOverParentContainer.js";
 
 /**
  * Valida la visibilidad de un elemento en el DOM.
@@ -30,7 +30,6 @@ export async function waitVisible(
         try {
             logger.debug(`Esperando visibilidad del elemento...`, { label: config.label });
 
-            // until.elementIsVisible verifica que el elemento no esté oculto por CSS (display:none, visibility:hidden)
             await driver.wait(until.elementIsVisible(element), config.timeoutMs);
 
             return element;

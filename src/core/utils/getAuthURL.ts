@@ -1,5 +1,5 @@
 /**
- * Función que construye la URL de autenticación HTTP (Basic Auth).
+ * Construye la URL de autenticación HTTP (Basic Auth).
  * @param baseURL La URL base del ambiente.
  * @param username en string
  * @param password en string

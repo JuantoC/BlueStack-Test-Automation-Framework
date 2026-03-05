@@ -3,7 +3,7 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
-import { waitFind } from "../../../core/utils/waitFind.js";
+import { waitFind } from "../../../core/actions/waitFind.js";
 
 export enum NoteExitAction {
   SAVE_ONLY = "save only",

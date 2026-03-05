@@ -1,26 +1,8 @@
-import { ENV_CONFIG } from "../core/config/envConfig.js";
-// Herramientas Core
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import { runSession } from "../core/wrappers/testWrapper.js";
-// Business Flows
-import { passLogin } from "../flows/userSession.js";
-import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
-import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
-// Data y Enums
-import { ListicleData } from "../dataTest/noteData.js";
-import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
-import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { description } from "allure-js-commons";
-import { enterToEditorPage } from "../flows/noteActions.js";
-
-/**
- * TEST CASE: Creación de Nota tipo Listicle - 01
- */
 runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
 
   description(`
-### Test: Crear Nota Lista con salida alternativa y publicación
----
+    ### Test: Crear Nota Lista con salida alternativa y publicación
+    ---
 **Objetivo:** Crear nota y testear la funcionalidad del botón de retroceso como opcion de guardado.
 
 **Secuencia:**
@@ -45,3 +27,15 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
 
   log.info("✅ Prueba de creación de Listicle exitosa.");
 });
+
+import { ENV_CONFIG } from "../core/config/envConfig.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import { runSession } from "../core/wrappers/testWrapper.js";
+import { passLogin } from "../flows/userSession.js";
+import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
+import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
+import { ListicleData } from "../dataTest/noteData.js";
+import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
+import { description } from "allure-js-commons";
+import { enterToEditorPage } from "../flows/noteActions.js";

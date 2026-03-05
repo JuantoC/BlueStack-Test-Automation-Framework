@@ -1,6 +1,3 @@
-/**
- * TEST CASE: Creación de Nota tipo LiveBlog - 01
- */
 runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     description(`
 ### Test: Crear LiveBlog, entrar y publicar.
@@ -29,12 +26,9 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
 });
 
 import { LiveBlogData } from "../dataTest/noteData.js";
-// Core Tools
 import { getAuthUrl } from "../core/utils/getAuthURL.js";
-// Business Flows
 import { passLogin } from "../flows/userSession.js";
 import { createNewNote, closeNoteEditor } from "../flows/openCloseNote.js";
-// Enums
 import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { ENV_CONFIG } from "../core/config/envConfig.js";

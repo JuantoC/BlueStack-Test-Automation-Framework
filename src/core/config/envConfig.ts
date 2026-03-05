@@ -23,6 +23,7 @@ export const ENV_CONFIG = {
     baseUrl: process.env.TESTING_URL || ((): string => {
         throw new Error("ERROR: TESTING_URL no definida en .env");
     })(),
+
     // --- CREDENCIALES (Centralizadas y seguras) ---
     auth: {
         basic: {
@@ -47,5 +48,4 @@ export const ENV_CONFIG = {
     }
 };
 
-// Exportación por defecto para facilitar importaciones
 export default ENV_CONFIG;

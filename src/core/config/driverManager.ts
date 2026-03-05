@@ -1,8 +1,8 @@
 import { Builder, WebDriver } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
-import { setChromeOptions, DriverOptions } from "../config/chromeOptions.js";
-import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
-import { startNetworkMonitoring, NetworkMonitorHandle } from '../utils/networkMonitor.js';
+import { setChromeOptions, DriverOptions } from "./chromeOptions.js";
+import { DefaultConfig, RetryOptions } from "./defaultConfig.js";
+import { startNetworkMonitoring, NetworkMonitorHandle } from './networkMonitor.js';
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { sleep } from '../utils/backOff.js';
@@ -32,7 +32,6 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
 
         const driver = await builder.build();
 
-        // Optimización de Timeouts
         await driver.manage().setTimeouts({ pageLoad: 30000, script: 30000, implicit: 5000 });
 
         // Activación del monitor CDP con ACK Sync

@@ -124,7 +124,7 @@ export abstract class BaseListicleSection {
 
 import { By, Locator, WebDriver } from "selenium-webdriver";
 import { ListicleStrategy } from "./ListicleStrategy.js";
-import { waitFind } from "../../../../core/utils/waitFind.js";
+import { waitFind } from "../../../../core/actions/waitFind.js";
 import { stackLabel } from "../../../../core/utils/stackLabel.js";
 import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../../core/actions/clickSafe.js";

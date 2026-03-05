@@ -6,14 +6,14 @@ const maxInstances = parseInt(process.env.MAX_INSTANCES || "1", 10);
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-    // Usamos el preset para ESM (ECMAScript Modules) ya que usas "import/export"
+    // Usamos el preset para ESM (ECMAScript Modules) ya que usamos "import/export"
     preset: 'ts-jest/presets/default-esm',
 
     // Entorno Allure-Jest para inyectar los metadatos automáticamente
     testEnvironment: "allure-jest/node",
-    
+
     // Timeout global generoso para Selenium (20 mins), controlamos timeouts finos en los tests
-    testTimeout: 1200000, 
+    testTimeout: 1200000,
 
     testEnvironmentOptions: {
         resultsDir: "allure-results",
@@ -31,13 +31,13 @@ module.exports = {
     // Ignorar librerías y build output
     testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 
-    // Paralelismo: Definido por tu .env
+    // Definido por .env
     maxWorkers: maxInstances,
 
-    // Mapeo para imports limpios (si usas alias en tsconfig) y manejo de extensiones .js
+    // Mapeo para imports limpios y manejo de extensiones .js
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
-        '@/(.*)': '<rootDir>/src/$1' // Opcional: si configuras paths en tsconfig
+        '@/(.*)': '<rootDir>/src/$1'
     },
 
     // Transformación de TypeScript

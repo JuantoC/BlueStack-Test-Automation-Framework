@@ -4,7 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { waitFind } from "../../../core/utils/waitFind.js";
+import { waitFind } from "../../../core/actions/waitFind.js";
 import { step } from "allure-js-commons";
 
 export class EditorImageSection {

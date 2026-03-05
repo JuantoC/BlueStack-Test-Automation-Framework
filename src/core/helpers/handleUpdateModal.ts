@@ -1,5 +1,5 @@
 import { WebDriver, By, until } from "selenium-webdriver";
-import logger from "./logger.js";
+import logger from "../utils/logger.js";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 /**

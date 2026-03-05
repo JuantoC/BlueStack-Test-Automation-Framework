@@ -1,12 +1,12 @@
 import { WebDriver, WebElement, Locator } from "selenium-webdriver";
 import { RetryOptions } from "../config/defaultConfig.js";
-import { writeToEditable, writeToStandard } from "../utils/write.js";
-import { isContentEditable } from "../utils/isContentEditable.js";
+import { writeToEditable, writeToStandard } from "../helpers/write.js";
+import { isContentEditable } from "../helpers/isContentEditable.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import { clickSafe } from "./clickSafe.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
-import { assertValueEquals } from "../utils/assertValueEquals.js";
+import { assertValueEquals } from "./assertValueEquals.js";
 
 /**
  * Orquestador de alto nivel para escribir texto.
@@ -50,9 +50,9 @@ export async function writeSafe(
 
     // 3. Ejecución: Acción atómica de escritura.
     if (isEditable) {
-      await writeToEditable(element, text);
+      await writeToEditable(element, text, config.label);
     } else {
-      await writeToStandard(element, text);
+      await writeToStandard(element, text, config.label);
     }
 
     // 4. Verificación: Confirmamos que el texto se haya ingresado correctamente.

@@ -1,6 +1,6 @@
 import { WebDriver, WebElement, error } from "selenium-webdriver";
 import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
-import { stackLabel } from "./stackLabel.js";
+import { stackLabel } from "../utils/stackLabel.js";
 import { waitVisible } from "./waitVisible.js";
 import { waitEnabled } from "./waitEnabled.js";
 import logger from "../utils/logger.js";

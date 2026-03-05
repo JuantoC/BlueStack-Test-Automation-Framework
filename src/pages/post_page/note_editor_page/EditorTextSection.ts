@@ -6,8 +6,8 @@ import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../dataTest/noteDataInterface.js";
 import { step } from "allure-js-commons";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { waitFind } from "../../../core/utils/waitFind.js";
-import { hoverOverParentContainer } from "../../../core/utils/hoverOverParentContainer.js";
+import { waitFind } from "../../../core/actions/waitFind.js";
+import { hoverOverParentContainer } from "../../../core/helpers/hoverOverParentContainer.js";
 
 export enum NoteTextField {
   TITLE = 'title',

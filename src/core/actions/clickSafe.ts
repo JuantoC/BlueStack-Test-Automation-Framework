@@ -3,9 +3,8 @@ import { retry } from "../wrappers/retry.js";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
-import { waitFind } from "../utils/waitFind.js";
-import { waitClickable } from "../utils/waitClickable.js";
-import { handleUpdateModal } from "../utils/handleUpdateModal.js";
+import { waitFind } from "../actions/waitFind.js";
+import { waitClickable } from "../helpers/waitClickable.js";
 
 /**
  * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
@@ -17,22 +16,20 @@ export async function clickSafe(
   opts: RetryOptions = {}
 ): Promise<WebElement> {
 
-  // Fusionamos opciones y generamos un label de trazabilidad
   const config = {
     ...opts,
     label: stackLabel(opts.label, `clickSafe`)
   };
 
   return await retry(async () => {
-    // 1. Preparamos las opciones para las piezas internas.
     const internalOpts = { ...config, supressRetry: true };
     try {
-      // 2. Localización
+      // 1. Localización
       const element = (ID instanceof WebElement)
         ? ID
         : await waitFind(driver, ID as Locator, internalOpts);
 
-      // 3. Sincronización: Espera a que no haya loaders o animaciones bloqueantes.
+      // 2. Sincronización: Espera a que no haya loaders o animaciones bloqueantes.
       logger.debug(`Verificando estado interactuable...`, { label: config.label });
       await waitClickable(driver, element, internalOpts);
 

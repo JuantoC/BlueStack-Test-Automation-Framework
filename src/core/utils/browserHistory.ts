@@ -35,7 +35,6 @@ export async function browserHistory(
     });
 
   } catch (error: any) {
-    // Reportamos el error pero no intentamos acciones costosas sobre el driver aquí
     logger.error(`Error al intentar navegar hacia ${direction}: ${error.message}`, {
       label: config.label
     });

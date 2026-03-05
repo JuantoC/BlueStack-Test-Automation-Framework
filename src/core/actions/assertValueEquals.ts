@@ -118,8 +118,8 @@ function getFirstDiffIndex(a: string, b: string): number {
 }
 
 
-import { WebElement, Locator } from "selenium-webdriver";
-import { isContentEditable } from "./isContentEditable.js";
+import { WebElement } from "selenium-webdriver";
+import { isContentEditable } from "../helpers/isContentEditable.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { retry } from "../wrappers/retry.js";

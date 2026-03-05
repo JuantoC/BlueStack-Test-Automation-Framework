@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { WebDriver } from "selenium-webdriver";
-import logger from "./logger.js";
+import logger from "../utils/logger.js";
 import * as allure from "allure-js-commons";
 
 enum NetworkErrorCategory {
@@ -10,15 +10,13 @@ enum NetworkErrorCategory {
   SECURITY_BLOCK = "[SECURITY/CORS]"
 }
 
-// 1. Definimos qué devuelve el stop
 export interface NetworkSummary {
   errorCount: number;
   logs: string[];
 }
 
-// 2. Corregimos la interfaz del Handle
 export interface NetworkMonitorHandle {
-  stop(): Promise<NetworkSummary>; // <--- CAMBIO AQUÍ (antes era void)
+  stop(): Promise<NetworkSummary>;
 }
 
 export async function startNetworkMonitoring(
@@ -74,24 +72,20 @@ export async function startNetworkMonitoring(
           ws.send(JSON.stringify({ id: 4, method: "Page.enable", sessionId: attachedSessionId }));
         }
 
-        // FASE 3: Confirmación (ACK) - Solo aquí el driver está "listo"
+        // FASE 3: Confirmación (ACK) - Acá el driver está listo
         if (msg.id === 4 && msg.result) {
           logger.debug("CDP Network Monitoring sincronizado", { label });
           resolve({
             stop: async (): Promise<NetworkSummary> => {
               const errorCount = networkLogs.length;
               if (errorCount > 0) {
-                // 1. El adjunto que ya tienes
                 await allure.attachment(`Network_Issues_${label}`, networkLogs.join('\n'), "text/plain");
-                // 2. Nueva etiqueta para filtrar en el reporte web
                 await allure.tag("network-issues");
-                // 3. Añadir un mensaje descriptivo al test (opcional)
                 await allure.descriptionHtml(`<b>Atención:</b> Se detectaron ${errorCount} errores de red.`);
               }
               ws.removeAllListeners();
               ws.close();
 
-              // IMPORTANTE: Retornamos el conteo para que el test sepa qué pasó
               return { errorCount, logs: networkLogs };
             }
           });

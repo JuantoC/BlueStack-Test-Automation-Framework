@@ -1,7 +1,7 @@
 import { By, WebDriver, WebElement } from "selenium-webdriver";
 import { RetryOptions } from "../config/defaultConfig.js";
-import logger from "./logger.js";
-import { stackLabel } from "./stackLabel.js";
+import logger from "../utils/logger.js";
+import { stackLabel } from "../utils/stackLabel.js";
 
 /**
  * Encuentra un ancestro relevante (li, tr, mat-list-item, div) y realiza un hover.

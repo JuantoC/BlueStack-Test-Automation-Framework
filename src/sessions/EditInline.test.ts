@@ -1,20 +1,8 @@
-import { runSession } from "../core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../core/utils/getAuthURL.js";
-import { passLogin } from "../flows/userSession.js";
-import { PostData } from "../dataTest/noteData.js";
-import { ENV_CONFIG } from "../core/config/envConfig.js";
-import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
-import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
-import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { closeNoteEditor, createNewNote } from "../flows/openCloseNote.js";
-import { changePostTitle, enterToEditorPage } from "../flows/noteActions.js";
-import { description } from "allure-js-commons";
-
 runSession('Titulo inline y edicion', async ({ driver, opts, log }) => {
 
   description(`
-### Test: Crear Post, editar titulo inline y publicar.
----
+    ### Test: Crear Post, editar titulo inline y publicar.
+    ---
 **Objetivo:** Validar la persistencia de datos al editar y la accesibilidad mediante el icono de edición.
 
 **Flujo de pasos:**
@@ -44,3 +32,15 @@ runSession('Titulo inline y edicion', async ({ driver, opts, log }) => {
 
   log.info("✅ Debug Session exitosa.");
 });
+
+import { runSession } from "../core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../core/utils/getAuthURL.js";
+import { passLogin } from "../flows/userSession.js";
+import { PostData } from "../dataTest/noteData.js";
+import { ENV_CONFIG } from "../core/config/envConfig.js";
+import { dynimicDataFilling } from "../flows/populateNoteEditorFields.js";
+import { NoteType } from "../pages/post_page/SideBarNewNoteBtn.js";
+import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
+import { closeNoteEditor, createNewNote } from "../flows/openCloseNote.js";
+import { changePostTitle, enterToEditorPage } from "../flows/noteActions.js";
+import { description } from "allure-js-commons";

@@ -1,5 +1,5 @@
-import logger from "../utils/logger.js";
-import { stackLabel } from "../utils/stackLabel.js";
+import logger from "./logger.js";
+import { stackLabel } from "./stackLabel.js";
 
 export const AdminRoutes = {
     POSTS: "/admin/posts",

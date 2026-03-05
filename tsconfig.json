@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    
     "target": "ES2022",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext", // Fundamental para ESM y Jest
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
-    "rootDir": ".", // Ahora permite archivos en src/ y tests/
+    "rootDir": ".",
     "outDir": "./dist",
     "lib": [
       "es2022"
@@ -13,7 +12,7 @@
     "types": [
       "node",
       "selenium-webdriver",
-      "jest" // Agregado para quitar el error de 'describe'
+      "jest"
     ],
     "strict": true,
     "skipLibCheck": true,

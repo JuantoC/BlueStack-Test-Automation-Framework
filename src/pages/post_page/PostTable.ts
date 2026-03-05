@@ -1,16 +1,15 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { waitFind } from "../../core/utils/waitFind.js";
+import { waitFind } from "../../core/actions/waitFind.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { retry } from "../../core/wrappers/retry.js";
-import { writeToStandard } from "../../core/utils/write.js";
+import { writeToStandard } from "../../core/helpers/write.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
-import { waitEnabled } from "../../core/utils/waitEnabled.js";
-import { waitVisible } from "../../core/utils/waitVisible.js";
+import { waitEnabled } from "../../core/actions/waitEnabled.js";
+import { waitVisible } from "../../core/actions/waitVisible.js";
 import { sleep } from "../../core/utils/backOff.js";
-import { step } from "allure-js-commons";
-import { hoverOverParentContainer } from "../../core/utils/hoverOverParentContainer.js";
+import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
 
 export class PostTable {
   private readonly driver: WebDriver;

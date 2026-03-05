@@ -2,7 +2,7 @@ import * as allure from "allure-js-commons";
 import { WebDriver } from "selenium-webdriver";
 import { ENV_CONFIG } from "../config/envConfig.js";
 import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
-import { initializeDriver, quitDriver, DriverSession } from "../actions/driverManager.js";
+import { initializeDriver, quitDriver, DriverSession } from "../config/driverManager.js";
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
 

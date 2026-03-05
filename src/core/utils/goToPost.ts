@@ -1,8 +1,8 @@
 import { WebDriver } from "selenium-webdriver";
-import { postUrl } from "../utils/routes.js";
-import { stackLabel } from "../utils/stackLabel.js";
+import { postUrl } from "./routes.js";
+import { stackLabel } from "./stackLabel.js";
 import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
-import logger from "../utils/logger.js";
+import logger from "./logger.js";
 import { step } from "allure-js-commons";
 
 /**
@@ -18,7 +18,6 @@ export async function goToPost(
   id: number | string,
   opts: RetryOptions = {}
 ): Promise<void> {
-  // 1. Unificamos configuración y corregimos el acceso al label
   const config = {
     ...DefaultConfig,
     ...opts,
@@ -31,24 +30,20 @@ export async function goToPost(
     stepContext.parameter('url', `${url}`);
     stepContext.parameter('id', `${id}`);
     try {
-      // Debug: Información técnica para replicación manual si fuera necesario.
       logger.debug(`Navegando a Post ID: ${id}. URL: ${url}`, {
         label: config.label
       });
 
-      // Acción de navegación nativa
       await driver.navigate().to(url);
 
-      // Info: Hito de navegación alcanzado.
       logger.info(`Navegación completada al post [ID: ${id}]`, {
         label: config.label
       });
 
     } catch (error: any) {
-      // Error: Captura fallos de red, URLs malformadas o problemas de sesión.
       logger.error(`Fallo en la navegación al post ${id}: ${error.message}`, {
         label: config.label,
-        metadata: { url, id } // Agrupamos metadata para el log
+        metadata: { url, id }
       });
 
       throw error;

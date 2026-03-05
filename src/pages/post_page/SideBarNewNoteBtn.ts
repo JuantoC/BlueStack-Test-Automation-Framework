@@ -3,7 +3,7 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
-import { waitFind } from "../../core/utils/waitFind.js";
+import { waitFind } from "../../core/actions/waitFind.js";
 
 export enum NoteType {
   POST = 'POST',

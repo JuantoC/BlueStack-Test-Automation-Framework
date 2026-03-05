@@ -4,7 +4,7 @@ import { writeSafe } from "../../core/actions/writeSafe.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
-import { waitFind } from '../../core/utils/waitFind.js';
+import { waitFind } from '../../core/actions/waitFind.js';
 import { BusinessLogicError } from '../../core/errors/bussinesLogicError.js';
 
 /**

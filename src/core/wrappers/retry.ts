@@ -2,7 +2,7 @@ import logger from "../utils/logger.js";
 import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { classifyError, ErrorCategory } from "../errors/errorHandler.js";
-import { handleUpdateModal } from "../utils/handleUpdateModal.js";
+import { handleUpdateModal } from "../helpers/handleUpdateModal.js";
 
 /**
  * Wrapper de resiliencia con Exponential Backoff.
@@ -24,7 +24,6 @@ export async function retry<T>(
 
   // 1. Caso: Orquestación anidada (supressRetry)
   if (supressRetry) {
-    logger.debug(`Ejecución directa (reintentos suprimidos)`, { label });
     return await action();
   }
 

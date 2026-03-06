@@ -4,6 +4,7 @@ import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
+import { waitVisible } from "../../core/actions/waitVisible.js";
 
 export enum VideoType {
   NATIVO = 'Nativo',
@@ -24,9 +25,10 @@ export class UploadVideoBtn {
     [VideoType.SHORT]: new Set(['YouTube Short Video', "Video Youtube Short", "Video Youtube Short"])
   };
 
+  private readonly VIDEOS_TABLE: Locator = By.css('div#multimedia-table-body')
   private readonly UPLOAD_VIDEO_BTN: Locator = By.css("button.btn-create-note");
   private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
+  private readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -34,9 +36,16 @@ export class UploadVideoBtn {
   }
 
   async selectVideoType(videoType: VideoType): Promise<void> {
+    // Espera explicita para clickar en el boton mientras carga la pagina.
+    const table_container = await waitFind(this.driver, this.VIDEOS_TABLE, this.config)
+    await waitVisible(this.driver, table_container, this.config)
+
+    // Click en el boton de subir
     await this.clickOnUploadVideoButton();
 
+    // Busqueda del tipo de video
     const elementToClick = await this.matchVideoType(videoType);
+
     logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
     await clickSafe(this.driver, elementToClick, this.config);
   }
@@ -68,16 +77,10 @@ export class UploadVideoBtn {
   async matchVideoType(videoType: VideoType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
-      const menuContainer = await this.driver.wait(
-        until.elementLocated(this.DROPDOWN_COMBO_MODAL),
-        this.config.timeoutMs,
-        "El menú dropdown no se encuentra en el DOM"
-      );
-      await this.driver.wait(
-        until.elementIsVisible(menuContainer),
-        this.config.timeoutMs,
-        "El menú dropdown existe pero no es visible"
-      );
+
+      const menuContainer = await waitFind(this.driver, this.DROPDOWN_COMBO_MODAL, this.config)
+      await waitVisible(this.driver, menuContainer, this.config)
+
     } catch (error) {
       logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
       throw error;

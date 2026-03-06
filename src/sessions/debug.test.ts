@@ -7,10 +7,11 @@ runSession("Debug", async ({ driver, opts, log }) => {
 
   const { user, pass } = ENV_CONFIG.getCredentials('editor');
   const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
-
   await driver.get(authUrl);
+
   await passLogin(driver, { username: user, password: pass }, opts);
   await moveToComponent(driver, SidebarOption.VIDEOS, opts);
+  await uploadNewVideo(driver, YoutubeVideoData[0], opts)
 
   /*  await createNewNote(driver, NoteType.POST, opts);
    await dynimicDataFilling(driver, DebugData, opts);
@@ -29,4 +30,6 @@ import { createNewNote, closeNoteEditor, moveToComponent } from "../flows/sideba
 import { DebugData, PostData } from "../dataTest/noteData.js";
 import { NoteType, SidebarOption } from "../pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { description } from "allure-js-commons";
+import { description } from "allure-js-commons"; import { uploadNewVideo } from "../flows/UploadNewVideo.js";
+import { YoutubeVideoData } from "../dataTest/videoData.js";
+

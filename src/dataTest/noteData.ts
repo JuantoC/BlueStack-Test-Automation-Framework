@@ -1,4 +1,3 @@
-import { NoteData } from "./noteDataInterface.js";
 import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js";
 
 export const PostData = [
@@ -232,4 +231,35 @@ export const LiveBlogData: NoteData[] = [
 
 export const DebugData: NoteData = {
   secondaryTitle: "Prueba de titulo secundario"
+}
+
+export interface NoteData {
+  // Campos de texto principales
+  title?: string;
+  secondaryTitle?: string;
+  subTitle?: string;
+  halfTitle?: string;
+  body?: string;
+  summary?: string;
+
+  // Tags
+  tags?: string[];
+  hiddenTags?: string[];
+
+  // Autor
+  authorName?: string;
+  authorDescription?: string;
+  authorType?: AuthorType;
+
+  listicleItems?: Array<{
+    title: string;
+    body: string;
+  }>;
+
+  eventLiveBlog?: {
+    eventTitle?: string;
+    eventDescription?: string;
+    placeOfEvent?: string;
+    eventAdress?: string;
+  }
 }

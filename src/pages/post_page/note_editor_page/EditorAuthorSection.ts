@@ -4,7 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
-import { NoteData } from "../../../dataTest/noteDataInterface.js";
+import { NoteData } from "../../../dataTest/noteData.js";
 import { step } from "allure-js-commons";
 
 export enum AuthorType {

@@ -1,7 +1,7 @@
 import { WebDriver } from "selenium-webdriver";
 import { RetryOptions, DefaultConfig } from "../core/config/defaultConfig.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
-import { NoteData } from "../dataTest/noteDataInterface.js";
+import { NoteData } from "../dataTest/noteData.js";
 import { NoteEditorPage } from "../pages/post_page/note_editor_page/MainEditorPage.js";
 import logger from "../core/utils/logger.js";
 import * as allure from "allure-js-commons";
@@ -28,8 +28,8 @@ export async function dynimicDataFilling(
 
   await allure.step(`Rellenando la nota con datos dinámicos`, async (stepContext) => {
     stepContext.parameter("Data Keys", Object.keys(data).join(", "));
-    stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
     noteType && stepContext.parameter("Note Type", noteType)
+    stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
 
     try {
       logger.info(`Iniciando llenado dinámico de campos presentes en data`, {

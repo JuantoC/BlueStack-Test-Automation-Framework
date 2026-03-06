@@ -11,7 +11,7 @@ runSession("Debug", async ({ driver, opts, log }) => {
 
   await passLogin(driver, { username: user, password: pass }, opts);
   await moveToComponent(driver, SidebarOption.VIDEOS, opts);
-  await uploadNewVideo(driver, YoutubeVideoData[0], opts)
+  await uploadNewVideo(driver, NativeVideoData[0], opts)
 
   /*  await createNewNote(driver, NoteType.POST, opts);
    await dynimicDataFilling(driver, DebugData, opts);
@@ -31,5 +31,5 @@ import { DebugData, PostData } from "../dataTest/noteData.js";
 import { NoteType, SidebarOption } from "../pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { description } from "allure-js-commons"; import { uploadNewVideo } from "../flows/UploadNewVideo.js";
-import { YoutubeVideoData } from "../dataTest/videoData.js";
+import { NativeVideoData, YoutubeVideoData } from "../dataTest/videoData.js";
 

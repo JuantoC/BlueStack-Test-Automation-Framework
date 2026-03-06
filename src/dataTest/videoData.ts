@@ -16,3 +16,12 @@ export const YoutubeVideoData: VideoData[] = [
     description: "Official Music Video",
   }
 ]
+
+export const NativeVideoData: VideoData[] = [
+  {
+    video_type: VideoType.NATIVO,
+    title: 'Nativo para probar subida',
+    description: 'Este video se sube por QA Team para probar los videos nativos automatizados',
+    path: "/app/dataTest/youtube_video2.mp4"
+  }
+]

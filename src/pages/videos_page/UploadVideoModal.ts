@@ -25,7 +25,7 @@ export class UploadVideoModal {
     [UploadVideoModalFields.URL_INPUT]: By.css('div#url-details input[data-testid="url-youtube"]'),
     [UploadVideoModalFields.TITLE_INPUT]: By.css('div#title-details textarea[data-testid="title-uploadVideo"]'),
     [UploadVideoModalFields.DESCRIPTION_INPUT]: By.css('div#title-details textarea.desc-textarea'),
-    [UploadVideoModalFields.FILE_UPLOAD_INPUT]: By.css('div#video-file'),
+    [UploadVideoModalFields.FILE_UPLOAD_INPUT]: By.css('input#video-file'),
   };
   private readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
   private readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
@@ -84,8 +84,10 @@ export class UploadVideoModal {
   }
 
   async uploadFile(pathValue: string) {
-    const video = path.resolve(pathValue)
-    await (await waitFind(this.driver, this.LOCATORS["file-upload-input"])).sendKeys(video);
+    // Localizamos el input file
+    const fileInput = await waitFind(this.driver, this.LOCATORS["file-upload-input"], this.config)
+
+    await fileInput.sendKeys(pathValue);
   }
 
   async clickOnUploadBtn() {

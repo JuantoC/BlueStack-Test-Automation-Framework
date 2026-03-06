@@ -9,9 +9,10 @@ import logger from "../../core/utils/logger.js";
  * En este flujo actual, se encarga de descartar el modal para continuar.
  */
 export class TwoFASection {
-  private readonly TWOFA_DISMISS_BTN: Locator = By.css('[data-testid="btn-next"]');
   private driver: WebDriver;
   private config: RetryOptions
+
+  private readonly TWOFA_DISMISS_BTN: Locator = By.css('[data-testid="btn-next"]');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;

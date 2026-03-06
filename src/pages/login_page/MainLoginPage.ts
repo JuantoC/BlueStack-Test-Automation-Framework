@@ -33,7 +33,7 @@ export class MainLoginPage {
   ): Promise<void> {
 
     try {
-      logger.debug('Rellenando version del CMS...')
+      logger.debug('Rellenando version del CMS...', { label: this.config.label })
       parameter("CMS_Version", await this.login.getVersionLabel(this.config));
 
       logger.debug("Iniciando componentes de autenticación...", { label: this.config.label });

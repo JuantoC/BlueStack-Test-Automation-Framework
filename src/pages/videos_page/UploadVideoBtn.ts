@@ -1,4 +1,4 @@
-import { By, Locator, until, WebDriver, WebElement } from "selenium-webdriver";
+import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";

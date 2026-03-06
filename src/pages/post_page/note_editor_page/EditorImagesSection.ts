@@ -6,6 +6,7 @@ import logger from "../../../core/utils/logger.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { step } from "allure-js-commons";
+import { waitVisible } from "../../../core/actions/waitVisible.js";
 
 export class EditorImageSection {
   private driver: WebDriver
@@ -13,6 +14,7 @@ export class EditorImageSection {
 
   // ========== LOCATORS (Private & Readonly) ==========
   private readonly MAIN_IMAGE_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] div[data-testid="img-prev-add"]');
+  private readonly CKEDITOR_SELECTOR_IMAGE: Locator = By.css('div#ckeditor-selector')
   private readonly MAIN_IMAGE_DESCRIPTION_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] textarea.input_description');
   private readonly FIRST_IMAGE_CKEDITOR_SELECTOR_LOCATOR: Locator = By.css('div[id="image-selector-0"] img.image');
   private readonly DONE_BTN_CKEDITOR_SELECTOR_LOCATOR: Locator = By.css('app-cmsmedios-button[data-testid="btn-ok-ckeditor"] button[data-testid="btn-calendar-confirm"]');
@@ -28,6 +30,10 @@ export class EditorImageSection {
       try {
         logger.debug(`Agregando primera imagen como Principal`, { label: this.config.label });
         await clickSafe(this.driver, this.MAIN_IMAGE_LOCATOR, this.config);
+
+        // Espera explicita para revisar que el modal ckeditor esta visible
+        const selector = await waitFind(this.driver, this.CKEDITOR_SELECTOR_IMAGE, this.config)
+        await waitVisible(this.driver, selector, this.config)
 
         logger.debug(`Esperando a que el selector de CKEditor esté visible`, { label: this.config.label });
         const imageElement = await waitFind(this.driver, this.FIRST_IMAGE_CKEDITOR_SELECTOR_LOCATOR, { ...this.config, initialDelayMs: 3000 });

@@ -1,4 +1,4 @@
-import { By, Locator, WebDriver } from "selenium-webdriver";
+import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
@@ -7,8 +7,12 @@ import logger from "../../core/utils/logger.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
 import path from "path";
 import { waitFind } from "../../core/actions/waitFind.js";
-import { VideoType } from "./UploadVideoBtn.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
+import ENV_CONFIG from "../../core/config/envConfig.js";
+import { createRequire } from 'module';
+import { sleep } from "../../core/utils/backOff.js";
+const require = createRequire(import.meta.url);
+const remote = require('selenium-webdriver/remote');
 
 export enum UploadVideoModalFields {
   URL_INPUT = 'url-input',
@@ -29,6 +33,7 @@ export class UploadVideoModal {
   };
   private readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
   private readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
+  private readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -71,23 +76,32 @@ export class UploadVideoModal {
       }
 
       if (field === UploadVideoModalFields.TITLE_INPUT) {
-        value = value + " | Video subido por BlueStack_Test_Automation Framework";
+        value = value + " | Subido por BlueStack_Test_Automation_Framework";
       }
 
       await writeSafe(this.driver, locator, value, this.config);
 
       logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
     } catch (error) {
-      // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
       throw error;
     }
   }
 
-  async uploadFile(pathValue: string) {
-    // Localizamos el input file
-    const fileInput = await waitFind(this.driver, this.LOCATORS["file-upload-input"], this.config)
+  async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
+    const startTime = Date.now();
 
-    await fileInput.sendKeys(pathValue);
+    try {
+      const progressBar = await waitFind(this.driver, this.PROGRESS_BAR, this.config);
+
+      while (!(await this.isProgressBarFull(progressBar))) {
+        if (Date.now() - startTime > timeoutMs) {
+          throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
+        }
+        await sleep(2000);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   async clickOnUploadBtn() {
@@ -98,4 +112,60 @@ export class UploadVideoModal {
     }
   }
 
+  async isProgressBarFull(progressBar: WebElement): Promise<boolean> {
+    try {
+      const progress = await progressBar.getAttribute('aria-valuenow');
+      logger.debug(`Progreso actual: ${progress}`, { label: this.config.label });
+      return progress === '100';
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async uploadFile(relativePath: string): Promise<void> {
+    const cleanRelativePath = relativePath.startsWith('/')
+      ? relativePath.substring(1)
+      : relativePath;
+
+    const absolutePath = path.resolve(process.cwd(), cleanRelativePath);
+
+    logger.debug(`Ruta final calculada: ${absolutePath}`, { label: this.config.label });
+
+    const fileInput = await waitFind(
+      this.driver,
+      this.LOCATORS[UploadVideoModalFields.FILE_UPLOAD_INPUT],
+      this.config
+    );
+
+    // Aplicamos el LocalFileDetector (Usando el bridge require que hicimos)
+    if (ENV_CONFIG.grid.useGrid) {
+      logger.debug('Modo Grid: Seteando FileDetector', { label: this.config.label });
+      try {
+        const target = remote.default || remote;
+        const DetectorClass = target.FileDetector;
+
+        if (!DetectorClass) {
+          throw new Error(`Inconsistencia interna: 'FileDetector' no encontrado en: ${Object.keys(target)}`);
+        }
+
+        // Aplicamos el detector al driver
+        this.driver.setFileDetector(new DetectorClass());
+        logger.debug('FileDetector activado correctamente.', { label: this.config.label });
+      } catch (err: any) {
+        logger.error(`Error en configuración Grid: ${err.message}`, { label: this.config.label });
+        throw err;
+      }
+    } else {
+      // En local desactivamos para que Selenium use el FS directo de WSL
+      this.driver.setFileDetector(null as any);
+    }
+
+    try {
+      // Este comando empaquetará el video desde WSL y lo enviará al contenedor
+      await fileInput.sendKeys(absolutePath);
+      logger.debug('Archivo enviado al nodo de Chrome en Docker.');
+    } catch (error: any) {
+      throw new Error(`Error en sendKeys: ${error.message}`);
+    }
+  }
 }

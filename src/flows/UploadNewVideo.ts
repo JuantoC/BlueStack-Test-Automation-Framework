@@ -29,9 +29,12 @@ export async function uploadNewVideo(driver: WebDriver, videoData: VideoData, op
       await page.fillAll(videoData)
       await page.clickOnUploadBtn()
       logger.info(`Llenado finalizado, comenzando subida...`, { label: config.label });
+      if (videoData.video_type === VideoType.NATIVO) {
+        await page.checkProgressBar()
+        logger.info(`Subida finalizada`, { label: config.label });
+      }
 
     } catch (error: any) {
-      // Captura de fallo en el nivel más alto del flujo de edición
       logger.error(`Fallo en el flow: ${error.message}`, {
         label: config.label,
         error: error.message

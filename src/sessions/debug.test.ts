@@ -11,8 +11,9 @@ runSession("Debug", async ({ driver, opts, log }) => {
 
   await passLogin(driver, { username: user, password: pass }, opts);
   await moveToComponent(driver, SidebarOption.VIDEOS, opts);
-  await uploadNewVideo(driver, NativeVideoData[0], opts)
+  await changeVideoTitle(driver, NativeVideoData[0].title, opts)
 
+  await sleep(15000)
   /*  await createNewNote(driver, NoteType.POST, opts);
    await dynimicDataFilling(driver, DebugData, opts);
    await closeNoteEditor(driver, NoteExitAction.BACK_SAVE_AND_EXIT, opts);
@@ -30,6 +31,10 @@ import { createNewNote, closeNoteEditor, moveToComponent } from "../flows/sideba
 import { DebugData, PostData } from "../dataTest/noteData.js";
 import { NoteType, SidebarOption } from "../pages/post_page/SidebarSection.js";
 import { NoteExitAction } from "../pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { description } from "allure-js-commons"; import { uploadNewVideo } from "../flows/UploadNewVideo.js";
+import { description } from "allure-js-commons";
+import { uploadNewVideo } from "../flows/UploadNewVideo.js";
 import { NativeVideoData, YoutubeVideoData } from "../dataTest/videoData.js";
+import { sleep } from "../core/utils/backOff.js";
+import { changePostTitle } from "../flows/noteActions.js";
+import { changeVideoTitle } from "../flows/videoActions.js";
 

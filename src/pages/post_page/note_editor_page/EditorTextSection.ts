@@ -75,7 +75,7 @@ export class EditorTextSection {
       logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
 
       if (field === NoteTextField.TITLE) {
-        value = value + " | Creado por BlueStack_Test_Automation Framework";
+        value = value + " | Creado por BlueStack_Test_Automation_Framework";
       }
 
       /*  if (field === NoteTextField.SECONDARY_TITLE) {

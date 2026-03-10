@@ -37,7 +37,7 @@ export class PostTable {
     // Aquí sí construimos el locator del padre porque es el punto de entrada
     const rowLocator = By.css(`div[id = "container-table-body"] div[id = "post-management-${index}"]`);
     logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
-    return await waitFind(this.driver, rowLocator, this.config);
+    return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
   }
 
   /**
@@ -124,12 +124,12 @@ export class PostTable {
       await hoverOverParentContainer(this.driver, postContainer, this.config);
       await clickSafe(this.driver, btnElement, { ...this.config, timeoutMs: 8000 });
     } catch (error) {
-      throw new Error(`Fallo al clickear botón editar en la fila: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Fallo al clickear botón editar en la nota: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   // =========================================================================
-  // MÉTODOS HELPERS PRIVADOS (Atomización de changePostTitle)
+  // MÉTODOS HELPERS PRIVADOS
   // =========================================================================
 
   /**

@@ -13,7 +13,7 @@ export class EditorLateralSettings {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  // ========== LOCATORS (Respetando originales y encapsulando) ==========
+  // ========== LOCATORS ==========
   private readonly SETTINGS_TOGGLE_BTN: Locator = By.css("a.btn-toggle button.btn-dropdown");
   private readonly SECTION_COMBO: Locator = By.css('mat-select[data-testid="section-options"]');
   private readonly FIRST_SECTION_OPT: Locator = By.css("div[role='listbox'] mat-option:first-of-type");
@@ -47,7 +47,6 @@ export class EditorLateralSettings {
 
         logger.debug("Sección seleccionada exitosamente (primera de la lista)", { label: this.config.label });
       } catch (error) {
-        // Propagamos el error; clickSafe ya se encargó del log detallado.
         throw error;
       }
     });

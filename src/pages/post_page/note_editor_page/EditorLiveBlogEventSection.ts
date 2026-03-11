@@ -25,7 +25,7 @@ export class EditorLiveBlogEventSection {
         [LiveBlogEventField.EVENT_ADDRESS]: By.css('div[id="event-note"] input#search-input'),
     }
 
-    constructor(driver: WebDriver, config: RetryOptions = {}) {
+    constructor(driver: WebDriver, config: RetryOptions) {
         this.driver = driver;
         this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, "EditorLiveBlogEventSection") };
     }
@@ -40,7 +40,6 @@ export class EditorLiveBlogEventSection {
                 logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
                 await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
             } catch (error) {
-                // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
                 throw error;
             }
         });

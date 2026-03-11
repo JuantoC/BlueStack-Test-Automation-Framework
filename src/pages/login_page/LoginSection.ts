@@ -28,23 +28,18 @@ export class LoginSection {
   }
 
   async fillUsername(username: string): Promise<WebElement> {
-
     logger.debug(`Ingresando nombre de usuario...`, { label: this.config.label });
     const element = await writeSafe(this.driver, this.USERNAME_INPUT, username, this.config);
-
     return element
   }
 
   async fillPassword(password: string): Promise<WebElement> {
-
     logger.debug(`Ingresando contraseña...`, { label: this.config.label });
     const element = await writeSafe(this.driver, this.PASSWORD_INPUT, password, this.config);
-
     return element
   }
 
   async clickLoginBtn(): Promise<void> {
-
     logger.debug(`Ejecutando click en botón de acceso`, { label: this.config.label });
     await clickSafe(this.driver, this.LOGIN_BTN, this.config);
   }
@@ -55,9 +50,6 @@ export class LoginSection {
    */
   async getLoginErrorText(): Promise<string | null> {
     logger.debug('Verificando si se generaron labels de error en el login...', { label: this.config.label });
-    // Pausa muy breve para dar tiempo al renderizado del DOM (ajustar según tu app)
-    await this.driver.sleep(500);
-
     const errors = await this.driver.findElements(this.ERROR_LABEL);
     if (errors.length > 0) {
       const errorMsg = await errors[0].getText();
@@ -73,18 +65,14 @@ export class LoginSection {
    */
   async passLogin(username: string, password: string): Promise<void> {
 
-    // 1. Llenamos campos y enviamos
     await this.fillUsername(username);
     await this.fillPassword(password);
     await this.clickLoginBtn();
 
-    // 2. Revisamos si hay error en pantalla
     const errorMessage = await this.getLoginErrorText();
 
-    // 3. Match sistema de resiliencia
     if (errorMessage) {
-      // retry() lanzará el error en el intento 1.
-      throw new BusinessLogicError(`El login falló intencionalmente por reglas de negocio. UI Error: ${errorMessage}`);
+      throw new BusinessLogicError(`El login falló por reglas de negocio. UI Error: ${errorMessage}`);
     }
 
     logger.debug(`Login exitoso comprobado para: ${username}`, { label: this.config.label });

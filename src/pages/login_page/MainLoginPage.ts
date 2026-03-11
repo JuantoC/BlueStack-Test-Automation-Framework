@@ -4,14 +4,14 @@ import { TwoFASection } from "./TwoFASection.js";
 import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
-import { AuthCredentials } from "../../environments/Dev_SAAS/env.config.js";
-import { parameter } from "allure-js-commons";
+import { AuthCredentials } from "../../interfaces/auth.js";
+import { parameter, step } from "allure-js-commons";
 
 export class MainLoginPage {
   private driver: WebDriver;
-  public login: LoginSection;
-  public twoFA: TwoFASection;
-  public config: RetryOptions;
+  private readonly login: LoginSection;
+  private readonly twoFA: TwoFASection;
+  private readonly config: RetryOptions;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.config = {
@@ -32,18 +32,35 @@ export class MainLoginPage {
     credentials: AuthCredentials,
   ): Promise<void> {
 
-    try {
-      logger.debug('Rellenando version del CMS...', { label: this.config.label })
-      parameter("CMS_Version", await this.login.getVersionLabel(this.config));
+    await step(`Autenticación: ${credentials.username}`, async (stepContext) => {
+      stepContext.parameter("Username", credentials.username);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-      logger.debug("Iniciando componentes de autenticación...", { label: this.config.label });
-      await this.login.passLogin(credentials.username, credentials.password);
-      await this.twoFA.passTwoFA();
+      try {
+        logger.debug('Rellenando version del CMS...', { label: this.config.label })
+        parameter("CMS_Version", await this.login.getVersionLabel(this.config));
 
-      logger.debug("Flujo AuthPage completado correctamente", { label: this.config.label });
+        logger.debug(`Iniciando componentes de autenticación: ${credentials.username}`, { label: this.config.label });
+        await this.login.passLogin(credentials.username, credentials.password);
+        await this.twoFA.passTwoFA();
 
-    } catch (error: any) {
-      throw error;
+        logger.debug(`Flujo AuthPage completado correctamente: ${credentials.username}`, { label: this.config.label });
+
+      } catch (error: any) {
+        throw error;
+      }
+    });
+  }
+
+  async failLogin(invalidAttempts: AuthCredentials[], validCredentials: AuthCredentials) {
+    for (let i = 0; i < invalidAttempts.length; i++) {
+      const attempt = await this.login.attemptLogin(invalidAttempts[i].username, invalidAttempts[i].password);
+
+      if (attempt.success) {
+        throw new Error(`El test esperaba fallar en el intento ${i + 1}, pero el login fue exitoso.`);
+      }
+      // Podríamos validar que attempt.errorMessage es el texto correcto ("Contraseña incorrecta", etc)
     }
+    await this.passLoginAndTwoFA(validCredentials);
   }
 }

@@ -130,5 +130,6 @@ import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConf
 import { clickSafe } from "../../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
-import { NoteData } from "../../../../dataTest/noteDataInterface.js"; import { step } from "allure-js-commons";
+import { NoteData } from "../../../../interfaces/data.js";
+import { step } from "allure-js-commons";
 

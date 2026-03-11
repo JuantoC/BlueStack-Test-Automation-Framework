@@ -117,7 +117,6 @@ export class EditorHeaderActions {
       logger.debug(`Acción de salida ejecutada correctamente: ${action}`, { label: this.config.label });
 
     } catch (error) {
-      // No logueamos error aquí, ya lo hizo clickSafe. Solo propagamos.
       throw error;
     }
   }

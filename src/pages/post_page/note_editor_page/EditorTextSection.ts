@@ -3,7 +3,7 @@ import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
-import { NoteData } from "../../../dataTest/noteData.js";
+import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";

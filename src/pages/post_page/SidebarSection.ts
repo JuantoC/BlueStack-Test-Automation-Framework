@@ -44,7 +44,7 @@ export class SidebarSection {
     [SidebarOption.VIDEOS]: By.css('a[title="Videos"]')
   };
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
+  constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "SidebarSection") };
   }

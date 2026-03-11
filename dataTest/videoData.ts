@@ -1,12 +1,5 @@
-import { VideoType } from "../pages/videos_page/UploadVideoBtn.js";
-
-export interface VideoData {
-  video_type: VideoType
-  url?: string;
-  title: string;
-  description?: string;
-  path?: string;
-}
+import { VideoType } from "../src/pages/videos_page/UploadVideoBtn.js";
+import { VideoData } from "../src/interfaces/data.js"
 
 export const YoutubeVideoData: VideoData[] = [
   {

@@ -1,6 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
-import { VideoData } from "../dataTest/videoData.js";
+import { VideoData } from "../interfaces/data.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
 import { UploadVideoBtn, VideoType } from "../pages/videos_page/UploadVideoBtn.js";

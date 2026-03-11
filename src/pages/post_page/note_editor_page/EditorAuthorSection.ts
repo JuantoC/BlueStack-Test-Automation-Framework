@@ -4,7 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
-import { NoteData } from "../../../dataTest/noteData.js";
+import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
 export enum AuthorType {
@@ -12,7 +12,6 @@ export enum AuthorType {
   ANONYMOUS = 'anonymous',
   MANUAL = 'manual'
 }
-export type NoteAuthorData = Pick<NoteData, 'authorType' | 'authorName' | 'authorDescription'>;
 
 /**
  * Representa la sección de autoría dentro del Editor de Notas.
@@ -62,7 +61,7 @@ export class EditorAuthorSection {
           authorType = AuthorType.MANUAL;
           logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: this.config.label });
         } else {
-          return; // Nada que hacer
+          return;
         }
       }
 
@@ -83,7 +82,6 @@ export class EditorAuthorSection {
         }
         logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: this.config.label });
       } catch (error) {
-        // Propagamos: el error detallado ya fue logueado en las piezas atómicas.
         throw error;
       }
     });

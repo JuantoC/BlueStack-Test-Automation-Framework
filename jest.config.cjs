@@ -1,26 +1,22 @@
 require('dotenv').config();
 
-// SDET TIP: Fallback seguro. Si no hay variable, usamos 1 worker.
-// parseInt asegura que Jest no reciba un string "4" y se confunda.
+// Si no hay variable, usamos 1 worker.
 const maxInstances = parseInt(process.env.MAX_INSTANCES || "1", 10);
 
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-    // Usamos el preset para ESM (ECMAScript Modules) ya que usamos "import/export"
     preset: 'ts-jest/presets/default-esm',
 
-    // Entorno Allure-Jest para inyectar los metadatos automáticamente
     testEnvironment: "allure-jest/node",
 
-    // Timeout global generoso para Selenium (20 mins), controlamos timeouts finos en los tests
-    testTimeout: 1200000,
+    testTimeout: (1000 * 60 * 20),
 
     testEnvironmentOptions: {
         resultsDir: "allure-results",
     },
 
     // Dónde buscar archivos
-    roots: ['<rootDir>/src'],
+    roots: ['<rootDir>'],
 
     // PATRÓN DE DESCUBRIMIENTO
     // Solo ejecutamos archivos que terminen en .test.ts dentro de sessions/
@@ -31,22 +27,18 @@ module.exports = {
     // Ignorar librerías y build output
     testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 
-    // Definido por .env
     maxWorkers: maxInstances,
 
-    // Mapeo para imports limpios y manejo de extensiones .js
     moduleNameMapper: {
         '^(\\.{1,2}/.*)\\.js$': '$1',
         '@/(.*)': '<rootDir>/src/$1'
     },
 
-    // Transformación de TypeScript
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             useESM: true,
         }],
     },
 
-    // Configuración de Reporte en Consola
     verbose: true,
 };

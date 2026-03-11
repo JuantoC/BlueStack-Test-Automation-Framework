@@ -8,7 +8,7 @@ import { dynimicDataFilling } from "../src/flows/populateNoteEditorFields.js";
 import { createNewNote, closeNoteEditor } from "../src/flows/sidebar&HeaderAction.js";
 // Data y Enums
 import { PostData } from "../dataTest/noteData.js";
-import { NoteType } from "../src/pages/post_page/SidebarSection.js";
+import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { sleep } from "../src/core/utils/backOff.js";
 

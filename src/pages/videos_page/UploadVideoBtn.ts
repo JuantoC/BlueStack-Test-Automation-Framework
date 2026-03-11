@@ -5,6 +5,7 @@ import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
+import { waitEnabled } from "../../core/actions/waitEnabled.js";
 
 export enum VideoType {
   NATIVO = 'Nativo',
@@ -37,8 +38,7 @@ export class UploadVideoBtn {
 
   async selectVideoType(videoType: VideoType): Promise<void> {
     // Espera explicita para clickar en el boton mientras carga la pagina.
-    const table_container = await waitFind(this.driver, this.VIDEOS_TABLE, this.config)
-    await waitVisible(this.driver, table_container, this.config)
+    await this.waitUntilIsReady(this.VIDEOS_TABLE);
 
     // Click en el boton de subir
     await this.clickOnUploadVideoButton();
@@ -62,7 +62,7 @@ export class UploadVideoBtn {
   }
 
   async isDropdownVisible(): Promise<boolean> {
-    const element = await waitFind(this.driver, this.UPLOAD_VIDEO_BTN, this.config);
+    const element = await this.waitUntilIsReady(this.UPLOAD_VIDEO_BTN);
 
     // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");
@@ -78,8 +78,7 @@ export class UploadVideoBtn {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
 
-      const menuContainer = await waitFind(this.driver, this.DROPDOWN_COMBO_MODAL, this.config)
-      await waitVisible(this.driver, menuContainer, this.config)
+      await this.waitUntilIsReady(this.DROPDOWN_COMBO_MODAL)
 
     } catch (error) {
       logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
@@ -108,5 +107,16 @@ export class UploadVideoBtn {
     }
 
     throw new Error(`No se encontró la opción "${videoType}" en el menú.`);
+  }
+
+  // ==================
+  // HELPERS
+  // ==================
+
+  async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+    const element = await waitFind(this.driver, locator, this.config)
+    await waitEnabled(this.driver, element, this.config)
+    await waitVisible(this.driver, element, this.config)
+    return element
   }
 }

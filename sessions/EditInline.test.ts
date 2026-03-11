@@ -42,7 +42,7 @@ import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { PostData } from "../dataTest/noteData.js";;
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { NoteType } from "../src/pages/post_page/SidebarSection.js";
+import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { description } from "allure-js-commons";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js"; import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";

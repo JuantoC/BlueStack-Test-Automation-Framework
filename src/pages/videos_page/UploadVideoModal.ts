@@ -2,7 +2,7 @@ import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
-import { VideoData } from "../../dataTest/videoData.js";
+import { VideoData } from "../../interfaces/data.js";
 import logger from "../../core/utils/logger.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
 import path from "path";

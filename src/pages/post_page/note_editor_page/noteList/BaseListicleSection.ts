@@ -2,8 +2,8 @@ export type ListicleData = Pick<NoteData, 'listicleItems'>;
 export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 
 export abstract class BaseListicleSection {
-  protected config: RetryOptions;
-  // Selectores fijos (Se mantienen igual)
+  private config: RetryOptions;
+
   private readonly CREATE_MENU = By.css('.dropdown-noteList button');
   private readonly ADD_OPTION = By.id('option-dropdown-0');
 
@@ -23,19 +23,16 @@ export abstract class BaseListicleSection {
 
     await this.fillEventSection(data as LiveBlogData);
 
-    // Aquí centralizamos la validación de si hay data
     if (!data.listicleItems || data.listicleItems.length === 0) {
       return;
     }
 
-    // Llamamos a tu método existente fillItems
     await this.fillItems(data.listicleItems);
   }
 
-  // --- Generadores de Locators (Validados con tu versión funcional) ---
+  // --- Generadores de Locators ---
 
   private getIconLocator(uiIndex: number): Locator {
-    // Usamos la estructura exacta que ya te funciona
     return By.xpath(`//div[@id="note-list-${uiIndex}"]//mat-icon[contains(@class, "icon-up") or contains(@class, "icon-down")]`);
   }
   private getFieldLocator(uiIndex: number, type: 'title' | 'body'): Locator {
@@ -53,7 +50,6 @@ export abstract class BaseListicleSection {
 
   /**
    * Determina el estado y expande/colapsa según sea necesario.
-   * Basado en ensureItemExpanded de tu versión vieja pero más flexible.
    */
   async toggleExpansion(uiIndex: number, target: 'expand' | 'collapse') {
 
@@ -90,18 +86,17 @@ export abstract class BaseListicleSection {
     if (!items?.length) return;
     await step("Rellenar items Listicle o Liveblog", async (stepContext) => {
       stepContext.parameter("Número de items", `${items.length}`);
-      stepContext.parameter("Estrategia de Normalización", this.strategy.constructor.name);
 
-      // 🔹 1. Normalizar según estrategia
+      // 1. Normalizar según estrategia
       const normalizedItems = this.strategy.normalizeItems(items);
 
-      // 🔹 2. Crear slots (siempre hay 1 base)
+      // 2. Crear slots (siempre hay 1 base)
       for (let i = 1; i < normalizedItems.length; i++) {
         await clickSafe(this.driver, this.CREATE_MENU, this.config);
         await clickSafe(this.driver, this.ADD_OPTION, this.config);
       }
 
-      // 🔹 3. Poblar datos (orden DOM real)
+      // 3. Poblar datos (orden DOM real)
       for (let i = 0; i < normalizedItems.length; i++) {
         const uiIndex = i + 1;
         const item = normalizedItems[i];

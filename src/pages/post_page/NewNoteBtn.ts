@@ -10,16 +10,8 @@ export enum NoteType {
   LISTICLE = 'LISTICLE',
   LIVEBLOG = 'LIVEBLOG'
 }
-export enum SidebarOption {
-  COMMENTS = 'COMMENTS',
-  PLANNING = 'PLANNING',
-  NEWS = 'NEWS',
-  TAGS = 'TAGS',
-  IMAGES = 'IMAGES',
-  VIDEOS = 'VIDEOS'
-}
 
-export class SidebarSection {
+export class NewNoteBtn {
   private driver: WebDriver;
   private config: RetryOptions;
 
@@ -32,31 +24,21 @@ export class SidebarSection {
   private readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
   private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
   private readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
-  private readonly SIDEBAR_CONTAINER: Locator = By.css('nav[id="cmsmedios-sidebar"]');
-  private readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
-
-  private readonly SIDEBAR_MAP: Record<SidebarOption, Locator> = {
-    [SidebarOption.COMMENTS]: By.css('a[title="Comentarios"]'),
-    [SidebarOption.PLANNING]: By.css('a[title="Planning"]'),
-    [SidebarOption.NEWS]: By.css('a[title="Noticias"]'),
-    [SidebarOption.TAGS]: By.css('a[title="Tags"]'),
-    [SidebarOption.IMAGES]: By.css('a[title="Imagenes"]'),
-    [SidebarOption.VIDEOS]: By.css('a[title="Videos"]')
-  };
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "SidebarSection") };
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NewNoteBtn") };
   }
 
-  async goToComponent(component: SidebarOption): Promise<any> {
-    const locator = this.SIDEBAR_MAP[component];
+  async clickOnNewNoteButton(): Promise<void> {
+    const isVisible = await this.isDropdownVisible();
 
-    logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
-    if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
-      clickSafe(this.driver, this.MULTIMEDIA_FILE_BTN, this.config)
+    if (!isVisible) {
+      logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
+      await clickSafe(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
+    } else {
+      logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
     }
-    await clickSafe(this.driver, locator, this.config)
   }
 
   async selectNoteType(noteType: NoteType): Promise<void> {
@@ -111,17 +93,6 @@ export class SidebarSection {
     }
 
     throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
-  }
-
-  async clickOnNewNoteButton(): Promise<void> {
-    const isVisible = await this.isDropdownVisible();
-
-    if (!isVisible) {
-      logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
-      await clickSafe(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
-    } else {
-      logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
-    }
   }
 
   async isDropdownVisible(): Promise<boolean> {

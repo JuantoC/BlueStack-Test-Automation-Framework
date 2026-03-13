@@ -13,7 +13,7 @@ export class MainEditorPage {
   public readonly header: EditorHeaderActions;
   public readonly settings: EditorLateralSettings;
   public readonly text: EditorTextSection;
-  public readonly creation: SidebarSection;
+  public readonly creation: NewNoteBtn;
   public readonly images: EditorImageSection;
 
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
@@ -25,7 +25,7 @@ export class MainEditorPage {
     this.header = new EditorHeaderActions(driver, this.config);
     this.settings = new EditorLateralSettings(driver, this.config);
     this.text = new EditorTextSection(driver, this.config);
-    this.creation = new SidebarSection(driver, this.config);
+    this.creation = new NewNoteBtn(driver, this.config);
     this.listicle = new ListicleSection(driver, this.config);
     this.liveBlog = new LiveBlogSection(driver, this.config);
     this.images = new EditorImageSection(driver, this.config);
@@ -123,12 +123,14 @@ import { EditorAuthorSection } from "./EditorAuthorSection.js";
 import { EditorHeaderActions, NoteExitAction } from "./EditorHeaderActions.js";
 import { EditorLateralSettings } from "./EditorLateralSettings.js";
 import { EditorTextSection } from "./EditorTextSection.js";
-import { SidebarSection, NoteType } from "../SidebarSection.js";
 import { EditorTagsSection } from './EditorTagsSection.js';
 import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
 import { ListicleSection, LiveBlogSection } from './noteList/ListicleItemSection.js';
-import { EditorImageSection } from './EditorImagesSection.js'; import { LiveBlogData } from './noteList/BaseListicleSection.js';
-import { step, parameter, attachment } from "allure-js-commons"; import logger from '../../../core/utils/logger.js';
+import { EditorImageSection } from './EditorImagesSection.js';
+import { LiveBlogData } from './noteList/BaseListicleSection.js';
+import { step, attachment } from "allure-js-commons";
+import logger from '../../../core/utils/logger.js';
+import { NewNoteBtn, NoteType } from '../NewNoteBtn.js';
 

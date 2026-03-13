@@ -1,6 +1,6 @@
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
-import { WebDriver } from "selenium-webdriver";
+import { WebDriver, WebElement } from "selenium-webdriver";
 import { UploadVideoBtn, VideoType } from "./UploadVideoBtn.js";
 import { UploadVideoModal } from "./UploadVideoModal.js";
 import { VideoTable } from "./VideoTable.js";
@@ -8,6 +8,7 @@ import { step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
+import { FooterVideoActions } from "./FooterVideoActions.js";
 
 /**
  * Page Object Maestro para la pagina de videos.
@@ -21,15 +22,17 @@ export class MainVideoPage {
   private readonly uploadModal: UploadVideoModal
   private readonly table: VideoTable
   private readonly actions: VideoActions
+  private readonly footer: FooterVideoActions
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainVideoPage") }
 
-    this.uploadBtn = new UploadVideoBtn(driver, this.config);
-    this.uploadModal = new UploadVideoModal(driver, this.config);
-    this.table = new VideoTable(driver, this.config);
-    this.actions = new VideoActions(driver, this.config);
+    this.uploadBtn = new UploadVideoBtn(this.driver, this.config);
+    this.uploadModal = new UploadVideoModal(this.driver, this.config);
+    this.table = new VideoTable(this.driver, this.config);
+    this.actions = new VideoActions(this.driver, this.config);
+    this.footer = new FooterVideoActions(this.driver, this.config)
   }
 
   async uploadNewVideo(videoData: VideoData): Promise<any> {
@@ -111,5 +114,20 @@ export class MainVideoPage {
         throw error;
       }
     });
+  }
+
+  async selectAndPublishFooter(videos: WebElement[]): Promise<any> {
+    try {
+      logger.debug('Seleccionando el/los videos enviados...', { label: this.config.label })
+      for (const video of videos) {
+        await this.table.selectVideo(video);
+      }
+      logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
+      await this.footer.clickOnPublishBtn()
+
+
+    } catch (error: any) {
+
+    }
   }
 }

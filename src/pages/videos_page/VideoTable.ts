@@ -17,6 +17,7 @@ export class VideoTable {
   private readonly VIDEO_TABLE: Locator = By.css('div#multimedia-table-body')
   private readonly VIDEO_INPUT_FILE: Locator = By.css('input#image-file[type="file"]')
   private readonly BACKGROUND_UPDATE_BTN: Locator = By.css('div.second-section')
+  private readonly CHECK_BOX: Locator = By.css('mat-icon.icon-check')
 
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
@@ -100,7 +101,52 @@ export class VideoTable {
     }, this.config);
   }
 
+  async selectVideo(videoContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Revisando que el video no este seleccionado...', { label: this.config.label });
+      const checkBox = await videoContainer.findElements(this.CHECK_BOX);
+      if (checkBox.length > 0) {
+        logger.debug('El video ya se encuentra seleccionado...', { label: this.config.label })
+        return
+      }
+      logger.debug('Seleccionando video...', { label: this.config.label });
+      clickSafe(this.driver, videoContainer, this.config);
+    } catch (error: any) {
+      logger.error(`Error al seleccionar el video deseado. Error:${error.message}`, { label: this.config.label });
+      throw error;
+    }
+  }
 
+  async skipInlineTitleEdit() {
+    try {
+      logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
+      const actualVideo = await this.getVideoContainerByIndex(0);
+      actualVideo.sendKeys(Key.ESCAPE);
+      logger.debug('Key de escape enviada.', { label: this.config.label })
+    } catch (error: any) {
+      logger.error('Ocurrio un error intentando quitar la edicion inline del video...', { label: this.config.label })
+      throw error;
+    }
+  }
+
+  async waitForNewVideoAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
+    logger.debug(`Esperando que el nuevo video aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });
+
+    await this.driver.wait(async () => {
+      try {
+        const container = await this.getVideoContainerByIndex(0);
+        const titleEl = await container.findElement(By.css('div#title-video-0'));
+        const currentTitle = await titleEl.getText();
+        logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
+        return currentTitle.includes(expectedTitle);
+      } catch {
+        logger.debug('El DOM todavía está actualizándose, reintentamos...', { label: this.config.label });
+        return false;
+      }
+    }, timeoutMs, `Timeout: El nuevo video "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
+
+    logger.debug('Nuevo video detectado en index 0. Tabla actualizada.', { label: this.config.label });
+  }
 
   // =========================================================================
   //                    MÉTODOS HELPERS
@@ -111,10 +157,15 @@ export class VideoTable {
    * NO devuelve un Locator, devuelve el Elemento listo para usarse.
    */
   async getVideoContainerByIndex(index: number): Promise<WebElement> {
-    // Aquí sí construimos el locator del padre porque es el punto de entrada
-    const rowLocator = By.css(`div[id = "video-selector-${index}"]`);
-    logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
-    return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
+    try {
+      // Aquí sí construimos el locator del padre porque es el punto de entrada
+      const rowLocator = By.css(`div[id = "video-selector-${index}"]`);
+      logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
+      return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
+    } catch (error: any) {
+      logger.error('Ocurrio un error encontrando el contenedor del video por ID', { label: this.config.label })
+      throw error;
+    }
   }
 
   async extractCurrentTitle(videoContainer: WebElement): Promise<string> {
@@ -204,31 +255,5 @@ export class VideoTable {
     await waitVisible(this.driver, element, this.config)
 
     return element
-  }
-
-  async skipInlineTitleEdit() {
-    logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
-    const actualVideo = await this.getVideoContainerByIndex(0);
-    actualVideo.sendKeys(Key.ESCAPE);
-    logger.debug('Key de escape enviada.', { label: this.config.label })
-  }
-
-  async waitForNewVideoAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
-    logger.debug(`Esperando que el nuevo video aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });
-
-    await this.driver.wait(async () => {
-      try {
-        const container = await this.getVideoContainerByIndex(0);
-        const titleEl = await container.findElement(By.css('div#title-video-0'));
-        const currentTitle = await titleEl.getText();
-        logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
-        return currentTitle.includes(expectedTitle);
-      } catch {
-        logger.debug('El DOM todavía está actualizándose, reintentamos...', { label: this.config.label });
-        return false;
-      }
-    }, timeoutMs, `Timeout: El nuevo video "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
-
-    logger.debug('Nuevo video detectado en index 0. Tabla actualizada.', { label: this.config.label });
   }
 }

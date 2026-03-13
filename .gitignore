@@ -4,3 +4,4 @@ allure-results/
 allure-report/
 logs/
 allure-history.jsonl
+.env

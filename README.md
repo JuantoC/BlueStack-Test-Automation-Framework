@@ -188,7 +188,7 @@ Starts a headed Chrome browser on your local machine. Use this when writing or d
 npm run test:dev
 
 # Run a single specific test file
-npm run test:dev -- --testPathPattern="NativeAndYoutubeVideo"
+npm run test:dev -- PublishNewPost
 
 # Run and automatically open the Allure report when done
 npm run test:dev:show

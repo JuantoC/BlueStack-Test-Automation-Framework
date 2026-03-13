@@ -215,7 +215,7 @@ This brings up:
 npm run test:grid
 
 # Run a specific test file against the grid
-npm run test:grid -- --testPathPattern="NewPost"
+npm run test:grid -- PublishNewPost
 
 # Run and open the Allure report when done
 npm run test:grid:show

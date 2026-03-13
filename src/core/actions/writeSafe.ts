@@ -12,10 +12,11 @@ import { assertValueEquals } from "./assertValueEquals.js";
  * Orquestador de alto nivel para escribir texto.
  * Asegura la interactuabilidad delegando en clickSafe y selecciona la estrategia 
  * de escritura (DOM vs. ContentEditable) dinámicamente.
- * * @param driver - Instancia activa de WebDriver.
- * @param ID - Selector o WebElement del elemento objetivo.
+ * @param driver - Instancia activa de WebDriver.
+ * @param ID - Locator o WebElement del elemento objetivo.
  * @param text - Cadena de texto a ingresar.
  * @param opts - Opciones de reintento y trazabilidad.
+ * @returns {Promise<WebElement>} El elemento objetivo con el texto ingresado.
  */
 export async function writeSafe(
   driver: WebDriver,

@@ -130,4 +130,17 @@ export class MainVideoPage {
 
     }
   }
+
+  async getLastFiveVideoContainer(): Promise<WebElement[]> {
+    try {
+      let videos = []
+      for (let i = 0; i < 5; i++) {
+        const video = await this.table.getVideoContainerByIndex(i);
+        videos.push(video)
+      }
+      return videos
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }

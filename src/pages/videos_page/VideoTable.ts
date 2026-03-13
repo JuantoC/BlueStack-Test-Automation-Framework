@@ -16,9 +16,7 @@ export class VideoTable {
 
   private readonly VIDEO_TABLE: Locator = By.css('div#multimedia-table-body')
   private readonly VIDEO_INPUT_FILE: Locator = By.css('input#image-file[type="file"]')
-  private readonly DROPDOWN_BTN: Locator = By.css('div#-dropMenu button')
-  private readonly VIDEO_TITLE_LABEL: Locator = By.css('div#title-video-0')
-  private readonly VIDEO_TITLE_TEXTAREA: Locator = By.css('textarea#textarea-title-video-0')
+  private readonly BACKGROUND_UPDATE_BTN: Locator = By.css('div.second-section')
 
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
@@ -28,18 +26,6 @@ export class VideoTable {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "VideoTable") }
   }
 
-  /**
-   * Clickea el botón de editar de un video específico.
-   */
-  async clickEditorButton(videoContainer: WebElement): Promise<void> {
-
-    try {
-
-
-    } catch (error) {
-      throw new Error(`Fallo al clickear botón editar en el video: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
 
   /**
    * Busca en los primeros 10 videos hasta encontrar el título deseado.
@@ -56,30 +42,32 @@ export class VideoTable {
       await this.waitUntilIsReady(this.VIDEO_TABLE);
       logger.debug("Tabla lista para interactuar.", { label: this.config.label })
 
-      for (let i = 0; i < limit; i++) {
-        // 1. Obtenemos el contenedor padre
-        const container = await this.getVideoContainerByIndex(i)
-          .catch(() => {
-            logger.debug("No se encontró el contenedor del video con índice " + i, { label: this.config.label });
-            return null;
-          });
-        // Si no existe el video i, continuamos o paramos
-        if (!container) continue;
+      return await retry(async () => {
+        for (let i = 0; i < limit; i++) {
+          // 1. Obtenemos el contenedor padre
+          const container = await this.getVideoContainerByIndex(i)
+            .catch(() => {
+              logger.debug("No se encontró el contenedor del video con índice " + i, { label: this.config.label });
+              return null;
+            });
+          // Si no existe el video i, continuamos o paramos
+          if (!container) continue;
 
-        // 2. Búsqueda Escalonada:
-        logger.debug(`Contenedor de video ${i} encontrado, buscando título dentro de este...`, { label: this.config.label });
-        const titleElement = await container.findElement(By.css(`div#title-video-${i}`));
-        const currentTitle = await titleElement.getText();
-        logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
+          // 2. Búsqueda Escalonada:
+          logger.debug(`Contenedor de video ${i} encontrado, buscando título dentro de este...`, { label: this.config.label });
+          const titleElement = await container.findElement(By.css(`div#title-video-${i}`));
+          const currentTitle = await titleElement.getText();
+          logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
 
-        if (currentTitle.includes(title)) {
-          logger.debug(`Video encontrada en índice ${i}: "${currentTitle}"`, { label: this.config.label });
-          return container; // Retornamos el contenedor del video donde se encontró el título
-        } else {
-          logger.debug(`Titulo no encontrado en el contenedor ${i}...`, { label: this.config.label })
+          if (currentTitle.includes(title)) {
+            logger.debug(`Video encontrada en índice ${i}: "${currentTitle}"`, { label: this.config.label });
+            return container; // Retornamos el contenedor del video donde se encontró el título
+          } else {
+            logger.debug(`Titulo no encontrado en el contenedor ${i}...`, { label: this.config.label })
+          }
         }
-      }
-      throw new Error(`No se encontró el video con título parcial "${title}" tras escanear ${limit} videos.`);
+        throw new Error(`No se encontró el video con título parcial "${title}" tras escanear ${limit} videos.`);
+      }, { ...this.config, retries: 2 })
     } catch (error) {
       throw new Error(`Error en búsqueda de video: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -92,7 +80,7 @@ export class VideoTable {
   async changeVideoTitle(videoContainer: WebElement): Promise<void> {
     return await retry(async () => {
 
-      await this.waitUntilIsReady(this.VIDEO_TABLE)
+      await this.waitUntilIsReady(this.VIDEO_TABLE);
       logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
       // 1. Extraer texto actual y calcular el nuevo
@@ -107,10 +95,16 @@ export class VideoTable {
       await this.activateEditModeIfNeeded(videoContainer);
 
       // 3. Escribir y validar el nuevo valor
-      await this.writeAndValidateTitle(videoContainer, newTitle);
+      await this.writeAndValidateTitle(newTitle);
 
     }, this.config);
   }
+
+
+
+  // =========================================================================
+  //                    MÉTODOS HELPERS
+  // =========================================================================
 
   /**
    * Encuentra el WebElement del contenedor de la nota basado en su índice.
@@ -123,27 +117,26 @@ export class VideoTable {
     return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
   }
 
-  // =========================================================================
-  // MÉTODOS HELPERS
-  // =========================================================================
-
-  /**
-   * HELPER 1: Lee el texto del Label o del textarea intentando evadir StaleElements.
-   */
   async extractCurrentTitle(videoContainer: WebElement): Promise<string> {
     try {
       logger.debug("Intentando leer el texto del label...", { label: this.config.label });
-      const labels = await videoContainer.findElements(By.css(`div.title-video`));
-
-      if (labels.length > 0 && await labels[0].isDisplayed()) {
-        return await labels[0].getText();
+      try {
+        const labels = await videoContainer.findElements(By.css(`div.title-video`));
+        if (labels.length > 0 && await labels[0].isDisplayed()) {
+          return await labels[0].getText();
+        }
+      } catch (e) {
+        logger.debug(`Error al evaluar el label, ignorando: ${e}`, { label: this.config.label });
       }
 
-      logger.debug("Label no visible, intentando leer del textarea...", { label: this.config.label });
-      const textarea = await videoContainer.findElements(By.css(`textarea.cdk-textarea-autosize`));
-
-      if (textarea.length > 0 && await textarea[0].isDisplayed()) {
-        return await textarea[0].getAttribute('value');
+      logger.debug("Label no visible o con error, intentando leer del textarea...", { label: this.config.label });
+      try {
+        const textarea = await videoContainer.findElements(By.css(`textarea.cdk-textarea-autosize`));
+        if (textarea.length > 0 && await textarea[0].isDisplayed()) {
+          return await textarea[0].getAttribute('value');
+        }
+      } catch (e) {
+        logger.debug(`Error al evaluar el textarea, ignorando: ${e}`, { label: this.config.label });
       }
 
       throw new Error("No hay Label ni textarea visible para extraer el texto.");
@@ -153,12 +146,10 @@ export class VideoTable {
     }
   }
 
-  /**
-   * HELPER 2: Revisa si el textarea está visible. Si no lo está, hace click en el label.
-   */
   async activateEditModeIfNeeded(videoContainer: WebElement): Promise<void> {
 
     let isTextareaVisible = false;
+    logger.debug('Buscando textarea en el DOM...', { label: this.config.label })
     const inputs = await videoContainer.findElements(By.css(`textarea.cdk-textarea-autosize`));
 
     if (inputs.length > 0) {
@@ -179,10 +170,7 @@ export class VideoTable {
     }
   }
 
-  /**
-   * HELPER 3: Busca el Textarea activado, escribe, espera la renderización de Angular y confirma.
-   */
-  async writeAndValidateTitle(videoContainer: WebElement, newTitle: string): Promise<void> {
+  async writeAndValidateTitle(newTitle: string): Promise<void> {
 
     logger.debug("Esperando presencia del Textarea en el DOM...", { label: this.config.label });
     // fresh lookup es obligatorio aquí porque el DOM acaba de transicionar de Label a Textarea
@@ -209,21 +197,38 @@ export class VideoTable {
   }
 
   async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+    logger.debug(`Esperando a que el elemento ${JSON.stringify(locator)} este listo`, { label: this.config.label })
+
     const element = await waitFind(this.driver, locator, this.config)
     await waitEnabled(this.driver, element, this.config)
     await waitVisible(this.driver, element, this.config)
+
     return element
   }
 
   async skipInlineTitleEdit() {
     logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
-
-    await this.waitUntilIsReady(this.VIDEO_TABLE);
-    await sleep(2000);
-
     const actualVideo = await this.getVideoContainerByIndex(0);
     actualVideo.sendKeys(Key.ESCAPE);
-
     logger.debug('Key de escape enviada.', { label: this.config.label })
+  }
+
+  async waitForNewVideoAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
+    logger.debug(`Esperando que el nuevo video aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });
+
+    await this.driver.wait(async () => {
+      try {
+        const container = await this.getVideoContainerByIndex(0);
+        const titleEl = await container.findElement(By.css('div#title-video-0'));
+        const currentTitle = await titleEl.getText();
+        logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
+        return currentTitle.includes(expectedTitle);
+      } catch {
+        logger.debug('El DOM todavía está actualizándose, reintentamos...', { label: this.config.label });
+        return false;
+      }
+    }, timeoutMs, `Timeout: El nuevo video "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
+
+    logger.debug('Nuevo video detectado en index 0. Tabla actualizada.', { label: this.config.label });
   }
 }

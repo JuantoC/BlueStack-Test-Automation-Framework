@@ -41,6 +41,7 @@ import { ListicleData } from "../dataTest/noteData.js";
 import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js"; import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
+import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
+import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
 

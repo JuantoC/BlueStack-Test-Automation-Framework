@@ -11,6 +11,8 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import ENV_CONFIG from "../../core/config/envConfig.js";
 import { createRequire } from 'module';
 import { sleep } from "../../core/utils/backOff.js";
+import { waitEnabled } from "../../core/actions/waitEnabled.js";
+import { waitVisible } from "../../core/actions/waitVisible.js";
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
 
@@ -33,7 +35,9 @@ export class UploadVideoModal {
   };
   private readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
   private readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
+  private readonly UPLOAD_NATIVE_MODAL: Locator = By.css('mat-dialog-container[aria-modal="true"]')
   private readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
+  private readonly BACKGROUND_PROGRESS_BAR = By.css('div.progress--bar');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -89,15 +93,21 @@ export class UploadVideoModal {
 
   async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
     const startTime = Date.now();
-
+    const progressBar = await waitFind(this.driver, this.PROGRESS_BAR, this.config);
     try {
-      const progressBar = await waitFind(this.driver, this.PROGRESS_BAR, this.config);
-
+      logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
       while (!(await this.isProgressBarFull(progressBar))) {
         if (Date.now() - startTime > timeoutMs) {
           throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
         }
-        await sleep(2000);
+        await sleep(1000);
+      }
+      logger.debug('Esperando a que el modal de progreso de subida se cierre...', { label: this.config.label })
+      while (!(await this.isProgressBarModalClosed())) {
+        if (Date.now() - startTime > timeoutMs) {
+          throw new Error(`Timeout: El modal de progreso de subida no se cerró en ${timeoutMs}ms`);
+        }
+        await sleep(500);
       }
     } catch (error) {
       throw error;
@@ -117,6 +127,15 @@ export class UploadVideoModal {
       const progress = await progressBar.getAttribute('aria-valuenow');
       logger.debug(`Progreso actual: ${progress}`, { label: this.config.label });
       return progress === '100';
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async isProgressBarModalClosed(): Promise<boolean> {
+    try {
+      const progressBarModal = await this.driver.findElements(this.UPLOAD_NATIVE_MODAL)
+      return progressBarModal.length === 0;
     } catch (error) {
       throw error;
     }
@@ -167,5 +186,12 @@ export class UploadVideoModal {
     } catch (error: any) {
       throw new Error(`Error en sendKeys: ${error.message}`);
     }
+  }
+
+  async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+    const element = await waitFind(this.driver, locator, this.config)
+    await waitEnabled(this.driver, element, this.config)
+    await waitVisible(this.driver, element, this.config)
+    return element
   }
 }

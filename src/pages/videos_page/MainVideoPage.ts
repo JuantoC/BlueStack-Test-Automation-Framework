@@ -7,6 +7,7 @@ import { VideoTable } from "./VideoTable.js";
 import { step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
+import { ActionType, VideoActions } from "./VideoActions.js";
 
 /**
  * Page Object Maestro para la pagina de videos.
@@ -19,6 +20,7 @@ export class MainVideoPage {
   private readonly uploadBtn: UploadVideoBtn
   private readonly uploadModal: UploadVideoModal
   private readonly table: VideoTable
+  private readonly actions: VideoActions
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -27,6 +29,7 @@ export class MainVideoPage {
     this.uploadBtn = new UploadVideoBtn(driver, this.config);
     this.uploadModal = new UploadVideoModal(driver, this.config);
     this.table = new VideoTable(driver, this.config);
+    this.actions = new VideoActions(driver, this.config);
   }
 
   async uploadNewVideo(videoData: VideoData): Promise<any> {
@@ -40,16 +43,19 @@ export class MainVideoPage {
         await this.uploadBtn.selectVideoType(videoData.video_type)
 
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
-        await this.uploadModal.fillAll(videoData)
-        await this.uploadModal.clickOnUploadBtn()
+        await this.uploadModal.fillAll(videoData);
+        await this.uploadModal.clickOnUploadBtn();
 
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         if (videoData.video_type === VideoType.NATIVO) {
           await this.uploadModal.checkProgressBar()
         }
 
+        await this.table.waitForNewVideoAtIndex0(videoData.title);
+
         logger.info(`Subida finalizada`, { label: this.config.label });
-        await this.table.skipInlineTitleEdit()
+
+        await this.table.skipInlineTitleEdit();
 
       } catch (error: any) {
         logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${error.message}`, {
@@ -60,6 +66,7 @@ export class MainVideoPage {
       }
     });
   }
+
 
   async changeVideoTitle(titleID: string): Promise<any> {
     await step(`Cambiando titulo del video inline`, async (stepContext) => {
@@ -83,34 +90,26 @@ export class MainVideoPage {
       }
     });
   }
-  /* export async function enterToEditorPage(driver: WebDriver, postTitle: string, opts: RetryOptions): Promise<any> {
-    const config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "createNewNote")
-    };
-  
-    const page = new VideoTable(driver, config)
-  
-    await step(`Entrando a la edicion del video: "${postTitle}"`, async (stepContext) => {
+
+  async clickOnActionVideo(postTitle: string, action: ActionType): Promise<any> {
+    await step(`Clickeando en la accion: "${action}" del video: "${postTitle}"`, async (stepContext) => {
       stepContext.parameter("Titulo del video", postTitle);
-      stepContext.parameter("Timeout", `${config.timeoutMs}ms`);
-  
+      stepContext.parameter("Acción", action);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
       try {
-        const postContainer = await page.getPostContainerByTitle(postTitle);
-  
-        logger.debug("Ejecutando el click en el boton de edicion", config.label)
-        await page.clickEditorButton(postContainer);
-        return page;
+        const videoContainer = await this.table.getVideoContainerByTitle(postTitle);
+        logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
+        await this.actions.clickOnAction(videoContainer, action);
+        logger.debug(`Click en la accion: "${action}" completado.`, { label: this.config.label })
       } catch (error: any) {
-        logger.error(`Error al cambiar el titulo del video: ${error.message}`, {
-          label: config.label,
+        logger.error(`Error al clickear la accion: "${action}" en el video: ${error.message}`, {
+          label: this.config.label,
           title: postTitle,
+          action,
           error: error.message
         })
         throw error;
       }
     });
-  } */
-
+  }
 }

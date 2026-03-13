@@ -28,12 +28,13 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 
   await sidebar.goToComponent(SidebarOption.VIDEOS);
 
-  await video.uploadNewVideo(NativeVideoData[0]);
-  await video.changeVideoTitle(NativeVideoData[0].title!)
-
-  await video.uploadNewVideo(YoutubeVideoData[1]);
-  await video.changeVideoTitle(YoutubeVideoData[1].title!)
-
+  await video.clickOnActionVideo(NativeVideoData[0].title!, ActionType.EDIT);
+  /*  await video.uploadNewVideo(NativeVideoData[0]);
+   await video.changeVideoTitle(NativeVideoData[0].title!)
+ 
+   await video.uploadNewVideo(YoutubeVideoData[1]);
+   await video.changeVideoTitle(YoutubeVideoData[1].title!)
+  */
   await sleep(15000)
 
   log.info("✅ Prueba de DEBUG exitosa.");
@@ -46,6 +47,7 @@ import { NativeVideoData, YoutubeVideoData, } from "../dataTest/videoData.js";
 import { sleep } from "../src/core/utils/backOff.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderPage.js";
+import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
 import { description } from "allure-js-commons";
+import { ActionType } from "../src/pages/videos_page/VideoActions.js";
 

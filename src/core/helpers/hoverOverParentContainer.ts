@@ -11,7 +11,7 @@ import { stackLabel } from "../utils/stackLabel.js";
 export async function hoverOverParentContainer(driver: WebDriver, element: WebElement, opts: RetryOptions = {}): Promise<boolean> {
     const config = { ...opts, label: stackLabel(opts.label, `hoverOverParentContainer`) };
     try {
-        logger.debug(`Intentando recuperación mediante hover...`, { label: config.label });
+        logger.debug(`Intentando hacer hover sobre el elemento...`, { label: config.label });
 
         let current: WebElement | null = element;
         let depth = 0;

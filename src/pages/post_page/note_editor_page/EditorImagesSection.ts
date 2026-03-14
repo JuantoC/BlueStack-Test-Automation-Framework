@@ -40,7 +40,8 @@ export class EditorImageSection {
         await this.CKEditorSelector.selectImage(index);
 
         await this.writeOnMainImageDescription();
-      } catch (error) {
+      } catch (error: any) {
+        logger.error(`Error en selectAndWriteMainImage: ${error.message}`, { label: this.config.label, error: error.message });
         throw error;
       }
     });

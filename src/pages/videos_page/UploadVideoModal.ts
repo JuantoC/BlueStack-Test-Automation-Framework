@@ -67,81 +67,98 @@ export class UploadVideoModal {
    * Maneja automáticamente la diferencia entre inputs estándar y editores enriquecidos.
    */
   async fillField(field: UploadVideoModalFields, value: string): Promise<void> {
-    if (!value) return;
+    await step(`Llenar campo ${field}`, async (stepContext) => {
+      stepContext.parameter("Field", field);
+      stepContext.parameter("Value", value);
 
-    const locator = UploadVideoModal.LOCATORS[field];
+      if (!value) return;
 
-    try {
-      logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
+      const locator = UploadVideoModal.LOCATORS[field];
 
-      if (field === UploadVideoModalFields.FILE_UPLOAD_INPUT) {
-        await this.uploadFile(value);
-        return;
+      try {
+        logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
+
+        if (field === UploadVideoModalFields.FILE_UPLOAD_INPUT) {
+          await this.uploadFile(value);
+          return;
+        }
+
+        if (field === UploadVideoModalFields.TITLE_INPUT) {
+          value = value + " | Subido por BlueStack_Test_Automation_Framework";
+        }
+
+        await writeSafe(this.driver, locator, value, this.config);
+
+        logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
+      } catch (error: any) {
+        logger.error(`Error en fillField: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-
-      if (field === UploadVideoModalFields.TITLE_INPUT) {
-        value = value + " | Subido por BlueStack_Test_Automation_Framework";
-      }
-
-      await writeSafe(this.driver, locator, value, this.config);
-
-      logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
-    } catch (error) {
-      throw error;
-    }
+    });
   }
 
   async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
-    const startTime = Date.now();
-    const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
-    try {
-      logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
-      while (!(await this.isProgressBarFull(progressBar))) {
-        if (Date.now() - startTime > timeoutMs) {
-          throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
+    await step("Verificar barra de progreso de subida", async (stepContext) => {
+      stepContext.parameter("Timeout", `${timeoutMs}ms`);
+
+      const startTime = Date.now();
+      const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
+      try {
+        logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
+        while (!(await this.isProgressBarFull(progressBar))) {
+          if (Date.now() - startTime > timeoutMs) {
+            throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
+          }
+          await sleep(1000);
         }
-        await sleep(1000);
-      }
-      logger.debug('Esperando a que el modal de progreso de subida se cierre...', { label: this.config.label })
-      while (!(await this.isProgressBarModalClosed())) {
-        if (Date.now() - startTime > timeoutMs) {
-          throw new Error(`Timeout: El modal de progreso de subida no se cerró en ${timeoutMs}ms`);
+        logger.debug('Esperando a que el modal de progreso de subida se cierre...', { label: this.config.label })
+        while (!(await this.isProgressBarModalClosed())) {
+          if (Date.now() - startTime > timeoutMs) {
+            throw new Error(`Timeout: El modal de progreso de subida no se cerró en ${timeoutMs}ms`);
+          }
+          await sleep(500);
         }
-        await sleep(500);
+      } catch (error: any) {
+        logger.error(`Error verificando barra de progreso: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-    } catch (error) {
-      throw error;
-    }
+    });
   }
 
   async clickOnUploadBtn() {
-    try {
-      await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
-    } catch (error) {
-      throw error;
-    }
+    await step("Click en botón de subida", async (stepContext) => {
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+      try {
+        await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
+      } catch (error: any) {
+        logger.error(`Error al clickear subir: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
+      }
+    });
   }
 
-  async isProgressBarFull(progressBar: WebElement): Promise<boolean> {
+  private async isProgressBarFull(progressBar: WebElement): Promise<boolean> {
     try {
       const progress = await progressBar.getAttribute('aria-valuenow');
       logger.debug(`Progreso actual: ${progress}`, { label: this.config.label });
       return progress === '100';
-    } catch (error) {
+    } catch (error: any) {
+      logger.error(`Error verificando barra de progreso completa: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }
 
-  async isProgressBarModalClosed(): Promise<boolean> {
+  private async isProgressBarModalClosed(): Promise<boolean> {
     try {
       const progressBarModal = await this.driver.findElements(UploadVideoModal.UPLOAD_NATIVE_MODAL)
       return progressBarModal.length === 0;
-    } catch (error) {
+    } catch (error: any) {
+      logger.error(`Error verificando cierre de modal: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }
 
-  async uploadFile(relativePath: string): Promise<void> {
+  private async uploadFile(relativePath: string): Promise<void> {
     const cleanRelativePath = relativePath.startsWith('/')
       ? relativePath.substring(1)
       : relativePath;
@@ -188,7 +205,7 @@ export class UploadVideoModal {
     }
   }
 
-  async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+  private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
     const element = await waitFind(this.driver, locator, this.config)
     await waitEnabled(this.driver, element, this.config)
     await waitVisible(this.driver, element, this.config)

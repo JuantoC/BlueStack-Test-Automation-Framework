@@ -116,7 +116,8 @@ export class EditorHeaderActions {
 
       logger.debug(`Acción de salida ejecutada correctamente: ${action}`, { label: this.config.label });
 
-    } catch (error) {
+    } catch (error: any) {
+      logger.error(`Error en clickExitAction: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }

@@ -8,8 +8,8 @@ import { RetryOptions } from "../../../../core/config/defaultConfig.js";
 export class LiveBlogSection extends BaseListicleSection {
   private eventSection: EditorLiveBlogEventSection;
 
-  constructor(driver: WebDriver, config: RetryOptions) {
-    super(driver, LiveBlogStrategy, config);
+  constructor(driver: WebDriver, opts: RetryOptions) {
+    super(driver, LiveBlogStrategy, opts);
     this.eventSection = new EditorLiveBlogEventSection(driver, this.config);
   }
 
@@ -27,7 +27,7 @@ export class LiveBlogSection extends BaseListicleSection {
 }
 
 export class ListicleSection extends BaseListicleSection {
-  constructor(driver: WebDriver, config: RetryOptions) {
-    super(driver, StandardStrategy, config);
+  constructor(driver: WebDriver, opts: RetryOptions) {
+    super(driver, StandardStrategy, opts);
   }
 }

@@ -29,8 +29,16 @@ export class EditorLateralSettings {
    * Abre o cierra el panel lateral de configuraciones.
    */
   async toggleSettingsPanel(): Promise<void> {
-    logger.debug("Cambiando estado del panel lateral de configuración", { label: this.config.label });
-    await clickSafe(this.driver, EditorLateralSettings.SETTINGS_TOGGLE_BTN, this.config);
+    await step("Cambiando estado del panel lateral de configuración", async (stepContext) => {
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+      try {
+        logger.debug("Cambiando estado del panel lateral de configuración", { label: this.config.label });
+        await clickSafe(this.driver, EditorLateralSettings.SETTINGS_TOGGLE_BTN, this.config);
+      } catch (error: any) {
+        logger.error(`Error en toggleSettingsPanel: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
+      }
+    });
   }
 
   /**
@@ -46,7 +54,8 @@ export class EditorLateralSettings {
         await clickSafe(this.driver, EditorLateralSettings.FIRST_SECTION_OPT, this.config);
 
         logger.debug("Sección seleccionada exitosamente (primera de la lista)", { label: this.config.label });
-      } catch (error) {
+      } catch (error: any) {
+        logger.error(`Error en selectFirstSectionOption: ${error.message}`, { label: this.config.label, error: error.message });
         throw error;
       }
     });

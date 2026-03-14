@@ -24,9 +24,9 @@ export class PostTable {
   public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation Framework";
 
-  constructor(driver: WebDriver, config: RetryOptions) {
+  constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, "PostTable") };
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PostTable") };
   }
 
   /**
@@ -83,8 +83,9 @@ export class PostTable {
         }
       }
       throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
-    } catch (error) {
-      throw new Error(`Error en búsqueda de nota: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (error: any) {
+      logger.error(`Error en búsqueda de nota: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
     }
   }
 
@@ -123,8 +124,9 @@ export class PostTable {
       const btnElement = await postContainer.findElement(PostTable.POST_EDIT_BTN);
       await hoverOverParentContainer(this.driver, postContainer, this.config);
       await clickSafe(this.driver, btnElement, { ...this.config, timeoutMs: 8000 });
-    } catch (error) {
-      throw new Error(`Fallo al clickear botón editar en la nota: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (error: any) {
+      logger.error(`Fallo al clickear botón editar en la nota: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
     }
   }
 
@@ -150,8 +152,8 @@ export class PostTable {
       }
 
       throw new Error("No hay Label ni Input visible para extraer el texto.");
-    } catch (error) {
-      logger.debug(`Interrupción al leer texto (posible reflow de Angular): ${error}`, { label: this.config.label });
+    } catch (error: any) {
+      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${error.message}`, { label: this.config.label, error: error.message });
       throw error; // Delegamos al retry principal
     }
   }

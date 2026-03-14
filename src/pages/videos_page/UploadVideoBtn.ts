@@ -6,6 +6,7 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
+import { step } from "allure-js-commons";
 
 export enum VideoType {
   NATIVO = 'NATIVO',
@@ -37,20 +38,30 @@ export class UploadVideoBtn {
   }
 
   async selectVideoType(videoType: VideoType): Promise<void> {
-    // Espera explicita para clickar en el boton mientras carga la pagina.
-    await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);
+    await step(`Seleccionar tipo de video: "${videoType}"`, async (stepContext) => {
+      stepContext.parameter("Video Type", videoType);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-    // Click en el boton de subir
-    await this.clickOnUploadVideoButton();
+      try {
+        // Espera explicita para clickar en el boton mientras carga la pagina.
+        await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);
 
-    // Busqueda del tipo de video
-    const elementToClick = await this.matchVideoType(videoType);
+        // Click en el boton de subir
+        await this.clickOnUploadVideoButton();
 
-    logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
-    await clickSafe(this.driver, elementToClick, this.config);
+        // Busqueda del tipo de video
+        const elementToClick = await this.matchVideoType(videoType);
+
+        logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
+        await clickSafe(this.driver, elementToClick, this.config);
+      } catch (error: any) {
+        logger.error(`Error en selectVideoType: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
+      }
+    });
   }
 
-  async clickOnUploadVideoButton(): Promise<void> {
+  private async clickOnUploadVideoButton(): Promise<void> {
     const isVisible = await this.isDropdownVisible();
 
     if (!isVisible) {
@@ -61,7 +72,7 @@ export class UploadVideoBtn {
     }
   }
 
-  async isDropdownVisible(): Promise<boolean> {
+  private async isDropdownVisible(): Promise<boolean> {
     const element = await this.waitUntilIsReady(UploadVideoBtn.UPLOAD_VIDEO_BTN);
 
     // Verificamos visualmente el atributo
@@ -74,14 +85,14 @@ export class UploadVideoBtn {
    * Busca en la lista de opciones desplegadas el WebElement que coincide con el VideoType.
    * Retorna el elemento para ser clickeado posteriormente.
    */
-  async matchVideoType(videoType: VideoType): Promise<WebElement> {
+  private async matchVideoType(videoType: VideoType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
 
       await this.waitUntilIsReady(UploadVideoBtn.DROPDOWN_COMBO_MODAL)
 
-    } catch (error) {
-      logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
+    } catch (error: any) {
+      logger.error(`El menú no se desplegó correctamente: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
 
@@ -113,7 +124,7 @@ export class UploadVideoBtn {
   // HELPERS
   // ==================
 
-  async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+  private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
     const element = await waitFind(this.driver, locator, this.config)
     await waitEnabled(this.driver, element, this.config)
     await waitVisible(this.driver, element, this.config)

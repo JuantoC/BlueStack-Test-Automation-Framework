@@ -4,6 +4,7 @@ import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js"
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
+import { step } from "allure-js-commons";
 
 export enum NoteType {
   POST = 'POST',
@@ -30,7 +31,7 @@ export class NewNoteBtn {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NewNoteBtn") };
   }
 
-  async clickOnNewNoteButton(): Promise<void> {
+  private async clickOnNewNoteButton(): Promise<void> {
     const isVisible = await this.isDropdownVisible();
 
     if (!isVisible) {
@@ -42,18 +43,28 @@ export class NewNoteBtn {
   }
 
   async selectNoteType(noteType: NoteType): Promise<void> {
-    await this.clickOnNewNoteButton();
+    await step(`Seleccionar tipo de nota: "${noteType}"`, async (stepContext) => {
+      stepContext.parameter("Note Type", noteType);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-    const elementToClick = await this.matchNoteType(noteType);
-    logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
-    await clickSafe(this.driver, elementToClick, this.config);
+      try {
+        await this.clickOnNewNoteButton();
+
+        const elementToClick = await this.matchNoteType(noteType);
+        logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
+        await clickSafe(this.driver, elementToClick, this.config);
+      } catch (error: any) {
+        logger.error(`Error en selectNoteType: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
+      }
+    });
   }
 
   /**
    * Busca en la lista de opciones desplegadas el WebElement que coincide con el NoteType.
    * Retorna el elemento para ser clickeado posteriormente.
    */
-  async matchNoteType(noteType: NoteType): Promise<WebElement> {
+  private async matchNoteType(noteType: NoteType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
       const menuContainer = await this.driver.wait(
@@ -66,8 +77,8 @@ export class NewNoteBtn {
         this.config.timeoutMs,
         "El menú dropdown existe pero no es visible"
       );
-    } catch (error) {
-      logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
+    } catch (error: any) {
+      logger.error(`El menú no se desplegó correctamente: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
 
@@ -95,7 +106,7 @@ export class NewNoteBtn {
     throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
   }
 
-  async isDropdownVisible(): Promise<boolean> {
+  private async isDropdownVisible(): Promise<boolean> {
     const element = await waitFind(this.driver, NewNoteBtn.NEW_NOTE_DROPDOWN_BTN, this.config);
 
     // Verificamos visualmente el atributo

@@ -117,30 +117,40 @@ export class MainVideoPage {
   }
 
   async selectAndPublishFooter(videos: WebElement[]): Promise<any> {
-    try {
-      logger.debug('Seleccionando el/los videos enviados...', { label: this.config.label })
-      for (const video of videos) {
-        await this.table.selectVideo(video);
+    await step("Seleccionar y publicar videos", async (stepContext) => {
+      stepContext.parameter("Cantidad", videos.length.toString());
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
+      try {
+        logger.debug('Seleccionando el/los videos enviados...', { label: this.config.label })
+        for (const video of videos) {
+          await this.table.selectVideo(video);
+        }
+        logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
+        await this.footer.clickOnPublishBtn()
+
+      } catch (error: any) {
+        logger.error(`Error al seleccionar y publicar videos: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-      logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
-      await this.footer.clickOnPublishBtn()
-
-
-    } catch (error: any) {
-
-    }
+    });
   }
 
   async getLastFiveVideoContainer(): Promise<WebElement[]> {
-    try {
-      let videos = []
-      for (let i = 0; i < 5; i++) {
-        const video = await this.table.getVideoContainerByIndex(i);
-        videos.push(video)
+    return await step("Obtener los últimos cinco contenedores de videos", async (stepContext) => {
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
+      try {
+        let videos = []
+        for (let i = 0; i < 5; i++) {
+          const video = await this.table.getVideoContainerByIndex(i);
+          videos.push(video)
+        }
+        return videos
+      } catch (error: any) {
+        logger.error(`Error al obtener los ultimos 5 videos: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-      return videos
-    } catch (error: any) {
-      throw error;
-    }
+    });
   }
 }

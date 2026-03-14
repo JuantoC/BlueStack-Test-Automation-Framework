@@ -2,7 +2,7 @@ export type ListicleData = Pick<NoteData, 'listicleItems'>;
 export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 
 export abstract class BaseListicleSection {
-  private config: RetryOptions;
+  protected config: RetryOptions;
 
   private static readonly CREATE_MENU_BTN: Locator = By.css('.dropdown-noteList button');
   private static readonly ADD_OPT: Locator = By.id('option-dropdown-0');
@@ -10,7 +10,7 @@ export abstract class BaseListicleSection {
   constructor(
     protected driver: WebDriver,
     protected strategy: ListicleStrategy,
-    opts: RetryOptions = {}
+    opts: RetryOptions
   ) {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "BaseListicleSection") }
   }
@@ -70,11 +70,12 @@ export abstract class BaseListicleSection {
         );
         await clickSafe(this.driver, iconLocator, this.config);
       }
-    } catch (error) {
-      logger.warn(
+    } catch (error: any) {
+      logger.error(
         `No se pudo interactuar con el icono del ítem #${uiIndex}`,
-        { label: this.config.label }
+        { label: this.config.label, error: error.message }
       );
+      throw error;
     }
   }
 

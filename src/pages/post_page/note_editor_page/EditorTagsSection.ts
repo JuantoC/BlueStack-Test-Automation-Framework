@@ -58,7 +58,7 @@ export class EditorTagsSection {
    * @param type Tipo de tag (Visible u Oculto).
    * @param tags Array de strings con las etiquetas.
    */
-  async addTags(type: NoteTagField, tags: string[]): Promise<void> {
+  private async addTags(type: NoteTagField, tags: string[]): Promise<void> {
     if (!tags?.length) return;
 
     const locator = EditorTagsSection.LOCATORS[type];
@@ -75,8 +75,8 @@ export class EditorTagsSection {
       }
 
       logger.debug(`Se agregaron ${tags.length} etiquetas exitosamente al campo ${type}`, { label: this.config.label });
-    } catch (error) {
-      // Propagamos: writeSafe ya reportó cuál tag falló o si el campo no era interactuable
+    } catch (error: any) {
+      logger.error(`Error procesando los tags de ${type}: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }

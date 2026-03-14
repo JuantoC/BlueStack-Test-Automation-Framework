@@ -69,40 +69,27 @@ export class EditorTextSection {
   async fillField(field: NoteTextField, value: string): Promise<void> {
     if (!value) return;
 
-    const locator = EditorTextSection.LOCATORS[field];
+    await step(`Llenar campo de texto: "${field}"`, async (stepContext) => {
+      stepContext.parameter("Field Name", field);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-    try {
-      logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
+      const locator = EditorTextSection.LOCATORS[field];
 
-      if (field === NoteTextField.TITLE) {
-        value = value + " | Creado por BlueStack_Test_Automation_Framework";
+      try {
+        logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
+
+        if (field === NoteTextField.TITLE) {
+          value = value + " | Creado por BlueStack_Test_Automation_Framework";
+        }
+
+        await writeSafe(this.driver, locator, value, this.config);
+
+        logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
+      } catch (error: any) {
+        logger.error(`Error en fillField (${field}): ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-
-      /*  if (field === NoteTextField.SECONDARY_TITLE) {
-         logger.debug("Revisando si el campo de titulo secundario existe", { label: this.config.label });
- 
-         try {
-           // Buscamos el elemento suprimiendo los reintentos para no perder tiempo si no existe
-           await waitFind(this.driver, locator, { ...this.config, supressRetry: true });
-           logger.debug("El campo de titulo secundario existe", { label: this.config.label });
-         } catch (error) {
-           // Verificamos si el error es debido a que no se encontró el elemento
-           if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'NoSuchElementError')) {
-             logger.debug("El campo de titulo secundario no existe. Procediendo a crearlo.", { label: this.config.label });
- 
-             await this.createSecondaryTitleField();
-           } else {
-             throw error;
-           }
-         }
-       } */
-      await writeSafe(this.driver, locator, value, this.config);
-
-      logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
-    } catch (error) {
-      // Propagamos el error sin loguear de nuevo (Regla de No Redundancia).
-      throw error;
-    }
+    });
   }
 
   /**

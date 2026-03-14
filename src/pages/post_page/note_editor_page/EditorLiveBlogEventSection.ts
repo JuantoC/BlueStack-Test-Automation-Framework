@@ -25,9 +25,9 @@ export class EditorLiveBlogEventSection {
         [LiveBlogEventField.EVENT_ADDRESS]: By.css('div[id="event-note"] input#search-input'),
     }
 
-    constructor(driver: WebDriver, config: RetryOptions) {
+    constructor(driver: WebDriver, opts: RetryOptions) {
         this.driver = driver;
-        this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, "EditorLiveBlogEventSection") };
+        this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorLiveBlogEventSection") };
     }
 
     async fillEventTitle(value: LiveBlogData): Promise<void> {
@@ -39,7 +39,8 @@ export class EditorLiveBlogEventSection {
                 }
                 logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
                 await writeSafe(this.driver, EditorLiveBlogEventSection.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
-            } catch (error) {
+            } catch (error: any) {
+                logger.error(`Error en fillEventTitle: ${error.message}`, { label: this.config.label, error: error.message });
                 throw error;
             }
         });

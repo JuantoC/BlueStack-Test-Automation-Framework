@@ -23,6 +23,6 @@ export const NativeVideoData: VideoData[] = [
     video_type: VideoType.NATIVO,
     title: 'TEST Nativo',
     description: 'Este video se sube por QA Team para probar los videos nativos automatizados',
-    path: "dataTest/Plataforma BLUESTACK CMS - 8.7.1 - Google Chrome 2026-03-09 14-29-32.mp4"
+    path: "src/data_test/Plataforma BLUESTACK CMS - 8.7.1 - Google Chrome 2026-03-09 14-29-32.mp4"
   }
 ]

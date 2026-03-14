@@ -27,7 +27,7 @@ src/
 └── interfaces/              # Shared TypeScript data interfaces
 
 sessions/                    # Test files (*.test.ts) — one per workflow
-dataTest/                    # Static test fixture data (titles, video URLs, etc.)
+src/data_test/               # Static test fixture data (titles, video URLs, etc.)
 ```
 
 ### How it works
@@ -116,7 +116,7 @@ All test files live in the `sessions/` directory and must follow the naming patt
 sessions/MyNewFeature.test.ts
 ```
 
-**2. (Optional) Add fixture data** in `dataTest/` following the existing TypeScript interfaces in `src/interfaces/data.ts`.
+**2. (Optional) Add fixture data** in `src/data_test/` following the existing TypeScript interfaces in `src/interfaces/data.ts`.
 
 **3. Write the test** using `runSession()` as the entry point and composing the Page Objects you need:
 
@@ -131,7 +131,7 @@ import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
 import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { PostData } from "../dataTest/noteData.js";
+import { PostData } from "../src/data_test/noteData.js";
 import { description } from "allure-js-commons";
 
 runSession(
@@ -179,6 +179,23 @@ runSession(
 
 ## Test Execution
 
+Para correr tests individuales, Jest utiliza un patrón de búsqueda (regex) dentro de `sessions/`. No tenés que pasar una ruta completa ni la extensión `.ts`. Ejemplos válidos de `NombreDelTest`: `PublishNewPost`, `EditInline`, `NativeVideo`.
+
+```bash
+# Correr un test específico en modo desarrollo (debug local)
+npm run test:dev -- NombreDelTest
+
+# Correr un test específico contra el grid
+npm run test:grid -- NombreDelTest
+
+# Correr en CI (ciclo completo)
+npm run test:ci -- NombreDelTest
+```
+
+- `test:dev` → ejecución local con browser visible, para desarrollo y debug
+- `test:grid` → ejecución headless contra Docker Selenium Grid
+- `test:ci` → ciclo completo: clean → infra:up → exec → infra:down
+
 ### Local Execution (visible browser, for development & debugging)
 
 Starts a headed Chrome browser on your local machine. Use this when writing or debugging tests.
@@ -186,9 +203,6 @@ Starts a headed Chrome browser on your local machine. Use this when writing or d
 ```bash
 # Clean previous results and run all sessions
 npm run test:dev
-
-# Run a single specific test file
-npm run test:dev -- PublishNewPost
 
 # Run and automatically open the Allure report when done
 npm run test:dev:show
@@ -213,9 +227,6 @@ This brings up:
 ```bash
 # Run all sessions against the grid
 npm run test:grid
-
-# Run a specific test file against the grid
-npm run test:grid -- PublishNewPost
 
 # Run and open the Allure report when done
 npm run test:grid:show

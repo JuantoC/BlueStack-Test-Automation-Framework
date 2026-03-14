@@ -37,7 +37,7 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { ListicleData } from "../dataTest/noteData.js";
+import { ListicleData } from "../src/data_test/noteData.js";
 import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { description } from "allure-js-commons";

@@ -43,7 +43,7 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { NativeVideoData, YoutubeVideoData, } from "../dataTest/videoData.js";
+import { NativeVideoData, YoutubeVideoData, } from "../src/data_test/videoData.js";
 import { sleep } from "../src/core/utils/backOff.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";

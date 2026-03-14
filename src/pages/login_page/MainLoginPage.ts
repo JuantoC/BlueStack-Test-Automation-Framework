@@ -52,15 +52,36 @@ export class MainLoginPage {
     });
   }
 
-  async failLogin(invalidAttempts: AuthCredentials[], validCredentials: AuthCredentials) {
-    for (let i = 0; i < invalidAttempts.length; i++) {
-      const attempt = await this.login.attemptLogin(invalidAttempts[i].username, invalidAttempts[i].password);
+  async failLogin(invalidAttempts: AuthCredentials[], validCredentials: AuthCredentials): Promise<void> {
+    await step(`Flujo de Login Fallido (Intentos: ${invalidAttempts.length})`, async (stepContext) => {
+      stepContext.parameter("Invalid Attempts Count", invalidAttempts.length.toString());
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-      if (attempt.success) {
-        throw new Error(`El test esperaba fallar en el intento ${i + 1}, pero el login fue exitoso.`);
+      try {
+        logger.debug(`Iniciando intentos de login fallidos...`, { label: this.config.label });
+        
+        for (let i = 0; i < invalidAttempts.length; i++) {
+          const attempt = await this.login.attemptLogin(invalidAttempts[i].username, invalidAttempts[i].password);
+
+          if (attempt.success) {
+            throw new Error(`El test esperaba fallar en el intento ${i + 1}, pero el login fue exitoso.`);
+          }
+          if (!attempt.errorMessage) {
+            throw new Error(`El test esperaba un mensaje de error en la UI tras fallar, pero no se encontró ninguno.`);
+          }
+          logger.debug(`Intento ${i + 1} falló correctamente con error: ${attempt.errorMessage}`, { label: this.config.label });
+        }
+        
+        logger.debug(`Intentos fallidos validados. Procediendo con credenciales válidas.`, { label: this.config.label });
+        await this.passLoginAndTwoFA(validCredentials);
+        
+      } catch (error: any) {
+        logger.error(`Error en failLogin: ${error.message}`, {
+          label: this.config.label,
+          error: error.message,
+        });
+        throw error;
       }
-      // Podríamos validar que attempt.errorMessage es el texto correcto ("Contraseña incorrecta", etc)
-    }
-    await this.passLoginAndTwoFA(validCredentials);
+    });
   }
 }

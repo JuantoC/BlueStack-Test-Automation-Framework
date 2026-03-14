@@ -29,7 +29,7 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
 });
 
-import { LiveBlogData } from "../dataTest/noteData.js";
+import { LiveBlogData } from "../src/data_test/noteData.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";

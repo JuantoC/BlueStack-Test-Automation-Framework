@@ -1,11 +1,13 @@
 ---
 name: create-data-fixture
-description: Genera entradas de datos de prueba (fixtures) para los archivos de dataTest del framework Bluestack. Usar siempre que el usuario quiera agregar datos de prueba nuevos, cuando diga "necesito datos para un test", "agregá un caso en noteData", "quiero probar con un video nuevo", "creame un liveblog de prueba", "nuevo fixture", o cualquier variante de necesitar datos para cubrir un caso de prueba. Aplica para todos los tipos de contenido: Post, Listicle, LiveBlog, Video Nativo y Video YouTube.
+description: Genera entradas de datos de prueba (fixtures) para los archivos de data_test del framework Bluestack. Usar siempre que el usuario quiera agregar datos de prueba nuevos, cuando diga "necesito datos para un test", "agregá un caso en noteData", "quiero probar con un video nuevo", "creame un liveblog de prueba", "nuevo fixture", o cualquier variante de necesitar datos para cubrir un caso de prueba. Aplica para todos los tipos de contenido: Post, Listicle, LiveBlog, Video Nativo y Video YouTube.
 ---
 
 # Create Data Fixture Skill
 
-Genera entradas de datos de prueba listas para copiar en los archivos `dataTest/`, siguiendo estrictamente las interfaces TypeScript definidas en `src/interfaces/data.ts`.
+Genera entradas de datos de prueba listas para agregar en los archivos de `src/data_test/`, siguiendo estrictamente las interfaces definidas en `@src/interfaces/data.ts`.
+
+> **Siempre leer `@src/interfaces/data.ts` antes de generar cualquier fixture** para usar los campos actualizados. No asumir campos de memoria.
 
 ---
 
@@ -13,52 +15,13 @@ Genera entradas de datos de prueba listas para copiar en los archivos `dataTest/
 
 | Tipo de contenido | Archivo destino | Array de exportación |
 |---|---|---|
-| Post | `dataTest/noteData.ts` | `PostData` |
-| Listicle | `dataTest/noteData.ts` | `ListicleData` |
-| LiveBlog | `dataTest/noteData.ts` | `LiveBlogData` |
-| Video YouTube | `dataTest/videoData.ts` | `YoutubeVideoData` |
-| Video Nativo | `dataTest/videoData.ts` | `NativeVideoData` |
+| Post | `src/data_test/noteData.ts` | `PostData` |
+| Listicle | `src/data_test/noteData.ts` | `ListicleData` |
+| LiveBlog | `src/data_test/noteData.ts` | `LiveBlogData` |
+| Video YouTube | `src/data_test/videoData.ts` | `YoutubeVideoData` |
+| Video Nativo | `src/data_test/videoData.ts` | `NativeVideoData` |
 
----
-
-## Interfaces de referencia
-
-### `NoteData` (Post, Listicle, LiveBlog)
-
-```typescript
-interface NoteData {
-  title?: string;
-  secondaryTitle?: string;
-  subTitle?: string;
-  halfTitle?: string;
-  body?: string;
-  summary?: string;
-  tags?: string[];
-  hiddenTags?: string[];
-  authorName?: string;
-  authorDescription?: string;
-  authorType?: AuthorType;
-  listicleItems?: Array<{ title: string; body: string; }>;
-  eventLiveBlog?: {
-    eventTitle?: string;
-    eventDescription?: string;
-    placeOfEvent?: string;
-    eventAdress?: string;
-  }
-}
-```
-
-### `VideoData`
-
-```typescript
-interface VideoData {
-  video_type: VideoType;
-  url?: string;       // Solo YouTube
-  title: string;
-  description?: string;
-  path?: string;      // Solo Nativo (ruta al archivo local)
-}
-```
+Cada tipo de contenido va en su array correspondiente. No mezclar tipos en un mismo array.
 
 ---
 
@@ -66,14 +29,13 @@ interface VideoData {
 
 ### Post
 Campos obligatorios: `title`, `body`, `tags`, `authorName`, `authorType`
-Campos recomendados: `subTitle`, `halfTitle`, `hiddenTags`, `authorDescription`
-**No incluir:** `listicleItems`, `eventLiveBlog`
+Campos recomendados: `subTitle`, `hiddenTags`, `authorDescription`
+**Campos PROHIBIDOS:** `secondaryTitle`, `halfTitle`, `listicleItems`, `eventLiveBlog`
 
 ```typescript
 {
   title: "...",
   subTitle: "...",
-  halfTitle: "...",
   body: "...",
   tags: ["...", "..."],
   hiddenTags: ["...", "..."],
@@ -85,12 +47,15 @@ Campos recomendados: `subTitle`, `halfTitle`, `hiddenTags`, `authorDescription`
 
 ### Listicle
 Campos obligatorios: `title`, `body`, `tags`, `authorName`, `authorType`, `listicleItems`
-**No incluir:** `halfTitle`, `eventLiveBlog`
-`listicleItems` debe tener mínimo 3 items y máximo 10. Cada item con `title` y `body`.
+Campos recomendados: `subTitle`, `hiddenTags`, `authorDescription`
+**Campos PROHIBIDOS:** `secondaryTitle`, `halfTitle`, `eventLiveBlog`
+
+`listicleItems`: mínimo 3 items, máximo 10. Cada item con `title` y `body`.
+El título del Listicle suele indicar la cantidad de items (ej: "5 estrategias para...").
 
 ```typescript
 {
-  title: "X cosas sobre...",   // El título suele indicar la cantidad de items
+  title: "X cosas sobre...",
   subTitle: "...",
   body: "...",
   tags: ["...", "..."],
@@ -101,23 +66,24 @@ Campos obligatorios: `title`, `body`, `tags`, `authorName`, `authorType`, `listi
   listicleItems: [
     { title: "...", body: "..." },
     { title: "...", body: "..." },
-    // ...
+    // mínimo 3
   ]
 }
 ```
 
 ### LiveBlog
 Campos obligatorios: `title`, `tags`, `authorName`, `listicleItems`, `eventLiveBlog`
-Campos recomendados: `subTitle`, `halfTitle`, `authorDescription`
-**No incluir:** `body` (el contenido va en los items del live)
-`listicleItems` representan las entradas cronológicas del live. Mínimo 5 entradas, idealmente 10+. El `title` de cada item debe incluir la hora: `"HH:MM - Descripción"`.
-`eventLiveBlog.eventTitle` es obligatorio. Los otros campos del evento son opcionales.
+Campos recomendados: `subTitle`, `authorDescription`
+**Campos PROHIBIDOS:** `secondaryTitle`, `halfTitle`, `body`
+
+`listicleItems`: entradas cronológicas del live. Mínimo 5, idealmente 10+.
+El `title` de cada item debe tener formato `"HH:MM - Descripción del momento"`.
+`eventLiveBlog.eventTitle` es obligatorio. Los demás campos del evento son opcionales.
 
 ```typescript
 {
   title: "...",
   subTitle: "...",
-  halfTitle: "...",
   tags: ["...", "..."],
   hiddenTags: ["...", "..."],
   authorName: "...",
@@ -125,7 +91,7 @@ Campos recomendados: `subTitle`, `halfTitle`, `authorDescription`
   listicleItems: [
     { title: "09:00 - Apertura", body: "..." },
     { title: "09:15 - ...", body: "..." },
-    // ...
+    // mínimo 5
   ],
   eventLiveBlog: {
     eventTitle: "...",
@@ -136,9 +102,10 @@ Campos recomendados: `subTitle`, `halfTitle`, `authorDescription`
 ### Video YouTube
 Campos obligatorios: `video_type`, `url`, `title`
 Campo recomendado: `description`
-**No incluir:** `path`
+**Campos PROHIBIDOS:** `path`
+
 `video_type` siempre es `VideoType.YOUTUBE`.
-`url` debe ser una URL válida de YouTube (`https://www.youtube.com/watch?v=...`).
+`url` debe ser una URL válida de YouTube: `https://www.youtube.com/watch?v=...`
 
 ```typescript
 {
@@ -152,16 +119,17 @@ Campo recomendado: `description`
 ### Video Nativo
 Campos obligatorios: `video_type`, `title`, `path`
 Campo recomendado: `description`
-**No incluir:** `url`
+**Campos PROHIBIDOS:** `url`
+
 `video_type` siempre es `VideoType.NATIVO`.
-`path` es la ruta relativa al archivo de video local, desde la raíz del proyecto. Siempre dentro de `dataTest/`.
+`path` es la ruta relativa al archivo de video desde la raíz del proyecto. El archivo debe estar en `src/data_test/`.
 
 ```typescript
 {
   video_type: VideoType.NATIVO,
   title: "...",
   description: "...",
-  path: "dataTest/nombre-del-archivo.mp4"
+  path: "src/data_test/nombre-del-archivo.mp4"
 }
 ```
 
@@ -169,36 +137,36 @@ Campo recomendado: `description`
 
 ## Reglas generales de contenido
 
-1. **Datos realistas**: Generar contenido coherente y temáticamente consistente. No usar placeholders como "Lorem ipsum" ni "Test título 1".
-2. **Títulos únicos**: Cada fixture debe tener un título que no repita los ya existentes en el array.
-3. **Tags relevantes**: Los tags deben ser palabras clave reales relacionadas con el tema del contenido.
-4. **AuthorType**: Siempre usar `AuthorType.MANUAL` salvo que el usuario indique lo contrario.
-5. **Datos estáticos**: No generar timestamps ni valores dinámicos. Todo hardcodeado.
-6. **Idioma**: Respetar el idioma del contenido existente en el archivo (actualmente español).
+1. **Datos realistas**: contenido coherente y temáticamente consistente. Nada de "Lorem ipsum" ni "Test título 1".
+2. **Títulos únicos**: leer los fixtures existentes y no repetir títulos ya usados.
+3. **Tags relevantes**: palabras clave reales relacionadas con el tema.
+4. **AuthorType**: siempre `AuthorType.MANUAL` salvo indicación contraria.
+5. **Valores dinámicos permitidos**: se pueden usar timestamps o valores generados si el usuario lo pide o si el contexto lo justifica (ej: títulos que necesitan ser únicos por ejecución).
+6. **Idioma**: respetar el idioma del contenido existente en el archivo (actualmente español).
+7. **Array correcto**: `PostData` solo tiene posts, `ListicleData` solo listicles, `LiveBlogData` solo liveblogs. Nunca mezclar.
 
 ---
 
 ## Proceso de generación
 
-1. **Identificar el tipo** de contenido que el usuario necesita (Post / Listicle / LiveBlog / Video YT / Video Nativo).
-2. **Preguntar el tema** si el usuario no lo especificó.
-3. **Generar el objeto** completo respetando las reglas del tipo correspondiente.
-4. **Indicar dónde agregarlo**: decirle al usuario en qué archivo y en qué array debe pegar la entrada.
-5. **Si hay múltiples fixtures**, generarlos todos juntos listos para copiar.
+1. **Leer `@src/interfaces/data.ts`** para confirmar los campos disponibles y actualizados.
+2. **Identificar el tipo** de contenido (Post / Listicle / LiveBlog / Video YT / Video Nativo).
+3. **Preguntar el tema** si el usuario no lo especificó.
+4. **Generar el objeto** completo respetando las reglas del tipo correspondiente.
+5. **Indicar el destino**: en qué archivo y en qué array debe agregarse.
 
 ---
 
-## Salida esperada
+## Formato de salida esperado
 
-La salida debe ser **solo el objeto o los objetos** listos para pegar dentro del array correspondiente, con una indicación clara de destino. Ejemplo:
+Indicar siempre el destino antes del objeto. Ejemplo:
 
-> Agregá este objeto al array `PostData` en `dataTest/noteData.ts`:
+> Agregá este objeto al array `PostData` en `src/data_test/noteData.ts`:
 
 ```typescript
 {
   title: "Introducción a los Web Components",
   subTitle: "Componentes nativos del navegador sin frameworks",
-  halfTitle: "Web Components",
   body: "Los Web Components permiten crear elementos HTML reutilizables con encapsulamiento nativo...",
   tags: ["web-components", "frontend", "html"],
   hiddenTags: ["native", "standards"],
@@ -212,16 +180,14 @@ La salida debe ser **solo el objeto o los objetos** listos para pegar dentro del
 
 ## Imports requeridos por archivo
 
-Si el usuario necesita crear el archivo desde cero, recordarle los imports necesarios:
-
-**noteData.ts:**
+**src/data_test/noteData.ts:**
 ```typescript
-import { NoteData } from "../src/interfaces/data.js";
-import { AuthorType } from "../src/pages/post_page/note_editor_page/EditorAuthorSection.js";
+import { NoteData } from "../interfaces/data.js";
+import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js";
 ```
 
-**videoData.ts:**
+**src/data_test/videoData.ts:**
 ```typescript
-import { VideoType } from "../src/pages/videos_page/UploadVideoBtn.js";
-import { VideoData } from "../src/interfaces/data.js";
+import { VideoType } from "../pages/videos_page/UploadVideoBtn.js";
+import { VideoData } from "../interfaces/data.js";
 ```

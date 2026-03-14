@@ -1,4 +1,4 @@
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+wimport { ENV_CONFIG } from "../src/core/config/envConfig.js";
 // Herramientas Core
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";

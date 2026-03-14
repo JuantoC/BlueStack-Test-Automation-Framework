@@ -7,8 +7,8 @@ import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
 export enum NoteTagField {
-  TAGS = 'tags',
-  HIDDEN_TAGS = 'hiddenTags'
+  TAGS = 'TAGS',
+  HIDDEN_TAGS = 'HIDDEN_TAGS'
 }
 
 /**
@@ -24,7 +24,7 @@ export class EditorTagsSection {
   private config: RetryOptions;
 
   // ========== LOCATORS (Private & Readonly) ==========
-  private readonly LOCATORS: Record<NoteTagField, Locator> = {
+  private static readonly LOCATORS: Record<NoteTagField, Locator> = {
     [NoteTagField.TAGS]: By.css('div[id="claves-content"] input[role="combobox"]'),
     [NoteTagField.HIDDEN_TAGS]: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
   };
@@ -61,7 +61,7 @@ export class EditorTagsSection {
   async addTags(type: NoteTagField, tags: string[]): Promise<void> {
     if (!tags?.length) return;
 
-    const locator = this.LOCATORS[type];
+    const locator = EditorTagsSection.LOCATORS[type];
 
     try {
       for (const tag of tags) {

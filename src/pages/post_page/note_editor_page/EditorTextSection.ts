@@ -10,12 +10,12 @@ import { waitFind } from "../../../core/actions/waitFind.js";
 import { hoverOverParentContainer } from "../../../core/helpers/hoverOverParentContainer.js";
 
 export enum NoteTextField {
-  TITLE = 'title',
-  SECONDARY_TITLE = 'secondaryTitle',
-  SUB_TITLE = 'subTitle',
-  HALF_TITLE = 'halfTitle',
-  BODY = 'body',
-  SUMMARY = 'summary'
+  TITLE = 'TITLE',
+  SECONDARY_TITLE = 'SECONDARY_TITLE',
+  SUB_TITLE = 'SUB_TITLE',
+  HALF_TITLE = 'HALF_TITLE',
+  BODY = 'BODY',
+  SUMMARY = 'SUMMARY'
 }
 
 /**
@@ -25,7 +25,7 @@ export class EditorTextSection {
   private driver: WebDriver;
   private config: RetryOptions;
   // ========== LOCATORS (Private & Readonly) ==========
-  private readonly LOCATORS: Record<NoteTextField, Locator> = {
+  private static readonly LOCATORS: Record<NoteTextField, Locator> = {
     [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
     [NoteTextField.SECONDARY_TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height'),
     [NoteTextField.SUB_TITLE]: By.css('ckeditor[data-testid="copete-content"] div.ck-editor__editable'),
@@ -34,8 +34,8 @@ export class EditorTextSection {
     [NoteTextField.SUMMARY]: By.id('resumen-content')
   };
 
-  private readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
-  private readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
+  private static readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
+  private static readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -69,7 +69,7 @@ export class EditorTextSection {
   async fillField(field: NoteTextField, value: string): Promise<void> {
     if (!value) return;
 
-    const locator = this.LOCATORS[field];
+    const locator = EditorTextSection.LOCATORS[field];
 
     try {
       logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });

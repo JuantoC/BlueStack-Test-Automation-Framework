@@ -8,10 +8,10 @@ import { waitVisible } from "../../core/actions/waitVisible.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 
 export enum VideoType {
-  NATIVO = 'Nativo',
-  EMBEDDED = 'Embedded',
-  YOUTUBE = 'Youtube',
-  SHORT = 'Short'
+  NATIVO = 'NATIVO',
+  EMBEDDED = 'EMBEDDED',
+  YOUTUBE = 'YOUTUBE',
+  SHORT = 'SHORT'
 }
 
 export class UploadVideoBtn {
@@ -19,17 +19,17 @@ export class UploadVideoBtn {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly VIDEO_TYPE_MAP: Record<VideoType, Set<string>> = {
+  private static readonly VIDEO_TYPE_MAP: Record<VideoType, Set<string>> = {
     [VideoType.EMBEDDED]: new Set(['Embedded Video', "Video Embedded", "Video Incorporado"]),
     [VideoType.NATIVO]: new Set(['Native Video', "Video Nativo", "Video Nativo"]),
     [VideoType.YOUTUBE]: new Set(['YouTube Video', "Video Youtube", "Video Youtube"]),
     [VideoType.SHORT]: new Set(['YouTube Short Video', "Video Youtube Short", "Video Youtube Short"])
   };
 
-  private readonly VIDEOS_TABLE: Locator = By.css('div#multimedia-table-body')
-  private readonly UPLOAD_VIDEO_BTN: Locator = By.css("button.btn-create-note");
-  private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
+  private static readonly VIDEOS_TABLE: Locator = By.css('div#multimedia-table-body')
+  private static readonly UPLOAD_VIDEO_BTN: Locator = By.css("button.btn-create-note");
+  private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
+  private static readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -38,7 +38,7 @@ export class UploadVideoBtn {
 
   async selectVideoType(videoType: VideoType): Promise<void> {
     // Espera explicita para clickar en el boton mientras carga la pagina.
-    await this.waitUntilIsReady(this.VIDEOS_TABLE);
+    await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);
 
     // Click en el boton de subir
     await this.clickOnUploadVideoButton();
@@ -55,14 +55,14 @@ export class UploadVideoBtn {
 
     if (!isVisible) {
       logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
-      await clickSafe(this.driver, this.UPLOAD_VIDEO_BTN, this.config);
+      await clickSafe(this.driver, UploadVideoBtn.UPLOAD_VIDEO_BTN, this.config);
     } else {
       logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
     }
   }
 
   async isDropdownVisible(): Promise<boolean> {
-    const element = await this.waitUntilIsReady(this.UPLOAD_VIDEO_BTN);
+    const element = await this.waitUntilIsReady(UploadVideoBtn.UPLOAD_VIDEO_BTN);
 
     // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");
@@ -78,7 +78,7 @@ export class UploadVideoBtn {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
 
-      await this.waitUntilIsReady(this.DROPDOWN_COMBO_MODAL)
+      await this.waitUntilIsReady(UploadVideoBtn.DROPDOWN_COMBO_MODAL)
 
     } catch (error) {
       logger.error("El menú no se desplegó correctamente.", { label: this.config.label });
@@ -86,10 +86,10 @@ export class UploadVideoBtn {
     }
 
     // 2. Buscar todos los labels candidatos
-    const elements = await this.driver.findElements(this.LABELS_OF_VIDEO_TYPES);
+    const elements = await this.driver.findElements(UploadVideoBtn.LABELS_OF_VIDEO_TYPES);
 
     if (elements.length === 0) {
-      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.LABELS_OF_VIDEO_TYPES}`);
+      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${UploadVideoBtn.LABELS_OF_VIDEO_TYPES}`);
     }
 
     logger.debug(`Analizando ${elements.length} opciones disponibles...`, { label: this.config.label });
@@ -100,7 +100,7 @@ export class UploadVideoBtn {
       const text = await element.getText();
       const cleanLabel = text.trim();
 
-      if (this.VIDEO_TYPE_MAP[videoType].has(cleanLabel)) {
+      if (UploadVideoBtn.VIDEO_TYPE_MAP[videoType].has(cleanLabel)) {
         logger.debug(`Match encontrado: "${cleanLabel}"`, { label: this.config.label });
         return element;
       }

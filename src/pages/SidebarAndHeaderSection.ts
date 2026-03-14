@@ -18,9 +18,9 @@ export class SidebarAndHeader {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
+  private static readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
 
-  private readonly SIDEBAR_MAP: Record<SidebarOption, Locator> = {
+  private static readonly SIDEBAR_MAP: Record<SidebarOption, Locator> = {
     [SidebarOption.COMMENTS]: By.css('a[title="Comentarios"]'),
     [SidebarOption.PLANNING]: By.css('a[title="Planning"]'),
     [SidebarOption.NEWS]: By.css('a[title="Noticias"]'),
@@ -35,7 +35,7 @@ export class SidebarAndHeader {
   }
 
   async goToComponent(component: SidebarOption): Promise<any> {
-    const locator = this.SIDEBAR_MAP[component];
+    const locator = SidebarAndHeader.SIDEBAR_MAP[component];
 
     await step(`Moverse hacia el componente ${component}`, async (stepContext) => {
       stepContext.parameter('Component', component)
@@ -44,7 +44,7 @@ export class SidebarAndHeader {
       try {
         logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
         if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
-          clickSafe(this.driver, this.MULTIMEDIA_FILE_BTN, this.config)
+          clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, this.config)
         }
         await clickSafe(this.driver, locator, this.config)
       } catch (error: any) {

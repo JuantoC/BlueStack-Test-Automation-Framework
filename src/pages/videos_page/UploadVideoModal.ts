@@ -17,27 +17,27 @@ const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
 
 export enum UploadVideoModalFields {
-  URL_INPUT = 'url-input',
-  TITLE_INPUT = 'title-input',
-  DESCRIPTION_INPUT = 'description-input',
-  FILE_UPLOAD_INPUT = 'file-upload-input',
+  URL_INPUT = 'URL_INPUT',
+  TITLE_INPUT = 'TITLE_INPUT',
+  DESCRIPTION_INPUT = 'DESCRIPTION_INPUT',
+  FILE_UPLOAD_INPUT = 'FILE_UPLOAD_INPUT',
 }
 
 export class UploadVideoModal {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
+  private static readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
     [UploadVideoModalFields.URL_INPUT]: By.css('div#url-details input[data-testid="url-youtube"]'),
     [UploadVideoModalFields.TITLE_INPUT]: By.css('div#title-details textarea[data-testid="title-uploadVideo"]'),
     [UploadVideoModalFields.DESCRIPTION_INPUT]: By.css('div#title-details textarea.desc-textarea'),
     [UploadVideoModalFields.FILE_UPLOAD_INPUT]: By.css('input#video-file'),
   };
-  private readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
-  private readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
-  private readonly UPLOAD_NATIVE_MODAL: Locator = By.css('mat-dialog-container[aria-modal="true"]')
-  private readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
-  private readonly BACKGROUND_PROGRESS_BAR = By.css('div.progress--bar');
+  private static readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
+  private static readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
+  private static readonly UPLOAD_NATIVE_MODAL: Locator = By.css('mat-dialog-container[aria-modal="true"]')
+  private static readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
+  private static readonly BACKGROUND_PROGRESS_BAR = By.css('div.progress--bar');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -69,7 +69,7 @@ export class UploadVideoModal {
   async fillField(field: UploadVideoModalFields, value: string): Promise<void> {
     if (!value) return;
 
-    const locator = this.LOCATORS[field];
+    const locator = UploadVideoModal.LOCATORS[field];
 
     try {
       logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
@@ -93,7 +93,7 @@ export class UploadVideoModal {
 
   async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
     const startTime = Date.now();
-    const progressBar = await waitFind(this.driver, this.PROGRESS_BAR, this.config);
+    const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
     try {
       logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
       while (!(await this.isProgressBarFull(progressBar))) {
@@ -116,7 +116,7 @@ export class UploadVideoModal {
 
   async clickOnUploadBtn() {
     try {
-      await clickSafe(this.driver, this.UPLOAD_BTN, this.config)
+      await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
     } catch (error) {
       throw error;
     }
@@ -134,7 +134,7 @@ export class UploadVideoModal {
 
   async isProgressBarModalClosed(): Promise<boolean> {
     try {
-      const progressBarModal = await this.driver.findElements(this.UPLOAD_NATIVE_MODAL)
+      const progressBarModal = await this.driver.findElements(UploadVideoModal.UPLOAD_NATIVE_MODAL)
       return progressBarModal.length === 0;
     } catch (error) {
       throw error;
@@ -152,7 +152,7 @@ export class UploadVideoModal {
 
     const fileInput = await waitFind(
       this.driver,
-      this.LOCATORS[UploadVideoModalFields.FILE_UPLOAD_INPUT],
+      UploadVideoModal.LOCATORS[UploadVideoModalFields.FILE_UPLOAD_INPUT],
       this.config
     );
 

@@ -10,8 +10,8 @@ import { waitVisible } from "../../core/actions/waitVisible.js";
 export class CKEditorImageSelector {
   private driver: WebDriver;
   private config: RetryOptions;
-  private readonly CKEDITOR_SELECTOR_IMAGE: Locator = By.css('div#ckeditor-selector')
-  private readonly DONE_BTN_CKEDITOR_SELECTOR_LOCATOR: Locator = By.css('app-cmsmedios-button[data-testid="btn-ok-ckeditor"] button[data-testid="btn-calendar-confirm"]');
+  private static readonly CKEDITOR_SELECTOR_IMAGE: Locator = By.css('div#ckeditor-selector')
+  private static readonly DONE_BTN_CKEDITOR_SELECTOR_LOCATOR: Locator = By.css('app-cmsmedios-button[data-testid="btn-ok-ckeditor"] button[data-testid="btn-calendar-confirm"]');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -20,14 +20,14 @@ export class CKEditorImageSelector {
 
   async selectImage(index: number): Promise<void> {
     logger.debug(`Esperando a que el selector de CKEditor esté visible`, { label: this.config.label });
-    await this.waitUntilIsReady(this.CKEDITOR_SELECTOR_IMAGE)
+    await this.waitUntilIsReady(CKEditorImageSelector.CKEDITOR_SELECTOR_IMAGE)
 
     logger.debug(`Seleccionando la imagen ${index}`, { label: this.config.label });
     const imageLocator = this.getLocatorImage(index)
     const imageElement = await this.waitUntilIsReady(imageLocator)
     await this.driver.executeScript("arguments[0].click();", imageElement);
 
-    await clickSafe(this.driver, this.DONE_BTN_CKEDITOR_SELECTOR_LOCATOR, this.config);
+    await clickSafe(this.driver, CKEditorImageSelector.DONE_BTN_CKEDITOR_SELECTOR_LOCATOR, this.config);
     logger.debug(`Primera imagen agregada exitosamente`, { label: this.config.label });
   }
 

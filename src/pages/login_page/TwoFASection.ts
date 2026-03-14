@@ -12,7 +12,7 @@ export class TwoFASection {
   private driver: WebDriver;
   private config: RetryOptions
 
-  private readonly TWOFA_DISMISS_BTN: Locator = By.css('[data-testid="btn-next"]');
+  private static readonly TWOFA_DISMISS_BTN: Locator = By.css('[data-testid="btn-next"]');
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -30,7 +30,7 @@ export class TwoFASection {
       });
 
       // Delegamos en clickSafe la espera, el scroll y el reintento.
-      await clickSafe(this.driver, this.TWOFA_DISMISS_BTN, this.config);
+      await clickSafe(this.driver, TwoFASection.TWOFA_DISMISS_BTN, this.config);
 
       logger.debug("Modal de 2FA gestionado correctamente", {
         label: this.config.label

@@ -1,19 +1,24 @@
 # `/src/pages` — Page Object Layer
 
-This is the most critical directory in the framework. It contains the entire **Page Object Model (POM)** layer that maps every section of the Bluestack CMS to structured, reusable TypeScript classes. All test sessions in `sessions/` depend exclusively on the classes defined here.
+> **AI AGENT DIRECTIVE:** This is the authoritative spec for all code written in this directory.
+> Before writing any new file or method, verify it against every rule in this document.
+> If a rule conflicts with your training defaults, **this document wins**.
 
 ---
 
-## Purpose & Responsibility
+## Quick Reference
 
-The `/pages` directory is the **only** interface between test sessions and the browser DOM. No test file should ever contain raw Selenium locators, `driver.findElement()` calls, or direct interaction logic. All of that lives here.
-
-Its responsibilities are:
-
-- Encapsulate every CMS UI section as a typed, self-contained class.
-- Expose high-level, intention-revealing methods (e.g., `fillFullNote()`, `uploadNewVideo()`) that test sessions can call without knowing DOM internals.
-- Propagate `RetryOptions` and the shared `logger` consistently so every action is observable and resilient.
-- Wrap multi-step operations in Allure `step()` blocks for granular report visibility.
+| Concept               | Rule |
+|-----------------------|-------------------------------------------------|
+| Who imports what      | Test sessions import **only** Maestro classes |
+| Locator ownership     | Locators live **only** in sub-components |
+| Constructor signature | `(driver: WebDriver, opts: RetryOptions)` — always |
+| Label stacking        | Always `stackLabel(opts.label, "ClassName")` |
+| Method wrapping       | Every `public` method → `step()` from `allure-js-commons` |
+| Error handling        | Every `catch` → log + re-throw, never swallow |
+| Imports               | Always use `.js` extension on internal imports |
+| Sleeps | `driver.sleep()` is **forbidden** without a justification comment |
+| State cleanup | Page Objects **never** attempt to clean state after an error |
 
 ---
 
@@ -21,15 +26,15 @@ Its responsibilities are:
 
 ```
 src/pages/
-├── SidebarAndHeaderSection.ts   # Global navigation (sidebar + top header)
+├── SidebarAndHeaderSection.ts   # Global nav — SidebarOption enum lives here
 ├── login_page/
 │   └── MainLoginPage.ts
 ├── post_page/
-│   ├── MainPostPage.ts          # Maestro: post list page
+│   ├── MainPostPage.ts          # Maestro
 │   ├── PostTable.ts
 │   ├── NewNoteBtn.ts            # NoteType enum lives here
 │   └── note_editor_page/
-│       ├── MainEditorPage.ts    # Maestro: full note editor
+│       ├── MainEditorPage.ts    # Maestro
 │       ├── EditorHeaderActions.ts   # NoteExitAction enum lives here
 │       ├── EditorTextSection.ts
 │       ├── EditorTagsSection.ts
@@ -40,7 +45,7 @@ src/pages/
 │           ├── BaseListicleSection.ts   # LiveBlogData interface lives here
 │           └── ListicleItemSection.ts   # ListicleSection + LiveBlogSection
 ├── videos_page/
-│   ├── MainVideoPage.ts         # Maestro: video management page
+│   ├── MainVideoPage.ts         # Maestro
 │   ├── VideoTable.ts
 │   ├── UploadVideoBtn.ts        # VideoType enum lives here
 │   ├── UploadVideoModal.ts
@@ -51,28 +56,27 @@ src/pages/
 └── user_profile_page/
 ```
 
+**Rule:** One directory per CMS section. Sub-components and their Maestro share the same folder.
+
 ---
 
 ## Architectural Pattern: Two-Layer Facade
 
-Every CMS section is modeled with a strict two-layer hierarchy:
-
 ### Layer 1 — Sub-components
-Small, focused classes that own a single UI region (e.g., `VideoTable`, `UploadVideoModal`, `EditorTagsSection`). Each one:
-- Declares its own locators as `private readonly` class fields typed as `Locator`.
-- Contains only the interactions that belong to that specific region.
-- Never calls methods from sibling sub-components.
+- Own a single UI region (e.g., `VideoTable`, `EditorTagsSection`).
+- Declare all locators as `private readonly` class fields typed as `Locator`.
+- Never call methods from sibling sub-components.
+- Never call methods from their parent Maestro.
 
-### Layer 2 — Main Page Objects (Maestros)
-Orchestrator classes named `Main<PageName>Page` (e.g., `MainVideoPage`, `MainPostPage`, `MainEditorPage`). Each one:
-- Instantiates and composes all relevant sub-components in its `constructor`.
-- Exposes high-level workflow methods (e.g., `uploadNewVideo()`, `createNewNote()`).
-- Never holds raw locators — it delegates all DOM interaction to its sub-components.
-- Is the **only class that test sessions import** for that CMS section.
+### Layer 2 — Maestros (`Main<PageName>Page`)
+- Instantiate and compose all sub-components in `constructor`.
+- Expose high-level workflow methods (e.g., `uploadNewVideo()`, `createNewNote()`).
+- **Never hold raw locators** — all DOM interaction is delegated to sub-components.
+- Are the **only classes imported by test sessions**.
 
 ```
 Test Session
-    └── MainVideoPage          ← only this is imported by the test
+    └── MainVideoPage            ← only this is imported by the test
             ├── VideoTable
             ├── UploadVideoBtn
             ├── UploadVideoModal
@@ -82,9 +86,9 @@ Test Session
 
 ---
 
-## Constructor Contract (Required for Every Class)
+## Constructor Contract
 
-Every Page Object class — both Maestros and sub-components — **must** follow this constructor signature:
+Every class — Maestro and sub-component — **must** use this exact signature:
 
 ```typescript
 constructor(driver: WebDriver, opts: RetryOptions) {
@@ -93,22 +97,22 @@ constructor(driver: WebDriver, opts: RetryOptions) {
 }
 ```
 
-**Maestros** that accept a `NoteType` or similar enum add it as the second parameter:
+Maestros that require an enum (e.g., `NoteType`) add it as the second parameter:
 
 ```typescript
 constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions)
 ```
 
-Key rules:
-- Always spread `DefaultConfig` first, then `opts`, so callers can selectively override defaults.
-- Always append the class name via `stackLabel()` — this builds a trace-friendly label chain that makes logs and error messages traceable across nested Page Objects.
-- Always pass `this.config` (never `opts` directly) to every sub-component instantiated in the constructor.
+**Rules:**
+- Spread `DefaultConfig` first, then `opts` — callers can override individual defaults.
+- Always call `stackLabel(opts.label, "ClassName")` — produces a trace-friendly label chain (e.g., `"Session > MainVideoPage > VideoTable"`).
+- Always pass `this.config` (never `opts`) to every sub-component instantiated in the constructor.
 
 ---
 
 ## Method Structure Contract
 
-Every public method in a Page Object must follow this pattern:
+Every `public` method in any Page Object must follow this template:
 
 ```typescript
 async myMethod(param: string): Promise<void> {
@@ -126,40 +130,125 @@ async myMethod(param: string): Promise<void> {
         param,
         error: error.message,
       });
-      throw error; // always re-throw — never swallow errors silently
+      throw error; // always re-throw
     }
   });
 }
 ```
 
-Rules:
-- Wrap every public method in `step()` from `allure-js-commons` for Allure report traceability.
-- Always re-throw caught errors after logging. Silent catch blocks mask failures.
-- Use `logger.info` for workflow milestones, `logger.debug` for intermediate steps, `logger.error` only in catch blocks.
-- `stepContext.parameter()` should document key inputs so they are visible in the Allure report.
+**Rules:**
+- `step()` is mandatory on every main Maestro class method´s — no exceptions.
+- `catch` blocks must log with `logger.error` always in the sub-component classes, and re-throw like all catch blocks. Silent catches are forbidden.
+- Log levels: `logger.info` for workflow milestones, `logger.debug` for intermediate steps, `logger.error` only in catch blocks.
+- `stepContext.parameter()` must document all key inputs.
+
+---
+
+## Naming Conventions
+
+### Files
+| Type          | Pattern                 | Example              |
+| ------------- | ----------------------- | -------------------- |
+| Maestro       | `Main<PageName>Page.ts` | `MainVideoPage.ts`   |
+| Sub-component | `<UIRegion><Element>.ts`| `UploadVideoModal.ts`, `VideoTable.ts` |
+
+### Classes
+- Same as file name, PascalCase: `MainVideoPage`, `UploadVideoModal`.
+
+### Locators
+- Pattern: `[noun][ElementType]` — noun first, element type last.
+- `private readonly` class fields typed as `Locator`.
+
+```typescript
+// ✅ Correct
+private readonly saveBtn: Locator;
+private readonly titleInput: Locator;
+private readonly userDropdown: Locator;
+private readonly progressBar: Locator;
+
+// ❌ Wrong
+private readonly btnSave: Locator;    // element type first
+private readonly save: Locator;       // missing element type
+private readonly button_save: Locator; // snake_case
+```
+
+### Methods
+- `camelCase`, verb-first, intention-revealing.
+- `fillFullNote()`, `uploadNewVideo()`, `selectFirstSectionOption()` — not `handleNote()` or `doUpload()`.
+
+### Enums
+- PascalCase for the enum type, UPPER_SNAKE_CASE for values.
+
+```typescript
+export enum VideoType {
+  NATIVO = "nativo",
+  YOUTUBE = "youtube",
+}
+```
+
+---
+
+## Explicit Wait Rules
+
+- `driver.sleep()` is **forbidden** as a default strategy. If unavoidable, add a comment explaining why no wait utility works for that case.
+- For dynamic elements, use explicit wait utilities from `src/core/actions/` **before** any interaction.
+- Sub-components are responsible for their own waits. A Maestro never adds a sleep to compensate for a flaky sub-component.
+
+```typescript
+// ✅ Correct — explicit wait before interaction
+await waitVisible(this.driver, this.saveBtn, this.config);
+await clickSafe(this.driver, this.saveBtn, this.config);
+
+// ❌ Wrong — raw sleep
+await this.driver.sleep(2000);
+await clickSafe(this.driver, this.saveBtn, this.config);
+```
+
+---
+
+## Error Handling & State Contract
+
+- Page Objects are **stateless with respect to error recovery**. A `catch` block logs and re-throws. It never navigates back, refreshes the page, or attempts to restore a previous state.
+- This is intentional: letting the session die with the original error produces a clean failure with a full trace. Silent recovery masks the real failure point.
+
+```typescript
+// ✅ Correct
+} catch (error: any) {
+  logger.error(`Error in fillFullNote: ${error.message}`, { label: this.config.label });
+  throw error;
+}
+
+// ❌ Wrong — attempting state cleanup
+} catch (error: any) {
+  await this.driver.navigate().back(); // forbidden
+  logger.warn(`Recovered from error`); // masks failure
+}
+```
 
 ---
 
 ## Enum & Interface Ownership
 
-Several enums and interfaces are defined inside Page Object files and must be imported from their canonical source. **Do not redefine them elsewhere.**
+Do not redefine these symbols elsewhere. Import only from the canonical source.
 
-| Symbol | Defined in |
-|---|---|
-| `NoteType` | `src/pages/post_page/NewNoteBtn.ts` |
-| `NoteExitAction` | `src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
-| `VideoType` | `src/pages/videos_page/UploadVideoBtn.ts` |
-| `ActionType` | `src/pages/videos_page/VideoActions.ts` |
-| `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |
-| `LiveBlogData` | `src/pages/post_page/note_editor_page/noteList/BaseListicleSection.ts` |
-| `NoteData` | `src/interfaces/data.ts` |
-| `VideoData` | `src/interfaces/data.ts` |
+| Symbol          | Canonical file                                  |
+| --------------- | ----------------------------------------------- |
+| `NoteType`      | `src/pages/post_page/NewNoteBtn.ts`             |
+| `NoteExitAction`| `src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
+| `VideoType`     | `src/pages/videos_page/UploadVideoBtn.ts`       |
+| `ActionType`    | `src/pages/videos_page/VideoActions.ts`         |
+| `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts`          |
+| `LiveBlogData`  | `src/pages/post_page/note_editor_page/noteList/BaseListicleSection.ts` |
+| `NoteData`      | `src/interfaces/data.ts`                        |
+| `VideoData`     | `src/interfaces/data.ts`                        |
+
+**Rule for new symbols:** Place them in the most specific file that owns the concept. If they are genuinely cross-cutting, add them to `src/interfaces/data.ts`.
 
 ---
 
 ## Import Conventions
 
-All internal imports must use the `.js` extension (even for `.ts` source files). This is required by the ESM module resolution configuration used in this project.
+All internal imports must use the `.js` extension (ESM module resolution requirement).
 
 ```typescript
 // ✅ Correct
@@ -171,58 +260,93 @@ import { RetryOptions, DefaultConfig } from '../../core/config/defaultConfig.js'
 import { PostTable } from './PostTable';
 ```
 
-Imports at the bottom of the file are acceptable (as seen in `MainPostPage.ts` and `MainEditorPage.ts`) to allow the class declaration to appear at the top of the file for readability.
+Placing imports at the bottom of the file (after the class declaration) is acceptable to keep the class definition at the top for readability. See `MainPostPage.ts` and `MainEditorPage.ts` as examples.
 
 ---
 
-## Shared Utilities (from `src/core/`)
+## Shared Utilities
 
-Page Objects must use these shared utilities and must **never** reimplement their behavior inline:
+Always use these. Never reimplement their behavior inline.
 
-| Utility | Location | Usage |
-|---|---|---|
-| `clickSafe` | `src/core/actions/clickSafe.js` | Safe element click with retry |
-| `stackLabel` | `src/core/utils/stackLabel.js` | Builds the label chain for `config.label` |
-| `logger` | `src/core/utils/logger.js` | Structured logging — import as default |
-| `DefaultConfig` | `src/core/config/defaultConfig.js` | Provides default timeout and retry values |
-| `RetryOptions` | `src/core/config/defaultConfig.js` | Type for the `opts` / `config` object |
-
-Raw `driver.sleep()` calls are **forbidden** except as a documented last resort. Always prefer wait utilities from `src/core/actions/`.
-
----
-
-## Rules for Modifying This Directory
-
-1. **One directory per CMS section.** Sub-components of the same page must live in the same folder as their Maestro.
-2. **Never add locators to Maestro classes.** Locators belong exclusively in sub-components.
-3. **Never import a sub-component directly in a test session.** Test sessions import only Maestro classes.
-4. **Maintain the constructor contract.** Every new class must accept `(driver, opts)` and call `stackLabel()`.
-5. **Never skip `step()` wrapping.** Every public method must be wrapped — this is what produces meaningful Allure output.
-6. **Never swallow errors.** Every `catch` block must log and re-throw.
-7. **New enums or shared interfaces go in the most specific file** that owns that concept, or in `src/interfaces/data.ts` if they are truly cross-cutting.
-8. **No raw `sleep()` calls.** Document with a comment if unavoidable.
+| Utility         | Location                                  | Usage                                        |
+| --------------- | ------------------------------------------- | -------------------------------------------- |
+| `clickSafe`     | `src/core/actions/clickSafe.js`             | Safe click with retry                          |
+| `waitVisible`   | `src/core/actions/waitForVisible.js`        | Explicit visibility wait                     |
+| `stackLabel`    | `src/core/utils/stackLabel.js`              | Builds cumulative label chain                |
+| `logger`        | `src/core/utils/logger.js`                  | Structured logging (default import)          |
+| `DefaultConfig` | `src/core/config/defaultConfig.js`          | Default timeout and retry values             |
+| `RetryOptions`  | `src/core/config/defaultConfig.js`          | Type for `opts` / `config`                   |
 
 ---
 
-## Pre-existing Conditions from the Codebase
+## Anti-Patterns — Never Do These
 
-These are implicit constraints derived from the existing code that any AI or developer must respect:
+The following patterns are **always wrong** in this codebase. If you find yourself writing any of these, stop and re-read the relevant section above.
 
-- `SidebarAndHeaderSection.ts` handles a special case: navigating to `IMAGES` or `VIDEOS` requires a two-click pattern (first click `MULTIMEDIA_FILE_BTN`, then the specific locator). This logic is already encoded in `goToComponent()` and must not be removed or simplified.
-- `MainEditorPage.fillFullNote()` calls `this.settings.selectFirstSectionOption()` unconditionally. Any new note type that does not require a section selection must handle this via its own conditional logic inside `EditorLateralSettings`, not by modifying `fillFullNote()`.
-- `MainEditorPage` uses a private `fillListicleOrLiveblog()` helper to branch between `ListicleSection` and `LiveBlogSection` based on `this.noteType`. If a new note type requires a third branch, add it to this private method — do not split the logic into `fillFullNote()`.
-- `MainVideoPage.uploadNewVideo()` only calls `checkProgressBar()` for `VideoType.NATIVO`. Other video types skip it. This conditional is intentional and must be preserved.
-- `stackLabel()` is cumulative — it appends the current class name to the parent label. The full label chain (e.g., `"Session > MainVideoPage > VideoTable"`) is what appears in logs. Always pass `this.config` (with the already-stacked label) to sub-components, never `opts`.
+```typescript
+// ❌ Raw locator in a Maestro
+class MainVideoPage {
+  private readonly saveBtn = By.css('.save'); // locators belong in sub-components
+}
+
+// ❌ Sub-component imported directly in a test session
+import { VideoTable } from '../pages/videos_page/VideoTable.js'; // only Maestros in tests
+
+// ❌ Public method without step()
+async fillTitle(title: string): Promise<void> {
+  await this.titleInput.sendKeys(title); // must be wrapped in step()
+}
+
+// ❌ Silent catch
+} catch (error: any) {
+  logger.warn('Something went wrong'); // must re-throw
+}
+
+// ❌ Raw sleep without justification
+await this.driver.sleep(1500); // forbidden without a comment
+
+// ❌ Passing opts instead of this.config to a sub-component
+this.table = new VideoTable(this.driver, opts); // must be this.config
+
+// ❌ Locator naming with wrong pattern
+private readonly btnSave: Locator;      // element type must come last
+private readonly saveButton: Locator;   // use 'Btn', not 'Button'
+
+// ❌ State cleanup in catch
+} catch (error) {
+  await this.driver.navigate().back();  // forbidden — Page Objects never clean state
+  throw error;
+}
+
+// ❌ Internal import without .js extension
+import { VideoTable } from './VideoTable'; // will fail at runtime
+```
+
+---
+
+## Pre-existing Conditions (Do Not Break)
+
+These behaviors are intentional. Do not simplify or remove them.
+
+- **`SidebarAndHeaderSection.goToComponent()`** — navigating to `IMAGES` or `VIDEOS` requires a two-click pattern (first `MULTIMEDIA_FILE_BTN`, then the specific locator). This logic must not be simplified to a single click.
+
+- **`MainEditorPage.fillFullNote()`** — calls `this.settings.selectFirstSectionOption()` unconditionally. New note types that do not require section selection must handle the conditional inside `EditorLateralSettings`, not by modifying `fillFullNote()`.
+
+- **`MainEditorPage.fillListicleOrLiveblog()`** — private method that branches between `ListicleSection` and `LiveBlogSection` based on `this.noteType`. Adding a third note type means adding a third branch here. Do not move this logic into `fillFullNote()`.
+
+- **`MainVideoPage.uploadNewVideo()`** — calls `checkProgressBar()` only for `VideoType.NATIVO`. Other video types skip it. This conditional is intentional and must be preserved.
+
+- **`stackLabel()` is cumulative** — it appends the current class name to the parent label. The full chain (e.g., `"Session > MainVideoPage > VideoTable"`) appears in logs. Always pass `this.config` to sub-components so the chain grows correctly.
 
 ---
 
 ## Required Prior Knowledge
 
-To work effectively on this directory, the following must be understood:
+To work on this directory, the following must be understood:
 
-- **Selenium WebDriver (TypeScript):** `WebDriver`, `WebElement`, `By`, `Locator`, `until` waiters, and the async nature of all Selenium calls.
-- **TypeScript:** Generics, `Partial<T>`, enums, access modifiers (`private`, `public`, `readonly`), and ESM module resolution.
-- **Page Object Model pattern:** The difference between Facade/Maestro objects and atomic sub-components, and why the separation matters for maintainability.
-- **Allure reporting (`allure-js-commons`):** `step()`, `attachment()`, `stepContext.parameter()` — how they nest to build the report tree.
-- **The `RetryOptions` / `DefaultConfig` system:** How `timeoutMs`, `retries`, and `label` flow from the test session down through every nested Page Object.
+- **Selenium WebDriver (TypeScript):** `WebDriver`, `WebElement`, `By`, `Locator`, `until` waiters, async call chains.
+- **TypeScript:** Generics, `Partial<T>`, enums, access modifiers (`private`, `public`, `readonly`), ESM module resolution.
+- **Page Object Model:** The difference between Facade/Maestro objects and atomic sub-components, and why the separation matters for maintainability.
+- **Allure (`allure-js-commons`):** `step()`, `attachment()`, `stepContext.parameter()` — how they nest to build the report tree.
+- **`RetryOptions` / `DefaultConfig` system:** How `timeoutMs`, `retries`, and `label` flow from the test session down through every nested Page Object.
 - **Jest + `runSession()`:** How `runSession()` wraps `test()`, manages the driver lifecycle, and passes `{ driver, opts, log }` to the test body.

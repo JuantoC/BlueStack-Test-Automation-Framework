@@ -14,10 +14,10 @@ export class VideoTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private readonly VIDEO_TABLE: Locator = By.css('div#multimedia-table-body')
-  private readonly VIDEO_INPUT_FILE: Locator = By.css('input#image-file[type="file"]')
-  private readonly BACKGROUND_UPDATE_BTN: Locator = By.css('div.second-section')
-  private readonly CHECK_BOX: Locator = By.css('mat-icon.icon-check')
+  private static readonly VIDEO_TABLE: Locator = By.css('div#multimedia-table-body')
+  private static readonly VIDEO_INPUT_FILE: Locator = By.css('input#image-file[type="file"]')
+  private static readonly BACKGROUND_UPDATE_BTN: Locator = By.css('div.second-section')
+  private static readonly CHECK_BOX: Locator = By.css('mat-icon.icon-check')
 
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
@@ -40,7 +40,7 @@ export class VideoTable {
     try {
 
       logger.debug("Buscando y revisando si la tabla de videos existe y es visible...", { label: this.config.label })
-      await this.waitUntilIsReady(this.VIDEO_TABLE);
+      await this.waitUntilIsReady(VideoTable.VIDEO_TABLE);
       logger.debug("Tabla lista para interactuar.", { label: this.config.label })
 
       return await retry(async () => {
@@ -81,7 +81,7 @@ export class VideoTable {
   async changeVideoTitle(videoContainer: WebElement): Promise<void> {
     return await retry(async () => {
 
-      await this.waitUntilIsReady(this.VIDEO_TABLE);
+      await this.waitUntilIsReady(VideoTable.VIDEO_TABLE);
       logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
       // 1. Extraer texto actual y calcular el nuevo
@@ -104,7 +104,7 @@ export class VideoTable {
   async selectVideo(videoContainer: WebElement): Promise<void> {
     try {
       logger.debug('Revisando que el video no este seleccionado...', { label: this.config.label });
-      const checkBox = await videoContainer.findElements(this.CHECK_BOX);
+      const checkBox = await videoContainer.findElements(VideoTable.CHECK_BOX);
       if (checkBox.length > 0) {
         logger.debug('El video ya se encuentra seleccionado...', { label: this.config.label })
         return

@@ -7,10 +7,10 @@ import { LiveBlogData } from "./noteList/BaseListicleSection.js";
 import { step } from "allure-js-commons";
 
 export enum LiveBlogEventField {
-    EVENT_TITLE = 'eventTitle',
-    EVENT_DESCRIPTION = 'eventDescription',
-    PLACE_OF_EVENT = 'placeOfEvent',
-    EVENT_ADDRESS = 'eventAddress'
+    EVENT_TITLE = 'EVENT_TITLE',
+    EVENT_DESCRIPTION = 'EVENT_DESCRIPTION',
+    PLACE_OF_EVENT = 'PLACE_OF_EVENT',
+    EVENT_ADDRESS = 'EVENT_ADDRESS'
 }
 
 export class EditorLiveBlogEventSection {
@@ -18,7 +18,7 @@ export class EditorLiveBlogEventSection {
     private config: RetryOptions;
 
     // ========== LOCATORS (Private & Readonly) ==========
-    private readonly LOCATORS: Record<LiveBlogEventField, Locator> = {
+    private static readonly LOCATORS: Record<LiveBlogEventField, Locator> = {
         [LiveBlogEventField.EVENT_TITLE]: By.css('div[id="event-note"] input.mda-form-control'),
         [LiveBlogEventField.EVENT_DESCRIPTION]: By.css('div[id="event-note"] textarea[cdktextareaautosize].ng-untouched'),
         [LiveBlogEventField.PLACE_OF_EVENT]: By.css('div[id="event-note"] textarea[id^="mat-input-"]'),
@@ -38,7 +38,7 @@ export class EditorLiveBlogEventSection {
                     return;
                 }
                 logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
-                await writeSafe(this.driver, this.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
+                await writeSafe(this.driver, EditorLiveBlogEventSection.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
             } catch (error) {
                 throw error;
             }

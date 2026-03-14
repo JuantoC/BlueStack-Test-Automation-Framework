@@ -6,14 +6,14 @@ import logger from "../../../core/utils/logger.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 
 export enum NoteExitAction {
-  SAVE_ONLY = "save only",
-  SAVE_AND_EXIT = "save and exit",
-  EXIT_WITHOUT_SAVING = "exit without saving",
-  PUBLISH_ONLY = "publish only",
-  PUBLISH_AND_EXIT = "publish and exit",
-  SCHEDULE_AND_EXIT = "schedule",
-  BACK_SAVE_AND_EXIT = "back save and exit",
-  BACK_EXIT_DISCARD = "back exit discard",
+  SAVE_ONLY = "SAVE_ONLY",
+  SAVE_AND_EXIT = "SAVE_AND_EXIT",
+  EXIT_WITHOUT_SAVING = "EXIT_WITHOUT_SAVING",
+  PUBLISH_ONLY = "PUBLISH_ONLY",
+  PUBLISH_AND_EXIT = "PUBLISH_AND_EXIT",
+  SCHEDULE_AND_EXIT = "SCHEDULE_AND_EXIT",
+  BACK_SAVE_AND_EXIT = "BACK_SAVE_AND_EXIT",
+  BACK_EXIT_DISCARD = "BACK_EXIT_DISCARD",
 }
 
 /**
@@ -25,36 +25,36 @@ export class EditorHeaderActions {
   private config: RetryOptions;
 
   // ========== LOCATORS (Respetando originales) ==========
-  private readonly SAVE_BTN = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
-  private readonly PUBLISH_BTN = By.css('button.btn-info[data-testid="dropdown-action"]');
-  private readonly BACK_BTN = By.css('a[data-testid="btn-exit-note"]');
+  private static readonly SAVE_BTN: Locator = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
+  private static readonly PUBLISH_BTN: Locator = By.css('button.btn-info[data-testid="dropdown-action"]');
+  private static readonly BACK_BTN: Locator = By.css('a[data-testid="btn-exit-note"]');
 
-  private readonly DROPDOWN_SAVE_CONTAINER = By.id('dropdown-save');
-  private readonly DROPDOWN_PUBLISH_CONTAINER = By.id('dropdown-publish');
+  private static readonly DROPDOWN_SAVE_CONTAINER: Locator = By.id('dropdown-save');
+  private static readonly DROPDOWN_PUBLISH_CONTAINER: Locator = By.id('dropdown-publish');
 
   // Nota: Estos IDs compartidos son un riesgo potencial en el DOM.
-  private readonly SAVE_AND_EXIT_OPT = By.id("option-dropdown-0");
-  private readonly EXIT_WITHOUT_SAVING_OPT = By.id("option-dropdown-1");
-  private readonly PUBLISH_AND_EXIT_OPT = By.id("option-dropdown-0");
-  private readonly SCHEDULE_OPT = By.id("option-dropdown-1");
+  private static readonly SAVE_AND_EXIT_OPT: Locator = By.id("option-dropdown-0");
+  private static readonly EXIT_WITHOUT_SAVING_OPT: Locator = By.id("option-dropdown-1");
+  private static readonly PUBLISH_AND_EXIT_OPT: Locator = By.id("option-dropdown-0");
+  private static readonly SCHEDULE_OPT: Locator = By.id("option-dropdown-1");
 
-  private readonly MODAL_BACK_SAVE_AND_EXIT_BTN = By.css('[data-testid="btn-ok-confirmModal"] button');
-  private readonly MODAL_BACK_DISCARD_EXIT_BTN = By.css('[data-testid="btn-cancel"] button');
-  private readonly MODAL_PUBLISH_CONFIRM_BTN = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]');
-  private readonly MODAL_PUBLISH_CANCEL_BTN = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]');
+  private static readonly MODAL_BACK_SAVE_AND_EXIT_BTN: Locator = By.css('[data-testid="btn-ok-confirmModal"] button');
+  private static readonly MODAL_BACK_DISCARD_EXIT_BTN: Locator = By.css('[data-testid="btn-cancel"] button');
+  private static readonly MODAL_PUBLISH_CONFIRM_BTN: Locator = By.css('app-cmsmedios-button[data-testid="post-note-confirm"] button[data-testid="btn-calendar-confirm"]');
+  private static readonly MODAL_PUBLISH_CANCEL_BTN: Locator = By.css('app-cmsmedios-button[data-testid="post-note-cancel"] button[data-testid="btn-calendar-confirm"]');
 
-  private LOCATORS: Record<NoteExitAction, Locator> = {
-    [NoteExitAction.SAVE_ONLY]: this.SAVE_BTN,
-    [NoteExitAction.SAVE_AND_EXIT]: this.DROPDOWN_SAVE_CONTAINER,
-    [NoteExitAction.EXIT_WITHOUT_SAVING]: this.DROPDOWN_SAVE_CONTAINER,
-    [NoteExitAction.PUBLISH_ONLY]: this.PUBLISH_BTN,
-    [NoteExitAction.PUBLISH_AND_EXIT]: this.DROPDOWN_PUBLISH_CONTAINER,
-    [NoteExitAction.SCHEDULE_AND_EXIT]: this.DROPDOWN_PUBLISH_CONTAINER,
-    [NoteExitAction.BACK_SAVE_AND_EXIT]: this.BACK_BTN,
-    [NoteExitAction.BACK_EXIT_DISCARD]: this.BACK_BTN,
+  private static readonly LOCATORS: Record<NoteExitAction, Locator> = {
+    [NoteExitAction.SAVE_ONLY]: EditorHeaderActions.SAVE_BTN,
+    [NoteExitAction.SAVE_AND_EXIT]: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
+    [NoteExitAction.EXIT_WITHOUT_SAVING]: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
+    [NoteExitAction.PUBLISH_ONLY]: EditorHeaderActions.PUBLISH_BTN,
+    [NoteExitAction.PUBLISH_AND_EXIT]: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
+    [NoteExitAction.SCHEDULE_AND_EXIT]: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
+    [NoteExitAction.BACK_SAVE_AND_EXIT]: EditorHeaderActions.BACK_BTN,
+    [NoteExitAction.BACK_EXIT_DISCARD]: EditorHeaderActions.BACK_BTN,
   };
 
-  private readonly infoSectionDataTime = By.css('div.info-section')
+  private static readonly INFO_SECTION_DATA_TIME: Locator = By.css('div.info-section')
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -66,7 +66,7 @@ export class EditorHeaderActions {
    */
   public async clickExitAction(action: NoteExitAction): Promise<void> {
 
-    const initialLocator = this.LOCATORS[action];
+    const initialLocator = EditorHeaderActions.LOCATORS[action];
     if (!initialLocator) {
       throw new Error(`Acción de salida no mapeada en el componente: ${action}`);
     }
@@ -75,7 +75,7 @@ export class EditorHeaderActions {
       logger.debug(`Iniciando secuencia de salida: ${action}`, { label: this.config.label });
 
       // 1. Antes del Clic inicial (Abrir dropdown o clic directo) vamos a dar una espera implicita para que termine de cargar la pagina por completo.
-      await waitFind(this.driver, this.infoSectionDataTime, this.config)
+      await waitFind(this.driver, EditorHeaderActions.INFO_SECTION_DATA_TIME, this.config)
       await clickSafe(this.driver, initialLocator, { ...this.config, initialDelayMs: 10000 });
 
       // 2. Manejo de sub-pasos (Máquina de estados)
@@ -84,33 +84,33 @@ export class EditorHeaderActions {
           break;
 
         case NoteExitAction.SAVE_AND_EXIT:
-          await clickSafe(this.driver, this.SAVE_AND_EXIT_OPT, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.SAVE_AND_EXIT_OPT, this.config);
           break;
 
         case NoteExitAction.EXIT_WITHOUT_SAVING:
-          await clickSafe(this.driver, this.EXIT_WITHOUT_SAVING_OPT, this.config);
-          await clickSafe(this.driver, this.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.EXIT_WITHOUT_SAVING_OPT, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
           break;
 
         case NoteExitAction.PUBLISH_ONLY:
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
+          await clickSafe(this.driver, EditorHeaderActions.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
           break;
 
         case NoteExitAction.PUBLISH_AND_EXIT:
-          await clickSafe(this.driver, this.PUBLISH_AND_EXIT_OPT, this.config);
-          await clickSafe(this.driver, this.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
+          await clickSafe(this.driver, EditorHeaderActions.PUBLISH_AND_EXIT_OPT, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.MODAL_PUBLISH_CONFIRM_BTN, { ...this.config, initialDelayMs: 10000 });
           break;
 
         case NoteExitAction.SCHEDULE_AND_EXIT:
-          await clickSafe(this.driver, this.SCHEDULE_OPT, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.SCHEDULE_OPT, this.config);
           break;
 
         case NoteExitAction.BACK_SAVE_AND_EXIT:
-          await clickSafe(this.driver, this.MODAL_BACK_SAVE_AND_EXIT_BTN, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_SAVE_AND_EXIT_BTN, this.config);
           break;
 
         case NoteExitAction.BACK_EXIT_DISCARD:
-          await clickSafe(this.driver, this.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
           break;
       }
 

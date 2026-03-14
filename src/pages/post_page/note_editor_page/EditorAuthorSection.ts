@@ -8,9 +8,9 @@ import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
 export enum AuthorType {
-  INTERNAL = 'internal',
-  ANONYMOUS = 'anonymous',
-  MANUAL = 'manual'
+  INTERNAL = 'INTERNAL',
+  ANONYMOUS = 'ANONYMOUS',
+  MANUAL = 'MANUAL'
 }
 
 /**
@@ -22,14 +22,14 @@ export class EditorAuthorSection {
   private config: RetryOptions;
 
   // ========== LOCATORS (Private & Readonly) ==========
-  private readonly authorButtonMap: Record<AuthorType, Locator> = {
+  private static readonly AUTHOR_BUTTON_MAP: Record<AuthorType, Locator> = {
     [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),
     [AuthorType.ANONYMOUS]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='person_outline']"),
     [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"),
   };
 
-  private readonly AUTHOR_DESCRIPTION: Locator = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
-  private readonly AUTHOR_NAME: Locator = By.css(".image-container_description input[type='text']");
+  private static readonly AUTHOR_DESCRIPTION: Locator = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
+  private static readonly AUTHOR_NAME: Locator = By.css(".image-container_description input[type='text']");
 
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
@@ -89,7 +89,7 @@ export class EditorAuthorSection {
   // ========== PIEZAS LEGO (Atómicas) ==========
 
   async selectAuthorType(type: AuthorType): Promise<void> {
-    const locator = this.authorButtonMap[type];
+    const locator = EditorAuthorSection.AUTHOR_BUTTON_MAP[type];
 
     logger.debug(`Seleccionando tipo de autor: ${type}`, { label: this.config.label });
     await clickSafe(this.driver, locator, this.config);
@@ -97,11 +97,11 @@ export class EditorAuthorSection {
 
   async fillAuthorName(name: string): Promise<void> {
     logger.debug(`Escribiendo nombre de autor`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.AUTHOR_NAME, name, this.config);
+    const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_NAME, name, this.config);
   }
 
   async fillAuthorDescription(description: string): Promise<void> {
     logger.debug(`Escribiendo descripción de autor`, { label: this.config.label });
-    const element = await writeSafe(this.driver, this.AUTHOR_DESCRIPTION, description, this.config);
+    const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_DESCRIPTION, description, this.config);
   }
 }

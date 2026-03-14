@@ -14,8 +14,8 @@ export class EditorImageSection {
   private readonly CKEditorSelector: CKEditorImageSelector;
 
   // ========== LOCATORS (Private & Readonly) ==========
-  private readonly MAIN_IMAGE_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] div[data-testid="img-prev-add"]');
-  private readonly MAIN_IMAGE_DESCRIPTION_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] textarea.input_description');
+  private static readonly MAIN_IMAGE_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] div[data-testid="img-prev-add"]');
+  private static readonly MAIN_IMAGE_DESCRIPTION_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] textarea.input_description');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver
@@ -47,7 +47,7 @@ export class EditorImageSection {
   }
 
   async writeOnMainImageDescription(): Promise<void> {
-    await writeSafe(this.driver, this.MAIN_IMAGE_DESCRIPTION_LOCATOR, "Auto Generated Description by BlueStack_Test_Automation_Framework", this.config);
+    await writeSafe(this.driver, EditorImageSection.MAIN_IMAGE_DESCRIPTION_LOCATOR, "Auto Generated Description by BlueStack_Test_Automation_Framework", this.config);
     logger.debug(`Descripción de la imagen agregada exitosamente`, { label: this.config.label });
   }
 
@@ -56,6 +56,6 @@ export class EditorImageSection {
   // ==============
 
   async clickOnImageInput(): Promise<void> {
-    await clickSafe(this.driver, this.MAIN_IMAGE_LOCATOR, this.config);
+    await clickSafe(this.driver, EditorImageSection.MAIN_IMAGE_LOCATOR, this.config);
   }
 }

@@ -15,15 +15,15 @@ export class NewNoteBtn {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
+  private static readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
     [NoteType.POST]: new Set(['New post', "Crear noticia", "Nova notícia"]),
     [NoteType.LISTICLE]: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
     [NoteType.LIVEBLOG]: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
   };
 
-  private readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
-  private readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
+  private static readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
+  private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
+  private static readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -35,7 +35,7 @@ export class NewNoteBtn {
 
     if (!isVisible) {
       logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
-      await clickSafe(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
+      await clickSafe(this.driver, NewNoteBtn.NEW_NOTE_DROPDOWN_BTN, this.config);
     } else {
       logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
     }
@@ -57,7 +57,7 @@ export class NewNoteBtn {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
       const menuContainer = await this.driver.wait(
-        until.elementLocated(this.DROPDOWN_COMBO_MODAL),
+        until.elementLocated(NewNoteBtn.DROPDOWN_COMBO_MODAL),
         this.config.timeoutMs,
         "El menú dropdown no se encuentra en el DOM"
       );
@@ -72,10 +72,10 @@ export class NewNoteBtn {
     }
 
     // 2. Buscar todos los labels candidatos
-    const elements = await this.driver.findElements(this.LABELS_OF_NOTE_TYPES);
+    const elements = await this.driver.findElements(NewNoteBtn.LABELS_OF_NOTE_TYPES);
 
     if (elements.length === 0) {
-      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${this.LABELS_OF_NOTE_TYPES}`);
+      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${NewNoteBtn.LABELS_OF_NOTE_TYPES}`);
     }
 
     logger.debug(`Analizando ${elements.length} opciones disponibles...`, { label: this.config.label });
@@ -86,7 +86,7 @@ export class NewNoteBtn {
       const text = await element.getText();
       const cleanLabel = text.trim();
 
-      if (this.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
+      if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
         logger.debug(`Match encontrado: "${cleanLabel}"`, { label: this.config.label });
         return element;
       }
@@ -96,7 +96,7 @@ export class NewNoteBtn {
   }
 
   async isDropdownVisible(): Promise<boolean> {
-    const element = await waitFind(this.driver, this.NEW_NOTE_DROPDOWN_BTN, this.config);
+    const element = await waitFind(this.driver, NewNoteBtn.NEW_NOTE_DROPDOWN_BTN, this.config);
 
     // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");

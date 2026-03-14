@@ -4,8 +4,8 @@ export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 export abstract class BaseListicleSection {
   private config: RetryOptions;
 
-  private readonly CREATE_MENU = By.css('.dropdown-noteList button');
-  private readonly ADD_OPTION = By.id('option-dropdown-0');
+  private static readonly CREATE_MENU_BTN: Locator = By.css('.dropdown-noteList button');
+  private static readonly ADD_OPT: Locator = By.id('option-dropdown-0');
 
   constructor(
     protected driver: WebDriver,
@@ -92,8 +92,8 @@ export abstract class BaseListicleSection {
 
       // 2. Crear slots (siempre hay 1 base)
       for (let i = 1; i < normalizedItems.length; i++) {
-        await clickSafe(this.driver, this.CREATE_MENU, this.config);
-        await clickSafe(this.driver, this.ADD_OPTION, this.config);
+        await clickSafe(this.driver, BaseListicleSection.CREATE_MENU_BTN, this.config);
+        await clickSafe(this.driver, BaseListicleSection.ADD_OPT, this.config);
       }
 
       // 3. Poblar datos (orden DOM real)

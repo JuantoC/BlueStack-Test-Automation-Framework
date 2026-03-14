@@ -15,10 +15,10 @@ export class PostTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private readonly POST_TABLE_BODY: Locator = By.css(`div[id="news-table-body"]`);
-  private readonly POST_TITLE_LABEL: Locator = By.css('div[data-testid="div-edit-title"]');
-  private readonly POST_TITLE_INPUT: Locator = By.css('textarea[data-testid="text-title-post"]');
-  private readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
+  private static readonly POST_TABLE_BODY: Locator = By.css(`div[id="news-table-body"]`);
+  private static readonly POST_TITLE_LABEL: Locator = By.css('div[data-testid="div-edit-title"]');
+  private static readonly POST_TITLE_INPUT: Locator = By.css('textarea[data-testid="text-title-post"]');
+  private static readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
 
   // Constantes para el manejo del string requerido
   public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation Framework";
@@ -52,7 +52,7 @@ export class PostTable {
     try {
 
       logger.debug("Buscando y revisando si la tabla de notas existe y es visible...", { label: this.config.label })
-      const element = await waitFind(this.driver, this.POST_TABLE_BODY, { ...this.config, timeoutMs: 7000 });
+      const element = await waitFind(this.driver, PostTable.POST_TABLE_BODY, { ...this.config, timeoutMs: 7000 });
       await waitEnabled(this.driver, element, { ...this.config, timeoutMs: 7000 });
       await waitVisible(this.driver, element, { ...this.config, timeoutMs: 7000 });
       logger.debug("Tabla lista para interactuar.", { label: this.config.label })
@@ -70,7 +70,7 @@ export class PostTable {
         // 2. Búsqueda Escalonada:
         // Esto es mucho más rápido y seguro contra IDs duplicados en otras tablas.
         logger.debug(`Contenedor de fila ${i} encontrado, buscando título dentro de esta fila...`, { label: this.config.label });
-        const titleElement = await container.findElement(this.POST_TITLE_LABEL);
+        const titleElement = await container.findElement(PostTable.POST_TITLE_LABEL);
         logger.debug("El elemento label del titulo encontrado con exito.")
         const currentTitle = await titleElement.getText();
         logger.debug("Texto del elemento conseguido con exito.")
@@ -120,7 +120,7 @@ export class PostTable {
 
     try {
       logger.debug("Buscando botón de editar en el contenedor...", { label: this.config.label });
-      const btnElement = await postContainer.findElement(this.POST_EDIT_BTN);
+      const btnElement = await postContainer.findElement(PostTable.POST_EDIT_BTN);
       await hoverOverParentContainer(this.driver, postContainer, this.config);
       await clickSafe(this.driver, btnElement, { ...this.config, timeoutMs: 8000 });
     } catch (error) {
@@ -138,13 +138,13 @@ export class PostTable {
   private async extractCurrentTitle(postContainer: WebElement): Promise<string> {
     try {
       logger.debug("Intentando leer el texto del label...", { label: this.config.label });
-      const labels = await postContainer.findElements(this.POST_TITLE_LABEL);
+      const labels = await postContainer.findElements(PostTable.POST_TITLE_LABEL);
       if (labels.length > 0 && await labels[0].isDisplayed()) {
         return await labels[0].getText();
       }
 
       logger.debug("Label no visible, intentando leer del input...", { label: this.config.label });
-      const inputs = await postContainer.findElements(this.POST_TITLE_INPUT);
+      const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
       if (inputs.length > 0 && await inputs[0].isDisplayed()) {
         return await inputs[0].getAttribute('value');
       }
@@ -162,7 +162,7 @@ export class PostTable {
   private async activateEditModeIfNeeded(postContainer: WebElement): Promise<void> {
 
     let isInputVisible = false;
-    const inputs = await postContainer.findElements(this.POST_TITLE_INPUT);
+    const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
 
     if (inputs.length > 0) {
       try {
@@ -175,7 +175,7 @@ export class PostTable {
     if (!isInputVisible) {
       logger.debug("Input oculto. Buscando label fresco para clickear...", { label: this.config.label });
       // Buscamos fresco porque si usamos el de extractCurrentTitle podría estar stale
-      const titleElement = await postContainer.findElement(this.POST_TITLE_LABEL);
+      const titleElement = await postContainer.findElement(PostTable.POST_TITLE_LABEL);
       await clickSafe(this.driver, titleElement, { ...this.config, supressRetry: true });
     } else {
       logger.debug("Input ya visible. Skip click.", { label: this.config.label });
@@ -190,7 +190,7 @@ export class PostTable {
 
     logger.debug("Esperando presencia del input en el DOM...", { label: this.config.label });
     // fresh lookup es obligatorio aquí porque el DOM acaba de transicionar de Label a Input
-    const freshInput = await waitFind(this.driver, this.POST_TITLE_INPUT, this.config);
+    const freshInput = await waitFind(this.driver, PostTable.POST_TITLE_INPUT, this.config);
 
     logger.debug("Escribiendo texto...", { label: this.config.label });
     await writeToStandard(freshInput, newTitle, this.config.label);

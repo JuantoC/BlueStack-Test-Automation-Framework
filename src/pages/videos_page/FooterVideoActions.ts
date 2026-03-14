@@ -9,10 +9,10 @@ export class FooterVideoActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-action"]');
-  private readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-actions"]');
-  private readonly FOOTER_DROPDOWN_MENU = By.css('div.cmsmedios-table-content div[data-testid="dropdown-menu"]')
-  private readonly FOOTER_DROPDOWN_OPTIONS = By.css('div[data-testid="dropdown-item"] mat-icon[role="img"] span')
+  private static readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-action"]');
+  private static readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-actions"]');
+  private static readonly FOOTER_DROPDOWN_MENU = By.css('div.cmsmedios-table-content div[data-testid="dropdown-menu"]')
+  private static readonly FOOTER_DROPDOWN_OPTIONS = By.css('div[data-testid="dropdown-item"] mat-icon[role="img"] span')
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -22,7 +22,7 @@ export class FooterVideoActions {
   async clickOnPublishBtn(): Promise<void> {
     try {
       logger.debug('Intentando clickar en el boton de publicar del footer...', { label: this.config.label });
-      const publishBtn = await waitFind(this.driver, this.FOOTER_PUBLISH_BTN, this.config);
+      const publishBtn = await waitFind(this.driver, FooterVideoActions.FOOTER_PUBLISH_BTN, this.config);
       await this.isPublishBtnEnabled(publishBtn)
 
       await clickSafe(this.driver, publishBtn, this.config);

@@ -6,22 +6,22 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
 
 export enum ActionType {
-  EDIT = 'edit',
-  DELETE = 'delete',
-  UNPUBLISH = 'unpublish',
+  EDIT = 'EDIT',
+  DELETE = 'DELETE',
+  UNPUBLISH = 'UNPUBLISH',
 }
 
 export class VideoActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private readonly ACTION_TYPE_MAP: Record<ActionType, Set<string>> = {
+  private static readonly ACTION_TYPE_MAP: Record<ActionType, Set<string>> = {
     [ActionType.EDIT]: new Set(['Edit', "Editar"]),
     [ActionType.DELETE]: new Set(["Eliminar", "Remove"]),
     [ActionType.UNPUBLISH]: new Set(['Unpublish', "Despublicar"]),
   };
-  private readonly DROPDOWN_BTN: Locator = By.css('div#-dropMenu button.dropdown-toggle')
-  private readonly LABELS_OF_ACTIONS: Locator = By.css('div#-dropMenu button.dropdown-item')
+  private static readonly DROPDOWN_BTN: Locator = By.css('div#-dropMenu button.dropdown-toggle')
+  private static readonly LABELS_OF_ACTIONS: Locator = By.css('div#-dropMenu button.dropdown-item')
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -35,7 +35,7 @@ export class VideoActions {
   async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
     try {
       logger.debug(`Buscando el boton de ${action} dentro del video..`, { label: this.config.label })
-      const editorBtn = await videoContainer.findElement(this.DROPDOWN_BTN);
+      const editorBtn = await videoContainer.findElement(VideoActions.DROPDOWN_BTN);
 
       await hoverOverParentContainer(this.driver, editorBtn, this.config)
 
@@ -53,10 +53,10 @@ export class VideoActions {
 
   async findAction(videoContainer: WebElement, action: ActionType): Promise<WebElement> {
     try {
-      const elements = await videoContainer.findElements(this.LABELS_OF_ACTIONS);
+      const elements = await videoContainer.findElements(VideoActions.LABELS_OF_ACTIONS);
       for (const element of elements) {
         const text = await element.getText();
-        for (const label of this.ACTION_TYPE_MAP[action]) {
+        for (const label of VideoActions.ACTION_TYPE_MAP[action]) {
           if (text.trim().includes(label)) {
             return element;
           }

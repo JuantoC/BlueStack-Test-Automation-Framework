@@ -4,6 +4,7 @@ import { stackLabel } from "../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
 import logger from "../core/utils/logger.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
+import { retry } from "../core/wrappers/retry.js";
 
 export enum SidebarOption {
   COMMENTS = 'COMMENTS',
@@ -44,7 +45,8 @@ export class SidebarAndHeader {
       try {
         logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
         if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
-          clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, this.config)
+          await this.clickOnMultimediaFileBtn(component)
+          return
         }
         await clickSafe(this.driver, locator, this.config)
       } catch (error: any) {
@@ -55,5 +57,22 @@ export class SidebarAndHeader {
         throw error;
       }
     });
+  }
+
+  async clickOnMultimediaFileBtn(action: SidebarOption.IMAGES | SidebarOption.VIDEOS): Promise<void> {
+    const newConfig = { ...this.config, supressRetry: true }
+    return retry(async () => {
+      try {
+        logger.debug(`Ejecutando click en el botón de multimedia para ir a ${action}...`, { label: newConfig.label })
+        await clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, newConfig)
+        await clickSafe(this.driver, SidebarAndHeader.SIDEBAR_MAP[action], newConfig)
+      } catch (error: any) {
+        logger.error(`Fallo al clickar sobre la carpeta de multimedia: ${error.message}`, {
+          label: newConfig.label,
+          error: error.message
+        });
+        throw error;
+      }
+    })
   }
 }

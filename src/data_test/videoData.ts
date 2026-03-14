@@ -1,5 +1,5 @@
-import { VideoType } from "../src/pages/videos_page/UploadVideoBtn.js";
-import { VideoData } from "../src/interfaces/data.js"
+import { VideoType } from "../pages/videos_page/UploadVideoBtn.js";
+import { VideoData } from "../interfaces/data.js"
 
 export const YoutubeVideoData: VideoData[] = [
   {
@@ -15,6 +15,12 @@ export const YoutubeVideoData: VideoData[] = [
     description: `Video to accompany the single THIS IS THE DAY - FULL BAND VERSION by Mamas Gun.
     Add the song to your streaming library: https://mamasgun.lnk.to/this-is-the-d...
     Scroll down for lyrics`
+  },
+  {
+    video_type: VideoType.YOUTUBE,
+    url: 'https://www.youtube.com/watch?v=SqcY0GlETPk',
+    title: 'React in 100 Seconds',
+    description: 'React is a popular JavaScript library for building user interfaces. Learn the basics in just 100 seconds!'
   }
 ]
 

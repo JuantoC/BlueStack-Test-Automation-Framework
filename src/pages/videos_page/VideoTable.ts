@@ -37,7 +37,7 @@ export class VideoTable {
     return await step(`Obtener contenedor de video por título: "${title}"`, async (stepContext) => {
       stepContext.parameter("Video Title", title);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-      
+
       const limit = 10;
       if (!title || title.trim() === "") {
         throw new Error("El título no puede estar vacío para buscar el contenedor del video.");
@@ -143,8 +143,13 @@ export class VideoTable {
       try {
         logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
         const actualVideo = await this.getVideoContainerByIndex(0);
-        await actualVideo.sendKeys(Key.ESCAPE);
-        logger.debug('Key de escape enviada.', { label: this.config.label })
+        const textarea = await actualVideo.findElements(By.css(`textarea.cdk-textarea-autosize`));
+
+        if (textarea.length > 0) {
+          await actualVideo.sendKeys(Key.ESCAPE);
+          logger.debug('Key de escape enviada.', { label: this.config.label })
+        }
+        logger.debug('Edicion inline sacada.', { label: this.config.label })
       } catch (error: any) {
         logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${error.message}`, { label: this.config.label, error: error.message })
         throw error;
@@ -169,6 +174,8 @@ export class VideoTable {
             return currentTitle.includes(expectedTitle);
           } catch {
             logger.debug('El DOM todavía está actualizándose, reintentamos...', { label: this.config.label });
+            // Esperamos 500ms para que el DOM se actualice
+            await sleep(500)
             return false;
           }
         }, timeoutMs, `Timeout: El nuevo video "${expectedTitle}" nunca apareció en index 0 de la tabla.`);

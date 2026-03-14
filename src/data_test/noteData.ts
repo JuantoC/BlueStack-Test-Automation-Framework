@@ -1,5 +1,5 @@
-import { NoteData } from "../src/interfaces/data.js";
-import { AuthorType } from "../src/pages/post_page/note_editor_page/EditorAuthorSection.js"
+import { NoteData } from "../interfaces/data.js";
+import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js"
 
 export const PostData: NoteData[] = [
   {
@@ -66,6 +66,17 @@ export const PostData: NoteData[] = [
     hiddenTags: ["a11y", "inclusive-design"],
     authorName: "Sofía Martínez",
     authorDescription: "UX/UI Designer especializada en accesibilidad",
+    authorType: AuthorType.MANUAL
+  },
+  {
+    title: "El futuro de las IA Generativas en 2026",
+    subTitle: "Nuevos modelos y aplicaciones prácticas",
+    halfTitle: "IA Generativa 2026",
+    body: "La inteligencia artificial generativa sigue evolucionando a pasos agigantados. En este post analizamos los últimos modelos revelados que permiten autonomía nivel agente y cuáles serán sus aplicaciones prácticas en la industria del software.",
+    tags: ["ia", "tecnología", "innovación", "futuro"],
+    hiddenTags: ["gen-ai", "agents", "automation"],
+    authorName: "Roberto Gómez",
+    authorDescription: "Especialista en Inteligencia Artificial y Machine Learning",
     authorType: AuthorType.MANUAL
   }
 ];

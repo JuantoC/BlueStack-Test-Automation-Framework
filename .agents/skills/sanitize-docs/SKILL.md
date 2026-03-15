@@ -1,111 +1,111 @@
 ---
 name: sanitize-docs
-description: Revisa y documenta funciones públicas y clases de archivos TypeScript del proyecto Bluestack con JSDoc completo y comentarios inline. Usar cuando el usuario diga "documentá este archivo", "sanitizá la carpeta X", "agregá JSDoc", "revisá los comentarios de", "documentá el proyecto", o cualquier variante de querer mejorar la documentación del código. También activar cuando el usuario mencione una carpeta específica como src/core, src/pages, o cualquier subcarpeta del proyecto.
+description: Reviews and documents public functions and classes from TypeScript files in the Bluestack project with full JSDoc and inline comments. Use when the user says "document this file", "sanitize folder X", "add JSDoc", "review the comments of", "document the project", or any variation of wanting to improve code documentation. Always activate when the user mentions wanting to work/sanitize a specific folder such as @src/core, @src/pages, @src/tests, or any subfolder of the project.
 ---
 
 # Sanitize Docs Skill
 
-Agrega y completa documentación JSDoc en funciones públicas y clases TypeScript del proyecto Bluestack. El objetivo no es solo documentar para humanos — los comentarios deben ser suficientemente ricos para que un agente de IA pueda entender el propósito, contrato y comportamiento de cada pieza **sin necesidad de leer el cuerpo de la función**.
+Adds and completes JSDoc documentation on public functions and classes in TypeScript files of the Bluestack project. The goal is not only to document for humans — comments must be rich enough for an AI agent to understand the purpose, contract, and behavior of each piece **without needing to read the function body**.
 
 ---
 
-## Qué documentar
+## What to document
 
-### ✅ Documentar siempre
-- Funciones y métodos **públicos** (exportados o sin modificador `private`)
-- **Clases completas** (JSDoc a nivel de clase + sus métodos públicos)
+### ✅ Always document
+- **Public** functions and methods (exported or without a `private` modifier)
+- **Full classes** (JSDoc at class level + their public methods)
 
-### ❌ No documentar
-- Métodos privados (`private`)
-- Funciones internas / helpers no exportados dentro de un método
-- Getters/setters triviales
-- Constructores simples que solo asignan propiedades (a menos que tengan lógica relevante)
-
----
-
-## Regla de oro: respetar lo existente
-
-**Si una función o clase ya tiene JSDoc → no tocarla.**
-Solo intervenir cuando:
-- No tiene ningún comentario JSDoc
-- Tiene un comentario JSDoc incompleto (le faltan campos obligatorios — ver sección siguiente)
-
-Si el JSDoc existente está completo aunque sea breve, dejarlo como está.
+### ❌ Do not document
+- Private methods (`private`)
+- Internal / non-exported helper functions inside a method
+- Trivial getters/setters
+- Simple constructors that only assign properties (unless they contain relevant logic)
 
 ---
 
-## Estructura del JSDoc obligatoria
+## Golden rule: respect what already exists
 
-Todo JSDoc generado debe incluir estos campos en este orden:
+**If a function or class already has JSDoc → do not touch it.**
+Only intervene when:
+- It has no JSDoc comment at all
+- It has an incomplete JSDoc comment (missing required fields — see next section)
+
+If the existing JSDoc is complete, even if brief, leave it as is.
+
+---
+
+## Required JSDoc structure
+
+All generated JSDoc must include these fields in this order:
 
 ```typescript
 /**
- * [Descripción: qué hace, por qué existe, cuál es su intención de diseño.
- *  Orientada a que un agente IA entienda el rol de esta pieza en el sistema
- *  sin necesidad de leer su implementación.]
+ * [Description: what it does, why it exists, what its design intent is.
+ *  Oriented so that an AI agent understands the role of this piece in the system
+ *  without needing to read its implementation.]
  *
- * @param nombreParam - [Tipo implícito por TypeScript] Significado semántico del parámetro.
- * @param otroParam - Idem.
- * @returns {TipoDeRetorno} Qué representa el valor devuelto y cuándo es relevante.
+ * @param paramName - [Type implicit from TypeScript] Semantic meaning of the parameter.
+ * @param otherParam - Same.
+ * @returns {ReturnType} What the returned value represents and when it is relevant.
  */
 ```
 
-### Reglas de cada campo
+### Rules for each field
 
-**Descripción (primera línea/párrafo):**
-- Explicar la *intención*, no repetir la firma
-- Mencionar el patrón de diseño si aplica (ej: "Orquestador", "Facade", "Strategy")
-- Si delega en otros métodos, mencionarlos: "Delega en `clickSafe` para ganar foco"
-- Si forma parte de un flujo mayor, indicarlo: "Usado por `MainPostPage` para..."
+**Description (first line/paragraph):**
+- Explain the *intent*, not repeat the signature
+- Mention the design pattern if applicable (e.g.: "Orchestrator", "Facade", "Strategy")
+- If it delegates to other methods, mention them: "Delegates to `clickSafe` to gain focus"
+- If it is part of a larger flow, indicate it: "Used by `MainPostPage` to..."
 
 **`@param`:**
-- Uno por parámetro, en el mismo orden que la firma
-- El tipo ya está en TypeScript, no repetirlo en el JSDoc salvo que aporte contexto
-- Describir el *significado semántico*, no el tipo: no "string con el texto" sino "Cadena a ingresar en el campo, sin sanitizar"
-- Para `opts: RetryOptions` siempre escribir: "Opciones de reintento y trazabilidad. Se propaga a todos los sub-llamados internos."
+- One per parameter, in the same order as the signature
+- The type is already in TypeScript, do not repeat it in the JSDoc unless it adds context
+- Describe the *semantic meaning*, not the type: not "string with the text" but "String to enter in the field, unsanitized"
+- For `opts: RetryOptions` always write: "Retry and traceability options. Propagated to all internal sub-calls."
 
 **`@returns`:**
-- Siempre presente si la función no es `Promise<void>`
-- Describir qué representa el valor, no solo el tipo
-- Ejemplo: `@returns {Promise<WebElement>} El elemento objetivo tras confirmar la escritura.`
+- Always present if the function is not `Promise<void>`
+- Describe what the value represents, not just the type
+- Example: `@returns {Promise<WebElement>} The target element after confirming the write.`
 
 ---
 
-## Comentarios inline en pasos complejos
+## Inline comments on complex steps
 
-Dentro del cuerpo, agregar comentarios inline **solo cuando el bloque de código no se explica solo**. Seguir el patrón del proyecto:
+Inside the body, add inline comments **only when the code block does not explain itself**. Follow the project pattern:
 
 ```typescript
-// 1. Preparación: Click previo para ganar foco y asegurar visibilidad.
+// 1. Preparation: Prior click to gain focus and ensure visibility.
 const element = await clickSafe(driver, ID, internalOpts);
 
-// 2. Identificación: Determinamos la naturaleza del input.
+// 2. Identification: We determine the nature of the input.
 const isEditable = await isContentEditable(element);
 
-// 3. Ejecución: Acción atómica de escritura.
+// 3. Execution: Atomic write action.
 if (isEditable) { ... }
 ```
 
-**Cuándo agregar inline:**
-- Bloques con lógica no obvia (detección de tipo, estrategias condicionales, reintentos)
-- Pasos secuenciales con número (`// 1.`, `// 2.`) cuando hay 3+ pasos encadenados
-- Cualquier workaround o decisión de diseño no evidente
+**When to add inline:**
+- Blocks with non-obvious logic (type detection, conditional strategies, retries)
+- Sequential steps with numbers (`// 1.`, `// 2.`) when there are 3+ chained steps
+- Any workaround or non-evident design decision
 
-**Cuándo NO agregar inline:**
-- Líneas simples de asignación o llamadas directas
-- Bloques ya comentados
-- Código autoexplicativo por nombres de variables/métodos
+**When NOT to add inline:**
+- Simple assignment lines or direct calls
+- Already commented blocks
+- Self-explanatory code through variable/method names
 
 ---
 
-## JSDoc de clases
+## Class JSDoc
 
-Para clases, el JSDoc va a nivel de declaración e incluye:
+For classes, the JSDoc goes at the declaration level and includes:
 
 ```typescript
 /**
- * [Descripción del rol de la clase en el sistema. Qué sección del CMS representa,
- *  qué patrón aplica (Facade, Page Object, Orchestrator), y qué sub-componentes coordina.]
+ * [Description of the class's role in the system. What CMS section it represents,
+ *  what pattern it applies (Facade, Page Object, Orchestrator), and what sub-components it coordinates.]
  *
  * @example
  * const page = new MainPostPage(driver, NoteType.POST, opts);
@@ -114,97 +114,97 @@ Para clases, el JSDoc va a nivel de declaración e incluye:
 export class MainPostPage { ... }
 ```
 
-El `@example` es opcional pero muy recomendado para Page Objects y clases de uso frecuente, ya que le da al agente un patrón de instanciación directo.
+The `@example` is optional but highly recommended for Page Objects and frequently used classes, as it gives the agent a direct instantiation pattern.
 
 ---
 
-## Idioma
+## Language
 
-**Siempre en español.** Sin excepciones, incluso si el código existente tiene comentarios en inglés. Los comentarios nuevos o completados van en español.
-
----
-
-## Modo de operación por carpeta
-
-Cuando el usuario indique una carpeta (ej: `src/core/actions/`):
-
-1. **Listar** todos los archivos `.ts` de esa carpeta (no recursivo salvo que el usuario lo pida)
-2. **Anunciar** el archivo que vas a procesar: `"Procesando: src/core/actions/writeActions.ts"`
-3. **Revisar** el archivo e identificar qué entidades necesitan documentación
-4. **Mostrar los cambios** como diff o bloque antes/después para cada entidad modificada
-5. **Esperar confirmación** del usuario antes de pasar al siguiente archivo
-6. **Repetir** para cada archivo de la carpeta
-
-Si el usuario dice "seguí" o "aplicá todo" sin revisar, procesar el resto sin interrupciones.
+**Always in Spanish.** No exceptions, even if the existing code has comments in English. New or completed comments go in Spanish.
 
 ---
 
-## Proceso de revisión por archivo
+## Operation mode per folder
 
-Para cada archivo `.ts`:
+When the user indicates a folder (e.g.: `src/core/actions/`):
 
-1. Leer el archivo completo
-2. Identificar todas las funciones públicas exportadas y clases
-3. Para cada una, verificar:
-   - ¿Tiene JSDoc? → Si está completo, skip. Si le faltan campos obligatorios, completar.
-   - ¿No tiene JSDoc? → Generar uno completo
-4. Identificar si el cuerpo tiene pasos complejos sin comentarios inline → agregar si aplica
-5. Presentar los cambios agrupados por archivo
+1. **List** all `.ts` files in that folder (non-recursive unless the user requests it)
+2. **Announce** the file being processed: `"Processing: src/core/actions/writeActions.ts"`
+3. **Review** the file and identify which entities need documentation
+4. **Show the changes** as a diff or before/after block for each modified entity
+5. **Wait for confirmation** from the user before moving to the next file
+6. **Repeat** for each file in the folder
 
----
-
-## Criterio de completitud de un JSDoc existente
-
-Un JSDoc existente se considera **incompleto** si le falta alguno de estos:
-- Descripción (primera línea)
-- Al menos un `@param` por cada parámetro de la firma (excepto `this`)
-- `@returns` cuando el retorno no es `void` o `Promise<void>`
-
-Si solo le falta el `@returns` en una función `void`, se considera completo.
+If the user says "continue" or "apply all" without reviewing, process the rest without interruptions.
 
 ---
 
-## Ejemplo de transformación
+## Review process per file
 
-**Antes (sin JSDoc):**
+For each `.ts` file:
+
+1. Read the full file
+2. Identify all exported public functions and classes
+3. For each one, verify:
+   - Does it have JSDoc? → If complete, skip. If missing required fields, complete it.
+   - Does it have no JSDoc? → Generate a complete one
+4. Identify if the body has complex steps without inline comments → add if applicable
+5. Present the changes grouped by file
+
+---
+
+## Completeness criteria for existing JSDoc
+
+An existing JSDoc is considered **incomplete** if it is missing any of these:
+- Description (first line)
+- At least one `@param` for each parameter in the signature (except `this`)
+- `@returns` when the return is not `void` or `Promise<void>`
+
+If only `@returns` is missing in a `void` function, it is considered complete.
+
+---
+
+## Transformation example
+
+**Before (no JSDoc):**
 ```typescript
 export async function clickSafe(
   driver: WebDriver,
   ID: Locator | WebElement,
   opts: RetryOptions = {}
 ): Promise<WebElement> {
-  // ...cuerpo...
+  // ...body...
 }
 ```
 
-**Después:**
+**After:**
 ```typescript
 /**
- * Ejecuta un click seguro sobre un elemento, garantizando visibilidad y foco previo.
- * Orquesta scroll, espera de visibilidad y reintento automático ante fallos transitorios.
- * Punto de entrada recomendado para cualquier interacción que requiera click en el framework.
+ * Executes a safe click on an element, guaranteeing prior visibility and focus.
+ * Orchestrates scroll, visibility wait, and automatic retry on transient failures.
+ * Recommended entry point for any interaction requiring a click in the framework.
  *
- * @param driver - Instancia activa de WebDriver para la sesión actual.
- * @param ID - Locator o WebElement del elemento objetivo.
- * @param opts - Opciones de reintento y trazabilidad. Se propaga a todos los sub-llamados internos.
- * @returns {Promise<WebElement>} El elemento objetivo tras confirmar el click exitoso.
+ * @param driver - Active WebDriver instance for the current session.
+ * @param ID - Locator or WebElement of the target element.
+ * @param opts - Retry and traceability options. Propagated to all internal sub-calls.
+ * @returns {Promise<WebElement>} The target element after confirming the successful click.
  */
 export async function clickSafe(
   driver: WebDriver,
   ID: Locator | WebElement,
   opts: RetryOptions = {}
 ): Promise<WebElement> {
-  // ...cuerpo...
+  // ...body...
 }
 ```
 
 ---
 
-## Lo que este skill NO hace
+## What this skill does NOT do
 
-- No refactoriza código
-- No renombra variables ni métodos
-- No modifica la lógica de ninguna función
-- No toca métodos privados
-- No reescribe JSDoc que ya existe y está completo
-- No traduce comentarios inline existentes (solo agrega nuevos en español)
+- Does not refactor code
+- Does not rename variables or methods
+- Does not modify the logic of any function
+- Does not touch private methods
+- Does not rewrite JSDoc that already exists and is complete
+- Does not translate existing inline comments (only adds new ones in Spanish)

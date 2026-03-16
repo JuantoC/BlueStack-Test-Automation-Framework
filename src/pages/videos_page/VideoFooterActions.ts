@@ -5,7 +5,7 @@ import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 
-export class FooterVideoActions {
+export class VideoFooterActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
@@ -16,13 +16,13 @@ export class FooterVideoActions {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "FooterVideoActions") }
+    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "VideoFooterActions") }
   }
 
   async clickOnPublishBtn(): Promise<void> {
     try {
       logger.debug('Intentando clickar en el boton de publicar del footer...', { label: this.config.label });
-      const publishBtn = await waitFind(this.driver, FooterVideoActions.FOOTER_PUBLISH_BTN, this.config);
+      const publishBtn = await waitFind(this.driver, VideoFooterActions.FOOTER_PUBLISH_BTN, this.config);
       await this.isPublishBtnEnabled(publishBtn)
 
       await clickSafe(this.driver, publishBtn, this.config);

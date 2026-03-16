@@ -8,7 +8,7 @@ A robust, production-ready UI test automation framework built with **Selenium We
 
 This framework is built on the **Page Object Model (POM)** pattern. Every section of the CMS UI is represented by a dedicated TypeScript class that encapsulates the element locators and interactions for that specific page or component.
 
-```
+```bash
 src/
 ├── core/                    # Framework engine
 │   ├── config/              # Driver setup, env variables, Chrome options
@@ -112,7 +112,7 @@ All test files live in the `sessions/` directory and must follow the naming patt
 
 **1. Create a new test file** in `sessions/`:
 
-```
+```bash
 sessions/MyNewFeature.test.ts
 ```
 
@@ -219,6 +219,7 @@ npm run infra:up
 ```
 
 This brings up:
+
 - `selenium-hub` on ports `4442–4444`
 - `chrome-node` (number of replicas controlled by `MAX_INSTANCES` in `.env`)
 
@@ -245,7 +246,7 @@ npm run infra:down
 MAX_INSTANCES=3 npm run test:grid
 ```
 
-> The Selenium Grid UI is accessible at **http://localhost:4444** while the infrastructure is running.
+> The Selenium Grid UI is accessible at **<http://localhost:4444>** while the infrastructure is running.
 
 ### CI/CD Pipeline Execution (GitHub Actions / headless, full lifecycle)
 

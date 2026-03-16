@@ -8,7 +8,7 @@ import { step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
-import { FooterVideoActions } from "./FooterVideoActions.js";
+import { VideoFooterActions } from "./VideoFooterActions.js";
 
 /**
  * Page Object Maestro para la pagina de videos.
@@ -22,7 +22,7 @@ export class MainVideoPage {
   private readonly uploadModal: UploadVideoModal
   private readonly table: VideoTable
   private readonly actions: VideoActions
-  private readonly footer: FooterVideoActions
+  private readonly footer: VideoFooterActions
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -32,7 +32,7 @@ export class MainVideoPage {
     this.uploadModal = new UploadVideoModal(this.driver, this.config);
     this.table = new VideoTable(this.driver, this.config);
     this.actions = new VideoActions(this.driver, this.config);
-    this.footer = new FooterVideoActions(this.driver, this.config)
+    this.footer = new VideoFooterActions(this.driver, this.config)
   }
 
   async uploadNewVideo(videoData: VideoData): Promise<any> {

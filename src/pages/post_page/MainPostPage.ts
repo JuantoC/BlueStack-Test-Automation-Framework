@@ -25,10 +25,10 @@ export class MainPostPage {
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        logger.debug("Ejecutando busqueda del contenedor para el titulo de la nota...", this.config.label)
+        logger.debug("Ejecutando busqueda del contenedor para el titulo de la nota...", { label: this.config.label })
         const postContainer = await this.table.getPostContainerByTitle(title);
 
-        logger.debug("Ejecutando el cambio de titulo.")
+        logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changePostTitle(postContainer);
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
@@ -49,7 +49,7 @@ export class MainPostPage {
       try {
         const postContainer = await this.table.getPostContainerByTitle(postTitle);
 
-        logger.debug("Ejecutando el click en el boton de edicion", this.config.label)
+        logger.debug("Ejecutando el click en el boton de edicion", { label: this.config.label })
         await this.table.clickEditorButton(postContainer);
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {

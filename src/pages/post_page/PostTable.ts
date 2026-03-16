@@ -21,8 +21,8 @@ export class PostTable {
   private static readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
 
   // Constantes para el manejo del string requerido
-  public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation Framework";
-  public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation Framework";
+  public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation_Framework";
+  public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -71,15 +71,15 @@ export class PostTable {
         // Esto es mucho más rápido y seguro contra IDs duplicados en otras tablas.
         logger.debug(`Contenedor de fila ${i} encontrado, buscando título dentro de esta fila...`, { label: this.config.label });
         const titleElement = await container.findElement(PostTable.POST_TITLE_LABEL);
-        logger.debug("El elemento label del titulo encontrado con exito.")
+        logger.debug("El elemento label del titulo encontrado con exito.", { label: this.config.label })
         const currentTitle = await titleElement.getText();
-        logger.debug("Texto del elemento conseguido con exito.")
+        logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
 
         if (currentTitle.includes(title)) {
           logger.debug(`Nota encontrada en índice ${i}: "${currentTitle}"`, { label: this.config.label });
           return container; // Retornamos el contenedor de la fila donde se encontró el título
         } else {
-          logger.debug(`Titulo no encontrado en el contenedor ${i}...`)
+          logger.debug(`Titulo no encontrado en el contenedor ${i}...`, { label: this.config.label })
         }
       }
       throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
@@ -102,7 +102,8 @@ export class PostTable {
       const newTitle = currentTitle.replace(this.OLD_SUFFIX, this.NEW_SUFFIX);
 
       if (currentTitle === newTitle) {
-        logger.warn(`El título actual no contenía el sufijo esperado. Título extraído: "${currentTitle}"`, { label: this.config.label });
+        logger.info(`El título actual ya contenía el sufijo esperado. Título extraído: "${currentTitle}"`, { label: this.config.label });
+        return;
       }
 
       // 2. Garantizar estado del DOM (Activar input si hace falta)

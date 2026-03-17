@@ -73,6 +73,6 @@ export class SidebarAndHeader {
         });
         throw error;
       }
-    })
+    }, this.config)
   }
 }

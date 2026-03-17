@@ -21,7 +21,7 @@ export class VideoFooterActions {
 
   async clickOnPublishBtn(): Promise<void> {
     try {
-      logger.debug('Intentando clickar en el boton de publicar del footer...', { label: this.config.label });
+      logger.debug('Clickando en el boton de publicar del footer...', { label: this.config.label });
       const publishBtn = await waitFind(this.driver, VideoFooterActions.FOOTER_PUBLISH_BTN, this.config);
       await this.isPublishBtnEnabled(publishBtn)
 

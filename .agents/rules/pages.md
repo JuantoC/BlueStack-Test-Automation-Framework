@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: > **Before reading, creating, or modifying any file inside `@src/pages/`
+description: > **Before creating, or modifying any file inside `@src/pages/`
 ---
 
 ## Page Object Layer — `@src/pages/`
@@ -9,4 +9,4 @@ You MUST first read `@src/pages/README.md` in full. That document is the authori
 
 Do not infer conventions for this layer from general TypeScript or Selenium knowledge. The README defines a strict two-layer architecture (Maestros + sub-components), locator ownership rules, constructor contracts, naming conventions, and anti-patterns. Violating any of them breaks the framework.
 
-If you are not interacting with `src/pages/`, do not read or reference that README.
+If you are not interacting with `src/pages/`, or you are just reading it, do not read or reference that README.

@@ -1,6 +1,6 @@
 # Bluestack Test Automation Framework
 
-A robust, production-ready UI test automation framework built with **Selenium WebDriver**, **TypeScript**, and **Jest**, designed to interact with the Bluestack CMS. The framework provides full end-to-end coverage for core editorial workflows — including content creation, video management, and publishing — with integrated Allure reporting, structured logging, and Docker-based Selenium Grid support.
+A robust, production-ready UI test automation framework built with **Selenium WebDriver**, **TypeScript**, and **Jest**, designed to interact with the Bluestack CMS. The framework provides full end-to-end coverage for core editorial workflows — including content creation, video management, and publishing — with integrated **Allure** reporting, structured logging, and **Docker**-based **Selenium Grid** support.
 
 ---
 
@@ -43,13 +43,13 @@ Test sessions import the Page Objects they need and call high-level methods, kee
 
 ## Prerequisites
 
-| Tool | Version | Notes |
-|---|---|---|
-| [Node.js](https://nodejs.org) | `>= 18.x` | Required to run the framework |
-| [npm](https://npmjs.com) | `>= 9.x` | Bundled with Node.js |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest | Required for Grid execution and CI |
-| Google Chrome | Latest stable | Required for local execution |
-| `chromedriver` | Matching Chrome version | Managed automatically by `selenium-webdriver` |
+| Tool                                                              | Version                 | Notes
+|-------------------------------------------------------------------|-------------------------|------
+| [Node.js](https://nodejs.org)                                     | `>= 18.x`               | Required to run the framework |
+| [npm](https://npmjs.com)                                          | `>= 9.x`                | Bundled with Node.js |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest                  | Required for Grid execution and CI |
+| Google Chrome                                                     | Latest stable           | Required for local execution |
+| `chromedriver`                                                    | Matching Chrome version | Managed automatically by `selenium-webdriver` |
 
 ---
 
@@ -83,7 +83,7 @@ Edit `.env` with the appropriate values:
 GRID_URL=http://localhost:4444
 IS_HEADLESS=true
 USE_GRID=true
-MAX_INSTANCES=3
+MAX_INSTANCES=3 # number of parallel tests
 
 # Target CMS URL
 TESTING_URL=https://your-cms-environment.com
@@ -118,7 +118,7 @@ sessions/MyNewFeature.test.ts
 
 **2. (Optional) Add fixture data** in `src/data_test/` following the existing TypeScript interfaces in `src/interfaces/data.ts`.
 
-**3. Write the test** using `runSession()` as the entry point and composing the Page Objects you need:
+**3. Write the test** using `runSession()` as the entry point and composing the Page Objects you need, for example:
 
 ```typescript
 // sessions/PublishNewPost.test.ts
@@ -179,22 +179,22 @@ runSession(
 
 ## Test Execution
 
-Para correr tests individuales, Jest utiliza un patrón de búsqueda (regex) dentro de `sessions/`. No tenés que pasar una ruta completa ni la extensión `.ts`. Ejemplos válidos de `NombreDelTest`: `PublishNewPost`, `EditInline`, `NativeVideo`.
+To run individual tests, Jest uses a search pattern (regex) within the sessions/ directory. You do not need to provide the full file path or the .ts extension. Valid examples for TestName include: `PublishNewPost`, `EditInline`, or `NativeVideo`.
 
 ```bash
-# Correr un test específico en modo desarrollo (debug local)
-npm run test:dev -- NombreDelTest
+# Run a specific test in development mode (local debug)
+npm run test:dev -- TestName
 
-# Correr un test específico contra el grid
-npm run test:grid -- NombreDelTest
+# Run a specific test against the grid
+npm run test:grid -- TestName
 
-# Correr en CI (ciclo completo)
-npm run test:ci -- NombreDelTest
+# Run in CI (full lifecycle)
+npm run test:ci -- TestName
 ```
 
-- `test:dev` → ejecución local con browser visible, para desarrollo y debug
-- `test:grid` → ejecución headless contra Docker Selenium Grid
-- `test:ci` → ciclo completo: clean → infra:up → exec → infra:down
+- `test:dev` → Local execution with a visible browser; intended for development and debugging.
+- `test:grid` → Headless execution against a Docker Selenium Grid.
+- `test:ci` → Full lifecycle execution: clean → infra:up → exec → infra:down.
 
 ### Local Execution (visible browser, for development & debugging)
 
@@ -205,7 +205,9 @@ Starts a headed Chrome browser on your local machine. Use this when writing or d
 npm run test:dev
 
 # Run and automatically open the Allure report when done
-npm run test:dev:show
+npm run test:grid
+npm run report:show
+
 ```
 
 ### Docker Grid Execution (headless, multi-node)
@@ -302,13 +304,13 @@ npm run clean
 
 ### Naming Conventions
 
-| Artifact | Convention | Example |
-|---|---|---|
-| Session test file | `PascalCase.test.ts` | `PublishNewPost.test.ts` |
-| Main Page Object class | `Main<PageName>Page` | `MainPostPage` |
-| Sub-component Page Object | `<Feature><Component>` | `VideoTable`, `UploadVideoModal` |
-| Data fixture file | `camelCase.ts` | `noteData.ts`, `videoData.ts` |
-| Allure `epic` / `feature` | Match CMS section name | `"Content Management"`, `"Videos"` |
+| Artifact                  | Convention               | Example
+|---------------------------|--------------------------|---
+| Session test file         | `PascalCase.test.ts`     | `PublishNewPost.test.ts`
+| Main Page Object class    | `Main<PageName>Page`     | `MainPostPage`
+| Sub-component Page Object | `<Feature><Component>`   | `VideoTable`, `UploadVideoModal`
+| Data fixture file         | `camelCase.ts`           | `noteData.ts`, `videoData.ts`
+| Allure `epic` / `feature` | Match CMS section name   | `"Content Management"`, `"Videos"`
 
 ### Page Object rules
 
@@ -316,7 +318,7 @@ npm run clean
 2. **Constructor signature:** Every Page Object must accept `(driver: WebDriver, opts: RetryOptions)`. Pass `opts` down to all sub-components so retry and timeout config is consistently propagated.
 3. **No raw element sleeps.** Use the shared wait utilities in `src/core/actions/` and `src/core/utils/`. Raw `sleep()` calls are only acceptable as a last resort with a comment explaining why.
 4. **Log with context.** Use the injected `logger` and always pass `{ label: this.config.label }` so logs are traceable to their Page Object.
-5. **Wrap multi-step operations with `step()` from `allure-js-commons`** to get granular step visibility in the Allure report.
+5. **Wrap multi-step operations with `step()` from `allure-js-commons`** to get granular step visibility in the Allure report, this needs to be in the Main Page Object Class only, not in the Sub-componenet Page Object.
 
 ### Branching & PR
 

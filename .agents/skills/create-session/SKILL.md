@@ -5,54 +5,28 @@ description: Genera archivos .test.ts para el framework de automatización Blues
 
 # Create Session Skill
 
-Genera un archivo `.test.ts` completo, limpio y listo para ejecutar dentro de `sessions/`, siguiendo estrictamente las convenciones del framework Bluestack.
+Genera un `.test.ts` dentro de `sessions/` siguiendo las convenciones Bluestack.
+
+## Proceso
+
+1. Entender el flujo (sección CMS, pasos, rol). Preguntar si no está claro.
+2. Identificar Maestros necesarios → leer su archivo `@src/pages/...` para conocer métodos/firmas exactas desde JSDoc. No asumir de memoria.
+3. Si un método necesita más contexto, leer sub-components del mismo subdirectorio.
+4. Leer `@src/interfaces/data.ts` antes de referenciar campos de fixtures.
+5. Generar el archivo con todas las reglas. Indicar nombre PascalCase y comando de ejecución.
 
 ---
 
-## Lo que necesitás entender antes de generar
+## Reglas (todas obligatorias)
 
-### Estructura del wrapper `runSession()`
-
-Todo test es una llamada a `runSession()` con esta firma:
+**1. Imports al final** — convención del proyecto:
 
 ```typescript
-runSession(
-  "Nombre del test",           // Label visible en Allure y en los logs
-  async ({ driver, opts, log }) => {
-    // lógica del test
-  },
-  {                            // Metadata Allure (opcional pero recomendada)
-    epic: "...",
-    feature: "...",
-    severity: "critical" | "blocker" | "normal" | "minor" | "trivial",
-    tags: [...],
-    issueId: "...",            // Solo si hay ticket de Jira asociado
-  }
-);
-```
-
-`driver` → instancia de WebDriver  
-`opts` → configuración de reintentos, se pasa a cada Page Object  
-`log` → logger con contexto, usar `log.info()` al final del test para confirmar éxito
-
----
-
-## Reglas de generación
-
-### 1. Orden del archivo
-Los imports van **siempre al final**, después de `runSession()`. Esto es una convención del proyecto, no un error.
-
-```typescript
-// ✅ Correcto
-runSession("...", async ({ driver, opts, log }) => {
-  // lógica
-});
-
+runSession("...", async ({ driver, opts, log }) => { ... });
 import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { ... } from "...";
 ```
 
-### 2. Imports obligatorios en todo test
+**2. Imports base** (siempre presentes):
 
 ```typescript
 import { runSession } from "../src/core/wrappers/testWrapper.js";
@@ -62,178 +36,109 @@ import { description } from "allure-js-commons";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 ```
 
-### 3. Bloque de navegación inicial (siempre presente)
+**3. Navegación inicial** (siempre presente):
 
 ```typescript
-const { user, pass } = ENV_CONFIG.getCredentials('editor'); // o 'admin' según el caso
+const { user, pass } = ENV_CONFIG.getCredentials('editor'); // o 'admin'
 const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
 await driver.get(authUrl);
 ```
 
-### 4. Instanciación de Page Objects
+**4.** Instanciar solo los POs que se usan. Firma: `(driver, opts)`. Con enum: `(driver, NoteType.POST, opts)`.
 
-Cada Page Object recibe `(driver, opts)` como mínimo. Algunos reciben un tercer argumento de tipo (como `NoteType`):
+**5. Login siempre primer paso:** `await login.passLoginAndTwoFA({ username: user, password: pass });`
 
-```typescript
-const login   = new MainLoginPage(driver, opts);
-const post    = new MainPostPage(driver, NoteType.POST, opts);
-const editor  = new MainEditorPage(driver, NoteType.POST, opts);
-const video   = new MainVideoPage(driver, opts);
-const sidebar = new SidebarAndHeader(driver, opts);
-```
-
-Solo instanciar los Page Objects que el test realmente usa.
-
-### 5. Login siempre es el primer paso
+**6. Sidebar** (si el flujo no empieza en posts):
 
 ```typescript
-await login.passLoginAndTwoFA({ username: user, password: pass });
+await sidebar.goToComponent(SidebarOption.VIDEOS);
+// import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
 ```
 
-### 6. Navegación por sidebar (cuando el flujo no empieza en posts)
+**7. Log de cierre** (obligatorio): `log.info("✅ <resultado>");`
 
-```typescript
-await sidebar.goToComponent(SidebarOption.VIDEOS); // o el componente correspondiente
-```
-
-Importar: `import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";`
-
-### 7. Log de cierre (obligatorio)
-
-Siempre cerrar el test con una línea informativa:
-
-```typescript
-log.info("✅ <Descripción breve del resultado esperado>");
-```
-
-### 8. `description()` con formato Markdown
+**8. description() Markdown:**
 
 ```typescript
 description(`
-  ### Test: <título del test>
-  ---
-**Objetivo:** <qué valida este test>
-
-**Flujo de pasos:**
-1. <paso 1>
-2. <paso 2>
-...
-
-> **Resultado esperado:** <qué debe ocurrir al final>
+### Test: <título>
+---
+**Objetivo:** <qué valida>
+**Flujo:** 1. paso / 2. paso / ...
+> **Resultado esperado:** <qué ocurre al final>
 `);
 ```
 
-### 9. `sleep()` solo en casos de debug
-
-Nunca generar sleeps en tests nuevos de producción. Si el usuario lo pide explícitamente, agregarlo con un comentario que explique por qué.
+**9. No sleeps en producción.** Solo con comentario justificado si el usuario lo pide explícitamente.
 
 ---
 
-## Page Objects disponibles y sus imports
+## Maestros — paths para lectura dinámica
 
-| Page Object | Import |
+> Solo importar Maestros (`Main*`) en tests. Nunca sub-components directamente.
+
+| Maestro | Leer en |
 |---|---|
-| `MainLoginPage` | `../src/pages/login_page/MainLoginPage.js` |
-| `MainPostPage` | `../src/pages/post_page/MainPostPage.js` |
-| `MainEditorPage` | `../src/pages/post_page/note_editor_page/MainEditorPage.js` |
-| `MainVideoPage` | `../src/pages/videos_page/MainVideoPage.js` |
-| `SidebarAndHeader` | `../src/pages/SidebarAndHeaderSection.js` |
+| `MainLoginPage` | `@src/pages/login_page/MainLoginPage.ts` |
+| `MainPostPage` | `@src/pages/post_page/MainPostPage.ts` |
+| `MainEditorPage` | `@src/pages/post_page/note_editor_page/MainEditorPage.ts` |
+| `MainVideoPage` | `@src/pages/videos_page/MainVideoPage.ts` |
+| `SidebarAndHeader` | `@src/pages/SidebarAndHeaderSection.ts` |
 
-## Enums frecuentes y sus imports
+Sub-components por sección (bajar solo si se necesita más contexto):
 
-| Enum | Import |
+- `login_page/` → `LoginSection.ts`, `TwoFaSection.ts`
+- `post_page/` → `PostTable.ts`, `NewNoteBtn.ts`
+- `post_page/note_editor_page/` → `EditorHeaderActions.ts`, `EditorTextSection.ts`, `EditorTagsSection.ts`, `EditorAuthorSection.ts`, `EditorLateralSettings.ts`, `EditorImagesSection.ts`, `noteList/BaseListicleSection.ts`, `noteList/ListicleItemSection.ts`
+- `videos_page/` → `VideoTable.ts`, `UploadVideoBtn.ts`, `UploadVideoModal.ts`, `VideoActions.ts`, `FooterVideoActions.ts`
+
+---
+
+## Enums y Fixtures
+
+| Símbolo | Fuente canónica |
 |---|---|
-| `NoteType` | `../src/pages/post_page/NewNoteBtn.js` |
-| `NoteExitAction` | `../src/pages/post_page/note_editor_page/EditorHeaderActions.js` |
-| `SidebarOption` | `../src/pages/SidebarAndHeaderSection.js` |
-| `ActionType` | `../src/pages/videos_page/VideoActions.js` |
+| `NoteType` | `@src/pages/post_page/NewNoteBtn.ts` |
+| `NoteExitAction` | `@src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
+| `VideoType` | `@src/pages/videos_page/UploadVideoBtn.ts` |
+| `ActionType` | `@src/pages/videos_page/VideoActions.ts` |
+| `SidebarOption` | `@src/pages/SidebarAndHeaderSection.ts` |
+| `LiveBlogData` | `@src/pages/post_page/note_editor_page/noteList/BaseListicleSection.ts` |
+| `NoteData`, `VideoData` | `@src/interfaces/data.ts` |
 
-## Fixtures de datos disponibles
-
-Los fixtures viven en `src/data_test/`. Los imports desde `sessions/` usan la ruta `../src/data_test/`.
+Fixtures — verificar campos en `@src/interfaces/data.ts` antes de usarlos:
 
 | Variable | Import |
 |---|---|
-| `PostData` | `../src/data_test/noteData.js` |
-| `ListicleData` | `../src/data_test/noteData.js` |
-| `LiveBlogData` | `../src/data_test/noteData.js` |
-| `NativeVideoData` | `../src/data_test/videoData.js` |
-| `YoutubeVideoData` | `../src/data_test/videoData.js` |
-
-Antes de referenciar campos de un fixture, leer `@src/interfaces/data.ts` para verificar la interfaz actualizada.
+| `PostData`, `ListicleData`, `LiveBlogData` | `../src/data_test/noteData.js` |
+| `NativeVideoData`, `YoutubeVideoData` | `../src/data_test/videoData.js` |
 
 ---
 
-## Nombre del archivo
+## Ejecución
 
-Usar `PascalCase` y que describa el flujo. Ejemplos:
-- `PublishNewPost.test.ts`
-- `EditInlineTitle.test.ts`
-- `UploadNativeVideo.test.ts`
-- `AdminUserCreation.test.ts`
+Al terminar, indicar siempre el comando. `NombreDelTest` = substring del archivo, sin path ni extensión.
 
----
-
-## Comando para ejecutar el test generado
-
-Al terminar de generar el archivo, **siempre** indicar el comando para correrlo.
-
-El patrón es:
 ```bash
-npm run test:dev -- NombreDelTest
-```
-
-Donde `NombreDelTest` es cualquier cadena **incluida** en el nombre del archivo. Jest la usa como regex y busca dentro de `sessions/` automáticamente. No es una ruta, no lleva `/sessions/`, no lleva `.test.ts`.
-
-### Modos de ejecución
-
-| Comando | Cuándo usarlo |
-|---|---|
-| `npm run test:dev -- NombreDelTest` | **Debug / desarrollo local** — browser visible |
-| `npm run test:grid -- NombreDelTest` | Grid Docker headless |
-| `npm run test:ci -- NombreDelTest` | CI: ciclo completo (clean → infra:up → exec → infra:down) |
-
-**Para debuggear, siempre sugerir `test:dev`.**
-
-Ejemplos con el archivo `PublishNewPost.test.ts`:
-```bash
-npm run test:dev -- PublishNewPost      # ✅ correcto
-npm run test:dev -- Publish             # ✅ también válido (substring)
-npm run test:dev -- sessions/PublishNewPost.test.ts  # ❌ incorrecto
+npm run test:dev -- NombreDelTest   # dev/debug (browser visible) ← sugerir por defecto
+npm run test:grid -- NombreDelTest  # headless
+npm run test:ci -- NombreDelTest    # CI completo
 ```
 
 ---
 
-## Proceso de generación
-
-1. **Entender el flujo**: si no está claro, preguntar qué sección del CMS, qué pasos, qué rol de usuario.
-2. **Identificar Page Objects y fixtures** necesarios para ese flujo.
-3. **Verificar interfaces** leyendo `@src/interfaces/data.ts` antes de referenciar campos de fixtures.
-4. **Generar el archivo** respetando todas las reglas anteriores.
-5. **Indicar el nombre** del archivo en `PascalCase`.
-6. **Indicar el comando** para correrlo: `npm run test:dev -- NombreDelTest`
-
----
-
-## Ejemplo completo de referencia
+## Ejemplo de referencia
 
 ```typescript
 runSession(
   "Publicar nuevo post",
   async ({ driver, opts, log }) => {
-
     description(`
-      ### Test: Crear Post y publicarlo.
-      ---
-**Objetivo:** Validar que un post puede crearse, guardarse y publicarse correctamente.
-
-**Flujo de pasos:**
-1. Login como editor.
-2. Creación de nueva nota tipo Post.
-3. Llenado de campos y guardado con salida.
-4. Re-ingreso al editor y publicación.
-
-> **Resultado esperado:** El post debe quedar publicado y accesible desde el listado.
+### Test: Crear Post y publicarlo.
+---
+**Objetivo:** Validar que un post puede crearse, guardarse y publicarse.
+**Flujo:** 1. Login / 2. Crear nota / 3. Llenar y guardar / 4. Reingresar y publicar
+> **Resultado esperado:** Post publicado y accesible desde el listado.
     `);
 
     const { user, pass } = ENV_CONFIG.getCredentials('editor');
@@ -248,29 +153,24 @@ runSession(
     await post.createNewNote();
     await editor.fillFullNote(PostData[0]);
     await editor.closeNoteEditor(NoteExitAction.SAVE_AND_EXIT);
-
     await post.enterToEditorPage(PostData[0].title!);
     await editor.closeNoteEditor(NoteExitAction.PUBLISH_AND_EXIT);
 
     log.info("✅ Post creado y publicado exitosamente.");
   },
-  {
-    epic: "Content Management",
-    feature: "Post Creation",
-    severity: "critical",
-  }
+  { epic: "Content Management", feature: "Post Creation", severity: "critical" }
 );
 
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { PostData } from "../src/data_test/noteData.js";
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { description } from "allure-js-commons";
+import { PostData } from "../src/data_test/noteData.js";
 import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
 import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
-import { description } from "allure-js-commons";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
 ```
 
-> Para correrlo: `npm run test:dev -- PublishNewPost`
+> `npm run test:dev -- PublishNewPost`

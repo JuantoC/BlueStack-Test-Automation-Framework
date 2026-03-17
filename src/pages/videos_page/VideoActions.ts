@@ -34,28 +34,23 @@ export class VideoActions {
    * Clickea el botón de una accion de un video específico.
    */
   async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
-    await step(`Clickeando acción: "${action}" en el video`, async (stepContext) => {
-      stepContext.parameter("Action Type", action);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+    try {
+      logger.debug(`Buscando el boton de ${action} dentro del video..`, { label: this.config.label })
+      const editorBtn = await videoContainer.findElement(VideoActions.DROPDOWN_BTN);
 
-      try {
-        logger.debug(`Buscando el boton de ${action} dentro del video..`, { label: this.config.label })
-        const editorBtn = await videoContainer.findElement(VideoActions.DROPDOWN_BTN);
+      await hoverOverParentContainer(this.driver, editorBtn, this.config)
 
-        await hoverOverParentContainer(this.driver, editorBtn, this.config)
-
-        if (!await this.isActionsModalOpen(editorBtn)) {
-          logger.debug(`El modal de acciones no se encuentra abierto, clickeando el boton de ${action}`, { label: this.config.label })
-          await clickSafe(this.driver, editorBtn, this.config)
-        }
-        const actionBtn = await this.findAction(videoContainer, action)
-        logger.debug(`Encontrado el boton de ${action}, clickeando...`, { label: this.config.label })
-        await clickSafe(this.driver, actionBtn, this.config)
-      } catch (error: any) {
-        logger.error(`Fallo al clickear botón ${action} en el video: ${error.message}`, { label: this.config.label, error: error.message });
-        throw new Error(`Fallo al clickear botón ${action} en el video: ${error instanceof Error ? error.message : String(error)}`);
+      if (!await this.isActionsModalOpen(editorBtn)) {
+        logger.debug(`El modal de acciones no se encuentra abierto, clickeando el boton de ${action}`, { label: this.config.label })
+        await clickSafe(this.driver, editorBtn, this.config)
       }
-    });
+      const actionBtn = await this.findAction(videoContainer, action)
+      logger.debug(`Encontrado el boton de ${action}, clickeando...`, { label: this.config.label })
+      await clickSafe(this.driver, actionBtn, this.config)
+    } catch (error: any) {
+      logger.error(`Fallo al clickear botón ${action} en el video: ${error.message}`, { label: this.config.label, error: error.message });
+      throw new Error(`Fallo al clickear botón ${action} en el video: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private async findAction(videoContainer: WebElement, action: ActionType): Promise<WebElement> {

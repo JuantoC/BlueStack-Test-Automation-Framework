@@ -137,20 +137,16 @@ export class MainVideoPage {
   }
 
   async getLastFiveVideoContainer(): Promise<WebElement[]> {
-    return await step("Obtener los últimos cinco contenedores de videos", async (stepContext) => {
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
-      try {
-        let videos = []
-        for (let i = 0; i < 5; i++) {
-          const video = await this.table.getVideoContainerByIndex(i);
-          videos.push(video)
-        }
-        return videos
-      } catch (error: any) {
-        logger.error(`Error al obtener los ultimos 5 videos: ${error.message}`, { label: this.config.label, error: error.message });
-        throw error;
+    try {
+      let videos = []
+      for (let i = 0; i < 5; i++) {
+        const video = await this.table.getVideoContainerByIndex(i);
+        videos.push(video)
       }
-    });
+      return videos
+    } catch (error: any) {
+      logger.error(`Error al obtener los ultimos 5 videos: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
+    }
   }
 }

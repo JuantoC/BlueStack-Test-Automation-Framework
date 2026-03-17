@@ -37,25 +37,25 @@ runSession(
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // 2. Crear nueva nota
-    /*  await post.createNewNote();
- 
-     // El PostData recién agregado está en el índice 6 (son 7 elementos, de 0 a 6)
-     await editor.fillFullNote(newPostData);
- 
-     // 3. Salir con el botón back_and_save (BACK_SAVE_AND_EXIT en el enum)
-     await editor.closeNoteEditor(NoteExitAction.BACK_SAVE_AND_EXIT);
- 
-     // 4. Ingresar al componente de videos
-     await sidebar.goToComponent(SidebarOption.VIDEOS);
- 
-     // 5. Subir un nuevo video youtube
-     // El YoutubeVideoData recién agregado está en el índice 2
-     const newYoutubeData = YoutubeVideoData[2];
-     await video.uploadNewVideo(newYoutubeData);
- 
-     // 6. Volver a la página de posts (noticias)
-     await sidebar.goToComponent(SidebarOption.NEWS);
-  */
+    await post.createNewNote();
+
+    // El PostData recién agregado está en el índice 6 (son 7 elementos, de 0 a 6)
+    await editor.fillFullNote(newPostData);
+
+    // 3. Salir con el botón back_and_save (BACK_SAVE_AND_EXIT en el enum)
+    await editor.closeNoteEditor(NoteExitAction.BACK_SAVE_AND_EXIT);
+
+    // 4. Ingresar al componente de videos
+    await sidebar.goToComponent(SidebarOption.VIDEOS);
+
+    // 5. Subir un nuevo video youtube
+    // El YoutubeVideoData recién agregado está en el índice 2
+    const newYoutubeData = YoutubeVideoData[2];
+    await video.uploadNewVideo(newYoutubeData);
+
+    // 6. Volver a la página de posts (noticias)
+    await sidebar.goToComponent(SidebarOption.NEWS);
+
     // 7. Encontrar la nota subida previamente y cambiarle el titulo inline
     await post.changePostTitle(newPostData.title!);
 

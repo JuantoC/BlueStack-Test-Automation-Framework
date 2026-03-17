@@ -1,18 +1,18 @@
 runSession("Native&YT Video", async ({ driver, opts, log }) => {
 
   description(`
-    ### Test: Crear un video Nativo, uno YouTube, y editar el titulo inline.
+    ###Test: Crear un video Nativo, uno YouTube, y editar el titulo inline.
     ---
-**Objetivo:** Validar la subida de estos 2 tipos de videos, y la mecanica de editar inline
+    **Objetivo:** Validar la subida de estos 2 tipos de videos, y la mecanica de editar inline
 
-**Flujo de pasos:**
-1. Navegación hacia el componente de Videos
-2. Subida dinamica del video Nativo
-3. Modificación de título desde el listado.
-4. Subida del video YouTube
-3. Modificación de título desde el listado.
+    **Flujo de pasos:**
+    1. Navegación hacia el componente de Videos
+    2. Subida dinamica del video Nativo
+    3. Modificación de título desde el listado.
+    4. Subida del video YouTube
+    5. Modificación de título desde el listado.
 
-> **Resultado esperado:** los videos deben de conservar la informacion insertada y subirse adecuadamente.
+    > **Resultado esperado:** los videos deben de conservar la informacion insertada y subirse adecuadamente.
 `);
 
 
@@ -28,14 +28,13 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 
   await sidebar.goToComponent(SidebarOption.VIDEOS);
 
-  await video.clickOnActionVideo(NativeVideoData[0].title!, ActionType.EDIT);
-  /*  await video.uploadNewVideo(NativeVideoData[0]);
-   await video.changeVideoTitle(NativeVideoData[0].title!)
- 
-   await video.uploadNewVideo(YoutubeVideoData[1]);
-   await video.changeVideoTitle(YoutubeVideoData[1].title!)
-  */
-  await sleep(15000)
+  await video.uploadNewVideo(NativeVideoData[0]);
+  await video.changeVideoTitle(NativeVideoData[0].title!)
+
+  await video.uploadNewVideo(YoutubeVideoData[1]);
+  await video.changeVideoTitle(YoutubeVideoData[1].title!)
+
+  await video.selectAndPublishFooter(await video.getLastFiveVideoContainer());
 
   log.info("✅ Prueba de DEBUG exitosa.");
 });

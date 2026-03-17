@@ -1,8 +1,6 @@
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { PostData } from "../src/data_test/noteData.js";
-import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
-import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
@@ -21,7 +19,7 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
 * **Acción 2:** Re-entrada para validación.
 * **Acción 3:** **PUBLISH_ONLY** (sin salir).
 
-**Criterio de Aceptación:** Los datos deben reflejarse íntegramente en la UI.
+**Objetivo:** Los datos deben reflejarse íntegramente en la UI.
 `);
 
   const { user, pass } = ENV_CONFIG.getCredentials('editor');
@@ -30,15 +28,16 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
   await driver.get(authUrl);
 
   const login = new MainLoginPage(driver, opts)
-  const post = new MainPostPage(driver, NoteType.POST, opts)
-  const editor = new MainEditorPage(driver, NoteType.POST, opts);
+  const post = new MainPostPage(driver, 'POST', opts)
+  const editor = new MainEditorPage(driver, 'POST', opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });
   await post.createNewNote();
   await editor.fillFullNote(PostData[4]);
-  await editor.closeNoteEditor(NoteExitAction.SAVE_AND_EXIT);
+  await editor.closeNoteEditor("SAVE_AND_EXIT");
 
   await post.enterToEditorPage(PostData[4].title!);
+  await editor.closeNoteEditor('PUBLISH_AND_EXIT')
 
   log.info("✅ Prueba de creación de Post exitosa.");
 });

@@ -11,7 +11,7 @@ export class PublishModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private static readonly PUBLISH_CONFIRM_BTN: Locator = By.css('button[data-testid="btn-calendar-confirm"]');
+  private static readonly PUBLISH_CONFIRM_BTN: Locator = By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]');
   private static readonly PUBLISH_CANCEL_BTN: Locator
   private static readonly CKEDITOR_LOAD_SUMMARY: Locator = By.css('div.loadSummary')
 

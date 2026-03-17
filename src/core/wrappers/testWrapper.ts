@@ -97,7 +97,7 @@ export function runSession(
       // --- 4. CIERRE Y VERIFICACIÓN DE RED ---
       if (session) {
         // A. Logs de consola del browser
-        await checkConsoleErrors(session.driver, opts);
+        await checkConsoleErrors(session.driver);
 
         // B. Verificación de Network Monitor (Tu requisito principal)
         let networkError = null;

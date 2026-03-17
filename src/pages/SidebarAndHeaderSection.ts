@@ -36,12 +36,11 @@ export class SidebarAndHeader {
   }
 
   async goToComponent(component: SidebarOption): Promise<any> {
-    const locator = SidebarAndHeader.SIDEBAR_MAP[component];
-
-    await step(`Moverse hacia el componente ${component}`, async (stepContext) => {
+    await step(`Moverse hacia el componente`, async (stepContext) => {
       stepContext.parameter('Component', component)
       stepContext.parameter('Timeout', `${this.config.timeoutMs}`)
 
+      const locator = SidebarAndHeader.SIDEBAR_MAP[component];
       try {
         logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
         if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
@@ -67,10 +66,6 @@ export class SidebarAndHeader {
         await clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, newConfig)
         await clickSafe(this.driver, SidebarAndHeader.SIDEBAR_MAP[action], newConfig)
       } catch (error: any) {
-        logger.error(`Fallo al clickar sobre la carpeta de multimedia: ${error.message}`, {
-          label: newConfig.label,
-          error: error.message
-        });
         throw error;
       }
     }, this.config)

@@ -4,11 +4,8 @@ import * as allure from "allure-js-commons";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "./stackLabel.js";
 
-export async function checkConsoleErrors(driver: WebDriver, opts: RetryOptions) {
-    const config = {
-        ...opts,
-        label: stackLabel(opts.label, "checkConsoleErrors"),
-    };
+export async function checkConsoleErrors(driver: WebDriver) {
+    const label = "[checkConsoleErrors]";
     try {
         const entries = await driver.manage().logs().get(logging.Type.BROWSER);
         const errors = entries.filter(entry => entry.level.name === 'SEVERE');
@@ -19,16 +16,16 @@ export async function checkConsoleErrors(driver: WebDriver, opts: RetryOptions) 
                 .join('\n');
 
             // 1. Log en archivos/consola
-            logger.warn(`⚠️ Errores de JS detectados en [${config.label}]:\n${formattedErrors}`, { label: config.label });
+            logger.warn(`⚠️ Errores de JS detectados en [${label}]:\n${formattedErrors}`, { label: label });
 
             // 2. Adjunto para Allure (Fuera del logger)
             await allure.attachment(
-                `Console_Errors_${config.label}`,
+                `Console_Errors_${label}`,
                 formattedErrors,
                 "text/plain"
             );
         }
     } catch (e) {
-        logger.warn(`No se pudieron extraer los logs de consola para ${config.label}.`, { label: config.label });
+        logger.warn(`No se pudieron extraer los logs de consola para ${label}.`, { label: label });
     }
 }

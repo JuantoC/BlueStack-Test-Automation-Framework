@@ -5,18 +5,9 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
-import { clickSafe } from "../../../core/actions/clickSafe.js";
-import { waitFind } from "../../../core/actions/waitFind.js";
-import { hoverOverParentContainer } from "../../../core/helpers/hoverOverParentContainer.js";
 
-export enum NoteTextField {
-  TITLE = 'TITLE',
-  SECONDARY_TITLE = 'SECONDARY_TITLE',
-  SUB_TITLE = 'SUB_TITLE',
-  HALF_TITLE = 'HALF_TITLE',
-  BODY = 'BODY',
-  SUMMARY = 'SUMMARY'
-}
+export type NoteTextField = keyof typeof EditorTextSection.LOCATORS;
+
 
 /**
  * Gestiona los campos de texto principales y enriquecidos (CKEditor) de la nota.
@@ -24,15 +15,16 @@ export enum NoteTextField {
 export class EditorTextSection {
   private driver: WebDriver;
   private config: RetryOptions;
-  // ========== LOCATORS (Private & Readonly) ==========
-  private static readonly LOCATORS: Record<NoteTextField, Locator> = {
-    [NoteTextField.TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
-    [NoteTextField.SECONDARY_TITLE]: By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height'),
-    [NoteTextField.SUB_TITLE]: By.css('ckeditor[data-testid="copete-content"] div.ck-editor__editable'),
-    [NoteTextField.HALF_TITLE]: By.css('div[id="volanta-content"] input[type="text"]'),
-    [NoteTextField.BODY]: By.css('div[id="cuerpo-content"] div.ck-editor__editable'),
-    [NoteTextField.SUMMARY]: By.id('resumen-content')
-  };
+
+  // ========== LOCATORS ( Readonly) ==========
+  public static readonly LOCATORS = {
+    title: By.css('div[id="titulo-content"] textarea.content__input-title.main__title-height'),
+    secondaryTitle: By.css('div[id="titulo-content"] textarea.content__input-title.secondary__title-height'),
+    subTitle: By.css('ckeditor[data-testid="copete-content"] div.ck-editor__editable'),
+    halfTitle: By.css('div[id="volanta-content"] input[type="text"]'),
+    body: By.css('div[id="cuerpo-content"] div.ck-editor__editable'),
+    summary: By.id('resumen-content')
+  } as const;
 
   private static readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
   private static readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
@@ -44,19 +36,12 @@ export class EditorTextSection {
 
   async fillAll(data: Partial<NoteData>): Promise<void> {
     await step("Rellenar campos de texto", async () => {
-      const textMapping: Array<{ key: keyof NoteData; type: NoteTextField }> = [
-        { key: 'title', type: NoteTextField.TITLE },
-        { key: 'secondaryTitle', type: NoteTextField.SECONDARY_TITLE },
-        { key: 'subTitle', type: NoteTextField.SUB_TITLE },
-        { key: 'halfTitle', type: NoteTextField.HALF_TITLE },
-        { key: 'body', type: NoteTextField.BODY },
-        { key: 'summary', type: NoteTextField.SUMMARY },
-      ];
+      const fields = Object.keys(EditorTextSection.LOCATORS) as NoteTextField[];
 
-      for (const { key, type } of textMapping) {
-        const value = data[key];
+      for (const field of fields) {
+        const value = data[field];
         if (typeof value === 'string' && value.trim()) {
-          await this.fillField(type, value as string);
+          await this.fillField(field, value);
         }
       }
     });
@@ -69,16 +54,13 @@ export class EditorTextSection {
   async fillField(field: NoteTextField, value: string): Promise<void> {
     if (!value) return;
 
-    await step(`Llenar campo de texto: "${field}"`, async (stepContext) => {
-      stepContext.parameter("Field Name", field);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Llenar campo de texto ${field}`, async () => {
       const locator = EditorTextSection.LOCATORS[field];
 
       try {
         logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
 
-        if (field === NoteTextField.TITLE) {
+        if (field === 'title') {
           value = value + " | Creado por BlueStack_Test_Automation_Framework";
         }
 

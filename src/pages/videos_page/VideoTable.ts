@@ -124,20 +124,25 @@ export class VideoTable {
   }
 
   async skipInlineTitleEdit() {
-    try {
-      logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
-      const actualVideo = await this.getVideoContainerByIndex(0);
-      const textarea = await actualVideo.findElements(By.css(`textarea.cdk-textarea-autosize`));
+    await step('Sacando la edicion inline automatica al subir un nuevo video', async (stepContext) => {
+      try {
+        logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
+        const actualVideo = await this.getVideoContainerByIndex(0);
 
-      if (textarea.length > 0) {
-        await actualVideo.sendKeys(Key.ESCAPE);
-        logger.debug('Key de escape enviada.', { label: this.config.label })
+        await this.driver.wait(async () => {
+          const textarea = await actualVideo.findElements(By.css(`textarea.cdk-textarea-autosize`));
+          return textarea.length > 0
+        }, this.config.timeoutMs)
+
+        const textarea = await actualVideo.findElement(By.css(`textarea.cdk-textarea-autosize`))
+        await textarea.sendKeys(Key.ESCAPE);
+        logger.debug('Key de escape enviada. Edicion inline sacada', { label: this.config.label })
+
+      } catch (error: any) {
+        logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${error.message}`, { label: this.config.label, error: error.message })
+        throw error;
       }
-      logger.debug('Edicion inline sacada.', { label: this.config.label })
-    } catch (error: any) {
-      logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${error.message}`, { label: this.config.label, error: error.message })
-      throw error;
-    }
+    })
   }
 
   async waitForNewVideoAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
@@ -147,12 +152,12 @@ export class VideoTable {
       await this.driver.wait(async () => {
         try {
           const container = await this.getVideoContainerByIndex(0);
-          const titleEl = await container.findElement(By.css('div#title-video-0'));
-          const currentTitle = await titleEl.getText();
+          const titleEl = await container.findElement(By.css('textarea.cdk-textarea-autosize'));
+          const currentTitle = await titleEl.getAttribute('value');
           logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
           return currentTitle.includes(expectedTitle);
-        } catch {
-          logger.debug('El DOM todavía está actualizándose, reintentamos...', { label: this.config.label });
+        } catch (error: any) {
+          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${error.message}`, { label: this.config.label });
           // Esperamos 500ms para que el DOM se actualice
           await sleep(500)
           return false;

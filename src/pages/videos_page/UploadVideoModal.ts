@@ -67,10 +67,7 @@ export class UploadVideoModal {
    * Maneja automáticamente la diferencia entre inputs estándar y editores enriquecidos.
    */
   async fillField(field: UploadVideoModalFields, value: string): Promise<void> {
-    await step(`Llenar campo ${field}`, async (stepContext) => {
-      stepContext.parameter("Field", field);
-      stepContext.parameter("Value", value);
-
+    await step(`Llenar campo ${field}`, async () => {
       if (!value) return;
 
       const locator = UploadVideoModal.LOCATORS[field];
@@ -98,9 +95,7 @@ export class UploadVideoModal {
   }
 
   async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
-    await step("Verificar barra de progreso de subida", async (stepContext) => {
-      stepContext.parameter("Timeout", `${timeoutMs}ms`);
-
+    await step("Verificar barra de progreso de subida", async () => {
       const startTime = Date.now();
       const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
       try {
@@ -126,8 +121,7 @@ export class UploadVideoModal {
   }
 
   async clickOnUploadBtn() {
-    await step("Click en botón de subida", async (stepContext) => {
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+    await step("Click en botón de subida", async () => {
       try {
         await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
       } catch (error: any) {

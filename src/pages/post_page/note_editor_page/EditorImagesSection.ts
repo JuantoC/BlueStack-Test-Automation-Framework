@@ -25,13 +25,14 @@ export class EditorImageSection {
   }
 
   async selectAndWriteMainImage(index?: number): Promise<void> {
+    if (!index) {
+      index = 0;
+    }
+
     await step("Adjuntar imagen principal", async (stepContext) => {
       stepContext.parameter("Index", `${index}`);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
-      if (!index) {
-        index = 0;
-      }
 
       try {
         logger.debug(`Agregando imagen ${index} como principal`, { label: this.config.label });

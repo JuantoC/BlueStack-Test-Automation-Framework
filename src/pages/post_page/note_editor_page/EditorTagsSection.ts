@@ -6,15 +6,8 @@ import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
-export enum NoteTagField {
-  TAGS = 'TAGS',
-  HIDDEN_TAGS = 'HIDDEN_TAGS'
-}
-
-/**
- * Representa solo la parte de NoteData que esta sección sabe manejar.
- */
-export type NoteTagsData = Pick<NoteData, 'tags' | 'hiddenTags'>;
+type NoteTagField = keyof typeof EditorTagsSection.LOCATORS;
+type NoteTagsData = Pick<NoteData, NoteTagField>;
 
 /**
  * Gestiona la sección de etiquetas (Tags) y etiquetas ocultas de la nota.
@@ -23,11 +16,11 @@ export class EditorTagsSection {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  // ========== LOCATORS (Private & Readonly) ==========
-  private static readonly LOCATORS: Record<NoteTagField, Locator> = {
-    [NoteTagField.TAGS]: By.css('div[id="claves-content"] input[role="combobox"]'),
-    [NoteTagField.HIDDEN_TAGS]: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
-  };
+  // ========== LOCATORS ( Readonly) ==========
+  public static readonly LOCATORS = {
+    tags: By.css('div[id="claves-content"] input[role="combobox"]'),
+    hiddenTags: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
+  } as const;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -41,14 +34,13 @@ export class EditorTagsSection {
     await step("Rellenar Tags", async (stepContext) => {
       stepContext.parameter("Tags Count", `${data.tags?.length || 0}`);
       stepContext.parameter("Hidden Tags Count", `${data.hiddenTags?.length || 0}`);
-      // La lógica de "si existe, hacelo" vive aquí. 
-      // El orquestador ya no tiene que preguntar.
+
       if (data.tags?.length) {
-        await this.addTags(NoteTagField.TAGS, data.tags);
+        await this.addTags('tags', data.tags);
       }
 
       if (data.hiddenTags?.length) {
-        await this.addTags(NoteTagField.HIDDEN_TAGS, data.hiddenTags);
+        await this.addTags('hiddenTags', data.hiddenTags);
       }
     });
   }

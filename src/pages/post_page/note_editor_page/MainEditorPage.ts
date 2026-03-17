@@ -19,7 +19,7 @@ export class MainEditorPage {
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainEditorPage") };
-    this.noteType = noteType || NoteType.POST;
+    this.noteType = noteType || 'POST';
     this.tags = new EditorTagsSection(driver, this.config);
     this.author = new EditorAuthorSection(driver, this.config);
     this.header = new EditorHeaderActions(driver, this.config);
@@ -37,7 +37,7 @@ export class MainEditorPage {
   */
   async fillFullNote(data: Partial<NoteData>): Promise<void> {
     await step(`Rellenado de la nota con datos dinámicos`, async (stepContext) => {
-      attachment("Test Data", JSON.stringify(data, null, 2), "application/json");
+      attachment(`${this.noteType} Data`, JSON.stringify(data, null, 2), "application/json");
       this.noteType && stepContext.parameter("Note Type", this.noteType)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
@@ -54,6 +54,8 @@ export class MainEditorPage {
         await this.settings.selectFirstSectionOption();
 
         await this.images.selectAndWriteMainImage();
+
+        logger.info('Todos los campos de la nota fueron completados exitosamente', { label: this.config.label })
 
       } catch (error: any) {
         logger.error(`Fallo en el rellenado dinámico de la nota: ${error.message}`, {
@@ -72,14 +74,11 @@ export class MainEditorPage {
    * Utiliza el getter 'actions' para interactuar con el Header de forma segura.
    */
   async closeNoteEditor(exitAction: NoteExitAction): Promise<void> {
-    await step(`Cerrar editor de nota con acción: ${exitAction}`, async (stepContext) => {
-      stepContext.parameter("Exit Action", exitAction);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Cerrar editor de nota con acción ${exitAction}`, async () => {
       try {
         logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: this.config.label });
         await this.header.clickExitAction(exitAction);
-        logger.info(`Editor cerrado exitosamente.`, { label: this.config.label });
+        logger.info(`Editor cerrado exitosameante.`, { label: this.config.label });
 
       } catch (error: any) {
         logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, {
@@ -98,12 +97,12 @@ export class MainEditorPage {
   // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
   private async fillListicleOrLiveblog(data: Partial<NoteData>) {
     const hasItems = data.listicleItems && data.listicleItems.length > 0;
-    const hasEvent = this.noteType === NoteType.LIVEBLOG && data.eventLiveBlog;
+    const hasEvent = this.noteType === 'LIVEBLOG' && data.eventLiveBlog;
 
     if (!hasItems && !hasEvent) return;
 
     // Selección de la estrategia
-    const section = (this.noteType === NoteType.LIVEBLOG) ? this.liveBlog : this.listicle;
+    const section = (this.noteType === 'LIVEBLOG') ? this.liveBlog : this.listicle;
 
     // Ejecutar
     await section.fillAll(data as LiveBlogData);

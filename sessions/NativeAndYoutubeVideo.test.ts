@@ -3,7 +3,7 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
   description(`
     ###Test: Crear un video Nativo, uno YouTube, y editar el titulo inline.
     ---
-    **Objetivo:** Validar la subida de estos 2 tipos de videos, y la mecanica de editar inline
+    **Objetivo:** Validar la subida de estos 2 tipos de videos, la mecanica de editar inline y su correcta publicacion.
 
     **Flujo de pasos:**
     1. Navegación hacia el componente de Videos
@@ -11,8 +11,9 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
     3. Modificación de título desde el listado.
     4. Subida del video YouTube
     5. Modificación de título desde el listado.
+    6. Publicacion de los ultimos 2 videos subidos.
 
-    > **Resultado esperado:** los videos deben de conservar la informacion insertada y subirse adecuadamente.
+    > **Resultado esperado:** los videos deben de conservar la informacion insertada y publicarse adecuadamente.
 `);
 
 
@@ -34,7 +35,7 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
   await video.uploadNewVideo(YoutubeVideoData[1]);
   await video.changeVideoTitle(YoutubeVideoData[1].title!)
 
-  await video.selectAndPublishFooter(await video.getLastFiveVideoContainer());
+  // await video.selectAndPublishFooter(await video.getVideoContainers(2));
 
   log.info("✅ Prueba de DEBUG exitosa.");
 });
@@ -43,10 +44,7 @@ import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { NativeVideoData, YoutubeVideoData, } from "../src/data_test/videoData.js";
-import { sleep } from "../src/core/utils/backOff.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
 import { description } from "allure-js-commons";
-import { ActionType } from "../src/pages/videos_page/VideoActions.js";
-

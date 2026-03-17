@@ -4,11 +4,11 @@ import { WebDriver, WebElement } from "selenium-webdriver";
 import { UploadVideoBtn, VideoType } from "./UploadVideoBtn.js";
 import { UploadVideoModal } from "./UploadVideoModal.js";
 import { VideoTable } from "./VideoTable.js";
-import { step } from "allure-js-commons";
+import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
-import { VideoFooterActions } from "./VideoFooterActions.js";
+import { FooterActions } from "../FooterActions.js";
 
 /**
  * Page Object Maestro para la pagina de videos.
@@ -22,7 +22,7 @@ export class MainVideoPage {
   private readonly uploadModal: UploadVideoModal
   private readonly table: VideoTable
   private readonly actions: VideoActions
-  private readonly footer: VideoFooterActions
+  private readonly footer: FooterActions
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -32,12 +32,12 @@ export class MainVideoPage {
     this.uploadModal = new UploadVideoModal(this.driver, this.config);
     this.table = new VideoTable(this.driver, this.config);
     this.actions = new VideoActions(this.driver, this.config);
-    this.footer = new VideoFooterActions(this.driver, this.config)
+    this.footer = new FooterActions(this.driver, this.config)
   }
 
   async uploadNewVideo(videoData: VideoData): Promise<any> {
     await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
-      stepContext.parameter("Data Keys", Object.keys(videoData).join(", "));
+      attachment(`${videoData.video_type} Data`, JSON.stringify(videoData, null, 2), "application/json");
       videoData.video_type && stepContext.parameter("Video Type", videoData.video_type)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
@@ -47,18 +47,18 @@ export class MainVideoPage {
 
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
         await this.uploadModal.fillAll(videoData);
+        logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 
-        logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         if (videoData.video_type === VideoType.NATIVO) {
           await this.uploadModal.checkProgressBar()
         }
 
         await this.table.waitForNewVideoAtIndex0(videoData.title);
 
-        logger.info(`Subida finalizada`, { label: this.config.label });
-
         await this.table.skipInlineTitleEdit();
+
+        logger.info(`Subida finalizada`, { label: this.config.label });
 
       } catch (error: any) {
         logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${error.message}`, {
@@ -82,6 +82,7 @@ export class MainVideoPage {
 
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeVideoTitle(videoContainer);
+        logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
 
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo del video: ${error.message}`, {
@@ -103,7 +104,7 @@ export class MainVideoPage {
         const videoContainer = await this.table.getVideoContainerByTitle(postTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(videoContainer, action);
-        logger.debug(`Click en la accion: "${action}" completado.`, { label: this.config.label })
+        logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al clickear la accion: "${action}" en el video: ${error.message}`, {
           label: this.config.label,
@@ -127,7 +128,8 @@ export class MainVideoPage {
           await this.table.selectVideo(video);
         }
         logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
-        await this.footer.clickOnPublishBtn()
+        await this.footer.clickFooterAction('PUBLISH_ONLY')
+        logger.info('Video/s publicados exitosamente', { label: this.config.label })
 
       } catch (error: any) {
         logger.error(`Error al seleccionar y publicar videos: ${error.message}`, { label: this.config.label, error: error.message });
@@ -136,10 +138,10 @@ export class MainVideoPage {
     });
   }
 
-  async getLastFiveVideoContainer(): Promise<WebElement[]> {
+  async getVideoContainers(numberOfVideos: number): Promise<WebElement[]> {
     try {
       let videos = []
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < numberOfVideos; i++) {
         const video = await this.table.getVideoContainerByIndex(i);
         videos.push(video)
       }

@@ -75,7 +75,7 @@ export class LoginSection {
       throw new BusinessLogicError(`El login falló por reglas de negocio. UI Error: ${errorMessage}`);
     }
 
-    logger.debug(`Login exitoso comprobado para: ${username}`, { label: this.config.label });
+    logger.info(`Login exitoso comprobado para: ${username}`, { label: this.config.label });
   }
 
   /**

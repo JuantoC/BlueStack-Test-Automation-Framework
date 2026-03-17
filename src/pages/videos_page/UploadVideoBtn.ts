@@ -38,10 +38,7 @@ export class UploadVideoBtn {
   }
 
   async selectVideoType(videoType: VideoType): Promise<void> {
-    await step(`Seleccionar tipo de video: "${videoType}"`, async (stepContext) => {
-      stepContext.parameter("Video Type", videoType);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Seleccionar tipo de video ${videoType}`, async () => {
       try {
         // Espera explicita para clickar en el boton mientras carga la pagina.
         await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);

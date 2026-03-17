@@ -6,21 +6,17 @@ import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { step } from "allure-js-commons";
 
-export enum NoteType {
-  POST = 'POST',
-  LISTICLE = 'LISTICLE',
-  LIVEBLOG = 'LIVEBLOG'
-}
+export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
 
 export class NewNoteBtn {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private static readonly NOTE_TYPE_MAP: Record<NoteType, Set<string>> = {
-    [NoteType.POST]: new Set(['New post', "Crear noticia", "Nova notícia"]),
-    [NoteType.LISTICLE]: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
-    [NoteType.LIVEBLOG]: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
-  };
+  public static readonly NOTE_TYPE_MAP = {
+    POST: new Set(['New post', "Crear noticia", "Nova notícia"]),
+    LISTICLE: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
+    LIVEBLOG: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
+  } as const;
 
   private static readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
@@ -43,21 +39,16 @@ export class NewNoteBtn {
   }
 
   async selectNoteType(noteType: NoteType): Promise<void> {
-    await step(`Seleccionar tipo de nota: "${noteType}"`, async (stepContext) => {
-      stepContext.parameter("Note Type", noteType);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+    try {
+      await this.clickOnNewNoteButton();
 
-      try {
-        await this.clickOnNewNoteButton();
-
-        const elementToClick = await this.matchNoteType(noteType);
-        logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
-        await clickSafe(this.driver, elementToClick, this.config);
-      } catch (error: any) {
-        logger.error(`Error en selectNoteType: ${error.message}`, { label: this.config.label, error: error.message });
-        throw error;
-      }
-    });
+      const elementToClick = await this.matchNoteType(noteType);
+      logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
+      await clickSafe(this.driver, elementToClick, this.config);
+    } catch (error: any) {
+      logger.error(`Error en selectNoteType: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
+    }
   }
 
   /**

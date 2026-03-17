@@ -32,7 +32,7 @@ export class MainLoginPage {
     credentials: AuthCredentials,
   ): Promise<void> {
 
-    await step(`Autenticación: ${credentials.username}`, async (stepContext) => {
+    await step(`Autenticación Login + 2FA`, async (stepContext) => {
       stepContext.parameter("Username", credentials.username);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
@@ -59,7 +59,7 @@ export class MainLoginPage {
 
       try {
         logger.debug(`Iniciando intentos de login fallidos...`, { label: this.config.label });
-        
+
         for (let i = 0; i < invalidAttempts.length; i++) {
           const attempt = await this.login.attemptLogin(invalidAttempts[i].username, invalidAttempts[i].password);
 
@@ -71,10 +71,10 @@ export class MainLoginPage {
           }
           logger.debug(`Intento ${i + 1} falló correctamente con error: ${attempt.errorMessage}`, { label: this.config.label });
         }
-        
+
         logger.debug(`Intentos fallidos validados. Procediendo con credenciales válidas.`, { label: this.config.label });
         await this.passLoginAndTwoFA(validCredentials);
-        
+
       } catch (error: any) {
         logger.error(`Error en failLogin: ${error.message}`, {
           label: this.config.label,

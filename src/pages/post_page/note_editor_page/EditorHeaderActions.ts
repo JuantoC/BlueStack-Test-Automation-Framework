@@ -6,16 +6,7 @@ import logger from "../../../core/utils/logger.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { PublishModal } from "../../modals/PublishModal.js";
 
-export enum NoteExitAction {
-  SAVE_ONLY = "SAVE_ONLY",
-  SAVE_AND_EXIT = "SAVE_AND_EXIT",
-  EXIT_WITHOUT_SAVING = "EXIT_WITHOUT_SAVING",
-  PUBLISH_ONLY = "PUBLISH_ONLY",
-  PUBLISH_AND_EXIT = "PUBLISH_AND_EXIT",
-  SCHEDULE_AND_EXIT = "SCHEDULE_AND_EXIT",
-  BACK_SAVE_AND_EXIT = "BACK_SAVE_AND_EXIT",
-  BACK_EXIT_DISCARD = "BACK_EXIT_DISCARD",
-}
+export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
 
 /**
  * Orquestador de acciones del Header en el Editor de Notas.
@@ -44,16 +35,16 @@ export class EditorHeaderActions {
   private static readonly MODAL_BACK_SAVE_AND_EXIT_BTN: Locator = By.css('[data-testid="btn-ok-confirmModal"] button');
   private static readonly MODAL_BACK_DISCARD_EXIT_BTN: Locator = By.css('[data-testid="btn-cancel"] button');
 
-  private static readonly LOCATORS: Record<NoteExitAction, Locator> = {
-    [NoteExitAction.SAVE_ONLY]: EditorHeaderActions.SAVE_BTN,
-    [NoteExitAction.SAVE_AND_EXIT]: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
-    [NoteExitAction.EXIT_WITHOUT_SAVING]: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
-    [NoteExitAction.PUBLISH_ONLY]: EditorHeaderActions.PUBLISH_BTN,
-    [NoteExitAction.PUBLISH_AND_EXIT]: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
-    [NoteExitAction.SCHEDULE_AND_EXIT]: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
-    [NoteExitAction.BACK_SAVE_AND_EXIT]: EditorHeaderActions.BACK_BTN,
-    [NoteExitAction.BACK_EXIT_DISCARD]: EditorHeaderActions.BACK_BTN,
-  };
+  public static readonly LOCATORS = {
+    SAVE_ONLY: EditorHeaderActions.SAVE_BTN,
+    SAVE_AND_EXIT: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
+    EXIT_WITHOUT_SAVING: EditorHeaderActions.DROPDOWN_SAVE_CONTAINER,
+    PUBLISH_ONLY: EditorHeaderActions.PUBLISH_BTN,
+    PUBLISH_AND_EXIT: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
+    SCHEDULE_AND_EXIT: EditorHeaderActions.DROPDOWN_PUBLISH_CONTAINER,
+    BACK_SAVE_AND_EXIT: EditorHeaderActions.BACK_BTN,
+    BACK_EXIT_DISCARD: EditorHeaderActions.BACK_BTN,
+  } as const;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
@@ -81,37 +72,37 @@ export class EditorHeaderActions {
 
       // 2. Manejo de sub-pasos (Máquina de estados)
       switch (action) {
-        case NoteExitAction.SAVE_ONLY:
+        case "SAVE_ONLY":
           break;
 
-        case NoteExitAction.SAVE_AND_EXIT:
+        case "SAVE_AND_EXIT":
           await clickSafe(this.driver, EditorHeaderActions.SAVE_AND_EXIT_OPT, this.config);
           break;
 
-        case NoteExitAction.EXIT_WITHOUT_SAVING:
+        case "EXIT_WITHOUT_SAVING":
           await clickSafe(this.driver, EditorHeaderActions.EXIT_WITHOUT_SAVING_OPT, this.config);
           await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
           break;
 
-        case NoteExitAction.PUBLISH_ONLY:
+        case "PUBLISH_ONLY":
           await this.publishModal.clickOnPublishBtn();
           break;
 
-        case NoteExitAction.PUBLISH_AND_EXIT:
+        case "PUBLISH_AND_EXIT":
           await clickSafe(this.driver, EditorHeaderActions.PUBLISH_AND_EXIT_OPT, this.config);
           await this.publishModal.clickOnPublishBtn();
           break;
 
-        case NoteExitAction.SCHEDULE_AND_EXIT:
+        case "SCHEDULE_AND_EXIT":
           await clickSafe(this.driver, EditorHeaderActions.SCHEDULE_OPT, this.config);
           await this.publishModal.clickOnPublishBtn();
           break;
 
-        case NoteExitAction.BACK_SAVE_AND_EXIT:
+        case "BACK_SAVE_AND_EXIT":
           await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_SAVE_AND_EXIT_BTN, this.config);
           break;
 
-        case NoteExitAction.BACK_EXIT_DISCARD:
+        case "BACK_EXIT_DISCARD":
           await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
           break;
       }

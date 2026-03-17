@@ -2,14 +2,14 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     description(`
 ### Test: Crear LiveBlog, entrar y publicar.
 ---
-**Objetivo:** Asegurar que los LiveBlogs permitan guardado y publicación incremental sin abandonar el editor.
 
-**Puntos clave:**
-* Uso de \`editorPage.fillFullNote\` para llenado masivo.
-* Validación de la acción **SAVE_ONLY** (Sin redirección).
-* Validación de la acción **PUBLISH_ONLY**.
+**Secuencia:**
+1. Creación de nota tipo **LIVEBLOG**.
+2. Llenado de campos.
+3. Ejecución de **SAVE_ONLY**.
+4. Posterior publicación de la nota con **PUBLISH_ONLY**.
 
-*Nota: Este test valida la estabilidad del editor en sesiones largas.*
+**Objetivo:** Asegurar que los LiveBlogs permitan guardado y publicación sin abandonar el editor.
 `);
 
     const { user, pass } = ENV_CONFIG.getCredentials('editor');
@@ -17,22 +17,20 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await driver.get(authUrl);
 
     const login = new MainLoginPage(driver, opts)
-    const post = new MainPostPage(driver, NoteType.LIVEBLOG, opts)
-    const editor = new MainEditorPage(driver, NoteType.LIVEBLOG, opts);
+    const post = new MainPostPage(driver, 'LIVEBLOG', opts)
+    const editor = new MainEditorPage(driver, 'LIVEBLOG', opts);
 
     await login.passLoginAndTwoFA({ username: user, password: pass });
     await post.createNewNote();
     await editor.fillFullNote(LiveBlogData[1]);
-    await editor.closeNoteEditor(NoteExitAction.SAVE_ONLY);
-    await editor.closeNoteEditor(NoteExitAction.PUBLISH_ONLY);
+    await editor.closeNoteEditor('SAVE_ONLY');
+    await editor.closeNoteEditor('PUBLISH_ONLY');
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
 });
 
 import { LiveBlogData } from "../src/data_test/noteData.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
-import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { description } from "allure-js-commons";

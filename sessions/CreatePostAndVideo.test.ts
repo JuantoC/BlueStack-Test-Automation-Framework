@@ -1,5 +1,5 @@
 runSession(
-  "Creación de Post, subida de YouTube y Edición",
+  "Creación de Post, subida de Video YT y Edición",
   async ({ driver, opts, log }) => {
 
     description(`
@@ -13,10 +13,11 @@ runSession(
 3. Guardado con salida (\`BACK_SAVE_AND_EXIT\`).
 4. Navegación al componente de Videos vía sidebar.
 5. Subida de un nuevo video tipo YouTube con datos frescos.
-6. Navegación de regreso al componente de Noticias (Posts).
-7. Edición inline del título del Post creado en el paso 2.
-8. Re-ingreso al editor del Post.
-9. Publicación del Post (\`PUBLISH_AND_EXIT\`).
+6. Busqueda y publicacion de los ultimos 2 videos de la tabla.
+7. Navegación de regreso al componente de Noticias (Posts).
+8. Edición inline del título del Post creado en el paso 2.
+9. Re-ingreso al editor del Post.
+10. Publicación del Post (\`PUBLISH_AND_EXIT\`).
 
 > **Resultado esperado:** El Post original se crea, el video se sube correctamente, y luego el Post se edita y publica exitosamente.
 `);
@@ -28,8 +29,8 @@ runSession(
 
     // Instanciación de Page Objects necesarios
     const login = new MainLoginPage(driver, opts);
-    const post = new MainPostPage(driver, NoteType.POST, opts);
-    const editor = new MainEditorPage(driver, NoteType.POST, opts);
+    const post = new MainPostPage(driver, 'POST', opts);
+    const editor = new MainEditorPage(driver, 'POST', opts);
     const video = new MainVideoPage(driver, opts);
     const sidebar = new SidebarAndHeader(driver, opts);
 
@@ -42,17 +43,19 @@ runSession(
     // El PostData recién agregado está en el índice 6 (son 7 elementos, de 0 a 6)
     await editor.fillFullNote(newPostData);
 
-    // 3. Salir con el botón back_and_save (BACK_SAVE_AND_EXIT en el enum)
-    await editor.closeNoteEditor(NoteExitAction.BACK_SAVE_AND_EXIT);
+    // 3. Salir con el botón back_and_save (BACK_SAVE_AND_EXIT)
+    await editor.closeNoteEditor('BACK_SAVE_AND_EXIT');
 
     // 4. Ingresar al componente de videos
     await sidebar.goToComponent(SidebarOption.VIDEOS);
 
     // 5. Subir un nuevo video youtube
     // El YoutubeVideoData recién agregado está en el índice 2
-    const newYoutubeData = YoutubeVideoData[2];
-    await video.uploadNewVideo(newYoutubeData);
+    await video.uploadNewVideo(YoutubeVideoData[2]);
 
+    /*  const videos = await video.getVideoContainers(2);
+     await video.selectAndPublishFooter(videos);
+  */
     // 6. Volver a la página de posts (noticias)
     await sidebar.goToComponent(SidebarOption.NEWS);
 
@@ -62,7 +65,7 @@ runSession(
     await post.enterToEditorPage(newPostData.title!);
 
     // 9. Publicarla y salir
-    await editor.closeNoteEditor(NoteExitAction.PUBLISH_AND_EXIT);
+    await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
     log.info("✅ Flujo de creación de Post, subida de video YouTube y edición completado exitosamente.");
   },
@@ -89,7 +92,3 @@ import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
-
-// Imports de Enums
-import { NoteType } from "../src/pages/post_page/NewNoteBtn.js";
-import { NoteExitAction } from "../src/pages/post_page/note_editor_page/EditorHeaderActions.js";

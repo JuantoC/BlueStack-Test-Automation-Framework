@@ -13,7 +13,7 @@ export class MainPostPage {
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainPostPage") };
-    this.noteType = noteType || NoteType.POST;
+    this.noteType = noteType || 'POST';
 
     this.table = new PostTable(driver, this.config);
     this.createBtn = new NewNoteBtn(driver, this.config)
@@ -30,6 +30,7 @@ export class MainPostPage {
 
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changePostTitle(postContainer);
+        logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
           label: this.config.label,
@@ -42,15 +43,13 @@ export class MainPostPage {
   }
 
   async enterToEditorPage(postTitle: string) {
-    await step(`Entrando a la edicion de la nota: "${postTitle}"`, async (stepContext) => {
-      stepContext.parameter("Titulo de la nota", postTitle);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Entrando a la edicion de la nota: "${postTitle}"`, async () => {
       try {
         const postContainer = await this.table.getPostContainerByTitle(postTitle);
 
         logger.debug("Ejecutando el click en el boton de edicion", { label: this.config.label })
         await this.table.clickEditorButton(postContainer);
+        logger.info('Entrada a la edicion de la nota exitosa.', { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
           label: this.config.label,
@@ -67,14 +66,11 @@ export class MainPostPage {
    * Centraliza el acceso al menú de creación a través del PO Maestro.
    */
   async createNewNote() {
-    await step(`Crear nueva nota: ${this.noteType}`, async (stepContext) => {
-      stepContext.parameter("Note Type", this.noteType);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Crear nueva nota ${this.noteType}`, async () => {
       try {
-        logger.info(`Abriendo editor para nueva nota: ${this.noteType}`, { label: this.config.label });
+        logger.info(`Abriendo modal para nueva nota: ${this.noteType}`, { label: this.config.label });
         await this.createBtn.selectNoteType(this.noteType);
-        logger.debug(`Editor de nota abierto exitosamente para tipo: ${this.noteType}`, { label: this.config.label });
+        logger.info(`Nueva nota tipo: ${this.noteType} creada exitosamente`, { label: this.config.label });
       } catch (error: any) {
         logger.error(`Error en flujo de creación [${this.noteType}]: ${error.message}`, { label: this.config.label });
         throw error;
@@ -88,7 +84,6 @@ import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js"
 import { stackLabel } from '../../core/utils/stackLabel.js';
 import { step } from "allure-js-commons";
 import logger from '../../core/utils/logger.js';
-import { NoteType } from './NewNoteBtn.js';
 import { PostTable } from './PostTable.js';
-import { NewNoteBtn } from './NewNoteBtn.js';
+import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 

@@ -1,15 +1,16 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { RetryOptions } from "../../../core/config/defaultConfig.js";
+import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { AINoteData } from "../../../interfaces/data.js";
+import { stackLabel } from "../../../core/utils/stackLabel.js";
 
-export type AIPostField = keyof typeof MainAIPostPage.LOCATORS;
+export type AIPostField = keyof typeof AIPostModal.LOCATORS;
 
-export class MainAIPostPage {
+export class AIPostModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
@@ -30,13 +31,13 @@ export class MainAIPostPage {
 
   constructor(driver: WebDriver, config: RetryOptions) {
     this.driver = driver;
-    this.config = config;
+    this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, 'AIPostModal') };
   }
 
   async clickOnDoneBtn() {
     await step("Click en el boton done", async () => {
       try {
-        await clickSafe(this.driver, MainAIPostPage.DONE_BTN, this.config);
+        await clickSafe(this.driver, AIPostModal.DONE_BTN, this.config);
       } catch (error: any) {
         logger.error(`Error al hacer click en el boton done`, { label: this.config.label, error: error.message });
         throw error;
@@ -50,7 +51,7 @@ export class MainAIPostPage {
         await this.getCheckboxCheck();
         logger.debug("Haciendo click en el boton generar", { label: this.config.label });
         if (await this.isGenerateBtnEnabled()) {
-          await clickSafe(this.driver, MainAIPostPage.GENERATE_BTN, this.config);
+          await clickSafe(this.driver, AIPostModal.GENERATE_BTN, this.config);
         } else {
           throw new Error("El boton generar esta deshabilitado");
         }
@@ -63,7 +64,7 @@ export class MainAIPostPage {
 
   async fillAll(data: Partial<AINoteData>) {
     await step("Rellenar campos de promtps, contexto y opciones", async () => {
-      const fields = Object.keys(MainAIPostPage.LOCATORS) as AIPostField[];
+      const fields = Object.keys(AIPostModal.LOCATORS) as AIPostField[];
 
       for (const field of fields) {
         const value = data[field];
@@ -75,7 +76,7 @@ export class MainAIPostPage {
 
   async fillField(field: AIPostField, value: string | number) {
     await step(`Llenar campo ${field}`, async () => {
-      const locator = MainAIPostPage.LOCATORS[field];
+      const locator = AIPostModal.LOCATORS[field];
 
       if (field === 'task' || field === 'context') {
         await writeSafe(this.driver, locator, value as string, this.config);
@@ -100,9 +101,9 @@ export class MainAIPostPage {
 
   async matchOption(index: number): Promise<WebElement> {
     try {
-      const elements = await this.driver.findElements(MainAIPostPage.COMBO_OPTION);
+      const elements = await this.driver.findElements(AIPostModal.COMBO_OPTION);
       if (elements.length === 0) {
-        throw new Error(`No se encontro ningun elemento en el selector: ${MainAIPostPage.COMBO_OPTION}`);
+        throw new Error(`No se encontro ningun elemento en el selector: ${AIPostModal.COMBO_OPTION}`);
       }
       return elements[index];
     } catch (error: any) {
@@ -112,7 +113,7 @@ export class MainAIPostPage {
 
   async getCheckboxCheck(): Promise<any> {
     logger.debug("Verificando si el checkbox esta seleccionado", { label: this.config.label });
-    const checkbox = await waitFind(this.driver, MainAIPostPage.CHECKBOX, this.config);
+    const checkbox = await waitFind(this.driver, AIPostModal.CHECKBOX, this.config);
     const classAttribute = await checkbox.getAttribute('class');
 
     if (!classAttribute.includes('mdc-checkbox--selected')) {
@@ -125,7 +126,7 @@ export class MainAIPostPage {
   async isGenerateBtnEnabled(): Promise<boolean> {
     logger.debug("Verificando si el boton generar esta habilitado", { label: this.config.label });
     await this.driver.wait(async () => {
-      const btn = await waitFind(this.driver, MainAIPostPage.GENERATE_BTN, this.config);
+      const btn = await waitFind(this.driver, AIPostModal.GENERATE_BTN, this.config);
       const disabledAttr = await btn.getAttribute('disabled');
       return disabledAttr === null;
     }, 5000, "El boton generar no se habilito");
@@ -135,7 +136,7 @@ export class MainAIPostPage {
   async waitForLoadingPreview() {
     logger.debug("Esperando a que termine de cargar la preview", { label: this.config.label });
     await this.driver.wait(async () => {
-      const loading = await this.driver.findElements(MainAIPostPage.LOADING_PREVIEW);
+      const loading = await this.driver.findElements(AIPostModal.LOADING_PREVIEW);
       return loading.length === 0;
     }, 1000 * 60 * 3, "La preview no termino de cargar");
     logger.debug("Preview cargada", { label: this.config.label });

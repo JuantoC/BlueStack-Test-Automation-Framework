@@ -8,14 +8,14 @@ import { stackLabel } from "../utils/stackLabel.js";
  * Combina acciones nativas de Selenium con eventos de JavaScript para forzar
  * la detección en frameworks reactivos como Angular Material.
  */
-export async function hoverOverParentContainer(driver: WebDriver, element: WebElement, opts: RetryOptions = {}): Promise<boolean> {
+export async function hoverOverParentContainer(driver: WebDriver, element: WebElement, opts: RetryOptions): Promise<boolean> {
     const config = { ...opts, label: stackLabel(opts.label, `hoverOverParentContainer`) };
     try {
         logger.debug(`Intentando hacer hover sobre el elemento...`, { label: config.label });
 
         let current: WebElement | null = element;
         let depth = 0;
-        const maxDepth = 5;
+        const maxDepth = 3;
 
         while (current && depth < maxDepth) {
             try {

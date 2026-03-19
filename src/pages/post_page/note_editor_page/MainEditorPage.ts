@@ -51,7 +51,7 @@ export class MainEditorPage {
 
         await this.author.fillAll(data);
 
-        await this.settings.selectFirstSectionOption();
+        await this.settings.selectSectionOption();
 
         await this.images.selectAndWriteMainImage();
 

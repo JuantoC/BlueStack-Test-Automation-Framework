@@ -1,4 +1,4 @@
-import { NoteData } from "../interfaces/data.js";
+import { AINoteData, NoteData } from "../interfaces/data.js";
 import { AuthorType } from "../pages/post_page/note_editor_page/EditorAuthorSection.js"
 
 export const PostData: NoteData[] = [
@@ -245,3 +245,13 @@ export const DebugData: NoteData = {
   secondaryTitle: "Prueba de titulo secundario"
 }
 
+export const AIData: AINoteData[] = [
+  {
+    task: "Escribe un articulo sobre la importancia de la inteligencia artificial en la educacion",
+    context: "Soy un periodista tecnico y orientado a la tecnologia moderna. La inteligencia artificial es una tecnologia que esta revolucionando la educacion",
+    section: 0,
+    paragraph: 5,
+    tone: 0,
+    language: 0
+  }
+]

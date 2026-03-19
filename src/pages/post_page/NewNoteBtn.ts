@@ -4,7 +4,6 @@ import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js"
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
-import { step } from "allure-js-commons";
 
 export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
 
@@ -15,12 +14,13 @@ export class NewNoteBtn {
   public static readonly NOTE_TYPE_MAP = {
     POST: new Set(['New post', "Crear noticia", "Nova notícia"]),
     LISTICLE: new Set(['New listicle', "Crear nota lista", "Nova lista de notas"]),
-    LIVEBLOG: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"])
+    LIVEBLOG: new Set(['New liveblog', "Crear liveblog", "Nova liveblog"]),
+    AI_POST: new Set(['Create AI Post', 'Crear noticia IA', 'Crie notícias sobre IA'])
   } as const;
 
   private static readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private static readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label[id^="option-create-"]');
+  private static readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;

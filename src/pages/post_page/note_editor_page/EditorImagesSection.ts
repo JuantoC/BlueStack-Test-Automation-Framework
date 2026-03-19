@@ -24,16 +24,8 @@ export class EditorImageSection {
     this.CKEditorSelector = new CKEditorImageSelector(driver, opts);
   }
 
-  async selectAndWriteMainImage(index?: number): Promise<void> {
-    if (!index) {
-      index = 0;
-    }
-
-    await step("Adjuntar imagen principal", async (stepContext) => {
-      stepContext.parameter("Index", `${index}`);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
-
+  async selectAndWriteMainImage(index: number = 0): Promise<void> {
+    await step(`Adjuntar imagen principal en index ${index}`, async () => {
       try {
         logger.debug(`Agregando imagen ${index} como principal`, { label: this.config.label });
         await this.clickOnImageInput();

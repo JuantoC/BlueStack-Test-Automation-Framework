@@ -12,8 +12,8 @@ export interface RetryOptions {
   // ... cualquier otra opción que pueda tener tu función retry
 }
 export const DefaultConfig: Required<Omit<RetryOptions, 'label'>> & { label: string } = {
-  timeoutMs: 5000,
-  retries: 5,
+  timeoutMs: 3000,
+  retries: 4,
   initialDelayMs: 300,
   maxDelayMs: 6000,
   backoffFactor: 2,

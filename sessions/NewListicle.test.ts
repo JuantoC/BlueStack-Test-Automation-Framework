@@ -1,8 +1,8 @@
 runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
 
   description(`
-    ### Test: Crear Nota Lista con salida alternativa y publicación
-    ---
+### Test: Crear Nota Lista con salida alternativa y publicación
+---
 **Objetivo:** Crear nota y testear la funcionalidad del botón de retroceso como opcion de guardado.
 
 **Secuencia:**

@@ -5,7 +5,7 @@ import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "./stackLabel.js";
 
 export async function checkConsoleErrors(driver: WebDriver) {
-    const label = "[checkConsoleErrors]";
+    const label = "checkConsoleErrors";
     try {
         const entries = await driver.manage().logs().get(logging.Type.BROWSER);
         const errors = entries.filter(entry => entry.level.name === 'SEVERE');

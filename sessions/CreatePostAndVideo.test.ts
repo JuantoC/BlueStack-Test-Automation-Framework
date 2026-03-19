@@ -3,8 +3,8 @@ runSession(
   async ({ driver, opts, log }) => {
 
     description(`
-      ### Test: Flujo completo de Post y Video YouTube
-      ---
+### Test: Flujo completo de Post y Video YouTube
+---
 **Objetivo:** Validar la creación de un Post desde cero, la navegación al componente de videos, la subida de un video de YouTube, el regreso al listado de posts, y la edición inline del título del post previamente creado antes de su publicación final.
 
 **Flujo de pasos:**

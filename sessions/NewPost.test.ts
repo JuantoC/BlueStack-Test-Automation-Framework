@@ -37,4 +37,4 @@ import { description } from "allure-js-commons";
 import { PostDataFactory } from "../src/data_test/factories/index.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
+import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";

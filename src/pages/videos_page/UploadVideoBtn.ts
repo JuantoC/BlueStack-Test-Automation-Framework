@@ -15,6 +15,16 @@ export enum VideoType {
   SHORT = 'SHORT'
 }
 
+/**
+ * Page Object que representa el botón de creación de videos y su menú desplegable de tipos.
+ * Encapsula la lógica de apertura del dropdown y la selección del tipo de video correcto
+ * mediante coincidencia dinámica de etiquetas multilinguales definidas en `VIDEO_TYPE_MAP`.
+ * Utilizado por `MainVideoPage` como primer paso del flujo de subida de video.
+ *
+ * @example
+ * const btn = new UploadVideoBtn(driver, opts);
+ * await btn.selectVideoType(VideoType.NATIVO);
+ */
 export class UploadVideoBtn {
 
   private driver: WebDriver;
@@ -37,6 +47,13 @@ export class UploadVideoBtn {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "UploadVideoBtn") };
   }
 
+  /**
+   * Abre el menú desplegable de tipos de video y selecciona la opción que corresponde al tipo indicado.
+   * Si el dropdown ya está abierto, omite el click de apertura. Localiza la etiqueta correcta
+   * comparando el texto visible contra el mapa de alias definido en `VIDEO_TYPE_MAP`.
+   *
+   * @param videoType - Tipo de video a seleccionar del menú (NATIVO, EMBEDDED, YOUTUBE o SHORT).
+   */
   async selectVideoType(videoType: VideoType): Promise<void> {
     await step(`Seleccionar tipo de video ${videoType}`, async () => {
       try {

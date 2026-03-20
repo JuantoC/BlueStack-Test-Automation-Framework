@@ -12,9 +12,16 @@ import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 
 /**
- * Page Object Maestro para la pagina de videos.
- * Centraliza y coordina todas las secciones de la pagina de videos.
-*/
+ * Page Object Maestro para la sección de Videos del CMS.
+ * Actúa como Orquestador central que coordina las sub-secciones:
+ * `UploadVideoBtn`, `UploadVideoModal`, `VideoTable`, `VideoActions`, `FooterActions` y `CKEditorImageModal`.
+ * Es el punto de entrada preferido para cualquier flujo de pruebas que involucre la creación,
+ * edición, publicación o interacción con videos en la tabla multimedia.
+ *
+ * @example
+ * const page = new MainVideoPage(driver, { timeoutMs: 10000 });
+ * await page.uploadNewVideo(videoData);
+ */
 export class MainVideoPage {
   private driver: WebDriver;
   private config: RetryOptions;
@@ -38,6 +45,14 @@ export class MainVideoPage {
     this.image = new CKEditorImageModal(this.driver, this.config)
   }
 
+  /**
+   * Orquesta el flujo completo de subida de un nuevo video.
+   * Selecciona el tipo de video, rellena todos los campos del modal, dispara la subida
+   * y espera a que el nuevo video aparezca en la primera posición de la tabla.
+   * Para videos de tipo `NATIVO`, también verifica la barra de progreso de carga.
+   *
+   * @param videoData - Datos completos del video a subir, incluyendo tipo, título, URL o ruta de archivo.
+   */
   async uploadNewVideo(videoData: VideoData): Promise<any> {
     await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
       attachment(`${videoData.video_type} Data`, JSON.stringify(videoData, null, 2), "application/json");
@@ -79,6 +94,13 @@ export class MainVideoPage {
   }
 
 
+  /**
+   * Modifica el título de un video de forma inline directamente desde la tabla.
+   * Localiza el contenedor del video por su título y delega en `VideoTable.changeVideoTitle`
+   * para realizar la edición inline.
+   *
+   * @param titleID - Fragmento o título completo del video a modificar, usado para localizar su fila en la tabla.
+   */
   async changeVideoTitle(titleID: string): Promise<any> {
     await step(`Cambiando titulo del video inline`, async (stepContext) => {
       stepContext.parameter("Titulo del video", titleID);
@@ -103,6 +125,14 @@ export class MainVideoPage {
     });
   }
 
+  /**
+   * Localiza un video por su título en la tabla y ejecuta una acción del menú desplegable sobre él.
+   * Delega la búsqueda del contenedor en `VideoTable.getVideoContainerByTitle` y
+   * la interacción con el menú en `VideoActions.clickOnAction`.
+   *
+   * @param postTitle - Título del video objetivo, usado para identificar su fila en la tabla.
+   * @param action - Tipo de acción a ejecutar sobre el video (EDIT, DELETE, UNPUBLISH).
+   */
   async clickOnActionVideo(postTitle: string, action: ActionType): Promise<any> {
     await step(`Clickeando en la accion: "${action}" del video: "${postTitle}"`, async (stepContext) => {
       stepContext.parameter("Titulo del video", postTitle);
@@ -125,6 +155,13 @@ export class MainVideoPage {
     });
   }
 
+  /**
+   * Selecciona uno o varios videos en la tabla y los publica mediante la acción del footer.
+   * Itera sobre cada contenedor de video recibido y delega la selección en `VideoTable.selectVideo`.
+   * Finaliza con una acción de publicación mediante `FooterActions.clickFooterAction`.
+   *
+   * @param videos - Array de contenedores WebElement de los videos que se desean seleccionar y publicar.
+   */
   async selectAndPublishFooter(videos: WebElement[]): Promise<any> {
     await step("Seleccionar y publicar videos", async (stepContext) => {
       stepContext.parameter("Cantidad", videos.length.toString());
@@ -146,6 +183,13 @@ export class MainVideoPage {
     });
   }
 
+  /**
+   * Obtiene un array de contenedores WebElement de los primeros N videos de la tabla.
+   * Itera por índice comenzando desde 0 y delega cada búsqueda en `VideoTable.getVideoContainerByIndex`.
+   *
+   * @param numberOfVideos - Cantidad de videos a recuperar desde la parte superior de la tabla.
+   * @returns {Promise<WebElement[]>} Array con los contenedores DOM de los videos solicitados.
+   */
   async getVideoContainers(numberOfVideos: number): Promise<WebElement[]> {
     try {
       let videos = []

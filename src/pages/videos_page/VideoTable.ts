@@ -11,6 +11,17 @@ import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { step } from "allure-js-commons";
 
+/**
+ * Page Object que representa la tabla de multimedia de videos del CMS.
+ * Centraliza las operaciones sobre las filas de la tabla: búsqueda por título o índice,
+ * edición inline del título, selección de videos y espera de nuevos registros.
+ * Usado por `MainVideoPage` como capa de acceso a los datos tabulares.
+ *
+ * @example
+ * const table = new VideoTable(driver, opts);
+ * const container = await table.getVideoContainerByTitle('Mi video');
+ * await table.changeVideoTitle(container);
+ */
 export class VideoTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
@@ -105,6 +116,12 @@ export class VideoTable {
     }
   }
 
+  /**
+   * Selecciona un video en la tabla haciendo click sobre su contenedor si aún no está seleccionado.
+   * Verifica la presencia del ícono de check antes de actuar para evitar deselecciones accidentales.
+   *
+   * @param videoContainer - Contenedor WebElement del video que se desea seleccionar.
+   */
   async selectVideo(videoContainer: WebElement): Promise<void> {
     try {
       logger.debug('Revisando que el video no este seleccionado...', { label: this.config.label });
@@ -121,6 +138,11 @@ export class VideoTable {
     }
   }
 
+  /**
+   * Cierra el textarea de edición inline que el CMS activa automáticamente al subir un nuevo video.
+   * Espera a que el textarea aparezca en el contenedor del primer video y envía la tecla
+   * ESCAPE para salir del modo de edición sin modificar el título.
+   */
   async skipInlineTitleEdit() {
     await step('Sacando la edicion inline automatica al subir un nuevo video', async (stepContext) => {
       try {
@@ -143,6 +165,14 @@ export class VideoTable {
     })
   }
 
+  /**
+   * Espera a que el nuevo video recién subido aparezca en la primera posición de la tabla.
+   * Hace polling mediante `driver.wait` comprobando el atributo `value` del textarea de título
+   * hasta que incluya el título esperado o se supere el timeout.
+   *
+   * @param expectedTitle - Fragmento del título esperado para verificar que el video correcto está en index 0.
+   * @param timeoutMs - Tiempo máximo de espera en milisegundos. Por defecto 30 segundos.
+   */
   async waitForNewVideoAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
     try {
       logger.debug(`Esperando que el nuevo video aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });

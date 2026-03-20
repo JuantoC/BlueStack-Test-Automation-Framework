@@ -12,6 +12,17 @@ export enum ActionType {
   UNPUBLISH = 'UNPUBLISH',
 }
 
+/**
+ * Page Object que encapsula las acciones disponibles para un video en la tabla multimedia.
+ * Gestiona la apertura del menú desplegable de acciones mediante hover y click,
+ * y la selección de la acción correcta comparando el texto visible contra el mapa
+ * de alias multilinguales definido en `ACTION_TYPE_MAP`.
+ * Consumido por `MainVideoPage.clickOnActionVideo` como paso de interacción con el menú de opciones.
+ *
+ * @example
+ * const actions = new VideoActions(driver, opts);
+ * await actions.clickOnAction(videoContainer, ActionType.EDIT);
+ */
 export class VideoActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
@@ -31,7 +42,12 @@ export class VideoActions {
 
 
   /**
-   * Clickea el botón de una accion de un video específico.
+   * Abre el menú desplegable de acciones del video y hace click en la opción indicada.
+   * Realiza hover sobre el botón del dropdown para activar su visibilidad, abre el menú
+   * si no está expandido, y localiza la acción correcta mediante `findAction`.
+   *
+   * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
+   * @param action - Tipo de acción a ejecutar (EDIT, DELETE o UNPUBLISH).
    */
   async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
     try {

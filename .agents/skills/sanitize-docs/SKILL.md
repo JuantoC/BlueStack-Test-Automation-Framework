@@ -12,10 +12,12 @@ Adds and completes JSDoc documentation on public functions and classes in TypeSc
 ## What to document
 
 ### ✅ Always document
+
 - **Public** functions and methods (exported or without a `private` modifier)
 - **Full classes** (JSDoc at class level + their public methods)
 
 ### ❌ Do not document
+
 - Private methods (`private`)
 - Internal / non-exported helper functions inside a method
 - Trivial getters/setters
@@ -27,6 +29,7 @@ Adds and completes JSDoc documentation on public functions and classes in TypeSc
 
 **If a function or class already has JSDoc → do not touch it.**
 Only intervene when:
+
 - It has no JSDoc comment at all
 - It has an incomplete JSDoc comment (missing required fields — see next section)
 
@@ -53,18 +56,21 @@ All generated JSDoc must include these fields in this order:
 ### Rules for each field
 
 **Description (first line/paragraph):**
+
 - Explain the *intent*, not repeat the signature
 - Mention the design pattern if applicable (e.g.: "Orchestrator", "Facade", "Strategy")
 - If it delegates to other methods, mention them: "Delegates to `clickSafe` to gain focus"
 - If it is part of a larger flow, indicate it: "Used by `MainPostPage` to..."
 
 **`@param`:**
+
 - One per parameter, in the same order as the signature
 - The type is already in TypeScript, do not repeat it in the JSDoc unless it adds context
 - Describe the *semantic meaning*, not the type: not "string with the text" but "String to enter in the field, unsanitized"
 - For `opts: RetryOptions` always write: "Retry and traceability options. Propagated to all internal sub-calls."
 
 **`@returns`:**
+
 - Always present if the function is not `Promise<void>`
 - Describe what the value represents, not just the type
 - Example: `@returns {Promise<WebElement>} The target element after confirming the write.`
@@ -87,11 +93,13 @@ if (isEditable) { ... }
 ```
 
 **When to add inline:**
+
 - Blocks with non-obvious logic (type detection, conditional strategies, retries)
 - Sequential steps with numbers (`// 1.`, `// 2.`) when there are 3+ chained steps
 - Any workaround or non-evident design decision
 
 **When NOT to add inline:**
+
 - Simple assignment lines or direct calls
 - Already commented blocks
 - Self-explanatory code through variable/method names
@@ -105,7 +113,7 @@ For classes, the JSDoc goes at the declaration level and includes:
 ```typescript
 /**
  * [Description of the class's role in the system. What CMS section it represents,
- *  what pattern it applies (Facade, Page Object, Orchestrator), and what sub-components it coordinates.]
+ *  what pattern it applies (Facade, Page Object, Orchestrator), what sub-components it coordinates, and what are the main methods to use.]
  *
  * @example
  * const page = new MainPostPage(driver, NoteType.POST, opts);
@@ -156,6 +164,7 @@ For each `.ts` file:
 ## Completeness criteria for existing JSDoc
 
 An existing JSDoc is considered **incomplete** if it is missing any of these:
+
 - Description (first line)
 - At least one `@param` for each parameter in the signature (except `this`)
 - `@returns` when the return is not `void` or `Promise<void>`
@@ -167,6 +176,7 @@ If only `@returns` is missing in a `void` function, it is considered complete.
 ## Transformation example
 
 **Before (no JSDoc):**
+
 ```typescript
 export async function clickSafe(
   driver: WebDriver,
@@ -178,6 +188,7 @@ export async function clickSafe(
 ```
 
 **After:**
+
 ```typescript
 /**
  * Executes a safe click on an element, guaranteeing prior visibility and focus.

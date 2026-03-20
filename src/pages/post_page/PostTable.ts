@@ -30,17 +30,6 @@ export class PostTable {
   }
 
   /**
-   * Encuentra el WebElement del contenedor de la nota basado en su índice.
-   * NO devuelve un Locator, devuelve el Elemento listo para usarse.
-   */
-  async getPostContainerByIndex(index: number): Promise<WebElement> {
-    // Aquí sí construimos el locator del padre porque es el punto de entrada
-    const rowLocator = By.css(`div[id = "container-table-body"] div[id = "post-management-${index}"]`);
-    logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
-    return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
-  }
-
-  /**
    * Busca en las primeras 10 filas hasta encontrar el título deseado.
    * Retorna el WebElement de la FILA (Container), no del título, para que puedas seguir operando con ella.
    */
@@ -49,44 +38,41 @@ export class PostTable {
     if (!title || title.trim() === "") {
       throw new Error("El título no puede estar vacío para buscar el contenedor de la nota.");
     }
-    try {
+    return await retry(async () => {
+      try {
+        await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
 
-      logger.debug("Buscando y revisando si la tabla de notas existe y es visible...", { label: this.config.label })
-      const element = await waitFind(this.driver, PostTable.POST_TABLE_BODY, { ...this.config, timeoutMs: 7000 });
-      await waitEnabled(this.driver, element, { ...this.config, timeoutMs: 7000 });
-      await waitVisible(this.driver, element, { ...this.config, timeoutMs: 7000 });
-      logger.debug("Tabla lista para interactuar.", { label: this.config.label })
+        for (let i = 0; i < limit; i++) {
+          // 1. Obtenemos el contenedor padre (La fila)
+          // Usamos supressRetry porque es una búsqueda iterativa, no queremos esperar 30s por cada fila que no sea la correcta.
+          const container = await this.getPostContainerByIndex(i)
+            .catch(() => {
+              logger.debug("No se encontró el contenedor de la fila con índice " + i, { label: this.config.label }); return null;
+            }); // Si no existe la fila i, continuamos o paramos
 
-      for (let i = 0; i < limit; i++) {
-        // 1. Obtenemos el contenedor padre (La fila)
-        // Usamos supressRetry porque es una búsqueda iterativa, no queremos esperar 30s por cada fila que no sea la correcta.
-        const container = await this.getPostContainerByIndex(i)
-          .catch(() => {
-            logger.debug("No se encontró el contenedor de la fila con índice " + i, { label: this.config.label }); return null;
-          }); // Si no existe la fila i, continuamos o paramos
+          if (!container) continue;
 
-        if (!container) continue;
+          // 2. Búsqueda Escalonada:
+          // Esto es mucho más rápido y seguro contra IDs duplicados en otras tablas.
+          logger.debug(`Contenedor de fila ${i} encontrado, buscando título dentro de esta fila...`, { label: this.config.label });
+          const titleElement = await container.findElement(PostTable.POST_TITLE_LABEL);
+          logger.debug("El elemento label del titulo encontrado con exito.", { label: this.config.label })
+          const currentTitle = await titleElement.getText();
+          logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
 
-        // 2. Búsqueda Escalonada:
-        // Esto es mucho más rápido y seguro contra IDs duplicados en otras tablas.
-        logger.debug(`Contenedor de fila ${i} encontrado, buscando título dentro de esta fila...`, { label: this.config.label });
-        const titleElement = await container.findElement(PostTable.POST_TITLE_LABEL);
-        logger.debug("El elemento label del titulo encontrado con exito.", { label: this.config.label })
-        const currentTitle = await titleElement.getText();
-        logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
-
-        if (currentTitle.includes(title)) {
-          logger.debug(`Nota encontrada en índice ${i}: "${currentTitle}"`, { label: this.config.label });
-          return container; // Retornamos el contenedor de la fila donde se encontró el título
-        } else {
-          logger.debug(`Titulo no encontrado en el contenedor ${i}...`, { label: this.config.label })
+          if (currentTitle.includes(title)) {
+            logger.debug(`Nota encontrada en índice ${i}: "${currentTitle}"`, { label: this.config.label });
+            return container; // Retornamos el contenedor de la fila donde se encontró el título
+          } else {
+            logger.debug(`Titulo no encontrado en el contenedor ${i}...`, { label: this.config.label })
+          }
         }
+        throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
+      } catch (error: any) {
+        logger.error(`Error en búsqueda de nota: ${error.message}`, { label: this.config.label, error: error.message });
+        throw error;
       }
-      throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
-    } catch (error: any) {
-      logger.error(`Error en búsqueda de nota: ${error.message}`, { label: this.config.label, error: error.message });
-      throw error;
-    }
+    }, { ...this.config, retries: 2 });
   }
 
   /**
@@ -95,6 +81,8 @@ export class PostTable {
     */
   async changePostTitle(postContainer: WebElement): Promise<void> {
     return await retry(async () => {
+      await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
+
       logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
       // 1. Extraer texto actual y calcular el nuevo
@@ -117,7 +105,7 @@ export class PostTable {
 
   /**
    * Clickea el botón de editar de una fila específica.
-   */
+  */
   async clickEditorButton(postContainer: WebElement): Promise<void> {
 
     try {
@@ -134,6 +122,17 @@ export class PostTable {
   // =========================================================================
   // MÉTODOS HELPERS PRIVADOS
   // =========================================================================
+
+  /**
+   * Encuentra el WebElement del contenedor de la nota basado en su índice.
+   * NO devuelve un Locator, devuelve el Elemento listo para usarse.
+   */
+  async getPostContainerByIndex(index: number): Promise<WebElement> {
+    // Aquí sí construimos el locator del padre porque es el punto de entrada
+    const rowLocator = By.css(`div[id = "container-table-body"] div[id = "post-management-${index}"]`);
+    logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
+    return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
+  }
 
   /**
    * HELPER 1: Lee el texto del Label o del Input intentando evadir StaleElements.
@@ -213,5 +212,41 @@ export class PostTable {
     logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
     await freshInput.sendKeys(Key.ENTER);
     await sleep(500);
+  }
+
+  private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
+    logger.debug(`Esperando a que el elemento ${JSON.stringify(locator)} este listo`, { label: this.config.label })
+
+    const element = await waitFind(this.driver, locator, { ...this.config, timeoutMs: 8000 })
+    await waitEnabled(this.driver, element, { ...this.config, timeoutMs: 8000 })
+    await waitVisible(this.driver, element, { ...this.config, timeoutMs: 8000 })
+
+    return element
+  }
+
+  async waitForNewPostAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
+    try {
+      logger.debug(`Esperando que la nueva nota aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });
+
+      await this.driver.wait(async () => {
+        try {
+          const container = await this.getPostContainerByIndex(0);
+          const titleEl = await container.findElement(PostTable.POST_TITLE_LABEL);
+          const currentTitle = await titleEl.getText();
+          logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
+          return currentTitle.includes(expectedTitle);
+        } catch (error: any) {
+          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${error.message}`, { label: this.config.label });
+          // Esperamos 500ms para que el DOM se actualice
+          await sleep(500)
+          return false;
+        }
+      }, timeoutMs, `Timeout: La nueva nota "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
+
+      logger.debug('Nueva nota detectada en index 0. Tabla actualizada.', { label: this.config.label });
+    } catch (error: any) {
+      logger.error(`Error en waitForNewPostAtIndex0: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
+    }
   }
 }

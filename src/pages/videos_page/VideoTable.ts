@@ -39,9 +39,7 @@ export class VideoTable {
       throw new Error("El título no puede estar vacío para buscar el contenedor del video.");
     }
     try {
-      logger.debug("Buscando y revisando si la tabla de videos existe y es visible...", { label: this.config.label })
       await this.waitUntilIsReady(VideoTable.VIDEO_TABLE);
-      logger.debug("Tabla lista para interactuar.", { label: this.config.label })
 
       return await retry(async () => {
         for (let i = 0; i < limit; i++) {

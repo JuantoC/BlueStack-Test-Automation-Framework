@@ -46,8 +46,8 @@ export class PublishModal {
 
   async waitUntilAISummaryGenerated(): Promise<any> {
     try {
+      logger.debug('Esperando a que se genere el resumen por IA...', { label: this.config.label })
       await this.driver.wait(async () => {
-        logger.debug('Esperando a que se genere el resumen por IA...', { label: this.config.label })
         const summaryLoading = await this.driver.findElements(PublishModal.CKEDITOR_LOAD_SUMMARY)
         if (summaryLoading.length === 0) {
           logger.debug('Resumen por IA generado', { label: this.config.label })

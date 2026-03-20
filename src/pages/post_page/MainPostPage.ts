@@ -20,10 +20,7 @@ export class MainPostPage {
   }
 
   async changePostTitle(title: string) {
-    await step(`Cambiando titulo de la nota inline: "${title}"`, async (stepContext) => {
-      stepContext.parameter("Titulo de la nota", title);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
+    await step(`Cambiando titulo de la nota inline: "${title}"`, async () => {
       try {
         logger.debug("Ejecutando busqueda del contenedor para el titulo de la nota...", { label: this.config.label })
         const postContainer = await this.table.getPostContainerByTitle(title);

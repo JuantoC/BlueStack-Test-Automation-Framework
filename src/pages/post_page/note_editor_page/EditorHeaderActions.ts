@@ -15,10 +15,10 @@ export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
 export class EditorHeaderActions {
   private driver: WebDriver;
   private config: RetryOptions;
-  private static readonly INFO_SECTION_DATA_TIME: Locator = By.css('div.info-section')
   private readonly publishModal: PublishModal
 
   // ========== LOCATORS ==========
+  private static readonly INFO_SECTION_DATA_TIME: Locator = By.css('div.info-section')
   private static readonly SAVE_BTN: Locator = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
   private static readonly PUBLISH_BTN: Locator = By.css('button.btn-info[data-testid="dropdown-action"]');
   private static readonly BACK_BTN: Locator = By.css('a[data-testid="btn-exit-note"]');

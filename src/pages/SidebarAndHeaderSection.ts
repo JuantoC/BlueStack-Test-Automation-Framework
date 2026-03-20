@@ -36,10 +36,7 @@ export class SidebarAndHeader {
   }
 
   async goToComponent(component: SidebarOption): Promise<any> {
-    await step(`Moverse hacia el componente`, async (stepContext) => {
-      stepContext.parameter('Component', component)
-      stepContext.parameter('Timeout', `${this.config.timeoutMs}`)
-
+    await step(`Moverse hacia el componente ${component}`, async () => {
       const locator = SidebarAndHeader.SIDEBAR_MAP[component];
       try {
         logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })

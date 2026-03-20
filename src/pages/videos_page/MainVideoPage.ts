@@ -9,6 +9,7 @@ import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
 import { FooterActions } from "../FooterActions.js";
+import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 
 /**
  * Page Object Maestro para la pagina de videos.
@@ -23,6 +24,7 @@ export class MainVideoPage {
   private readonly table: VideoTable
   private readonly actions: VideoActions
   private readonly footer: FooterActions
+  private readonly image: CKEditorImageModal;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -33,6 +35,7 @@ export class MainVideoPage {
     this.table = new VideoTable(this.driver, this.config);
     this.actions = new VideoActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
+    this.image = new CKEditorImageModal(this.driver, this.config)
   }
 
   async uploadNewVideo(videoData: VideoData): Promise<any> {
@@ -47,6 +50,11 @@ export class MainVideoPage {
 
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
         await this.uploadModal.fillAll(videoData);
+
+        if (videoData.video_type === VideoType.EMBEDDED) {
+          this.image.selectImage(0)
+        }
+
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 

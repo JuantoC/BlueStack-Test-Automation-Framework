@@ -16,10 +16,12 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 > **Resultado esperado:** los videos deben de conservar la informacion insertada y publicarse adecuadamente.
 `);
 
-
   const { user, pass } = ENV_CONFIG.getCredentials('editor');
   const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
   await driver.get(authUrl);
+
+  const nativeVideoData = NativeVideoDataFactory.create();
+  const youtubeVideoData = YoutubeVideoDataFactory.create();
 
   const login = new MainLoginPage(driver, opts);
   const video = new MainVideoPage(driver, opts);
@@ -29,13 +31,13 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 
   await sidebar.goToComponent(SidebarOption.VIDEOS);
 
-  await video.uploadNewVideo(NativeVideoData[0]);
-  await video.changeVideoTitle(NativeVideoData[0].title!)
+  await video.uploadNewVideo(nativeVideoData);
+  await video.changeVideoTitle(nativeVideoData.title!);
 
-  await video.uploadNewVideo(YoutubeVideoData[1]);
-  await video.changeVideoTitle(YoutubeVideoData[1].title!)
+  await video.uploadNewVideo(youtubeVideoData);
+  await video.changeVideoTitle(youtubeVideoData.title!);
 
-  // await video.selectAndPublishFooter(await video.getVideoContainers(2));
+  await video.selectAndPublishFooter(await video.getVideoContainers(1));
 
   log.info("✅ Prueba de DEBUG exitosa.");
 });
@@ -43,7 +45,7 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { NativeVideoData, YoutubeVideoData, } from "../src/data_test/videoData.js";
+import { NativeVideoDataFactory, YoutubeVideoDataFactory } from "../src/data_test/factories/index.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";

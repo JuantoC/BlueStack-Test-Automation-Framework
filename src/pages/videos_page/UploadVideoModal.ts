@@ -13,6 +13,7 @@ import { createRequire } from 'module';
 import { sleep } from "../../core/utils/backOff.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
+
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
 
@@ -24,8 +25,8 @@ export enum UploadVideoModalFields {
 }
 
 export class UploadVideoModal {
-  private driver: WebDriver;
-  private config: RetryOptions;
+  private readonly driver: WebDriver;
+  private readonly config: RetryOptions;
 
   private static readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
     [UploadVideoModalFields.URL_INPUT]: By.css('div#url-details input[data-testid="url-youtube"]'),
@@ -106,6 +107,7 @@ export class UploadVideoModal {
           }
           await sleep(1000);
         }
+
         logger.debug('Esperando a que el modal de progreso de subida se cierre...', { label: this.config.label })
         while (!(await this.isProgressBarModalClosed())) {
           if (Date.now() - startTime > timeoutMs) {

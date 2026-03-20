@@ -16,20 +16,22 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
     await driver.get(authUrl);
 
-    const login = new MainLoginPage(driver, opts)
-    const post = new MainPostPage(driver, 'LIVEBLOG', opts)
+    const liveBlogData = LiveBlogDataFactory.create();
+
+    const login = new MainLoginPage(driver, opts);
+    const post = new MainPostPage(driver, 'LIVEBLOG', opts);
     const editor = new MainEditorPage(driver, 'LIVEBLOG', opts);
 
     await login.passLoginAndTwoFA({ username: user, password: pass });
     await post.createNewNote();
-    await editor.fillFullNote(LiveBlogData[1]);
+    await editor.fillFullNote(liveBlogData);
     await editor.closeNoteEditor('SAVE_ONLY');
     await editor.closeNoteEditor('PUBLISH_ONLY');
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
 });
 
-import { LiveBlogData } from "../src/data_test/noteData.js";
+import { LiveBlogDataFactory } from "../src/data_test/factories/index.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
@@ -37,4 +39,3 @@ import { description } from "allure-js-commons";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
-

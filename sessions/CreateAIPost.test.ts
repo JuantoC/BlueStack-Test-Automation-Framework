@@ -9,7 +9,7 @@ runSession(
 
 **Flujo de pasos:**
 1. Login como editor.
-2. Entrada alm modal de Nota IA
+2. Entrada al modal de Nota IA
 3. Rellenar campos de prompt y contexto
 4. Seleccionar opciones de seccion, parrafo, tono y lenguaje
 5. Hacer click en generar
@@ -35,6 +35,8 @@ runSession(
     await ai_post.generateNewAINote(AIData[0]);
 
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');
+
+    log.info("✅ Prueba de creación de Post exitosa.");
   }
 )
 

@@ -1,25 +1,11 @@
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { PostData } from "../src/data_test/noteData.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
-
 runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
 
   description(`
 ### Test: Crear Post exitosamente, entrar y publicar.
 ---
 **Objetivo:** Verificar que un Post nuevo se guarde y publique correctamente tras re-ingresar.
-
-**Detalles del flujo:**
-* **Acción 1:** Creación desde cero + **SAVE_AND_EXIT**.
-* **Acción 2:** Re-entrada para validación.
-* **Acción 3:** **PUBLISH_ONLY** (sin salir).
-
-**Objetivo:** Los datos deben reflejarse íntegramente en la UI.
+**Flujo:** 1. Creación desde cero + SAVE_AND_EXIT. / 2. Re-entrada para validación. / 3. PUBLISH_AND_EXIT.
+> **Resultado esperado:** Los datos deben reflejarse íntegramente en la UI y Post publicado.
 `);
 
   const { user, pass } = ENV_CONFIG.getCredentials('editor');
@@ -27,17 +13,28 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
 
   await driver.get(authUrl);
 
-  const login = new MainLoginPage(driver, opts)
-  const post = new MainPostPage(driver, 'POST', opts)
+  const postData = PostDataFactory.create();
+
+  const login = new MainLoginPage(driver, opts);
+  const post = new MainPostPage(driver, 'POST', opts);
   const editor = new MainEditorPage(driver, 'POST', opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });
   await post.createNewNote();
-  await editor.fillFullNote(PostData[4]);
-  await editor.closeNoteEditor("SAVE_AND_EXIT");
+  await editor.fillFullNote(postData);
+  await editor.closeNoteEditor('SAVE_AND_EXIT');
 
-  await post.enterToEditorPage(PostData[4].title!);
-  await editor.closeNoteEditor('PUBLISH_AND_EXIT')
+  await post.enterToEditorPage(postData.title!);
+  await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
   log.info("✅ Prueba de creación de Post exitosa.");
 });
+
+import { runSession } from "../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { description } from "allure-js-commons";
+import { PostDataFactory } from "../src/data_test/factories/index.js";
+import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
+import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
+import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";

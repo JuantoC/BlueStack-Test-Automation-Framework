@@ -5,13 +5,13 @@ import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { step } from "allure-js-commons";
-import { CKEditorImageSelector } from "../../modals/CKEditorImageSelector.js";
+import { CKEditorImageModal } from "../../modals/CKEditorImageModal.js";
 
 export class EditorImageSection {
   private driver: WebDriver
   private config: RetryOptions;
 
-  private readonly CKEditorSelector: CKEditorImageSelector;
+  private readonly CKEditorSelector: CKEditorImageModal;
 
   // ========== LOCATORS (Private & Readonly) ==========
   private static readonly MAIN_IMAGE_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] div[data-testid="img-prev-add"]');
@@ -21,7 +21,7 @@ export class EditorImageSection {
     this.driver = driver
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorImageSection") }
 
-    this.CKEditorSelector = new CKEditorImageSelector(driver, opts);
+    this.CKEditorSelector = new CKEditorImageModal(driver, opts);
   }
 
   async selectAndWriteMainImage(index: number = 0): Promise<void> {

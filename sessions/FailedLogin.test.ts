@@ -1,9 +1,3 @@
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-
 runSession('Login Fallido Reiterado y Exitoso', async ({ driver, opts, log }) => {
 
   description(`
@@ -36,3 +30,9 @@ runSession('Login Fallido Reiterado y Exitoso', async ({ driver, opts, log }) =>
 
   log.info("✅ Login exitoso luego de 2 intentos fallidos verificado correctamente.");
 });
+
+import { runSession } from "../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { description } from "allure-js-commons";
+import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";

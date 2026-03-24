@@ -245,7 +245,7 @@ export class PostTable {
     logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
     await freshInput!.sendKeys(Key.ENTER);
 
-    // B. Esperar que el estado de carga (blur) desaparezca o el DOM mute
+    // Esperar que el estado de carga (blur) desaparezca o el DOM mute
     await this.driver.wait(async () => {
       const loadContainer = await this.driver.findElements(PostTable.LOADING_CONTAINER);
       if (loadContainer.length > 0) {

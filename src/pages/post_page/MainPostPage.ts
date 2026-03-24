@@ -10,6 +10,7 @@ export class MainPostPage {
   private readonly table: PostTable
   private readonly createBtn: NewNoteBtn
   private readonly footer: FooterActions
+  private readonly banner: Banners;
 
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
@@ -19,6 +20,7 @@ export class MainPostPage {
     this.table = new PostTable(driver, this.config);
     this.createBtn = new NewNoteBtn(driver, this.config)
     this.footer = new FooterActions(this.driver, this.config)
+    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -55,6 +57,10 @@ export class MainPostPage {
         await retry(async () => {
           const postContainer = await this.table.getPostContainerByTitle(title);
           await this.table.changePostTitle(postContainer);
+
+          await this.banner.checkBanners(true);
+          await this.table.waitForLoadingContainerDisappear();
+
           logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label })
         }, this.config);
       } catch (error: any) {
@@ -75,6 +81,9 @@ export class MainPostPage {
 
         logger.debug("Ejecutando el click en el boton de edicion", { label: this.config.label })
         await this.table.clickEditorButton(postContainer);
+
+        await this.banner.checkBanners(false);
+
         logger.info('Entrada a la edicion de la nota exitosa.', { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
@@ -92,6 +101,9 @@ export class MainPostPage {
       try {
         logger.info(`Abriendo modal para nueva nota: ${this.noteType}`, { label: this.config.label });
         await this.createBtn.selectNoteType(this.noteType);
+
+        await this.banner.checkBanners(false);
+
         logger.info(`Nueva nota tipo: ${this.noteType} creada exitosamente`, { label: this.config.label });
       } catch (error: any) {
         logger.error(`Error en flujo de creación [${this.noteType}]: ${error.message}`, { label: this.config.label });
@@ -131,4 +143,5 @@ import { PostTable } from './PostTable.js';
 import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 import { FooterActions } from '../FooterActions.js';
 import { retry } from '../../core/wrappers/retry.js';
+import { Banners } from '../modals/Banners.js';
 

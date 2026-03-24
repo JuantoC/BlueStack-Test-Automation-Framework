@@ -39,7 +39,7 @@ export class Banners {
       try {
         // Si esperamos éxito, usamos el timeout completo. 
         // Si no esperamos nada y solo estamos "espiando", usamos un tiempo corto para no frenar el test.
-        const waitTime = expectSuccess ? this.config.timeoutMs : 2000;
+        const waitTime = expectSuccess ? this.config.timeoutMs : 800;
 
         await this.driver.wait(async () => {
           const containers = await this.driver.findElements(Banners.TOAST_CONTAINER);

@@ -244,15 +244,17 @@ export class PostTable {
 
     logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
     await freshInput!.sendKeys(Key.ENTER);
+  }
 
-    // Esperar que el estado de carga (blur) desaparezca o el DOM mute
+  async waitForLoadingContainerDisappear(): Promise<void> {
+    logger.debug("Esperando que el contenedor de carga desaparezca...", { label: this.config.label });
     await this.driver.wait(async () => {
       const loadContainer = await this.driver.findElements(PostTable.LOADING_CONTAINER);
       if (loadContainer.length > 0) {
         return false
       }
       return true
-    }, 8000, "El contenedor nunca salió del estado de carga/borroso");
+    }, 10000, "El contenedor nunca salió del estado de carga");
   }
 
   private async waitUntilIsReady(locator: Locator): Promise<WebElement> {

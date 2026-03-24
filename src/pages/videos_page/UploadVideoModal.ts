@@ -13,6 +13,8 @@ import { createRequire } from 'module';
 import { sleep } from "../../core/utils/backOff.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
+import { VideoType } from "./UploadVideoBtn.js";
+import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
@@ -39,6 +41,7 @@ export enum UploadVideoModalFields {
 export class UploadVideoModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
+  private readonly image: CKEditorImageModal
 
   private static readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
     [UploadVideoModalFields.URL_INPUT]: By.css('div#url-details input[data-testid="url-youtube"]'),
@@ -55,6 +58,7 @@ export class UploadVideoModal {
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "UploadVideoModal") }
+    this.image = new CKEditorImageModal(this.driver, this.config)
   }
 
   /**
@@ -79,6 +83,11 @@ export class UploadVideoModal {
           await this.fillField(type, value as string);
         }
       }
+
+      if (data.video_type === VideoType.EMBEDDED) {
+        this.image.selectImage(0)
+      }
+
     });
   }
 

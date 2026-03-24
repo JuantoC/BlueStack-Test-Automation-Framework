@@ -5,6 +5,7 @@ import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { PublishModal } from "../../modals/PublishModal.js";
+import { Banners } from "../../modals/Banners.js";
 
 export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
 
@@ -15,7 +16,9 @@ export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
 export class EditorHeaderActions {
   private driver: WebDriver;
   private config: RetryOptions;
+
   private readonly publishModal: PublishModal
+  private readonly banner: Banners;
 
   // ========== LOCATORS ==========
   private static readonly INFO_SECTION_DATA_TIME: Locator = By.css('div.info-section')
@@ -51,6 +54,7 @@ export class EditorHeaderActions {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorHeaderActions") }
 
     this.publishModal = new PublishModal(this.driver, this.config)
+    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -105,6 +109,10 @@ export class EditorHeaderActions {
         case "BACK_EXIT_DISCARD":
           await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
           break;
+      }
+
+      if (action !== "BACK_EXIT_DISCARD" && action !== "EXIT_WITHOUT_SAVING") {
+        await this.banner.checkBanners(true);
       }
 
       logger.debug(`Acción de salida ejecutada correctamente: ${action}`, { label: this.config.label });

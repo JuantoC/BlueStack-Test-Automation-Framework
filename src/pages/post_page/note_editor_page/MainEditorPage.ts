@@ -15,6 +15,7 @@ export class MainEditorPage {
   public readonly text: EditorTextSection;
   public readonly creation: NewNoteBtn;
   public readonly images: EditorImageSection;
+  public readonly banner: Banners;
 
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
@@ -29,6 +30,7 @@ export class MainEditorPage {
     this.listicle = new ListicleSection(driver, this.config);
     this.liveBlog = new LiveBlogSection(driver, this.config);
     this.images = new EditorImageSection(driver, this.config);
+    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -44,16 +46,22 @@ export class MainEditorPage {
       logger.info(`Iniciando llenado dinámico de campos`, { label: this.config.label });
       try {
         await this.text.fillAll(data);
+        await this.banner.checkBanners(false);
 
         await this.tags.fillAll(data);
+        await this.banner.checkBanners(false);
 
         await this.fillListicleOrLiveblog(data);
+        await this.banner.checkBanners(false);
 
         await this.author.fillAll(data);
+        await this.banner.checkBanners(false);
 
         await this.settings.selectSectionOption();
+        await this.banner.checkBanners(false);
 
         await this.images.selectAndWriteMainImage();
+        await this.banner.checkBanners(false);
 
         logger.info('Todos los campos de la nota fueron completados exitosamente', { label: this.config.label })
 
@@ -132,4 +140,5 @@ import { LiveBlogData } from './noteList/BaseListicleSection.js';
 import { step, attachment } from "allure-js-commons";
 import logger from '../../../core/utils/logger.js';
 import { NewNoteBtn, NoteType } from '../NewNoteBtn.js';
+import { Banners } from '../../modals/Banners.js';
 

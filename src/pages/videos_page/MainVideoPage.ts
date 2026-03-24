@@ -10,6 +10,7 @@ import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
 import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
+import { Banners } from "../modals/Banners.js";
 
 /**
  * Page Object Maestro para la sección de Videos del CMS.
@@ -31,6 +32,7 @@ export class MainVideoPage {
   private readonly actions: VideoActions
   private readonly footer: FooterActions
   private readonly image: CKEditorImageModal;
+  private readonly banner: Banners;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -42,6 +44,7 @@ export class MainVideoPage {
     this.actions = new VideoActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
     this.image = new CKEditorImageModal(this.driver, this.config)
+    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -65,16 +68,14 @@ export class MainVideoPage {
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
         await this.uploadModal.fillAll(videoData);
 
-        if (videoData.video_type === VideoType.EMBEDDED) {
-          this.image.selectImage(0)
-        }
-
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 
         if (videoData.video_type === VideoType.NATIVO) {
           await this.uploadModal.checkProgressBar()
         }
+
+        await this.banner.checkBanners(true);
 
         await this.table.waitForNewVideoAtIndex0(videoData.title);
 
@@ -101,9 +102,7 @@ export class MainVideoPage {
    * @param titleID - Fragmento o título completo del video a modificar, usado para localizar su fila en la tabla.
    */
   async changeVideoTitle(titleID: string): Promise<any> {
-    await step(`Cambiando titulo del video inline`, async (stepContext) => {
-      stepContext.parameter("Titulo del video", titleID);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+    await step(`Cambiando titulo del video ${titleID}`, async () => {
 
       try {
         logger.debug("Ejecutando busqueda del contenedor para el titulo del video...", { label: this.config.label })
@@ -111,8 +110,10 @@ export class MainVideoPage {
 
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeVideoTitle(videoContainer);
-        logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
 
+        await this.banner.checkBanners(true);
+
+        logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al cambiar el titulo del video: ${error.message}`, {
           label: this.config.label,
@@ -137,10 +138,13 @@ export class MainVideoPage {
       stepContext.parameter("Titulo del video", postTitle);
       stepContext.parameter("Acción", action);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
       try {
         const videoContainer = await this.table.getVideoContainerByTitle(postTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(videoContainer, action);
+
+        await this.banner.checkBanners(false)
         logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
       } catch (error: any) {
         logger.error(`Error al clickear la accion: "${action}" en el video: ${error.message}`, {

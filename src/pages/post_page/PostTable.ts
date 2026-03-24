@@ -19,6 +19,8 @@ export class PostTable {
   private static readonly POST_TITLE_LABEL: Locator = By.css('div[data-testid="div-edit-title"]');
   private static readonly POST_TITLE_INPUT: Locator = By.css('textarea[data-testid="text-title-post"]');
   private static readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
+  private static readonly CHECKBOX: Locator = By.css('mat-checkbox[data-testid="checkbox-notice"]');
+  private static readonly LOADING_CONTAINER: Locator = By.css('div.process-fields');
 
   // Constantes para el manejo del string requerido
   public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation_Framework";
@@ -27,6 +29,30 @@ export class PostTable {
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PostTable") };
+  }
+  /*
+    * Selecciona un post específico de la tabla basándose en su índice.
+    * Realiza un scroll suave hasta el elemento antes de interactuar.
+    *
+    * @param postContainer - El WebElement del contenedor del post a seleccionar.
+    */
+  async selectPost(postContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Iniciando seleccion del post', { label: this.config.label })
+      const checkbox = await postContainer.findElements(PostTable.CHECKBOX);
+      if (checkbox.length > 0) {
+        const classAttribute = await checkbox[0].getAttribute('class');
+
+        if (!classAttribute.includes('mdc-checkbox--selected')) {
+          logger.debug("El checkbox no esta seleccionado, haciendo click", { label: this.config.label });
+          await clickSafe(this.driver, checkbox[0], this.config);
+        }
+      }
+      logger.debug("Checkbox seleccionado", { label: this.config.label });
+    } catch (error: any) {
+      logger.error(`Error al seleccionar el post: ${error.message}`, { label: this.config.label, error: error.message });
+      throw error;
+    }
   }
 
   /**
@@ -80,27 +106,24 @@ export class PostTable {
     * Orquesta la lógica llamando a los helpers específicos.
     */
   async changePostTitle(postContainer: WebElement): Promise<void> {
-    return await retry(async () => {
-      await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
 
-      logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
+    await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
 
-      // 1. Extraer texto actual y calcular el nuevo
-      const currentTitle = await this.extractCurrentTitle(postContainer);
-      const newTitle = currentTitle.replace(this.OLD_SUFFIX, this.NEW_SUFFIX);
+    logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
-      if (currentTitle === newTitle) {
-        logger.info(`El título actual ya contenía el sufijo esperado. Título extraído: "${currentTitle}"`, { label: this.config.label });
-        return;
-      }
+    // 1. Extraer texto actual y calcular el nuevo
+    const currentTitle = await this.extractCurrentTitle(postContainer);
+    const newTitle = currentTitle.replace(this.OLD_SUFFIX, this.NEW_SUFFIX);
 
-      // 2. Garantizar estado del DOM (Activar input si hace falta)
-      await this.activateEditModeIfNeeded(postContainer);
+    if (currentTitle === newTitle) {
+      logger.info(`El título actual ya contenía el sufijo esperado. Título extraído: "${currentTitle}"`, { label: this.config.label });
+      return;
+    }
+    // 2. Garantizar estado del DOM (Activar input si hace falta)
+    await this.activateEditModeIfNeeded(postContainer);
 
-      // 3. Escribir y validar el nuevo valor
-      await this.writeAndValidateTitle(postContainer, newTitle);
-
-    }, this.config);
+    // 3. Escribir y validar el nuevo valor
+    await this.writeAndValidateTitle(postContainer, newTitle);
   }
 
   /**
@@ -120,7 +143,7 @@ export class PostTable {
   }
 
   // =========================================================================
-  // MÉTODOS HELPERS PRIVADOS
+  //      MÉTODOS HELPERS PRIVADOS
   // =========================================================================
 
   /**
@@ -128,6 +151,7 @@ export class PostTable {
    * NO devuelve un Locator, devuelve el Elemento listo para usarse.
    */
   async getPostContainerByIndex(index: number): Promise<WebElement> {
+    await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
     // Aquí sí construimos el locator del padre porque es el punto de entrada
     const rowLocator = By.css(`div[id = "container-table-body"] div[id = "post-management-${index}"]`);
     logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
@@ -188,14 +212,25 @@ export class PostTable {
    * HELPER 3: Busca el input activado, escribe, espera la renderización de Angular y confirma.
    */
   private async writeAndValidateTitle(postContainer: WebElement, newTitle: string): Promise<void> {
-
+    let freshInput: WebElement;
 
     logger.debug("Esperando presencia del input en el DOM...", { label: this.config.label });
-    // fresh lookup es obligatorio aquí porque el DOM acaba de transicionar de Label a Input
-    const freshInput = await waitFind(this.driver, PostTable.POST_TITLE_INPUT, this.config);
+    // Búsqueda segura con contexto local usando polling
+    await this.driver.wait(async () => {
+      try {
+        const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
+        if (inputs.length > 0 && await inputs[0].isDisplayed()) {
+          freshInput = inputs[0];
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false; // Ignorar errores si el DOM muta mientras buscamos
+      }
+    }, 5000, "El input nunca apareció dentro del postContainer");
 
     logger.debug("Escribiendo texto...", { label: this.config.label });
-    await writeToStandard(freshInput, newTitle, this.config.label);
+    await writeToStandard(freshInput!, newTitle, this.config.label);
 
     logger.debug("Pre-validando mutación del DOM...", { label: this.config.label });
     await this.driver.wait(async () => {
@@ -207,11 +242,17 @@ export class PostTable {
       }
     }, 3000, `El input nunca registró el texto: "${newTitle}"`);
 
-    await sleep(200); // Respiro de 200ms para el Event Loop de Angular
-
     logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
-    await freshInput.sendKeys(Key.ENTER);
-    await sleep(500);
+    await freshInput!.sendKeys(Key.ENTER);
+
+    // B. Esperar que el estado de carga (blur) desaparezca o el DOM mute
+    await this.driver.wait(async () => {
+      const loadContainer = await this.driver.findElements(PostTable.LOADING_CONTAINER);
+      if (loadContainer.length > 0) {
+        return false
+      }
+      return true
+    }, 8000, "El contenedor nunca salió del estado de carga/borroso");
   }
 
   private async waitUntilIsReady(locator: Locator): Promise<WebElement> {

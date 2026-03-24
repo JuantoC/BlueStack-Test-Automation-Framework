@@ -13,9 +13,8 @@ import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 
 /**
  * Page Object Maestro para la sección de Videos del CMS.
- * Actúa como Orquestador central que coordina las sub-secciones:
- * `UploadVideoBtn`, `UploadVideoModal`, `VideoTable`, `VideoActions`, `FooterActions` y `CKEditorImageModal`.
- * Es el punto de entrada preferido para cualquier flujo de pruebas que involucre la creación,
+ * Actúa como Orquestador central que coordina las sub-secciones de videos.
+ * Es el punto de entrada para cualquier flujo de pruebas que involucre la creación,
  * edición, publicación o interacción con videos en la tabla multimedia.
  *
  * @example
@@ -199,7 +198,7 @@ export class MainVideoPage {
       }
       return videos
     } catch (error: any) {
-      logger.error(`Error al obtener los ultimos 5 videos: ${error.message}`, { label: this.config.label, error: error.message });
+      logger.error(`Error al obtener los ultimos ${numberOfVideos} videos: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }

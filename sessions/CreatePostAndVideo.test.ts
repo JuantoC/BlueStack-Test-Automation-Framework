@@ -13,8 +13,8 @@ runSession(
 3. Guardado con salida (\`BACK_SAVE_AND_EXIT\`).
 4. Navegación al componente de Videos vía sidebar.
 5. Subida de un nuevo video tipo YouTube con datos frescos.
-6. Busqueda y publicacion de los ultimos 2 videos de la tabla.
-7. Navegación de regreso al componente de Noticias (Posts).
+6. Busqueda y publicacion del ultimo video de la tabla.
+7. Navegación de regreso al componente de Noticias.
 8. Edición inline del título del Post creado en el paso 2.
 9. Re-ingreso al editor del Post.
 10. Publicación del Post (\`PUBLISH_AND_EXIT\`).

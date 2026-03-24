@@ -4,7 +4,12 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
 ### Test: Crear Post exitosamente, entrar y publicar.
 ---
 **Objetivo:** Verificar que un Post nuevo se guarde y publique correctamente tras re-ingresar.
-**Flujo:** 1. Creación desde cero + SAVE_AND_EXIT. / 2. Re-entrada para validación. / 3. PUBLISH_AND_EXIT.
+**Flujo:** 
+
+1. Creación desde cero + SAVE_AND_EXIT.
+2. Re-entrada para validación.
+3. PUBLISH_AND_EXIT.
+
 > **Resultado esperado:** Los datos deben reflejarse íntegramente en la UI y Post publicado.
 `);
 

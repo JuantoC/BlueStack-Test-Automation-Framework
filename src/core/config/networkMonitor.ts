@@ -80,8 +80,7 @@ export async function startNetworkMonitoring(
               const errorCount = networkLogs.length;
               if (errorCount > 0) {
                 await allure.attachment(`Network_Issues_${label}`, networkLogs.join('\n'), "text/plain");
-                await allure.tag("network-issues");
-                await allure.descriptionHtml(`<b>Atención:</b> Se detectaron ${errorCount} errores de red.`);
+
               }
               ws.removeAllListeners();
               ws.close();
@@ -100,6 +99,9 @@ export async function startNetworkMonitoring(
               const logMsg = `${category} Status: ${response.status} | URL: ${response.url}`;
               networkLogs.push(logMsg);
               logger.warn(logMsg, { label });
+              const screenshot = await driver.takeScreenshot();
+              await allure.attachment("Captura_Error_Network", Buffer.from(screenshot, 'base64'), 'image/png');
+
             }
           }
           if (msg.method === 'Network.loadingFailed') {

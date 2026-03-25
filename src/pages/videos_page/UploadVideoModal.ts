@@ -141,14 +141,6 @@ export class UploadVideoModal {
           if (Date.now() - startTime > timeoutMs) {
             throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
           }
-          await sleep(1000);
-        }
-
-        logger.debug('Esperando a que el modal de progreso de subida se cierre...', { label: this.config.label })
-        while (!(await this.isProgressBarModalClosed())) {
-          if (Date.now() - startTime > timeoutMs) {
-            throw new Error(`Timeout: El modal de progreso de subida no se cerró en ${timeoutMs}ms`);
-          }
           await sleep(500);
         }
       } catch (error: any) {
@@ -180,16 +172,6 @@ export class UploadVideoModal {
       return progress === '100';
     } catch (error: any) {
       logger.error(`Error verificando barra de progreso completa: ${error.message}`, { label: this.config.label, error: error.message });
-      throw error;
-    }
-  }
-
-  private async isProgressBarModalClosed(): Promise<boolean> {
-    try {
-      const progressBarModal = await this.driver.findElements(UploadVideoModal.UPLOAD_NATIVE_MODAL)
-      return progressBarModal.length === 0;
-    } catch (error: any) {
-      logger.error(`Error verificando cierre de modal: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;
     }
   }
@@ -235,7 +217,7 @@ export class UploadVideoModal {
     try {
       // Este comando empaquetará el video desde WSL y lo enviará al contenedor
       await fileInput.sendKeys(absolutePath);
-      logger.debug('Archivo enviado al nodo de Chrome en Docker.');
+      logger.debug('Archivo enviado al nodo de Chrome en Docker.', { label: this.config.label });
     } catch (error: any) {
       throw new Error(`Error en sendKeys: ${error.message}`);
     }

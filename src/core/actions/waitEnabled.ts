@@ -26,8 +26,6 @@ export async function waitEnabled(
 
   return await retry(async () => {
     try {
-      logger.debug(`Esperando que el elemento esté habilitado...`, { label: config.label });
-
       await driver.wait(until.elementIsEnabled(element), config.timeoutMs);
 
       return element;

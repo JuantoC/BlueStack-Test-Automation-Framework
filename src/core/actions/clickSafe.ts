@@ -30,7 +30,6 @@ export async function clickSafe(
         : await waitFind(driver, ID as Locator, internalOpts);
 
       // 2. Sincronización: Espera a que no haya loaders o animaciones bloqueantes.
-      logger.debug(`Verificando estado interactuable...`, { label: config.label });
       await waitClickable(driver, element, internalOpts);
 
       // 4. Ejecución

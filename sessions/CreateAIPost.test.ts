@@ -47,7 +47,7 @@ import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
 
 // Imports de datos
-import { AIData } from "../src/data_test/noteData.js";
+import { AIData } from "../src/data_test/data.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage";
 import { MainAIPage } from "../src/pages/post_page/AIPost/MainAIPage";

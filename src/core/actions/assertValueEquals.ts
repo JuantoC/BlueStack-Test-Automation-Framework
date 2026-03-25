@@ -90,9 +90,10 @@ Obtenido (frag): "...${actualSnippet}..."`
         );
       }
 
-      logger.debug(`Validación exitosa: Valor coincide en ${elementTag}.`, { label: config.label });
+      logger.debug(`Validación exitosa.`, { label: config.label });
 
     } catch (error: any) {
+      logger.debug('Error en la validacion del texto.')
       throw error;
     }
   }, config);

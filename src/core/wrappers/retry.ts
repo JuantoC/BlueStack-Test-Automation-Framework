@@ -27,7 +27,7 @@ export async function retry<T>(
     return await action();
   }
 
-  const logThreshold = Math.round(retries * 0.6);
+  const logThreshold = Math.round(retries * 0.7);
 
   let attempt = 1;
 
@@ -44,8 +44,6 @@ export async function retry<T>(
           // Si fue antes del umbral, fue un glitch menor. DEBUG.
           logger.debug(`Acción recuperada silenciosamente en intento ${attempt}`, { label });
         }
-      } else {
-        logger.debug(`Acción completada en el primer intento`, { label });
       }
 
       return result;

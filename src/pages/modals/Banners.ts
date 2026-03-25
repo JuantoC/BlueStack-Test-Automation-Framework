@@ -1,4 +1,4 @@
-import { By, WebDriver, WebElement } from "selenium-webdriver";
+import { By, until, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { step, attachment } from "allure-js-commons";
@@ -12,9 +12,8 @@ export class Banners {
 
   private static readonly TOAST_CONTAINER = By.css("div#toast-container");
   private static readonly TOAST_SUCCESS = By.css("div.toast-success");
-  private static readonly TOAST_ERROR = By.css("div[role='alert']"); // Asumimos que este es el wrapper del error
+  private static readonly TOAST_ERROR = By.css("div[role='alert']");
 
-  // Selectores relativos (para buscar DENTRO del WebElement del error)
   private static readonly TOAST_ERROR_TITLE = By.css("div.toast-title");
   private static readonly TOAST_ERROR_DETAIL = By.css("div.toast-error-detail");
   private static readonly TOAST_ERROR_ROUTE = By.css("div.toast-error-route");
@@ -25,80 +24,92 @@ export class Banners {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "Banners") }
   }
 
-  /**
-   * Método orquestador. Revisa si existe el contenedor y delega el manejo
-   * al método correspondiente según el tipo de toast que encuentre.
-   * * @param expectSuccess - Si es true, el test FALLARÁ si no se encuentra un toast de éxito. 
-   * Si es false, solo revisa y maneja lo que haya (ideal para soft checks).
-   */
-  async checkBanners(expectSuccess: boolean = false): Promise<void> {
-    return await step(`Revisando banners (Esperando éxito: ${expectSuccess})`, async () => {
-      let foundSuccess: WebElement | null = null;
-      let foundError: WebElement | null = null;
+  async checkBanners(expectSuccess: boolean = false): Promise<boolean> {
+    return await step(`Revisando banners: (${expectSuccess ? 'Esperando éxito' : 'Monitoreo'})`, async () => {
+      // Usamos flags booleanos para evitar StaleElementReferenceException luego
+      let hasSuccess = false;
+      let hasError = false;
 
       try {
-        // Si esperamos éxito, usamos el timeout completo. 
-        // Si no esperamos nada y solo estamos "espiando", usamos un tiempo corto para no frenar el test.
         const waitTime = expectSuccess ? this.config.timeoutMs : 800;
+        logger.debug(`${waitTime}`)
 
         await this.driver.wait(async () => {
-          const containers = await this.driver.findElements(Banners.TOAST_CONTAINER);
-          if (containers.length === 0) return false;
+          try {
+            const containers = await this.driver.findElements(Banners.TOAST_CONTAINER);
+            if (containers.length === 0) return false;
 
-          const container = containers[0];
+            const container = containers[0];
 
-          // Revisamos qué tipo de toast existe dentro del contenedor
-          const errors = await container.findElements(Banners.TOAST_ERROR);
-          const successes = await container.findElements(Banners.TOAST_SUCCESS);
+            // Revisamos qué tipo de toast existe
+            const errors = await container.findElements(Banners.TOAST_ERROR);
+            const successes = await container.findElements(Banners.TOAST_SUCCESS);
 
-          if (errors.length > 0) foundError = errors[0];
-          if (successes.length > 0) foundSuccess = successes[0];
+            if (errors.length > 0) hasError = true;
+            if (successes.length > 0) hasSuccess = true;
 
-          // Cortamos el ciclo wait si encontramos cualquiera de los dos
-          return foundError !== null || foundSuccess !== null;
+            // NUEVA LÓGICA DE SALIDA
+            if (expectSuccess) {
+              // Si obligatoriamente esperamos éxito, no salimos hasta encontrarlo
+              return hasSuccess;
+            } else {
+              // Si solo monitoreamos, salimos apenas encontremos cualquiera
+              return hasError || hasSuccess;
+            }
+          } catch (e) {
+            return false;
+          }
         }, waitTime, "Búsqueda de banners finalizada por timeout.");
 
       } catch (e: any) {
-        // Se acabó el tiempo del wait y no apareció ningún toast. 
-        // No lanzamos error aquí, la evaluación final se hace abajo.
-        logger.debug('No se detectaron banners en el tiempo establecido.', { label: this.config.label });
+        logger.debug('Sin toast encontrados.', { label: this.config.label });
       }
 
       // --- DELEGACIÓN DE RESPONSABILIDADES ---
+      // Los handlers ahora se encargan de buscar el elemento fresco en el DOM
 
-      if (foundError) {
+      if (hasError) {
         logger.debug('Se detectó un toast de error, delegando manejo...', { label: this.config.label });
-        await this.handleErrorToast(foundError);
+        await this.handleErrorToast();
       }
 
-      if (foundSuccess) {
+      if (hasSuccess) {
         logger.debug('Se detectó un toast de éxito, delegando manejo...', { label: this.config.label });
-        await this.handleSuccessToast(foundSuccess);
+        await this.handleSuccessToast();
       }
 
       // --- EVALUACIÓN FINAL DEL NEGOCIO ---
 
-      // Si la lógica de negocio EXIGÍA un success y no apareció, fallamos el test.
-      // (No importa si apareció un error o si no apareció nada de nada).
-      if (expectSuccess && !foundSuccess) {
-        const msg = foundError
-          ? "El test falló: Se esperaba un toast de ÉXITO, pero apareció uno de ERROR en su lugar."
+      if (expectSuccess && !hasSuccess) {
+        const msg = hasError
+          ? "El test falló: Se esperaba un toast de ÉXITO, pero solo apareció uno de ERROR."
           : "El test falló: Se esperaba un toast de ÉXITO, pero no apareció NINGÚN toast.";
 
         logger.error(msg, { label: this.config.label });
+        const screenshot = await this.driver.takeScreenshot();
+        await attachment("Captura_Sin_Toast_Exito", Buffer.from(screenshot, 'base64'), 'image/png');
         throw new Error(msg);
       }
+
+      return hasError;
     });
   }
 
   /**
-   * Maneja el toast de error usando el WebElement ya encontrado.
-   * Extrae info, saca screenshot y lo cierra. NO lanza excepciones.
+   * Maneja el toast de error. Busca el elemento internamente para evitar Stale Elements.
    */
-  private async handleErrorToast(errorElement: WebElement): Promise<void> {
+  private async handleErrorToast(): Promise<void> {
     await step('Procesando toast de error', async () => {
       try {
-        // 1. Extraemos la información buscando DENTRO del elemento que ya tenemos
+        // 1. Buscamos el elemento FRESCO en el DOM
+        const errorElements = await this.driver.findElements(Banners.TOAST_ERROR);
+        if (errorElements.length === 0) {
+          logger.debug('No se detectaron elementos de error en el DOM.', { label: this.config.label });
+          return;
+        }
+
+        const errorElement = errorElements[0];
+
         const titleElements = await errorElement.findElements(Banners.TOAST_ERROR_TITLE);
         const detailElements = await errorElement.findElements(Banners.TOAST_ERROR_DETAIL);
         const routeElements = await errorElement.findElements(Banners.TOAST_ERROR_ROUTE);
@@ -110,29 +121,37 @@ export class Banners {
         const errorData = `Ruta: ${routeText}\nTítulo: ${titleText}\nDetalle: ${detailText}`;
         logger.warn(`Información del Toast de error:\n${errorData}`, { label: this.config.label });
 
-        // 2. Adjuntamos texto y screenshot al reporte
+        // 2. Adjuntamos texto y screenshot
         await attachment("Detalles del Toast", Buffer.from(errorData, "utf-8"), "text/plain");
         const screenshot = await this.driver.takeScreenshot();
         await attachment("Captura_Error_Toast", Buffer.from(screenshot, 'base64'), 'image/png');
 
-        // 3. Cerramos el Toast interactuando con el botón DENTRO del contenedor del error
-        const closeBtns = await waitFind(this.driver, Banners.TOAST_CLOSE_BTN, this.config)
-        await clickSafe(this.driver, closeBtns, this.config)
+        // 3. Cerramos el Toast
+        const closeBtns = await waitFind(this.driver, Banners.TOAST_CLOSE_BTN, { ...this.config, supressRetry: true, timeoutMs: 800 });
+        await clickSafe(this.driver, closeBtns, { ...this.config, supressRetry: true, timeoutMs: 800 });
         logger.debug('Toast de error cerrado.', { label: this.config.label });
 
       } catch (error: any) {
+        // Ahora sí, si falla, sabrás que no fue por un StaleElement al inicio
         logger.error(`Error interno procesando la UI del toast de error: ${error.message}`, { label: this.config.label });
       }
     });
   }
 
   /**
-   * Maneja el toast de éxito usando el WebElement ya encontrado.
+   * Maneja el toast de éxito. Busca el elemento internamente.
    */
-  private async handleSuccessToast(successElement: WebElement): Promise<void> {
+  private async handleSuccessToast(): Promise<void> {
     await step('Procesando toast de éxito', async () => {
       try {
-        const toastText = await successElement.getText();
+        // Buscamos el elemento FRESCO en el DOM
+        const successElements = await this.driver.findElements(Banners.TOAST_SUCCESS);
+        if (successElements.length === 0) {
+          logger.debug('No se detectaron elementos de éxito en el DOM.', { label: this.config.label });
+          return;
+        }
+
+        const toastText = await successElements[0].getText();
         logger.debug(`Éxito confirmado: ${toastText}`, { label: this.config.label });
         await attachment("Mensaje de Éxito", Buffer.from(toastText, "utf-8"), "text/plain");
       } catch (error: any) {

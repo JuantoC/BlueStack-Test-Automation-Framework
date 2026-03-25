@@ -5,7 +5,7 @@ import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
-import { AINoteData } from "../../../interfaces/data.js";
+import { AIDataNote } from "../../../interfaces/data.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 
 export type AIPostField = keyof typeof AIPostModal.LOCATORS;
@@ -62,7 +62,7 @@ export class AIPostModal {
     });
   }
 
-  async fillAll(data: Partial<AINoteData>) {
+  async fillAll(data: Partial<AIDataNote>) {
     await step("Rellenar campos de promtps, contexto y opciones", async () => {
       const fields = Object.keys(AIPostModal.LOCATORS) as AIPostField[];
 
@@ -133,12 +133,12 @@ export class AIPostModal {
     return true;
   }
 
-  async waitForLoadingPreview() {
+  async waitForLoadingPreview(timeout: number = 1000 * 60 * 3) {
     logger.debug("Esperando a que termine de cargar la preview", { label: this.config.label });
     await this.driver.wait(async () => {
       const loading = await this.driver.findElements(AIPostModal.LOADING_PREVIEW);
       return loading.length === 0;
-    }, 1000 * 60 * 3, "La preview no termino de cargar");
+    }, timeout, "La preview no termino de cargar");
     logger.debug("Preview cargada", { label: this.config.label });
   }
 }

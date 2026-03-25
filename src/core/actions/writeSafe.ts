@@ -33,19 +33,12 @@ export async function writeSafe(
 
   return await retry(async () => {
     const internalOpts = { ...config, supressRetry: true };
-    logger.debug(`Iniciando flujo de escritura para: ${identifierLabel}`, {
-      label: config.label,
-    });
 
     // 1. Preparación: Click previo para ganar foco y asegurar visibilidad.
     const element = await clickSafe(driver, ID, internalOpts);
 
     // 2. Identificación: Determinamos la naturaleza del input.
     const isEditable = await isContentEditable(element);
-
-    logger.debug(`Modo de escritura detectado: ${isEditable ? "ContentEditable" : "Standard"}`, {
-      label: config.label,
-    });
 
     // 3. Ejecución: Acción atómica de escritura.
     if (isEditable) {

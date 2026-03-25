@@ -14,10 +14,6 @@ export async function writeToEditable(
   const configLabel = stackLabel(label, "writeToEditable");
 
   try {
-    logger.debug("Limpiando contenteditable via CTRL+ A + DELETE", {
-      label: configLabel
-    });
-
     await element.sendKeys(
       Key.chord(Key.CONTROL, "a"),
       Key.DELETE
@@ -47,8 +43,6 @@ export async function writeToStandard(
   const configLabel = stackLabel(label, "writeToStandard");
 
   try {
-    logger.debug(`Escribiendo texto: "${text.substring(0, 15)}..."`, { label: configLabel });
-
     const cmdCtrl = process.platform === 'darwin' ? Key.COMMAND : Key.CONTROL; // Mac o Windows
 
     // 1. Enviamos la secuencia de borrado + el texto nuevo en un comando,

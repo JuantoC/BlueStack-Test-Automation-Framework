@@ -72,6 +72,10 @@ export class MainVideoPage {
         await this.uploadModal.clickOnUploadBtn();
 
         if (videoData.video_type === VideoType.NATIVO) {
+          const isError = await this.banner.checkBanners(false);
+          if (isError) {
+            return
+          }
           await this.uploadModal.checkProgressBar()
         }
 

@@ -30,7 +30,7 @@ export class MainEditorPage {
     this.listicle = new ListicleSection(driver, this.config);
     this.liveBlog = new LiveBlogSection(driver, this.config);
     this.images = new EditorImageSection(driver, this.config);
-    this.banner = new Banners(driver, this.config);
+    this.banner = new Banners(driver, { ...this.config, timeoutMs: 8000 });
   }
 
   /**
@@ -52,7 +52,6 @@ export class MainEditorPage {
         await this.banner.checkBanners(false);
 
         await this.fillListicleOrLiveblog(data);
-        await this.banner.checkBanners(false);
 
         await this.author.fillAll(data);
         await this.banner.checkBanners(false);
@@ -86,7 +85,12 @@ export class MainEditorPage {
       try {
         logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: this.config.label });
         await this.header.clickExitAction(exitAction);
-        logger.info(`Editor cerrado exitosameante.`, { label: this.config.label });
+
+        if (exitAction === "BACK_SAVE_AND_EXIT" || exitAction === "SAVE_AND_EXIT" || exitAction === "SAVE_ONLY") {
+          await this.banner.checkBanners(true);
+        }
+
+        logger.info(`Editor ejecuto accion del header correctamente.`, { label: this.config.label });
 
       } catch (error: any) {
         logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, {
@@ -114,6 +118,7 @@ export class MainEditorPage {
 
     // Ejecutar
     await section.fillAll(data as LiveBlogData);
+    await this.banner.checkBanners(false);
   }
 
   /**

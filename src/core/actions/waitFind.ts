@@ -20,13 +20,11 @@ export async function waitFind(
   };
   return await retry(async () => {
     try {
-      logger.debug(`Buscando elemento: ${JSON.stringify(locator)}`, { label: config.label });
 
       const element = await driver.wait(
         until.elementLocated(locator),
         config.timeoutMs
       );
-      logger.debug(`Elemento encontrado`, { label: config.label });
       return element;
     } catch (err) {
       throw err;

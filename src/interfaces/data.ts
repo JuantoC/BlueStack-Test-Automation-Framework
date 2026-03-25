@@ -40,7 +40,7 @@ export interface VideoData {
   path?: string;
 }
 
-export interface AINoteData {
+export interface AIDataNote {
   task?: string;
   context?: string;
   section?: number;

@@ -33,7 +33,7 @@ export class UploadVideoBtn {
   private static readonly VIDEO_TYPE_MAP: Record<VideoType, Set<string>> = {
     [VideoType.EMBEDDED]: new Set(['Embedded Video', "Video Embedded", "Video Incorporado"]),
     [VideoType.NATIVO]: new Set(['Native Video', "Video Nativo", "Video Nativo"]),
-    [VideoType.YOUTUBE]: new Set(['YouTube Video', "Video Youtube", "Video Youtube"]),
+    [VideoType.YOUTUBE]: new Set(['YouTube Video', "Video YouTube"]),
     [VideoType.SHORT]: new Set(['YouTube Short Video', "Video Youtube Short", "Video Youtube Short"])
   };
 
@@ -68,6 +68,7 @@ export class UploadVideoBtn {
 
         logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
         await clickSafe(this.driver, elementToClick, this.config);
+
       } catch (error: any) {
         logger.error(`Error en selectVideoType: ${error.message}`, { label: this.config.label, error: error.message });
         throw error;
@@ -100,9 +101,7 @@ export class UploadVideoBtn {
    * Retorna el elemento para ser clickeado posteriormente.
    */
   private async matchVideoType(videoType: VideoType): Promise<WebElement> {
-    // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
-
       await this.waitUntilIsReady(UploadVideoBtn.DROPDOWN_COMBO_MODAL)
 
     } catch (error: any) {
@@ -130,7 +129,6 @@ export class UploadVideoBtn {
         return element;
       }
     }
-
     throw new Error(`No se encontró la opción "${videoType}" en el menú.`);
   }
 

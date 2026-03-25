@@ -32,7 +32,6 @@ export async function waitClickable(
       await waitVisible(driver, element, fullOpts);
       await waitEnabled(driver, element, fullOpts);
 
-      logger.debug(`Elemento listo para recibir interacción`, { label: fullOpts.label });
       return element;
 
     } catch (err: any) {

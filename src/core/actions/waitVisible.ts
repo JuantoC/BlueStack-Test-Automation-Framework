@@ -28,7 +28,6 @@ export async function waitVisible(
     };
     return await retry(async () => {
         try {
-            logger.debug(`Esperando visibilidad del elemento...`, { label: config.label });
 
             await driver.wait(until.elementIsVisible(element), config.timeoutMs);
 
@@ -36,7 +35,6 @@ export async function waitVisible(
         } catch (err) {
             if (err instanceof error.TimeoutError) {
                 logger.debug(`Timeout inicial. Iniciando protocolos de recuperación...`, { label: config.label });
-
                 // 1. Intento de Scroll
                 try {
                     await scrollIntoView(element, config);
@@ -49,7 +47,6 @@ export async function waitVisible(
 
                     // Verificación final post-hover (con timeout reducido para no penalizar el flujo)
                     await driver.wait(until.elementIsVisible(element), config.timeoutMs);
-                    logger.debug(`Recuperación por hover exitosa.`, { label: config.label });
                     return element;
 
                 } catch (hoverErr: any) {

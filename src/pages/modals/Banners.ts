@@ -32,8 +32,6 @@ export class Banners {
 
       try {
         const waitTime = expectSuccess ? this.config.timeoutMs : 800;
-        logger.debug(`${waitTime}`)
-
         await this.driver.wait(async () => {
           try {
             const containers = await this.driver.findElements(Banners.TOAST_CONTAINER);
@@ -68,15 +66,16 @@ export class Banners {
       // --- DELEGACIÓN DE RESPONSABILIDADES ---
       // Los handlers ahora se encargan de buscar el elemento fresco en el DOM
 
+      if (hasSuccess) {
+        logger.debug('Se detectó un toast de éxito, delegando manejo...', { label: this.config.label });
+        await this.handleSuccessToast();
+      }
+
       if (hasError) {
         logger.debug('Se detectó un toast de error, delegando manejo...', { label: this.config.label });
         await this.handleErrorToast();
       }
 
-      if (hasSuccess) {
-        logger.debug('Se detectó un toast de éxito, delegando manejo...', { label: this.config.label });
-        await this.handleSuccessToast();
-      }
 
       // --- EVALUACIÓN FINAL DEL NEGOCIO ---
 
@@ -142,7 +141,7 @@ export class Banners {
    * Maneja el toast de éxito. Busca el elemento internamente.
    */
   private async handleSuccessToast(): Promise<void> {
-    await step('Procesando toast de éxito', async () => {
+    await step('Procesando toast de éxito', async (stepContext) => {
       try {
         // Buscamos el elemento FRESCO en el DOM
         const successElements = await this.driver.findElements(Banners.TOAST_SUCCESS);
@@ -153,7 +152,7 @@ export class Banners {
 
         const toastText = await successElements[0].getText();
         logger.debug(`Éxito confirmado: ${toastText}`, { label: this.config.label });
-        await attachment("Mensaje de Éxito", Buffer.from(toastText, "utf-8"), "text/plain");
+        await stepContext.parameter("Toast Message", toastText);
       } catch (error: any) {
         logger.error(`Error procesando toast de éxito: ${error.message}`, { label: this.config.label });
       }

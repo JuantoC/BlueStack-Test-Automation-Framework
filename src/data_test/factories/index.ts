@@ -19,16 +19,18 @@ export type {
   ListicleData,
   ListicleItem,
   LiveBlogData,
-  EventLiveBlog,
+
 } from './NoteDataFactory.js';
 
 export {
   YoutubeVideoDataFactory,
   NativeVideoDataFactory,
+  EmbeddedVideoDataFactory,
   NATIVE_VIDEO_PATHS,
 } from './VideoDataFactory.js';
 
 export type {
   YoutubeVideoData,
   NativeVideoData,
+  EmbeddedVideoData,
 } from './VideoDataFactory.js';

@@ -1,6 +1,6 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
-import { step } from "allure-js-commons";
+import { attachment, step } from "allure-js-commons";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
@@ -27,6 +27,7 @@ export class AIPostModal {
   private static readonly CHECKBOX: Locator = By.css('mat-checkbox#checkGenerate')
   private static readonly GENERATE_BTN: Locator = By.css('button#btnCropped')
   private static readonly LOADING_PREVIEW: Locator = By.css('div.container-preview app-loading-css')
+  private static readonly ERROR_STATUS_CONTAINER: Locator = By.css('div.status-container')
   private static readonly DONE_BTN: Locator = By.css('div.button-primary__four button')
 
   constructor(driver: WebDriver, config: RetryOptions) {
@@ -140,5 +141,17 @@ export class AIPostModal {
       return loading.length === 0;
     }, timeout, "La preview no termino de cargar");
     logger.debug("Preview cargada", { label: this.config.label });
+  }
+
+  async isAIFailed() {
+    logger.debug("Esperando a que termine de cargar el preview", { label: this.config.label });
+    const error = await this.driver.findElements(AIPostModal.ERROR_STATUS_CONTAINER);
+    if (error.length > 0) {
+      const errorH3 = await error[0].findElement(By.css('h3')).getText();
+      const errorP = await error[0].findElement(By.css('p')).getText();
+      await attachment("Detalles del error", Buffer.from(`${errorH3} - ${errorP}`, "utf-8"), "text/plain");
+      throw new Error(`Hubo un error en la generacion del preview: ${errorH3}`);
+    }
+    logger.debug("No hay errores en la generacion del preview", { label: this.config.label });
   }
 }

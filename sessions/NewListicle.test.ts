@@ -34,7 +34,12 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
   await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
   log.info("✅ Prueba de creación de Listicle exitosa.");
-});
+},
+  {
+    epic: "Post Component",
+    feature: "Listicle",
+    severity: "normal",
+  });
 
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";

@@ -5,6 +5,7 @@ import logger from "../core/utils/logger.js";
 import { waitFind } from "../core/actions/waitFind.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { PublishModal } from "./modals/PublishModal.js";
+import { Banners } from "./modals/Banners.js";
 
 export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
 
@@ -12,6 +13,7 @@ export class FooterActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly publishModal: PublishModal;
+  private readonly banner: Banners;
 
   private static readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-action"]');
   private static readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-actions"]');
@@ -29,7 +31,7 @@ export class FooterActions {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "FooterActions") }
 
     this.publishModal = new PublishModal(this.driver, this.config)
-
+    this.banner = new Banners(this.driver, { ...this.config, timeoutMs: 10000 })
   }
 
   async clickFooterAction(action: FooterActionType): Promise<void> {
@@ -52,10 +54,12 @@ export class FooterActions {
       switch (action) {
         case 'PUBLISH_ONLY':
           await this.publishModal.clickOnPublishBtn();
+          await this.banner.checkBanners(true);
           break;
         case 'SCHEDULE':
           await clickSafe(this.driver, FooterActions.FOOTER_DROPDOWN_SCHEDULE, this.config);
           await this.publishModal.clickOnPublishBtn();
+          await this.banner.checkBanners(true);
           break
 
       }

@@ -33,7 +33,12 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
   await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
   log.info("✅ Prueba de creación de Post exitosa.");
-});
+},
+  {
+    epic: "Post Component",
+    feature: "Post",
+    severity: "normal",
+  });
 
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";

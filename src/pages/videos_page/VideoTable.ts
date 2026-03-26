@@ -295,7 +295,6 @@ export class VideoTable {
 
     logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
     await freshTextarea.sendKeys(Key.ENTER);
-    await sleep(500);
   }
 
   private async waitUntilIsReady(locator: Locator): Promise<WebElement> {

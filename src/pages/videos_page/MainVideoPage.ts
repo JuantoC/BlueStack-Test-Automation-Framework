@@ -44,7 +44,7 @@ export class MainVideoPage {
     this.actions = new VideoActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
     this.image = new CKEditorImageModal(this.driver, this.config)
-    this.banner = new Banners(driver, this.config);
+    this.banner = new Banners(this.driver, { ...this.config, timeoutMs: 1500 });
   }
 
   /**

@@ -5,6 +5,7 @@ import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { waitFind } from "../actions/waitFind.js";
 import { waitClickable } from "../helpers/waitClickable.js";
+import { Banners } from "../../pages/modals/Banners.js";
 
 /**
  * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
@@ -39,6 +40,14 @@ export async function clickSafe(
       return element;
 
     } catch (error: any) {
+      if (error.name === 'ElementClickInterceptedError') {
+        logger.debug(`Intercepción detectada. Verificando si es un toast...`, { label: config.label });
+        const banner = new Banners(driver, config)
+        const isToast = await banner.checkBanners(false)
+        if (isToast) {
+          throw error
+        }
+      }
       /* // 4. Contingencia Reactiva para el Modal de Angular
       if (error.name === 'ElementClickInterceptedError') {
         logger.debug(`Intercepción detectada. Verificando si es el modal de actualización...`, { label: config.label });

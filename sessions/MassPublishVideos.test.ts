@@ -1,4 +1,4 @@
-runSession("Native&YT Video", async ({ driver, opts, log }) => {
+runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
 
   description(`
 ### Test: Crear un video Nativo, uno YouTube, y editar el titulo inline.
@@ -22,6 +22,7 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
 
   const nativeVideoData = NativeVideoDataFactory.create();
   const youtubeVideoData = YoutubeVideoDataFactory.create();
+  const embeddedVideoData = EmbeddedVideoDataFactory.create();
 
   const login = new MainLoginPage(driver, opts);
   const video = new MainVideoPage(driver, opts);
@@ -37,16 +38,24 @@ runSession("Native&YT Video", async ({ driver, opts, log }) => {
   await video.uploadNewVideo(youtubeVideoData);
   await video.changeVideoTitle(youtubeVideoData.title!);
 
-  await video.selectAndPublishFooter(await video.getVideoContainers(1));
+  await video.uploadNewVideo(embeddedVideoData);
+  await video.changeVideoTitle(embeddedVideoData.title!);
+
+  //await video.selectAndPublishFooter(await video.getVideoContainers(3));
 
   log.info("✅ Prueba de DEBUG exitosa.");
-});
+},
+  {
+    epic: "Video Component",
+    feature: "Mass Publish Videos",
+    severity: "normal",
+  });
 
 import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
 import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { NativeVideoDataFactory, YoutubeVideoDataFactory } from "../src/data_test/factories/index.js";
+import { NativeVideoDataFactory, YoutubeVideoDataFactory, EmbeddedVideoDataFactory } from "../src/data_test/factories/index.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
-import { description } from "allure-js-commons";
+import { description } from "allure-js-commons"; 

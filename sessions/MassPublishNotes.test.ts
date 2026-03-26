@@ -1,5 +1,4 @@
-runSession(
-  "MassPublishNotes",
+runSession("Mass Publish Notes",
   async ({ driver, opts, log }) => {
     description(`
 ### Test: Publicacion Masiva de Notas

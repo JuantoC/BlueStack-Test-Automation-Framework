@@ -29,7 +29,12 @@ runSession('Login Fallido Reiterado y Exitoso', async ({ driver, opts, log }) =>
   await login.failLogin(invalidAttempts, validCredentials);
 
   log.info("✅ Login exitoso luego de 2 intentos fallidos verificado correctamente.");
-});
+},
+  {
+    epic: "Login",
+    feature: "Failed Login",
+    severity: "normal",
+  });
 
 import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";

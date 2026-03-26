@@ -1,7 +1,7 @@
 /**
  * VideoDataFactory.ts
  *
- * Genera fixtures dinámicos para Video YouTube y Video Nativo.
+ * Genera fixtures dinámicos para Video YouTube, Video Nativo y Video Embebido.
  * Reemplaza los arrays estáticos de src/data_test/videoData.ts.
  * Cada llamada produce datos únicos para evitar colisiones entre tests.
  *
@@ -31,6 +31,14 @@ export interface NativeVideoData extends VideoData {
   // Campo PROHIBIDO: url
 }
 
+export interface EmbeddedVideoData extends VideoData {
+  video_type: VideoType.EMBEDDED;
+  url: string;       // URL de iframe embebido: https://www.youtube.com/embed/... u otros proveedores
+  title: string;
+  description: string; // Obligatorio (a diferencia de YouTube y Nativo que lo tienen como opcional)
+  // Campo PROHIBIDO: path
+}
+
 // ─── Pools de IDs de YouTube reales (videos educativos/tech de dominio público) ──
 
 /**
@@ -49,6 +57,29 @@ const YOUTUBE_VIDEO_IDS = [
   '09R8_2nJtjg',
   '3tmd-ClpJxA',
   'hT_nvWreIhg',
+];
+
+/**
+ * URLs de iframes embebidos verificados de múltiples proveedores.
+ * El formato difiere según la plataforma:
+ *   - YouTube:  /embed/{id}
+ *   - Vimeo:    /video/{id}
+ *   - Dailymotion: /embed/video/{id}
+ * Podés reemplazar estas URLs por iframes propios del CMS que estés probando.
+ */
+const EMBEDDED_IFRAME_URLS = [
+  // YouTube embed
+  'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  'https://www.youtube.com/embed/jNQXAC9IVRw',
+  'https://www.youtube.com/embed/kJQP7kiw5Fk',
+  'https://www.youtube.com/embed/OPf0YbXqDm0',
+  'https://www.youtube.com/embed/pRpeEdMmmQ0',
+  // Vimeo embed
+  'https://player.vimeo.com/video/76979871',
+  'https://player.vimeo.com/video/148751763',
+  // Dailymotion embed
+  'https://www.dailymotion.com/embed/video/x7tgd9g',
+  'https://www.dailymotion.com/embed/video/x7ywxrr',
 ];
 
 // ─── Pools de datos en español ─────────────────────────────────────────────────
@@ -159,6 +190,46 @@ export class NativeVideoDataFactory {
     count: number,
     overrides?: Partial<NativeVideoData>
   ): NativeVideoData[] {
+    return Array.from({ length: count }, () => this.create(overrides));
+  }
+}
+
+// ─── EmbeddedVideoDataFactory ──────────────────────────────────────────────────
+
+export class EmbeddedVideoDataFactory {
+  /**
+   * Crea un fixture de Video Embebido con URL de iframe y metadata realista.
+   * La `description` es obligatoria en este tipo (no opcional como en YouTube/Nativo).
+   * El pool incluye iframes de YouTube, Vimeo y Dailymotion.
+   *
+   * Usa `overrides` para forzar campos específicos en un test puntual.
+   *
+   * @example
+   * const video = EmbeddedVideoDataFactory.create();
+   * const videoConUrl = EmbeddedVideoDataFactory.create({ url: 'https://www.youtube.com/embed/ABC123' });
+   */
+  static create(overrides?: Partial<EmbeddedVideoData>): EmbeddedVideoData {
+    const categoria = pickRandom(CATEGORIAS_VIDEO);
+    const tema = pickRandom(TEMAS_VIDEO);
+
+    const defaultData: EmbeddedVideoData = {
+      video_type: VideoType.EMBEDDED,
+      url: pickRandom(EMBEDDED_IFRAME_URLS),
+      title: generateVideoTitle(categoria, tema),
+      description: generateDescription(tema),
+    };
+
+    return { ...defaultData, ...overrides };
+  }
+
+  /**
+   * Crea múltiples videos embebidos únicos.
+   * Útil para tests de paginación o subida en bulk.
+   */
+  static createMany(
+    count: number,
+    overrides?: Partial<EmbeddedVideoData>
+  ): EmbeddedVideoData[] {
     return Array.from({ length: count }, () => this.create(overrides));
   }
 }

@@ -24,6 +24,7 @@ export class MainAIPage {
         await this.ai_post.fillAll(data);
         await this.ai_post.clickOnGenerateBtn();
         await this.ai_post.waitForLoadingPreview();
+        await this.ai_post.isAIFailed();
         await this.ai_post.clickOnDoneBtn();
       } catch (error: any) {
         logger.error(`Error al generar nueva nota IA`, { label: this.config.label, error: error.message });

@@ -29,7 +29,12 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await editor.closeNoteEditor('PUBLISH_ONLY');
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
-});
+},
+    {
+        epic: "Post Component",
+        feature: "LiveBlog",
+        severity: "normal",
+    });
 
 import { LiveBlogDataFactory } from "../src/data_test/factories/index.js";
 import { getAuthUrl } from "../src/core/utils/getAuthURL.js";

@@ -6,13 +6,10 @@ import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
-import { Banners } from "./Banners.js";
 
 export class PublishModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
-
-  private readonly banner: Banners;
 
   private static readonly PUBLISH_CONFIRM_BTN: Locator = By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]');
   private static readonly PUBLISH_CANCEL_BTN: Locator
@@ -21,7 +18,6 @@ export class PublishModal {
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PublishModal"), timeoutMs: 10000 }
-    this.banner = new Banners(driver, this.config);
   }
 
   async clickOnPublishBtn(): Promise<void> {
@@ -29,8 +25,6 @@ export class PublishModal {
       logger.debug('Intentando clickar en el boton de publicar...', { label: this.config.label })
       await this.waitUntilAISummaryGenerated()
       await clickSafe(this.driver, PublishModal.PUBLISH_CONFIRM_BTN, this.config)
-
-      await this.banner.checkBanners(true);
       logger.debug('Clickado el boton de publicar', { label: this.config.label })
     } catch (error: any) {
       logger.error(`Error clickeando el boton de publicar: ${error.message}`, { label: this.config.label, error: error.message })

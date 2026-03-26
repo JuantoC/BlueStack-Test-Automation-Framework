@@ -37,6 +37,11 @@ runSession(
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
     log.info("✅ Prueba de creación de Post exitosa.");
+  },
+  {
+    epic: "AI Post Component",
+    feature: "AI Post",
+    severity: "normal",
   }
 )
 

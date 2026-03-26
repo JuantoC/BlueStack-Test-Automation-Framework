@@ -52,9 +52,6 @@ runSession(
     // 5. Subir un nuevo video youtube
     await video.uploadNewVideo(newYoutubeData);
 
-    const videos = await video.getVideoContainers(1);
-    await video.selectAndPublishFooter(videos);
-
     // 6. Volver a la página de posts (noticias)
     await sidebar.goToComponent(SidebarOption.NEWS);
 
@@ -66,10 +63,15 @@ runSession(
     // 9. Publicarla y salir
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
+    await sidebar.goToComponent(SidebarOption.VIDEOS)
+
+    const videos = await video.getVideoContainers(1);
+    await video.selectAndPublishFooter(videos);
+
     log.info("✅ Flujo de creación de Post, subida de video YouTube y edición completado exitosamente.");
   },
   {
-    epic: "Content Management",
+    epic: "Post & Video Component",
     feature: "Cross-Component Workflow",
     severity: "critical",
   }

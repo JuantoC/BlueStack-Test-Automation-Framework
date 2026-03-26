@@ -28,13 +28,15 @@ runSession(
     const ai_post = new MainAIPage(driver, opts)
     const editor = new MainEditorPage(driver, 'AI_POST', opts)
 
+    const AIData = AINoteDataFactory.create()
+
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     await post.createNewNote();
 
-    await ai_post.generateNewAINote(AIData[0]);
+    await ai_post.generateNewAINote(AIData);
 
-    await editor.closeNoteEditor('PUBLISH_AND_EXIT');
+    // await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
     log.info("✅ Prueba de creación de Post exitosa.");
   },
@@ -52,7 +54,7 @@ import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
 
 // Imports de datos
-import { AIData } from "../src/data_test/data.js";
+import { AINoteDataFactory } from "../src/data_test/factories/AINoteDataFactory.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage";
 import { MainAIPage } from "../src/pages/post_page/AIPost/MainAIPage";

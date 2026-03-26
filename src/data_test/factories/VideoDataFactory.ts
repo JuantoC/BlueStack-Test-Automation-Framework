@@ -20,7 +20,7 @@ export interface YoutubeVideoData extends VideoData {
   url: string;       // URL válida de YouTube: https://www.youtube.com/watch?v=...
   title: string;
   description?: string;
-  // Campo PROHIBIDO: path
+  // Campo PROHIBIDO: path, iframe
 }
 
 export interface NativeVideoData extends VideoData {
@@ -28,15 +28,15 @@ export interface NativeVideoData extends VideoData {
   title: string;
   path: string;      // Ruta relativa desde raíz del proyecto: src/data_test/archivo.mp4
   description?: string;
-  // Campo PROHIBIDO: url
+  // Campo PROHIBIDO: url, iframe
 }
 
 export interface EmbeddedVideoData extends VideoData {
   video_type: VideoType.EMBEDDED;
-  url: string;       // URL de iframe embebido: https://www.youtube.com/embed/... u otros proveedores
+  iframe: string;       // URL de iframe embebido: https://www.youtube.com/embed/... u otros proveedores
   title: string;
-  description: string; // Obligatorio (a diferencia de YouTube y Nativo que lo tienen como opcional)
-  // Campo PROHIBIDO: path
+  description?: string; // Obligatorio (a diferencia de YouTube y Nativo que lo tienen como opcional)
+  // Campo PROHIBIDO: path, url
 }
 
 // ─── Pools de IDs de YouTube reales (videos educativos/tech de dominio público) ──
@@ -69,17 +69,17 @@ const YOUTUBE_VIDEO_IDS = [
  */
 const EMBEDDED_IFRAME_URLS = [
   // YouTube embed
-  'https://www.youtube.com/embed/dQw4w9WgXcQ',
-  'https://www.youtube.com/embed/jNQXAC9IVRw',
-  'https://www.youtube.com/embed/kJQP7kiw5Fk',
-  'https://www.youtube.com/embed/OPf0YbXqDm0',
-  'https://www.youtube.com/embed/pRpeEdMmmQ0',
+  '<iframe width="560" height="315" src="https://www.youtube.com/embed/PPViqH0fmW0?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://www.youtube.com/embed/jNQXAC9IVRw?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://www.youtube.com/embed/kJQP7kiw5Fk?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://www.youtube.com/embed/OPf0YbXqDm0?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://www.youtube.com/embed/pRpeEdMmmQ0?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
   // Vimeo embed
-  'https://player.vimeo.com/video/76979871',
-  'https://player.vimeo.com/video/148751763',
+  '<iframe width="560" height="315" src="https://player.vimeo.com/video/76979871?si=Od6dWSUqCN6eq60Z" title="Vimeo video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://player.vimeo.com/video/148751763?si=Od6dWSUqCN6eq60Z" title="Vimeo video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
   // Dailymotion embed
-  'https://www.dailymotion.com/embed/video/x7tgd9g',
-  'https://www.dailymotion.com/embed/video/x7ywxrr',
+  '<iframe width="560" height="315" src="https://www.dailymotion.com/embed/video/x7tgd9g?si=Od6dWSUqCN6eq60Z" title="Dailymotion video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="560" height="315" src="https://www.dailymotion.com/embed/video/x7ywxrr?si=Od6dWSUqCN6eq60Z" title="Dailymotion video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
 ];
 
 // ─── Pools de datos en español ─────────────────────────────────────────────────
@@ -214,7 +214,7 @@ export class EmbeddedVideoDataFactory {
 
     const defaultData: EmbeddedVideoData = {
       video_type: VideoType.EMBEDDED,
-      url: pickRandom(EMBEDDED_IFRAME_URLS),
+      iframe: pickRandom(EMBEDDED_IFRAME_URLS),
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
     };

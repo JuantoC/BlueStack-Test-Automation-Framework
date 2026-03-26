@@ -15,9 +15,8 @@ runSession(
 5. Subida de un nuevo video tipo YouTube con datos frescos.
 6. Busqueda y publicacion del ultimo video de la tabla.
 7. Navegación de regreso al componente de Noticias.
-8. Edición inline del título del Post creado en el paso 2.
-9. Re-ingreso al editor del Post.
-10. Publicación del Post (\`PUBLISH_AND_EXIT\`).
+8. Re-ingreso al editor del Post.
+9. Publicación del Post (\`PUBLISH_AND_EXIT\`).
 
 > **Resultado esperado:** El Post original se crea, el video se sube correctamente, y luego el Post se edita y publica exitosamente.
 `);
@@ -43,7 +42,7 @@ runSession(
 
     await editor.fillFullNote(newPostData);
 
-    // 3. Salir con el botón back_and_save (BACK_SAVE_AND_EXIT)
+    // 3. Salir
     await editor.closeNoteEditor('BACK_SAVE_AND_EXIT');
 
     // 4. Ingresar al componente de videos
@@ -54,9 +53,6 @@ runSession(
 
     // 6. Volver a la página de posts (noticias)
     await sidebar.goToComponent(SidebarOption.NEWS);
-
-    // 7. Encontrar la nota subida previamente y cambiarle el titulo inline
-    await post.changePostTitle(newPostData.title!);
 
     await post.enterToEditorPage(newPostData.title!);
 

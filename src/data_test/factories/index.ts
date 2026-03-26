@@ -19,7 +19,6 @@ export type {
   ListicleData,
   ListicleItem,
   LiveBlogData,
-
 } from './NoteDataFactory.js';
 
 export {
@@ -34,3 +33,11 @@ export type {
   NativeVideoData,
   EmbeddedVideoData,
 } from './VideoDataFactory.js';
+
+export {
+  AINoteDataFactory,
+} from './AINoteDataFactory.js';
+
+export type {
+  AINoteData,
+} from './AINoteDataFactory.js';

@@ -35,6 +35,7 @@ export interface NoteData {
 export interface VideoData {
   video_type: VideoType
   url?: string;
+  iframe?: string;
   title: string;
   description?: string;
   path?: string;

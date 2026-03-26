@@ -144,7 +144,7 @@ export class AIPostModal {
   }
 
   async isAIFailed() {
-    logger.debug("Esperando a que termine de cargar el preview", { label: this.config.label });
+    logger.debug("Revisando si fallo el preview...", { label: this.config.label });
     const error = await this.driver.findElements(AIPostModal.ERROR_STATUS_CONTAINER);
     if (error.length > 0) {
       const errorH3 = await error[0].findElement(By.css('h3')).getText();

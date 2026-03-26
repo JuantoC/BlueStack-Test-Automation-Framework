@@ -27,6 +27,9 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await editor.fillFullNote(liveBlogData);
     await editor.closeNoteEditor('SAVE_ONLY');
     await editor.closeNoteEditor('PUBLISH_ONLY');
+    await editor.settings.selectSectionOption(1);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
+    await post.changePostTitle(liveBlogData.title)
 
     log.info("✅ Prueba de creación de LiveBlog exitosa.");
 },

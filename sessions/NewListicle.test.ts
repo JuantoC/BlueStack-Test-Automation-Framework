@@ -30,7 +30,7 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
   await editor.closeNoteEditor('SAVE_AND_EXIT');
 
   await post.enterToEditorPage(listicleData.title!);
-
+  await editor.settings.selectSectionOption(1);
   await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
   log.info("✅ Prueba de creación de Listicle exitosa.");

@@ -36,8 +36,6 @@ runSession(
     // 5. Subir un nuevo video youtube
     await video.uploadNewVideo(newYoutubeData);
 
-    await sidebar.goToComponent(SidebarOption.VIDEOS)
-
     await video.changeVideoTitle(newYoutubeData.title!);
     /*  const videos = await video.getVideoContainers(1);
      await video.selectAndPublishFooter(videos);

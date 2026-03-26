@@ -1,9 +1,9 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
-import { writeSafe } from "../../../core/actions/writeSafe.js";
-import logger from "../../../core/utils/logger.js";
-import { LiveBlogData } from "./noteList/BaseListicleSection.js";
+import { stackLabel } from "../../../../core/utils/stackLabel.js";
+import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
+import { writeSafe } from "../../../../core/actions/writeSafe.js";
+import logger from "../../../../core/utils/logger.js";
+import { LiveBlogData } from "./BaseListicleSection.js";
 import { step } from "allure-js-commons";
 
 export enum LiveBlogEventField {
@@ -13,7 +13,7 @@ export enum LiveBlogEventField {
     EVENT_ADDRESS = 'EVENT_ADDRESS'
 }
 
-export class EditorLiveBlogEventSection {
+export class LiveBlogEventSection {
     private driver: WebDriver;
     private config: RetryOptions;
 
@@ -27,7 +27,7 @@ export class EditorLiveBlogEventSection {
 
     constructor(driver: WebDriver, opts: RetryOptions) {
         this.driver = driver;
-        this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorLiveBlogEventSection") };
+        this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "LiveBlogEventSection") };
     }
 
     async fillEventTitle(value: LiveBlogData): Promise<void> {
@@ -38,7 +38,7 @@ export class EditorLiveBlogEventSection {
                     return;
                 }
                 logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
-                await writeSafe(this.driver, EditorLiveBlogEventSection.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
+                await writeSafe(this.driver, LiveBlogEventSection.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
             } catch (error: any) {
                 logger.error(`Error en fillEventTitle: ${error.message}`, { label: this.config.label, error: error.message });
                 throw error;

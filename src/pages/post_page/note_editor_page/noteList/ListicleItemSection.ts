@@ -1,16 +1,16 @@
 import { WebDriver } from "selenium-webdriver";
 import { BaseListicleSection, LiveBlogData } from "./BaseListicleSection.js";
 import { LiveBlogStrategy, StandardStrategy } from "./ListicleStrategy.js";
-import { EditorLiveBlogEventSection } from "../EditorLiveBlogEventSection.js";
+import { LiveBlogEventSection } from "./LiveBlogEventSection.js";
 import logger from "../../../../core/utils/logger.js";
 import { RetryOptions } from "../../../../core/config/defaultConfig.js";
 
 export class LiveBlogSection extends BaseListicleSection {
-  private eventSection: EditorLiveBlogEventSection;
+  private eventSection: LiveBlogEventSection;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     super(driver, LiveBlogStrategy, opts);
-    this.eventSection = new EditorLiveBlogEventSection(driver, this.config);
+    this.eventSection = new LiveBlogEventSection(driver, this.config);
   }
 
   /**

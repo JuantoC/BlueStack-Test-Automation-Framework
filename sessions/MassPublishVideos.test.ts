@@ -1,17 +1,17 @@
 runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
 
   description(`
-### Test: Crear un video Nativo, uno YouTube, y editar el titulo inline.
+### Test: Crear un video Nativo, YouTube y Embedded, editar el titulo inline de cada uno de ellos y publicarlos.
 ---
-**Objetivo:** Validar la subida de estos 2 tipos de videos, la mecanica de editar inline y su correcta publicacion.
+**Objetivo:** Validar la subida de estos 3 tipos de videos, la mecanica de editar inline y su correcta publicacion.
 
 **Flujo de pasos:**
 1. Navegación hacia el componente de Videos
-2. Subida dinamica del video Nativo
-3. Modificación de título desde el listado.
-4. Subida del video YouTube
-5. Modificación de título desde el listado.
-6. Publicacion de los ultimos 2 videos subidos.
+2. Subida del video Nativo
+3. Subida del video YouTube
+4. Subida del video Embedded
+5. Modificación de los títulos de los 3 videos desde el listado.
+6. Publicacion de los 3 videos subidos.
 
 > **Resultado esperado:** los videos deben de conservar la informacion insertada y publicarse adecuadamente.
 `);
@@ -33,12 +33,13 @@ runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
   await sidebar.goToComponent(SidebarOption.VIDEOS);
 
   await video.uploadNewVideo(nativeVideoData);
-  await video.changeVideoTitle(nativeVideoData.title!);
 
   await video.uploadNewVideo(youtubeVideoData);
-  await video.changeVideoTitle(youtubeVideoData.title!);
 
   await video.uploadNewVideo(embeddedVideoData);
+
+  await video.changeVideoTitle(nativeVideoData.title!);
+  await video.changeVideoTitle(youtubeVideoData.title!);
   await video.changeVideoTitle(embeddedVideoData.title!);
 
   //await video.selectAndPublishFooter(await video.getVideoContainers(3));

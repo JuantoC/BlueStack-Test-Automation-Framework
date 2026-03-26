@@ -50,13 +50,16 @@ const YOUTUBE_VIDEO_IDS = [
   'dQw4w9WgXcQ',
   'jNQXAC9IVRw',
   'kJQP7kiw5Fk',
-  'OPf0YbXqDm0',
   'pRpeEdMmmQ0',
   'L_jWHffIx5E',
-  'fJ9rUzIMcZQ',
   '09R8_2nJtjg',
   '3tmd-ClpJxA',
   'hT_nvWreIhg',
+  '4TYv2PhG89A',
+  'h9AHQV3pPn8',
+  'YlUKcNNmywk',
+  'bpOSxM0rNPM',
+  'a5uQMwRMHcs',
 ];
 
 /**
@@ -74,6 +77,12 @@ const EMBEDDED_IFRAME_URLS = [
   '<iframe width="560" height="315" src="https://www.youtube.com/embed/kJQP7kiw5Fk?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
   '<iframe width="560" height="315" src="https://www.youtube.com/embed/OPf0YbXqDm0?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
   '<iframe width="560" height="315" src="https://www.youtube.com/embed/pRpeEdMmmQ0?si=Od6dWSUqCN6eq60Z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="795" height="596" src="https://www.youtube.com/embed/4TYv2PhG89A?list=RDfJ9rUzIMcZQ" title="Sade - Smooth Operator - Official - 1984" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="1060" height="596" src="https://www.youtube.com/embed/SqB4FSettTI?list=RDfJ9rUzIMcZQ" title="Héroes del Silencio - Maldito duende" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="1060" height="596" src="https://www.youtube.com/embed/SqB4FSettTI?list=RDfJ9rUzIMcZQ" title="Héroes del Silencio - Maldito duende" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="894" height="596" src="https://www.youtube.com/embed/xFTvBkcXKEg?list=RDfJ9rUzIMcZQ" title="FITO PAEZ - Al lado del camino" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+  '<iframe width="601" height="596" src="https://www.youtube.com/embed/foD6ioXC6dk?list=RDfJ9rUzIMcZQ" title="Perdido En Ti (Album Version)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+
   // Vimeo embed
   '<iframe width="560" height="315" src="https://player.vimeo.com/video/76979871?si=Od6dWSUqCN6eq60Z" title="Vimeo video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
   '<iframe width="560" height="315" src="https://player.vimeo.com/video/148751763?si=Od6dWSUqCN6eq60Z" title="Vimeo video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
@@ -125,13 +134,13 @@ export class YoutubeVideoDataFactory {
    * const videoConUrl = YoutubeVideoDataFactory.create({ url: 'https://www.youtube.com/watch?v=ABC123' });
    */
   static create(overrides?: Partial<YoutubeVideoData>): YoutubeVideoData {
+    const videoId = pickRandom(YOUTUBE_VIDEO_IDS);
     const categoria = pickRandom(CATEGORIAS_VIDEO);
     const tema = pickRandom(TEMAS_VIDEO);
-    const videoId = pickRandom(YOUTUBE_VIDEO_IDS);
 
     const defaultData: YoutubeVideoData = {
-      video_type: VideoType.YOUTUBE,
       url: `https://www.youtube.com/watch?v=${videoId}`,
+      video_type: VideoType.YOUTUBE,
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
     };

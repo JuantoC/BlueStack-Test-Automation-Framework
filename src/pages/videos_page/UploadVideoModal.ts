@@ -72,9 +72,9 @@ export class UploadVideoModal {
   async fillAll(data: Partial<VideoData>): Promise<void> {
     await step("Rellenar campos del modal de subida de video", async () => {
       const textMapping: Array<{ key: keyof VideoData; type: UploadVideoModalFields }> = [
+        { key: 'url', type: UploadVideoModalFields.URL_YOUTUBE },
         { key: 'title', type: UploadVideoModalFields.TITLE_INPUT },
         { key: 'description', type: UploadVideoModalFields.DESCRIPTION_INPUT },
-        { key: 'url', type: UploadVideoModalFields.URL_YOUTUBE },
         { key: 'path', type: UploadVideoModalFields.FILE_UPLOAD_INPUT },
         { key: 'iframe', type: UploadVideoModalFields.IFRAME_URL },
       ];

@@ -96,17 +96,17 @@ export class MainPostPage {
     });
   }
 
-  async createNewNote() {
-    await step(`Crear nueva nota ${this.noteType}`, async () => {
+  async createNewNote(newNoteType: NoteType = this.noteType) {
+    await step(`Crear nueva nota ${newNoteType}`, async () => {
       try {
-        logger.info(`Abriendo modal para nueva nota: ${this.noteType}`, { label: this.config.label });
-        await this.createBtn.selectNoteType(this.noteType);
+        logger.info(`Abriendo modal para nueva nota: ${newNoteType}`, { label: this.config.label });
+        await this.createBtn.selectNoteType(newNoteType);
 
         await this.banner.checkBanners(false);
 
-        logger.info(`Nueva nota tipo: ${this.noteType} creada exitosamente`, { label: this.config.label });
+        logger.info(`Nueva nota tipo: ${newNoteType} creada exitosamente`, { label: this.config.label });
       } catch (error: any) {
-        logger.error(`Error en flujo de creación [${this.noteType}]: ${error.message}`, { label: this.config.label });
+        logger.error(`Error en flujo de creación [${newNoteType}]: ${error.message}`, { label: this.config.label });
         throw error;
       }
     });

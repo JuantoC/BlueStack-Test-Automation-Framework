@@ -44,12 +44,20 @@ function pickRandom<T>(arr: readonly T[]): T {
 }
 
 /** section, tone y language son IDs de combos: cualquier valor entre 0–3 es válido en tests. */
-function randomComboId(): number {
+function randomSectionID(): number {
   return Math.floor(Math.random() * 4); // 0, 1, 2 o 3
+}
+/** section, tone y language son IDs de combos: cualquier valor entre 0–3 es válido en tests. */
+function randomToneID(): number {
+  return Math.floor(Math.random() * 4); // 0, 1, 2 o 3
+}
+/** section, tone y language son IDs de combos: cualquier valor entre 0–3 es válido en tests. */
+function randomLanguageID(): number {
+  return Math.floor(Math.random() * 2); // 0, 1
 }
 
 /** Párrafos: entre 1 y 8 por defecto, controlable vía overrides. */
-function randomParagraphs(min = 1, max = 8): number {
+function randomParagraphs(min = 3, max = 15): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -243,10 +251,10 @@ export class AINoteDataFactory {
     const defaultData: AIDataNote = {
       task: pickRandom(pool.tasks),
       context: pickRandom(pool.contexts),
-      section: randomComboId(),
+      section: randomSectionID(),
       paragraph: randomParagraphs(),
-      tone: randomComboId(),
-      language: randomComboId(),
+      tone: randomToneID(),
+      language: randomLanguageID(),
     };
 
     return { ...defaultData, ...overrides };

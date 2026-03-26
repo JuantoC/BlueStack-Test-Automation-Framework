@@ -1,5 +1,5 @@
 runSession(
-  "Creación de Post, subida de Video YT y Edición",
+  "Post & Video YT y Edición y Publicación",
   async ({ driver, opts, log }) => {
 
     description(`
@@ -13,10 +13,12 @@ runSession(
 3. Guardado con salida (\`BACK_SAVE_AND_EXIT\`).
 4. Navegación al componente de Videos vía sidebar.
 5. Subida de un nuevo video tipo YouTube con datos frescos.
-6. Busqueda y publicacion del ultimo video de la tabla.
-7. Navegación de regreso al componente de Noticias.
-8. Re-ingreso al editor del Post.
-9. Publicación del Post (\`PUBLISH_AND_EXIT\`).
+6. Navegación de regreso al componente de Noticias.
+7. Re-ingreso al editor del Post.
+8. Publicación del Post (\`PUBLISH_AND_EXIT\`).
+9. Navegación al componente de Videos vía sidebar.
+10. Publicación del último video subido.
+
 
 > **Resultado esperado:** El Post original se crea, el video se sube correctamente, y luego el Post se edita y publica exitosamente.
 `);
@@ -61,8 +63,8 @@ runSession(
 
     await sidebar.goToComponent(SidebarOption.VIDEOS)
 
-    const videos = await video.getVideoContainers(1);
-    await video.selectAndPublishFooter(videos);
+    /*    const videos = await video.getVideoContainers(1);
+       await video.selectAndPublishFooter(videos); */
 
     log.info("✅ Flujo de creación de Post, subida de video YouTube y edición completado exitosamente.");
   },

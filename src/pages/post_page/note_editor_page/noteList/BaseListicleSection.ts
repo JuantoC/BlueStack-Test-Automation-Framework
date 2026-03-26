@@ -95,6 +95,8 @@ export abstract class BaseListicleSection {
       for (let i = 1; i < normalizedItems.length; i++) {
         await clickSafe(this.driver, BaseListicleSection.CREATE_MENU_BTN, this.config);
         await clickSafe(this.driver, BaseListicleSection.ADD_OPT, this.config);
+        // Espera a que se abra el editor del nuevo item
+        await sleep(300)
       }
 
       // 3. Poblar datos (orden DOM real)
@@ -128,4 +130,5 @@ import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
 import { NoteData } from "../../../../interfaces/data.js";
 import { step } from "allure-js-commons";
+import { sleep } from "../../../../core/utils/backOff.js";
 

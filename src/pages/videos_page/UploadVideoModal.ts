@@ -15,6 +15,7 @@ import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { VideoType } from "./UploadVideoBtn.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
+import { Banners } from "../modals/Banners.js";
 
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
@@ -43,6 +44,8 @@ export class UploadVideoModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly image: CKEditorImageModal
+  private readonly banner: Banners;
+
 
   private static readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
     [UploadVideoModalFields.URL_YOUTUBE]: By.css('div#url-details input[data-testid="url-youtube"]'),
@@ -60,6 +63,8 @@ export class UploadVideoModal {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "UploadVideoModal") }
     this.image = new CKEditorImageModal(this.driver, this.config)
+    this.banner = new Banners(this.driver, this.config);
+
   }
 
   /**
@@ -144,7 +149,7 @@ export class UploadVideoModal {
           if (Date.now() - startTime > timeoutMs) {
             throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
           }
-          await sleep(500);
+          await sleep(200);
         }
       } catch (error: any) {
         logger.error(`Error verificando barra de progreso: ${error.message}`, { label: this.config.label, error: error.message });
@@ -172,7 +177,11 @@ export class UploadVideoModal {
     try {
       const progress = await progressBar.getAttribute('aria-valuenow');
       logger.debug(`Progreso actual: ${progress}`, { label: this.config.label });
-      return progress === '100';
+      if (progress === '100') {
+        await this.banner.checkBanners(true);
+        return true;
+      }
+      return false;
     } catch (error: any) {
       logger.error(`Error verificando barra de progreso completa: ${error.message}`, { label: this.config.label, error: error.message });
       throw error;

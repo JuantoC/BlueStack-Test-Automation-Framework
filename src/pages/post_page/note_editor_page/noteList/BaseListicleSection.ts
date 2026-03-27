@@ -96,7 +96,7 @@ export abstract class BaseListicleSection {
         await clickSafe(this.driver, BaseListicleSection.CREATE_MENU_BTN, this.config);
         await clickSafe(this.driver, BaseListicleSection.ADD_OPT, this.config);
         // Espera a que se abra el editor del nuevo item
-        await sleep(300)
+        await sleep(500)
       }
 
       // 3. Poblar datos (orden DOM real)

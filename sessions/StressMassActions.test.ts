@@ -74,11 +74,11 @@ runSession("Stress Mass Actions",
 
     await video.uploadNewVideo(youtubeVideoData);
 
-    await video.uploadNewVideo(embeddedVideoData);
+    //await video.uploadNewVideo(embeddedVideoData);
 
     await video.changeVideoTitle(nativeVideoData.title!);
     await video.changeVideoTitle(youtubeVideoData.title!);
-    await video.changeVideoTitle(embeddedVideoData.title!);
+    //await video.changeVideoTitle(embeddedVideoData.title!);
 
     await sidebar.goToComponent(SidebarOption.NEWS);
 

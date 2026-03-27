@@ -71,15 +71,14 @@ export class MainVideoPage {
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 
-        if (videoData.video_type === VideoType.NATIVO) {
-          const isError = await this.banner.checkBanners(false);
-          if (isError) {
-            return
-          }
-          await this.uploadModal.checkProgressBar()
+        const isError = await this.banner.checkBanners(false);
+        if (isError) {
+          return
         }
 
-        await this.banner.checkBanners(true);
+        if (videoData.video_type === VideoType.NATIVO) {
+          await this.uploadModal.checkProgressBar()
+        }
 
         await this.table.waitForNewVideoAtIndex0(videoData.title);
 

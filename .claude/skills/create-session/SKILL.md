@@ -228,7 +228,7 @@ Solo importar `AINoteData` si el test usa `MainAIPage`.
 
 Sub-components por sección (bajar solo si se necesita más contexto):
 
-- `login_page/` → `LoginSection.ts`, `TwoFaSection.ts`
+- `login_page/` → `LoginSection.ts`, `TwoFASection.ts`
 - `post_page/` → `PostTable.ts`, `NewNoteBtn.ts`
 - `post_page/note_editor_page/` → `EditorHeaderActions.ts`, `EditorTextSection.ts`, `EditorTagsSection.ts`, `EditorAuthorSection.ts` `EditorLateralSettings.ts`, `EditorImagesSection.ts`, `noteList/BaseListicleSection.ts`, `noteList/ListicleItemSection.ts`
 - `videos_page/` → `VideoTable.ts`, `UploadVideoBtn.ts`, `UploadVideoModal.ts`, `VideoActions.ts`, `FooterActions.ts`

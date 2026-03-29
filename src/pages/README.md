@@ -29,7 +29,7 @@ src/pages/
 ├── login_page/
 │   ├── MainLoginPage.ts
 │   ├── LoginSection.ts
-│   └── TwoFaSection.ts
+│   └── TwoFASection.ts
 ├── post_page/
 │   ├── AIPost/
 │   │   └── MainAIPage.ts          # Maestro — generación de notas con IA

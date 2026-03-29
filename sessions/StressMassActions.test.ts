@@ -37,31 +37,29 @@ runSession("Stress Mass Actions",
     const login = new MainLoginPage(driver, opts);
     const video = new MainVideoPage(driver, opts);
     const sidebar = new SidebarAndHeader(driver, opts);
+    const ai = new MainAIPage(driver, opts);
 
     // PO instantiation
     const postPage = new MainPostPage(driver, 'POST', opts);
-    const editorPost = new MainEditorPage(driver, 'POST', opts);
-    const editorListicle = new MainEditorPage(driver, 'LISTICLE', opts);
-    const editorLiveBlog = new MainEditorPage(driver, 'LIVEBLOG', opts);
-    const ai = new MainAIPage(driver, opts);
+    const editor = new MainEditorPage(driver, 'POST', opts);
 
     // Login
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // --- POST ---
     await postPage.createNewNote();
-    await editorPost.fillFullNote(postData);
-    await editorPost.closeNoteEditor('BACK_SAVE_AND_EXIT');
+    await editor.fillFullNote(postData);
+    await editor.closeNoteEditor('BACK_SAVE_AND_EXIT');
 
     // --- LISTICLE ---
     await postPage.createNewNote('LISTICLE');
-    await editorListicle.fillFullNote(listicleData);
-    await editorListicle.closeNoteEditor('SAVE_AND_EXIT');
+    await editor.fillFullNote(listicleData);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- LIVEBLOG ---
     await postPage.createNewNote('LIVEBLOG');
-    await editorLiveBlog.fillFullNote(liveBlogData);
-    await editorLiveBlog.closeNoteEditor('SAVE_AND_EXIT');
+    await editor.fillFullNote(liveBlogData);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- INLINE EDIT TITLES ---
     await postPage.changePostTitle(postData.title);
@@ -84,7 +82,7 @@ runSession("Stress Mass Actions",
 
     await postPage.createNewNote('AI_POST');
     await ai.generateNewAINote(AIData);
-    await editorPost.closeNoteEditor('SAVE_AND_EXIT');
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- MASS PUBLICATION ---
     const postsContainers = await postPage.getPostContainers(4);

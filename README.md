@@ -120,106 +120,9 @@ EDITOR_PASS=editor_password
 
 ## How to Write a New Test
 
-All test files live in the `sessions/` directory and must follow the naming pattern `*.test.ts`. Jest discovers them automatically via the `testMatch` glob `**/sessions/**/*.test.ts`.
+All test files live in the `sessions/` directory and follow the naming pattern `PascalCase.test.ts`. Jest discovers them automatically via the `testMatch` glob `**/sessions/**/*.test.ts`.
 
-### Step-by-step
-
-**1. Create a new test file** in `sessions/`:
-
-```bash
-sessions/MyNewFeature.test.ts
-```
-
-**2. Generate test data** using the faker-js factories in `src/data_test/factories/`. No static fixture files needed — each factory call produces unique dynamic data.
-
-**3. Write the test** using `runSession()` as the entry point and composing the Page Objects you need, for example:
-
-```typescript
-// sessions/PublishNewPost.test.ts
-
-runSession(
-  "Publish New Post",
-  async ({ driver, opts, log }) => {
-
-    description(`
-### Test: Publicar nuevo post
----
-**Objetivo:** Validar que un post puede crearse, guardarse y publicarse.
-**Flujo:** 
-1. Login
-2. Crear nota
-3. Llenar y guardar
-4. Reingresar y publicar
-
-> **Resultado esperado:** Post publicado y accesible desde el listado.
-    `);
-
-    // 1. Navegar hacia el cms
-    const { user, pass } = ENV_CONFIG.getCredentials("editor");
-    const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
-    await driver.get(authUrl);
-
-    // 2. Generar datos de prueba dinamicos con faker-js
-    const postData = PostDataFactory.create();
-
-    // 3. Instanciar Page Objects
-    const login  = new MainLoginPage(driver, opts);
-    const post   = new MainPostPage(driver, 'POST', opts);
-    const editor = new MainEditorPage(driver, 'POST', opts);
-
-    // 4. Ejecutar el flujo
-    await login.passLoginAndTwoFA({ username: user, password: pass });
-    await post.createNewNote();
-    await editor.fillFullNote(postData);
-    await editor.closeNoteEditor('SAVE_AND_EXIT');
-    await post.enterToEditorPage(postData.title);
-    await editor.closeNoteEditor('PUBLISH_AND_EXIT');
-
-    log.info("✅ Post creado y publicado exitosamente.");
-  },
-  // Metadatos para Allure Opcionales
-  {
-    epic: "Content Management",
-    feature: "Post Creation",
-    severity: "critical",
-  }
-);
-
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { description } from "allure-js-commons";
-import { PostDataFactory } from "../src/data_test/factories/index.js";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
-```
-
-### Key conventions
-
-- **One workflow per file.** Each test file contains a single `runSession()` call.
-- **`runSession()`** wraps the Jest `test()` call, handles driver lifecycle, automatic screenshots on failure, and network error detection.
-- **`opts`** carries retry configuration and is passed to every Page Object constructor.
-- **Dynamic data only.** Use faker-js factories from `src/data_test/factories/`. No static data objects.
-- **Imports go at the bottom** of the file, after the `runSession()` call — this is a project convention.
-- **Imports** Always `.js` extension on internal imports
-- **Allure metadata** (`epic`, `feature`, `severity`, `tags`, `issueId`) is supplied as the optional third argument to `runSession()`.
-
----
-
-## Test Data
-
-All test data is generated dynamically via **faker-js** factories located in `src/data_test/factories/`.
-
-| Factory | Usage |
-|---|---|
-| `PostDataFactory` | Creates data for Post, fills title/body/tags/author |
-| `ListicleDataFactory` | Creates data for Listicle, supports `itemCount` override |
-| `LiveBlogDataFactory` | Creates data for LiveBlog, supports `entryCount` override |
-| `YoutubeVideoDataFactory` | Creates YouTube video data with random URL from pool |
-| `NativeVideoDataFactory` | Creates native video data, references files in `src/data_test/videos/` |
-
-For AI-generated posts (`MainAIPage`), use the `AINoteData` interface from `src/interfaces/data.ts` and pass a partial object with the desired prompt fields.
+For the full specification — `runSession()` API, `TestContext`, `TestMetadata`, canonical file structure, factory API, Allure conventions, and a complete worked example — see **[sessions/README.md](sessions/README.md)**.
 
 ---
 
@@ -381,5 +284,6 @@ Skills automatizadas invocables en Claude Code para tareas recurrentes del proye
 
 ## 🔗 Documentación relacionada
 
+- [sessions/README.md](sessions/README.md) — catálogo de tests, API de `runSession`, factories de datos y convenciones de escritura de sesiones
 - [src/pages/README.md](src/pages/README.md) — especificación autoritativa de la capa Page Object: arquitectura, contratos, naming y tipos
 - [src/core/README.md](src/core/README.md) — motor del framework: acciones, retry, configuración del driver, errores, utilidades y wrapper del ciclo de vida del test

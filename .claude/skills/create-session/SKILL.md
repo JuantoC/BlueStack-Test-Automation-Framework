@@ -203,7 +203,7 @@ El archivo referenciado en `path` debe existir vía Git LFS o paso AWS en CI.
 Para tests que involucren `MainAIPage`, la data **no** viene de faker-js sino de la interfaz `AINoteData` definida en `src/interfaces/data.ts`. Se pasa un objeto parcial con los prompts deseados:
 
 ```typescript
-import { AINoteData } from "../src/interfaces/data.ts";
+import { AINoteData } from "../src/interfaces/data.js";
 
 const aiData: Partial<AINoteData> = { /* campos de prompts */ };
 await aiPage.generateNewAINote(aiData);

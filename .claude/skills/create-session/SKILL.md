@@ -232,7 +232,7 @@ Sub-components por sección (bajar solo si se necesita más contexto):
 - `post_page/` → `PostTable.ts`, `NewNoteBtn.ts`
 - `post_page/note_editor_page/` → `EditorHeaderActions.ts`, `EditorTextSection.ts`, `EditorTagsSection.ts`, `EditorAuthorSection.ts` `EditorLateralSettings.ts`, `EditorImagesSection.ts`, `noteList/BaseListicleSection.ts`, `noteList/ListicleItemSection.ts`
 - `videos_page/` → `VideoTable.ts`, `UploadVideoBtn.ts`, `UploadVideoModal.ts`, `VideoActions.ts`, `FooterActions.ts`
-- `modals/` → `CKEditorImageSelector.ts`, `PublishModal.ts`
+- `modals/` → `CKEditorImageModal.ts`, `PublishModal.ts`
 - `AIPost/` → `MainAIPage.ts`
 
 ---

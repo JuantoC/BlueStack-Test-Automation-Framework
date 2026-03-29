@@ -54,7 +54,7 @@ src/pages/
 │   ├── UploadVideoModal.ts
 │   ├── VideoActions.ts            # ActionType type
 ├── modals/
-│   ├── CKEditorImageSelector.ts   # selectImage(index: number)
+│   ├── CKEditorImageModal.ts      # selectImage(index: number)
 │   └── PublishModal.ts            # Lógica de publicación (notas y videos)
 ├── comment_page/
 ├── image_page/
@@ -140,7 +140,7 @@ Shared modal logic lives in `src/pages/modals/` and is invoked by the correspond
 
 | Class | Responsibility |
 |---|---|
-| `CKEditorImageSelector` | Opens the CKEditor image selection modal; exposes `selectImage(index: number): Promise<void>` |
+| `CKEditorImageModal` | Opens the CKEditor image selection modal; exposes `selectImage(index: number): Promise<void>` |
 | `PublishModal` | Handles publish confirmation for both notes and videos; invoked internally by each Maestro |
 
 ---

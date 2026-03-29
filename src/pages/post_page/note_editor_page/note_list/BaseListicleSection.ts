@@ -1,3 +1,15 @@
+import { By, Locator, WebDriver } from "selenium-webdriver";
+import { ListicleStrategy } from "./ListicleStrategy.js";
+import { waitFind } from "../../../../core/actions/waitFind.js";
+import { stackLabel } from "../../../../core/utils/stackLabel.js";
+import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
+import { clickSafe } from "../../../../core/actions/clickSafe.js";
+import { writeSafe } from "../../../../core/actions/writeSafe.js";
+import logger from "../../../../core/utils/logger.js";
+import { NoteData } from "../../../../interfaces/data.js";
+import { step } from "allure-js-commons";
+import { sleep } from "../../../../core/utils/backOff.js";
+
 export type ListicleData = Pick<NoteData, 'listicleItems'>;
 export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 
@@ -65,6 +77,7 @@ export abstract class BaseListicleSection {
    *
    * @param uiIndex - Índice del ítem en el DOM (base 1, tal como lo asigna el CMS).
    * @param target - Estado objetivo: `'expand'` para abrir el ítem, `'collapse'` para cerrarlo.
+   * @returns {Promise<void>}
    */
   async toggleExpansion(uiIndex: number, target: 'expand' | 'collapse') {
 
@@ -102,6 +115,7 @@ export abstract class BaseListicleSection {
    * expande cada ítem y escribe sus campos usando `writeSafe`.
    *
    * @param items - Array de objetos con `title` y/o `body` para cada ítem de la lista.
+   * @returns {Promise<void>}
    */
   async fillItems(items: Array<{ title?: string; body?: string }>) {
     if (!items?.length) return;
@@ -139,16 +153,3 @@ export abstract class BaseListicleSection {
     });
   }
 }
-
-import { By, Locator, WebDriver } from "selenium-webdriver";
-import { ListicleStrategy } from "./ListicleStrategy.js";
-import { waitFind } from "../../../../core/actions/waitFind.js";
-import { stackLabel } from "../../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
-import { clickSafe } from "../../../../core/actions/clickSafe.js";
-import { writeSafe } from "../../../../core/actions/writeSafe.js";
-import logger from "../../../../core/utils/logger.js";
-import { NoteData } from "../../../../interfaces/data.js";
-import { step } from "allure-js-commons";
-import { sleep } from "../../../../core/utils/backOff.js";
-

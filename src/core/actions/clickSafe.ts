@@ -32,7 +32,7 @@ export async function clickSafe(
   return await retry(async () => {
     const internalOpts = { ...config, supressRetry: true };
     try {
-      // 1. Localización
+      // 1. aca estamos intentando romper con la estructura del codigo con un comentario que no tiene sentido para probar hooks de commits. ajiniafn
       const element = (ID instanceof WebElement)
         ? ID
         : await waitFind(driver, ID as Locator, internalOpts);

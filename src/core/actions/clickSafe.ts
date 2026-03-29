@@ -16,7 +16,7 @@ import { Banners } from "../../pages/modals/Banners.js";
  * @param driver - Instancia activa de WebDriver para la sesión actual.
  * @param ID - Locator o WebElement del elemento objetivo. Si es WebElement, omite la búsqueda en el DOM.
  * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
- * @returns {Promise<any>} El elemento objetivo tras confirmar el clic exitoso.
+ * @returns {Promise<WebElement>} El elemento objetivo tras confirmar el clic exitoso.
  */
 export async function clickSafe(
   driver: WebDriver,

@@ -34,9 +34,13 @@ export class MainEditorPage {
   }
 
   /**
-   * Orquestador Principal: Rellena la nota de forma integral.
-   * Coordina la ejecución de cada sub-sección con trazabilidad completa.
-  */
+   * Orquestador Principal: Rellena la nota de forma integral coordinando todas las sub-secciones.
+   * Secuencia: texto → tags → listicle/liveblog (si aplica) → autor → sección → imagen principal.
+   * Monitorea banners entre cada sección para detectar errores de backend de forma temprana.
+   * Adjunta los datos de la nota al reporte Allure como artefacto JSON para trazabilidad.
+   *
+   * @param data - Objeto parcial de `NoteData` con todos los campos a completar en el editor.
+   */
   async fillFullNote(data: Partial<NoteData>): Promise<void> {
     await step(`Rellenado de la nota con datos dinámicos`, async (stepContext) => {
       attachment(`${this.noteType} Data`, JSON.stringify(data, null, 2), "application/json");
@@ -77,8 +81,11 @@ export class MainEditorPage {
 
 
   /**
-   * Flow: Finalización y salida del editor.
-   * Utiliza el getter 'actions' para interactuar con el Header de forma segura.
+   * Ejecuta la acción de cierre del editor (guardar, publicar o salir) delegando en `EditorHeaderActions`.
+   * Para acciones de publicación o guardado simple (`PUBLISH_ONLY`, `SAVE_ONLY`), también
+   * verifica el banner de éxito obligatorio antes de resolver.
+   *
+   * @param exitAction - Tipo de acción de cierre del editor (SAVE_ONLY, PUBLISH_AND_EXIT, etc.).
    */
   async closeNoteEditor(exitAction: NoteExitAction): Promise<void> {
     await step(`Cerrar editor de nota con acción ${exitAction}`, async () => {
@@ -121,7 +128,10 @@ export class MainEditorPage {
   }
 
   /**
-   * Expone acciones del header (Guardar/Publicar) de forma controlada.
+   * Expone la instancia de `EditorHeaderActions` para acceso controlado desde tests.
+   * Permite interactuar directamente con las acciones del header cuando se necesita granularidad.
+   *
+   * @returns {EditorHeaderActions} La instancia compartida del componente de acciones del header.
    */
   public get actions(): EditorHeaderActions {
     return this.header;

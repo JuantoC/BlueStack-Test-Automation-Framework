@@ -15,6 +15,17 @@ export enum SidebarOption {
   VIDEOS = 'VIDEOS'
 }
 
+/**
+ * Sub-componente que representa la barra lateral de navegación y el header del CMS.
+ * Expone navegación hacia las secciones principales del sistema (Noticias, Videos, Imágenes, etc.)
+ * mediante la resolución dinámica del locator correspondiente desde `SIDEBAR_MAP`.
+ * Para secciones multimedia (IMAGES, VIDEOS), orquesta un click previo en el menú colapsable
+ * antes de seleccionar la opción final, utilizando la estrategia de retry del wrapper `retry`.
+ *
+ * @example
+ * const sidebar = new SidebarAndHeader(driver, opts);
+ * await sidebar.goToComponent(SidebarOption.VIDEOS);
+ */
 export class SidebarAndHeader {
   private driver: WebDriver;
   private config: RetryOptions;
@@ -35,6 +46,15 @@ export class SidebarAndHeader {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "SidebarAndHeader") }
   }
 
+  /**
+   * Navega hacia la sección indicada haciendo click en el enlace correspondiente del sidebar.
+   * Para `IMAGES` o `VIDEOS`, delega en `clickOnMultimediaFileBtn` que gestiona el menú colapsable
+   * de multimedia antes de seleccionar la sub-sección. Para el resto, hace click directo en el enlace.
+   * Envuelto en un Allure `step` para trazabilidad en reportes.
+   *
+   * @param component - Sección del CMS a la que se desea navegar.
+   * @returns {Promise<any>} Resuelve cuando la navegación se ha completado.
+   */
   async goToComponent(component: SidebarOption): Promise<any> {
     await step(`Moverse hacia el componente ${component}`, async () => {
       const locator = SidebarAndHeader.SIDEBAR_MAP[component];
@@ -55,6 +75,13 @@ export class SidebarAndHeader {
     });
   }
 
+  /**
+   * Abre el menú colapsable de "Multimedia" y luego hace click en la sub-sección indicada.
+   * Ejecuta la secuencia completa con `supressRetry: true` dentro de un wrapper `retry`
+   * para reintentar desde el primer click si la transición del DOM falla.
+   *
+   * @param action - Sub-sección multimedia a seleccionar: IMAGES o VIDEOS.
+   */
   async clickOnMultimediaFileBtn(action: SidebarOption.IMAGES | SidebarOption.VIDEOS): Promise<void> {
     const newConfig = { ...this.config, supressRetry: true }
     return retry(async () => {

@@ -7,6 +7,11 @@ import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { step } from "allure-js-commons";
 import { CKEditorImageModal } from "../../modals/CKEditorImageModal.js";
 
+/**
+ * Sub-componente que gestiona la sección de imagen principal del Editor de Notas.
+ * Orquesta la apertura del selector de imágenes de CKEditor, la selección por índice
+ * y la escritura de la descripción de la imagen. Consumido por `MainEditorPage.fillFullNote`.
+ */
 export class EditorImageSection {
   private driver: WebDriver
   private config: RetryOptions;
@@ -24,6 +29,13 @@ export class EditorImageSection {
     this.CKEditorSelector = new CKEditorImageModal(driver, opts);
   }
 
+  /**
+   * Hace click en el área de imagen principal para abrir el selector de CKEditor,
+   * selecciona la imagen en el índice indicado y escribe la descripción automática.
+   * Orquesta: `clickOnImageInput` → `CKEditorImageModal.selectImage` → `writeOnMainImageDescription`.
+   *
+   * @param index - Índice de la imagen a seleccionar en el selector (base 0). Por defecto 0.
+   */
   async selectAndWriteMainImage(index: number = 0): Promise<void> {
     await step(`Adjuntar imagen principal en index ${index}`, async () => {
       try {
@@ -40,6 +52,10 @@ export class EditorImageSection {
     });
   }
 
+  /**
+   * Escribe la descripción estándar del framework en el campo de descripción de la imagen principal.
+   * La descripción es fija y sirve como identificador en los reportes de automatización.
+   */
   async writeOnMainImageDescription(): Promise<void> {
     await writeSafe(this.driver, EditorImageSection.MAIN_IMAGE_DESCRIPTION_LOCATOR, "Auto Generated Description by BlueStack_Test_Automation_Framework", this.config);
     logger.debug(`Descripción de la imagen agregada exitosamente`, { label: this.config.label });
@@ -49,6 +65,9 @@ export class EditorImageSection {
   //    HELPERS
   // ==============
 
+  /**
+   * Hace click en el área de añadir imagen principal para abrir el selector de CKEditor.
+   */
   async clickOnImageInput(): Promise<void> {
     await clickSafe(this.driver, EditorImageSection.MAIN_IMAGE_LOCATOR, this.config);
   }

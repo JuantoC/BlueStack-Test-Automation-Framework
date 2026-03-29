@@ -7,6 +7,16 @@ import { waitFind } from "../../core/actions/waitFind.js";
 
 export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
 
+/**
+ * Sub-componente que representa el botón de creación de notas y su menú desplegable de tipos.
+ * Encapsula la apertura del dropdown y la selección dinámica del tipo de nota mediante
+ * comparación de etiquetas multilingüales definidas en `NOTE_TYPE_MAP`.
+ * Utilizado por `MainPostPage` como primer paso del flujo de creación de nota.
+ *
+ * @example
+ * const btn = new NewNoteBtn(driver, opts);
+ * await btn.selectNoteType('POST');
+ */
 export class NewNoteBtn {
   private driver: WebDriver;
   private config: RetryOptions;
@@ -38,6 +48,13 @@ export class NewNoteBtn {
     }
   }
 
+  /**
+   * Abre el dropdown de tipos de nota y selecciona la opción que corresponde al tipo indicado.
+   * Si el dropdown ya está abierto, omite el click de apertura. Localiza la etiqueta correcta
+   * mediante `matchNoteType`, que compara el texto visible contra los alias de `NOTE_TYPE_MAP`.
+   *
+   * @param noteType - Tipo de nota a seleccionar del menú (POST, LISTICLE, LIVEBLOG o AI_POST).
+   */
   async selectNoteType(noteType: NoteType): Promise<void> {
     try {
       await this.clickOnNewNoteButton();

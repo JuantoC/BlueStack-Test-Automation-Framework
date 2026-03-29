@@ -7,6 +7,12 @@ import { waitFind } from "../../core/actions/waitFind.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 
+/**
+ * Sub-componente modal que gestiona la confirmación de publicación de notas y videos en el CMS.
+ * Espera a que el resumen generado por IA (`loadSummary`) desaparezca antes de habilitar
+ * el botón de confirmar, evitando clics prematuros durante la generación del contenido IA.
+ * Consumido internamente por `FooterActions` y `EditorHeaderActions`; no debe invocarse desde tests.
+ */
 export class PublishModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
@@ -20,6 +26,10 @@ export class PublishModal {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PublishModal"), timeoutMs: 10000 }
   }
 
+  /**
+   * Espera a que el resumen IA termine de generarse y hace click en el botón de confirmar publicación.
+   * Orquesta la secuencia: primero `waitUntilAISummaryGenerated`, luego `clickSafe` sobre el botón.
+   */
   async clickOnPublishBtn(): Promise<void> {
     try {
       logger.debug('Intentando clickar en el boton de publicar...', { label: this.config.label })
@@ -32,6 +42,10 @@ export class PublishModal {
     }
   }
 
+  /**
+   * Hace click en el botón de cancelar del modal de publicación.
+   * Espera a que el botón esté disponible e interactuable antes de actuar.
+   */
   async clickOnCancelBtn(): Promise<void> {
     try {
       logger.debug('Intentando clickar en el boton de cancelar...', { label: this.config.label })
@@ -44,6 +58,13 @@ export class PublishModal {
     }
   }
 
+  /**
+   * Aguarda hasta que el indicador de generación del resumen IA desaparezca del DOM.
+   * El CMS muestra un `div.loadSummary` mientras genera el resumen; este método
+   * hace polling hasta que ese elemento ya no esté presente, con un timeout de 30 segundos.
+   *
+   * @returns {Promise<any>} Resuelve cuando el resumen IA ha terminado de generarse.
+   */
   async waitUntilAISummaryGenerated(): Promise<any> {
     try {
       logger.debug('Esperando a que se genere el resumen por IA...', { label: this.config.label })

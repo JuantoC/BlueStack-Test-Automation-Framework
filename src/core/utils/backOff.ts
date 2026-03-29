@@ -1,4 +1,10 @@
 
+/**
+ * Suspende la ejecución del flujo durante un período de tiempo determinado.
+ * Usada por `retry` para introducir pausas entre reintentos con Exponential Backoff.
+ *
+ * @param ms - Duración de la pausa en milisegundos.
+ */
 export async function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }

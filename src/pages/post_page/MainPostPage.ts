@@ -51,6 +51,14 @@ export class MainPostPage {
     });
   }
 
+  /**
+   * Localiza una nota en la tabla por su título y ejecuta el cambio de título inline.
+   * Busca el contenedor con `PostTable.getPostContainerByTitle`, delega la edición en
+   * `PostTable.changePostTitle`, verifica el resultado con `Banners` y espera que el
+   * indicador de carga desaparezca. El flujo completo está envuelto en un `retry`.
+   *
+   * @param title - Fragmento del título actual de la nota a modificar.
+   */
   async changePostTitle(title: string) {
     await step(`Cambiando titulo de la nota inline: "${title}"`, async () => {
       try {
@@ -74,6 +82,13 @@ export class MainPostPage {
     });
   }
 
+  /**
+   * Navega hacia el editor de una nota específica identificada por su título.
+   * Busca el contenedor de la nota con `PostTable.getPostContainerByTitle` y hace click
+   * en el botón de edición. Monitorea banners post-navegación sin esperar éxito obligatorio.
+   *
+   * @param postTitle - Fragmento del título de la nota a abrir en el editor.
+   */
   async enterToEditorPage(postTitle: string) {
     await step(`Entrando a la edicion de la nota: "${postTitle}"`, async () => {
       try {
@@ -96,6 +111,13 @@ export class MainPostPage {
     });
   }
 
+  /**
+   * Crea una nueva nota del tipo indicado mediante el menú desplegable de creación.
+   * Delega en `NewNoteBtn.selectNoteType` y monitorea banners tras la apertura del editor.
+   * Si no se pasa un tipo explícito, usa el `noteType` con el que fue instanciado el Maestro.
+   *
+   * @param newNoteType - Tipo de nota a crear. Por defecto usa el tipo del constructor.
+   */
   async createNewNote(newNoteType: NoteType = this.noteType) {
     await step(`Crear nueva nota ${newNoteType}`, async () => {
       try {

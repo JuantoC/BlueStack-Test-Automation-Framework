@@ -5,8 +5,14 @@ import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
 
 /**
- * Verifica que el elemento no esté en estado 'disabled' en el DOM.
+ * Verifica que el elemento no esté en estado `disabled` en el DOM.
  * Es el último paso de validación antes de intentar una interacción física.
+ * Usada por `waitClickable` como parte del pipeline de validación previa al clic.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param element - WebElement a verificar. Debe estar previamente localizado en el DOM.
+ * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
+ * @returns {Promise<WebElement>} El mismo elemento una vez confirmado como habilitado.
  */
 export async function waitEnabled(
   driver: WebDriver,

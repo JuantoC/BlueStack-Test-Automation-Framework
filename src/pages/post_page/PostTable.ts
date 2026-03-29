@@ -11,6 +11,17 @@ import { waitVisible } from "../../core/actions/waitVisible.js";
 import { sleep } from "../../core/utils/backOff.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
 
+/**
+ * Sub-componente que representa la tabla de notas del CMS.
+ * Centraliza las operaciones sobre filas de la tabla: búsqueda por título o índice,
+ * edición inline del título, selección de posts y espera de nuevos registros.
+ * Usado por `MainPostPage` como capa de acceso a los datos tabulares.
+ *
+ * @example
+ * const table = new PostTable(driver, opts);
+ * const container = await table.getPostContainerByTitle('Mi nota');
+ * await table.clickEditorButton(container);
+ */
 export class PostTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
@@ -30,12 +41,13 @@ export class PostTable {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PostTable") };
   }
-  /*
-    * Selecciona un post específico de la tabla basándose en su índice.
-    * Realiza un scroll suave hasta el elemento antes de interactuar.
-    *
-    * @param postContainer - El WebElement del contenedor del post a seleccionar.
-    */
+  /**
+   * Selecciona el checkbox de un post en la tabla si aún no está marcado.
+   * Verifica el atributo `class` del checkbox para evitar deselecciones accidentales
+   * sobre posts que ya estuvieran seleccionados.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post a seleccionar.
+   */
   async selectPost(postContainer: WebElement): Promise<void> {
     try {
       logger.debug('Iniciando seleccion del post', { label: this.config.label })
@@ -58,6 +70,11 @@ export class PostTable {
   /**
    * Busca en las primeras 10 filas hasta encontrar el título deseado.
    * Retorna el WebElement de la FILA (Container), no del título, para que puedas seguir operando con ella.
+   * Utiliza búsqueda escalonada (contenedor padre → título interno) para evitar IDs duplicados en el DOM.
+   * El flujo completo está envuelto en un `retry` con 2 reintentos ante cambios de DOM de Angular.
+   *
+   * @param title - Fragmento del título de la nota a buscar (comparación por `includes`).
+   * @returns {Promise<WebElement>} Contenedor WebElement de la fila que contiene la nota buscada.
    */
   async getPostContainerByTitle(title: string): Promise<WebElement> {
     const limit = 10;
@@ -102,9 +119,13 @@ export class PostTable {
   }
 
   /**
-    * Modifica el título dinámicamente. Levanta el texto actual y reemplaza el sufijo del framework.
-    * Orquesta la lógica llamando a los helpers específicos.
-    */
+   * Modifica el título inline de una nota reemplazando el sufijo `OLD_SUFFIX` por `NEW_SUFFIX`.
+   * Orquesta la lógica en tres pasos: extracción del título actual (`extractCurrentTitle`),
+   * activación del modo de edición si el input está oculto (`activateEditModeIfNeeded`)
+   * y escritura con validación del nuevo valor (`writeAndValidateTitle`).
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post a editar.
+   */
   async changePostTitle(postContainer: WebElement): Promise<void> {
 
     await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
@@ -127,8 +148,12 @@ export class PostTable {
   }
 
   /**
-   * Clickea el botón de editar de una fila específica.
-  */
+   * Hace hover sobre el contenedor y click en el botón de editar de la nota.
+   * El hover es necesario para revelar los botones de acción que se ocultan por defecto en el CSS.
+   * Delega en `hoverOverParentContainer` antes de `clickSafe`.
+   *
+   * @param postContainer - Contenedor WebElement de la fila que contiene el botón de editar.
+   */
   async clickEditorButton(postContainer: WebElement): Promise<void> {
 
     try {
@@ -147,8 +172,12 @@ export class PostTable {
   // =========================================================================
 
   /**
-   * Encuentra el WebElement del contenedor de la nota basado en su índice.
-   * NO devuelve un Locator, devuelve el Elemento listo para usarse.
+   * Obtiene el contenedor WebElement de una nota por su posición en la tabla (base 0).
+   * Construye el locator dinámico `post-management-{index}` y lo busca con `supressRetry`
+   * para evitar esperas largas en iteraciones donde la fila puede no existir.
+   *
+   * @param index - Posición de la nota en la tabla (0 = más reciente).
+   * @returns {Promise<WebElement>} Contenedor WebElement listo para operar sobre él.
    */
   async getPostContainerByIndex(index: number): Promise<WebElement> {
     await this.waitUntilIsReady(PostTable.POST_TABLE_BODY)
@@ -246,6 +275,10 @@ export class PostTable {
     await freshInput!.sendKeys(Key.ENTER);
   }
 
+  /**
+   * Espera a que el indicador de carga del proceso de guardado desaparezca del DOM.
+   * Hace polling sobre `div.process-fields` durante 10 segundos; lanza error si persiste.
+   */
   async waitForLoadingContainerDisappear(): Promise<void> {
     logger.debug("Esperando que el contenedor de carga desaparezca...", { label: this.config.label });
     await this.driver.wait(async () => {
@@ -267,6 +300,14 @@ export class PostTable {
     return element
   }
 
+  /**
+   * Espera a que la nueva nota recién creada aparezca en la primera posición de la tabla.
+   * Hace polling comparando el título del contenedor en índice 0 contra `expectedTitle`.
+   * Útil para sincronizar el test después de crear una nota antes de continuar interactuando.
+   *
+   * @param expectedTitle - Fragmento del título esperado para confirmar que la nota está en índice 0.
+   * @param timeoutMs - Tiempo máximo de espera en milisegundos. Por defecto 30 segundos.
+   */
   async waitForNewPostAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
     try {
       logger.debug(`Esperando que la nueva nota aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });

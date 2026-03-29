@@ -12,11 +12,24 @@ declare global {
     var activeMonitor: NetworkMonitorHandle | undefined;
 }
 
+/**
+ * Representa una sesión activa del WebDriver con su monitor de red CDP asociado.
+ * Devuelta por `initializeDriver` y consumida por `runSession` y `quitDriver`.
+ */
 export interface DriverSession {
     driver: WebDriver;
     networkMonitor: NetworkMonitorHandle | null;
 }
 
+/**
+ * Inicializa una sesión de WebDriver para Chrome con el monitor de red CDP activo.
+ * Construye el driver según las opciones (headless/grid), configura los timeouts globales
+ * e inicia el monitoreo de red por CDP a través de `startNetworkMonitoring`.
+ *
+ * @param options - Opciones de configuración del browser: modo headless y uso de Selenium Grid.
+ * @param opts - Opciones de trazabilidad y configuración del framework.
+ * @returns {Promise<DriverSession>} La sesión activa con el driver y el monitor de red listos.
+ */
 export async function initializeDriver(options: DriverOptions, opts: RetryOptions = {}): Promise<DriverSession> {
     const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "initializeDriver") };
 
@@ -48,6 +61,14 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
     }
 }
 
+/**
+ * Cierra la sesión del WebDriver y limpia los recursos asociados.
+ * Maneja con gracia los errores de sesión ya cerrada (`NoSuchSession`). Si `opts.timeoutMs`
+ * está definido, espera ese tiempo antes de cerrar (útil para inspección manual post-test).
+ *
+ * @param session - La sesión activa a cerrar. Si es `null`, la función retorna sin hacer nada.
+ * @param opts - Opciones de trazabilidad y tiempo de espera antes del cierre.
+ */
 export async function quitDriver(session: DriverSession | null, opts: RetryOptions = {}): Promise<void> {
     const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "quitDriver") };
     if (!session?.driver) return;

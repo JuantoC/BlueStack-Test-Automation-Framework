@@ -28,8 +28,11 @@ export class EditorTagsSection {
   }
 
   /**
-     * Método de alto nivel para llenar todos los tags disponibles en la data.
-     */
+   * Rellena los campos de tags y tags ocultos de la nota con los valores presentes en `data`.
+   * Delega la escritura iterativa en `addTags`, que confirma cada tag con `\n` (Enter).
+   *
+   * @param data - Subconjunto de `NoteData` con los arrays `tags` y `hiddenTags` a agregar.
+   */
   async fillAll(data: NoteTagsData): Promise<void> {
     await step("Rellenar Tags", async (stepContext) => {
       stepContext.parameter("Tags Count", `${data.tags?.length || 0}`);

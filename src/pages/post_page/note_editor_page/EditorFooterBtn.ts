@@ -2,6 +2,11 @@ import { Locator, By, WebDriver } from "selenium-webdriver";
 import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 
+/**
+ * Sub-componente que representa los botones del footer del Editor de Notas.
+ * Encapsula los controles de creación de contenido adicional (ítems de lista, eventos).
+ * Actualmente en construcción; los locators están definidos pero los métodos aún no están implementados.
+ */
 export class NoteFooterBtn {
   private driver: WebDriver
   private config: RetryOptions;

@@ -3,8 +3,13 @@ import logger from "../utils/logger.js";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 /**
- * 
- * Verifica si existe el modal de actualización y lo cierra.
+ * Verifica si existe el modal de actualización de Angular (overlay CDK) y lo cierra automáticamente.
+ * Diseñado como contingencia reactiva ante `ElementClickInterceptedError`: detecta si un overlay
+ * bloqueante está visible, hace clic en el botón de confirmación y espera su desaparición del DOM.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param opts - Opciones de reintento y trazabilidad, incluyendo `timeoutMs` para controlar la espera del botón.
+ * @returns {Promise<boolean>} `true` si el modal fue detectado y cerrado; `false` si no había modal.
  */
 export async function handleUpdateModal(driver: WebDriver, opts: RetryOptions = {}): Promise<boolean> {
     const label = stackLabel(opts.label, `handleUpdateModal`);

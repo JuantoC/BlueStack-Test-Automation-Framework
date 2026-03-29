@@ -9,6 +9,16 @@ import { Banners } from "./modals/Banners.js";
 
 export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
 
+/**
+ * Sub-componente compartido que representa el área de acciones del footer en las tablas del CMS.
+ * Expone acciones de publicación masiva (publicar inmediato y programar) disponibles al seleccionar
+ * uno o más ítems en la tabla. Orquesta la interacción con `PublishModal` y `Banners` internamente.
+ * Utilizado como dependencia de todos los Maestros que gestionan contenido publicable.
+ *
+ * @example
+ * const footer = new FooterActions(driver, opts);
+ * await footer.clickFooterAction('PUBLISH_ONLY');
+ */
 export class FooterActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
@@ -34,6 +44,14 @@ export class FooterActions {
     this.banner = new Banners(this.driver, { ...this.config, timeoutMs: 10000 })
   }
 
+  /**
+   * Ejecuta la acción del footer indicada sobre los ítems previamente seleccionados en la tabla.
+   * Valida primero que el botón de publicar esté habilitado y que la acción esté mapeada.
+   * Luego orquesta la secuencia específica según el tipo: publicación inmediata o programación.
+   * Delega la confirmación en `PublishModal` y la validación de resultado en `Banners.checkBanners`.
+   *
+   * @param action - Tipo de acción del footer a ejecutar (PUBLISH_ONLY o SCHEDULE).
+   */
   async clickFooterAction(action: FooterActionType): Promise<void> {
     const isEnabled = await this.isPublishBtnEnabled()
     if (!isEnabled) {
@@ -69,6 +87,13 @@ export class FooterActions {
     }
   }
 
+  /**
+   * Verifica si el botón de publicar en el footer está habilitado para interacción.
+   * Consulta el atributo `disabled` del elemento: si es `null` el botón está activo.
+   * Utilizado como guardia antes de ejecutar cualquier acción del footer.
+   *
+   * @returns {Promise<boolean>} `true` si el botón está habilitado, `false` si está deshabilitado.
+   */
   async isPublishBtnEnabled(): Promise<boolean> {
     try {
       logger.debug('Revisisando que el boton de publicar en el footer se encuentre habilitado...', { label: this.config.label })

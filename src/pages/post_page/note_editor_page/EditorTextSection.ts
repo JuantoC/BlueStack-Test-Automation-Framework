@@ -34,6 +34,13 @@ export class EditorTextSection {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorTextSection") }
   }
 
+  /**
+   * Rellena todos los campos de texto disponibles en la nota según los valores presentes en `data`.
+   * Itera sobre las claves de `LOCATORS` y delega cada campo no vacío en `fillField`.
+   * Omite silenciosamente los campos con valor `undefined`, `null` o cadena vacía.
+   *
+   * @param data - Objeto parcial de `NoteData` con los valores de texto a completar.
+   */
   async fillAll(data: Partial<NoteData>): Promise<void> {
     await step("Rellenar campos de texto", async () => {
       const fields = Object.keys(EditorTextSection.LOCATORS) as NoteTextField[];

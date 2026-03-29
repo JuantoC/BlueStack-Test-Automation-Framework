@@ -4,6 +4,14 @@ import * as allure from "allure-js-commons";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "./stackLabel.js";
 
+/**
+ * Extrae y reporta los errores de consola del navegador al finalizar un test.
+ * Filtra las entradas de nivel `SEVERE` del log de browser de Selenium y las adjunta
+ * como artifact de texto en Allure para su visualización en el reporte.
+ * Usada automáticamente por `runSession` en el bloque `finally`.
+ *
+ * @param driver - Instancia activa de WebDriver desde la cual extraer los logs de consola.
+ */
 export async function checkConsoleErrors(driver: WebDriver) {
     const label = "checkConsoleErrors";
     try {

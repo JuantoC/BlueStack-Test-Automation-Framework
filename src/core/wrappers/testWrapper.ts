@@ -6,7 +6,11 @@ import { initializeDriver, quitDriver, DriverSession } from "../config/driverMan
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
 
-// 1. Definimos la interfaz para la metadata opcional
+/**
+ * Metadata de negocio y clasificación para el reporte Allure del test.
+ * Todos los campos son opcionales para permitir adopción incremental sin romper tests existentes.
+ * Los campos se inyectan como labels y links en el reporte Allure vía `runSession`.
+ */
 export interface TestMetadata {
   epic?: string;
   feature?: string;
@@ -24,7 +28,22 @@ interface TestContext {
   log: typeof logger;
 }
 
-// 2. Actualizamos la firma del wrapper (añadimos metadata = {})
+/**
+ * Wrapper principal de sesión de prueba. Punto de entrada estándar para todos los archivos `.test.ts`.
+ * Orquesta el ciclo de vida completo de un test: inyección de metadata en Allure, inicialización
+ * del WebDriver, ejecución de la lógica del test, captura de screenshot ante fallos,
+ * verificación de errores de red via CDP y cierre limpio de la sesión.
+ *
+ * @param sessionLabel - Nombre descriptivo de la sesión, usado como etiqueta en logs y reporte Allure.
+ * @param testLogic - Función asíncrona con la lógica del test. Recibe `driver`, `session`, `opts` y `log`.
+ * @param metadata - Metadata de clasificación para Allure (epic, feature, story, severity, etc.). Opcional.
+ *
+ * @example
+ * runSession("Crear Post Básico", async ({ driver, opts }) => {
+ *   const page = new MainPostPage(driver, NoteType.POST, opts);
+ *   await page.createNewNote();
+ * }, { epic: "Posts", feature: "Creación", severity: "critical" });
+ */
 export function runSession(
   sessionLabel: string,
   testLogic: (context: TestContext) => Promise<void>,

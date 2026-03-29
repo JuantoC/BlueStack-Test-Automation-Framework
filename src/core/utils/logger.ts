@@ -42,8 +42,12 @@ const logger = winston.createLogger({
 });
 
 /**
- * Crea un transport dedicado para una sesión y lo añade al logger global.
- * @returns El transport creado para poder removerlo luego.
+ * Crea un transport de archivo dedicado para una sesión de prueba y lo añade al logger global.
+ * Permite que todos los mensajes de log de la sesión activa se escriban en un archivo individual
+ * (`session-<label>.log`) además del archivo rotativo global. Usada por `runSession` en el setup inicial.
+ *
+ * @param sessionLabel - Nombre de la sesión, usado como sufijo del nombre del archivo de log.
+ * @returns El transport creado para poder removerlo con `logger.remove()` al finalizar la sesión.
  */
 export function addSessionTransport(sessionLabel: string) {
     const sessionFile = new winston.transports.File({

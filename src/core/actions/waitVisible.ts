@@ -8,7 +8,13 @@ import { hoverOverParentContainer } from "../helpers/hoverOverParentContainer.js
 
 /**
  * Valida la visibilidad de un elemento en el DOM.
- * Si falla por timeout, intenta desplazar el elemento a la vista (scroll) antes de reportar el error.
+ * Si falla por timeout, aplica una estrategia de recuperación escalonada: primero scroll,
+ * luego hover sobre el contenedor ancestro para forzar la visibilidad en frameworks Angular Material.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param element - WebElement previamente localizado que se debe validar como visible.
+ * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
+ * @returns {Promise<WebElement>} El mismo elemento una vez confirmada su visibilidad.
  */
 export async function waitVisible(
     driver: WebDriver,

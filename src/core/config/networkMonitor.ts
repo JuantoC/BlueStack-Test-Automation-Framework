@@ -10,15 +10,34 @@ enum NetworkErrorCategory {
   SECURITY_BLOCK = "[SECURITY/CORS]"
 }
 
+/**
+ * Resumen de la actividad de red capturada durante una sesión de prueba.
+ * Retornado por `NetworkMonitorHandle.stop()` al finalizar el monitoreo CDP.
+ */
 export interface NetworkSummary {
   errorCount: number;
   logs: string[];
 }
 
+/**
+ * Handle de control del monitor de red CDP activo durante una sesión de prueba.
+ * Permite detener el monitoreo y obtener el resumen de errores de red capturados.
+ * Retornado por `startNetworkMonitoring` y usado en el bloque `finally` de `runSession`.
+ */
 export interface NetworkMonitorHandle {
   stop(): Promise<NetworkSummary>;
 }
 
+/**
+ * Inicia el monitoreo de red via CDP (Chrome DevTools Protocol) para la sesión activa.
+ * Intercepta respuestas HTTP con códigos 4xx/5xx y fallos de conexión, los registra en el log
+ * y adjunta screenshots y reportes a Allure. Incluye lógica de rescate para entornos WSL y Docker Grid.
+ * La inicialización es asíncrona y basada en ACK: resuelve solo cuando CDP confirma estar listo.
+ *
+ * @param driver - Instancia activa de WebDriver con capacidades CDP disponibles.
+ * @param label - Identificador de trazabilidad para los logs del monitor. Por defecto `"NetworkMonitor"`.
+ * @returns {Promise<NetworkMonitorHandle | null>} Handle para detener el monitor, o `null` si CDP no está disponible.
+ */
 export async function startNetworkMonitoring(
   driver: WebDriver,
   label: string = "NetworkMonitor"

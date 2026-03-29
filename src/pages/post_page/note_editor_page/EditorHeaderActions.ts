@@ -55,7 +55,14 @@ export class EditorHeaderActions {
   }
 
   /**
-   * Ejecuta una secuencia de salida o guardado basada en el enum NoteExitAction.
+   * Ejecuta la secuencia de guardado o salida del editor según la acción indicada.
+   * Funciona como una máquina de estados: tras el click inicial (que puede abrir un dropdown
+   * o hacer click directo), despacha la lógica secundaria específica de cada acción
+   * (opciones del dropdown, confirmación del modal de publicación, etc.).
+   * Antes de cualquier interacción, espera a que la sección de metadatos esté presente
+   * como señal de que la página terminó de cargar.
+   *
+   * @param action - Acción de salida o guardado a ejecutar (SAVE_ONLY, PUBLISH_AND_EXIT, etc.).
    */
   public async clickExitAction(action: NoteExitAction): Promise<void> {
 

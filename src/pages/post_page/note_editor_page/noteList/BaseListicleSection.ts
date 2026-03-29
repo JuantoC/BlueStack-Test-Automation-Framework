@@ -1,6 +1,13 @@
 export type ListicleData = Pick<NoteData, 'listicleItems'>;
 export type LiveBlogData = Pick<NoteData, 'listicleItems' | 'eventLiveBlog'>;
 
+/**
+ * Clase abstracta base para las secciones de lista del editor (Listicle y LiveBlog).
+ * Define la lógica compartida de creación de slots, expansión de ítems y escritura de campos.
+ * Implementa el patrón Strategy delegando en `ListicleStrategy` la normalización del orden de ítems,
+ * permitiendo que `ListicleSection` y `LiveBlogSection` extiendan el comportamiento sin duplicar código.
+ * Cada subclase puede sobrescribir `fillEventSection` para agregar comportamiento específico.
+ */
 export abstract class BaseListicleSection {
   protected config: RetryOptions;
 
@@ -16,9 +23,12 @@ export abstract class BaseListicleSection {
   }
 
   /**
-     * Punto de entrada unificado para el Orquestador.
-     * Recibe el objeto parcial y decide si debe ejecutar el llenado.
-     */
+   * Punto de entrada unificado para el orquestador del editor.
+   * Primero delega en `fillEventSection` (hook sobrescribible por subclases para LiveBlog)
+   * y luego rellena los ítems de la lista si existen en `data`.
+   *
+   * @param data - Datos de la sección de lista, incluyendo ítems y opcionalmente el evento LiveBlog.
+   */
   async fillAll(data: ListicleData | LiveBlogData): Promise<void> {
 
     await this.fillEventSection(data as LiveBlogData);
@@ -49,7 +59,12 @@ export abstract class BaseListicleSection {
   }
 
   /**
-   * Determina el estado y expande/colapsa según sea necesario.
+   * Expande o colapsa un ítem de la lista según su estado actual y el destino indicado.
+   * Lee el atributo `class` del ícono para determinar si el ítem está expandido (`icon-up`)
+   * y solo hace click si el estado actual difiere del estado objetivo.
+   *
+   * @param uiIndex - Índice del ítem en el DOM (base 1, tal como lo asigna el CMS).
+   * @param target - Estado objetivo: `'expand'` para abrir el ítem, `'collapse'` para cerrarlo.
    */
   async toggleExpansion(uiIndex: number, target: 'expand' | 'collapse') {
 
@@ -81,8 +96,13 @@ export abstract class BaseListicleSection {
 
 
   /**
-   * Provee y rellena múltiples ítems.
-  */
+   * Crea los slots necesarios y rellena cada ítem de la lista con título y cuerpo.
+   * Primero normaliza el orden de los ítems según la estrategia (Standard o LiveBlog).
+   * Luego crea los slots adicionales necesarios (siempre hay 1 base),
+   * expande cada ítem y escribe sus campos usando `writeSafe`.
+   *
+   * @param items - Array de objetos con `title` y/o `body` para cada ítem de la lista.
+   */
   async fillItems(items: Array<{ title?: string; body?: string }>) {
     if (!items?.length) return;
     await step("Rellenar items Listicle o Liveblog", async (stepContext) => {

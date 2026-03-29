@@ -1,4 +1,7 @@
-// Errores que sabemos que son por problemas de código o selectores
+/**
+ * Conjunto de nombres de error de Selenium/JavaScript que producen fallos definitivos.
+ * Errores listados aquí son clasificados como `FATAL` por `classifyError` y no se reintentan.
+ */
 export const FATAL_ERRORS = new Set([
   'InvalidSelectorError',
   'InvalidElementStateError',
@@ -9,7 +12,10 @@ export const FATAL_ERRORS = new Set([
   'BusinessLogicError'
 ]);
 
-// Errores que sabemos que son "flaky" por naturaleza
+/**
+ * Conjunto de nombres de error de Selenium que se consideran transitorios y reintentables.
+ * Errores listados aquí son clasificados como `RETRIABLE` por `classifyError`.
+ */
 export const RETRIABLE_ERRORS = new Set([
   'StaleElementReferenceError',
   'ElementClickInterceptedError',
@@ -20,14 +26,20 @@ export const RETRIABLE_ERRORS = new Set([
   'WebDriverError'
 ]);
 
-// Mensajes específicos (substrings) que indican error fatal
+/**
+ * Substrings de mensajes de error que, al coincidir, clasifican el error como `FATAL`.
+ * Complementa a `FATAL_ERRORS` para capturar errores de JavaScript sin nombre de tipo específico.
+ */
 export const FATAL_MESSAGES = [
   'is not defined',
   'cannot read property',
   'is not a function'
 ];
 
-// Errores reintentables del cms
+/**
+ * Substrings de mensajes de error del CMS que se consideran reintentables (errores de servidor transitorios).
+ * Al coincidir, el error es clasificado como `RETRIABLE` por `classifyError`.
+ */
 export const APP_RETRIABLE_MESSAGES = [
   'Internal Server Error',
   'Gateway Timeout',
@@ -35,7 +47,10 @@ export const APP_RETRIABLE_MESSAGES = [
   'Error al procesar la solicitud, intente de nuevo'
 ];
 
-// Errores fatales de lógica de negocio
+/**
+ * Substrings de mensajes de error del CMS que indican fallos de lógica de negocio definitivos.
+ * Al coincidir, el error es clasificado como `FATAL` por `classifyError` y no se reintenta.
+ */
 export const APP_FATAL_MESSAGES = [
   'Credenciales inválidas',
   'Permisos insuficientes',

@@ -4,9 +4,15 @@ import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
 
 /**
- * Encuentra un ancestro y realiza un hover.
- * Combina acciones nativas de Selenium con eventos de JavaScript para forzar
- * la detección en frameworks reactivos como Angular Material.
+ * Navega hasta un ancestro del elemento y ejecuta un hover escalonado para forzar su visibilidad.
+ * Combina acciones nativas de Selenium con eventos de JavaScript (`mouseenter`, `mouseover`)
+ * para forzar la detección en frameworks reactivos como Angular Material.
+ * Usada por `waitVisible` como estrategia de recuperación cuando el scroll no es suficiente.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param element - WebElement objetivo cuya visibilidad se intenta forzar mediante hover en ancestros.
+ * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
+ * @returns {Promise<boolean>} `true` si el elemento se volvió visible tras el hover; `false` en caso contrario.
  */
 export async function hoverOverParentContainer(driver: WebDriver, element: WebElement, opts: RetryOptions): Promise<boolean> {
     const config = { ...opts, label: stackLabel(opts.label, `hoverOverParentContainer`) };

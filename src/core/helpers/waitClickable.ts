@@ -8,7 +8,13 @@ import { retry } from "../wrappers/retry.js";
 
 /**
  * Valida que un elemento sea apto para recibir clics (Visible + Habilitado).
- * Esta función es "pura": no reintenta, solo espera dentro del timeout definido.
+ * Orquesta la validación secuencial de visibilidad (`waitVisible`) y habilitación (`waitEnabled`).
+ * Usada por `clickSafe` como paso de sincronización previo al clic físico.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param element - WebElement a validar. Debe estar previamente localizado en el DOM.
+ * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
+ * @returns {Promise<WebElement>} El mismo elemento una vez confirmado como visible y habilitado.
  */
 export async function waitClickable(
   driver: WebDriver,

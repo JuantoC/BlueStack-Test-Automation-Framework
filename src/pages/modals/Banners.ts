@@ -6,6 +6,18 @@ import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 
+/**
+ * Sub-componente transversal que monitorea y gestiona los toast de notificación del CMS.
+ * Detecta la presencia de toasts de éxito (`toast-success`) y de error (`div[role='alert']`)
+ * usando polling con un timeout variable según el modo de operación.
+ * En modo `expectSuccess: true`, aguarda activamente hasta encontrar un toast de éxito y lanza
+ * un error si no aparece o si solo aparece uno de error.
+ * Consumido por todos los Maestros después de operaciones que generan feedback de backend.
+ *
+ * @example
+ * const banner = new Banners(driver, opts);
+ * await banner.checkBanners(true); // Espera toast de éxito obligatorio
+ */
 export class Banners {
   private driver: WebDriver;
   private config: RetryOptions;
@@ -24,6 +36,17 @@ export class Banners {
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "Banners") }
   }
 
+  /**
+   * Monitorea el contenedor de toasts del CMS y gestiona los que aparezcan durante la espera.
+   * Si `expectSuccess` es `true`, aguarda activamente un toast de éxito (hasta `config.timeoutMs`);
+   * si es `false`, monitorea brevemente (800ms) y procesa lo que encuentre.
+   * Delega el procesamiento concreto en `handleSuccessToast` y `handleErrorToast` con elementos frescos
+   * del DOM para evitar `StaleElementReferenceException`.
+   * Lanza un error con screenshot adjunto si se esperaba éxito y no se obtuvo.
+   *
+   * @param expectSuccess - Si es `true`, el método falla cuando no aparece un toast de éxito.
+   * @returns {Promise<boolean>} `true` si se detectó al menos un toast de error, `false` en caso contrario.
+   */
   async checkBanners(expectSuccess: boolean = false): Promise<boolean> {
     return await step(`Revisando banners: (${expectSuccess ? 'Esperando éxito' : 'Monitoreo'})`, async () => {
       // Usamos flags booleanos para evitar StaleElementReferenceException luego

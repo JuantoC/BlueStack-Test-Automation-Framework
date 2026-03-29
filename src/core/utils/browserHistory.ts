@@ -5,9 +5,11 @@ import { RetryOptions } from "../config/defaultConfig.js";
 
 /**
  * Navega en el historial del navegador hacia adelante o hacia atrás.
- * * @param driver - La instancia activa de WebDriver.
- * @param direction - La dirección de navegación: "back" o "forward".
- * @param label - (Opcional) Identificador para la trazabilidad de logs.
+ * Equivalente programático a los botones de navegación del browser. Incluye logging de trazabilidad.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param direction - Dirección de la navegación: `"back"` retrocede, `"forward"` avanza.
+ * @param opts - Opciones de trazabilidad y configuración de la sesión.
  */
 export async function browserHistory(
   driver: WebDriver,

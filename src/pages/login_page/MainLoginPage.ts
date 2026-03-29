@@ -7,6 +7,16 @@ import logger from "../../core/utils/logger.js";
 import { AuthCredentials } from "../../interfaces/auth.js";
 import { parameter, step } from "allure-js-commons";
 
+/**
+ * Page Object Maestro para la autenticación en el CMS.
+ * Coordina los sub-componentes `LoginSection` (credenciales) y `TwoFASection` (2FA)
+ * para exponer flujos completos de autenticación: login exitoso con 2FA y prueba de intentos fallidos.
+ * Es el único punto de entrada para tests que involucren la pantalla de login.
+ *
+ * @example
+ * const page = new MainLoginPage(driver, opts);
+ * await page.passLoginAndTwoFA({ username: 'user', password: 'pass' });
+ */
 export class MainLoginPage {
   private driver: WebDriver;
   private readonly login: LoginSection;
@@ -52,6 +62,15 @@ export class MainLoginPage {
     });
   }
 
+  /**
+   * Ejecuta un flujo de login con intentos inválidos seguido de un acceso exitoso.
+   * Itera sobre `invalidAttempts` usando `LoginSection.attemptLogin` y verifica que cada uno falle
+   * con un mensaje de error visible. Si algún intento inválido tiene éxito, lanza un error de test.
+   * Al finalizar los intentos inválidos, llama a `passLoginAndTwoFA` con las credenciales válidas.
+   *
+   * @param invalidAttempts - Lista de credenciales incorrectas que deben fallar en orden.
+   * @param validCredentials - Credenciales válidas para el acceso final tras los intentos fallidos.
+   */
   async failLogin(invalidAttempts: AuthCredentials[], validCredentials: AuthCredentials): Promise<void> {
     await step(`Flujo de Login Fallido (Intentos: ${invalidAttempts.length})`, async (stepContext) => {
       stepContext.parameter("Invalid Attempts Count", invalidAttempts.length.toString());

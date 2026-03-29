@@ -26,6 +26,13 @@ export class EditorLateralSettings {
 
   // ========== MÉTODOS ==========
 
+  /**
+   * Abre el combo de secciones y selecciona la opción en el índice indicado.
+   * Si el dropdown ya está abierto, omite el click de apertura. Luego localiza
+   * la opción por índice mediante `matchSectionOption` y hace click sobre ella.
+   *
+   * @param index - Índice de la opción de sección a seleccionar (base 0). Por defecto 0.
+   */
   async selectSectionOption(index: number = 0): Promise<void> {
     await step(`Seleccionando opción de sección en index ${index}`, async () => {
       try {
@@ -41,6 +48,12 @@ export class EditorLateralSettings {
     });
   }
 
+  /**
+   * Retorna el WebElement de la opción de sección en la posición indicada del listbox activo.
+   *
+   * @param index - Posición de la opción en la lista desplegada (base 0).
+   * @returns {Promise<WebElement>} El WebElement de la opción a clickear.
+   */
   async matchSectionOption(index: number): Promise<WebElement> {
     try {
       const elements = await this.driver.findElements(EditorLateralSettings.SECTION_OPT);
@@ -54,6 +67,10 @@ export class EditorLateralSettings {
 
   }
 
+  /**
+   * Abre el combo de secciones si aún no está expandido.
+   * Verifica el atributo `aria-expanded` del elemento antes de hacer click.
+   */
   async clickOnSectionOption(): Promise<void> {
     const isVisible = await this.isDropdownVisible();
 
@@ -65,6 +82,11 @@ export class EditorLateralSettings {
     }
   }
 
+  /**
+   * Verifica si el combo de secciones está actualmente expandido consultando `aria-expanded`.
+   *
+   * @returns {Promise<boolean>} `true` si el dropdown está abierto, `false` si está cerrado.
+   */
   async isDropdownVisible(): Promise<boolean> {
     const element = await waitFind(this.driver, EditorLateralSettings.SECTION_COMBO, this.config);
 

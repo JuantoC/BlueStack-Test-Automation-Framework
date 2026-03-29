@@ -8,8 +8,15 @@ import { waitClickable } from "../helpers/waitClickable.js";
 import { Banners } from "../../pages/modals/Banners.js";
 
 /**
- * Realiza un clic resitente a la inestabilidad del DOM (flakiness).
+ * Realiza un clic resistente a la inestabilidad del DOM (flakiness).
  * Orquesta la búsqueda (si es necesario), validación de estado y el clic físico en un único bloque de reintento.
+ * Punto de entrada recomendado para cualquier interacción que requiera un clic en el framework.
+ * Delega en `waitFind`, `waitClickable` y `Banners.checkBanners` para gestionar intercepciones de toast.
+ *
+ * @param driver - Instancia activa de WebDriver para la sesión actual.
+ * @param ID - Locator o WebElement del elemento objetivo. Si es WebElement, omite la búsqueda en el DOM.
+ * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
+ * @returns {Promise<WebElement>} El elemento objetivo tras confirmar el clic exitoso.
  */
 export async function clickSafe(
   driver: WebDriver,

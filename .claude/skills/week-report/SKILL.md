@@ -1,6 +1,6 @@
 ---
 name: week-report
-description: Generar automáticamente el correo semanal de reporte de avance QA, transformando commits técnicos de Git en lenguaje de impacto orientado a negocio. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code)  **Autor Git filtrado:** `jtcaldera-bluestack` **Output:** `/reports/Mail_Reporte_Semanal.txt`
+description: Generar automáticamente el correo semanal de reporte de avance QA, transformando commits técnicos de Git en lenguaje de impacto orientado a negocio. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code)  **Autor Git filtrado:** `jtcaldera-bluestack` **Output:** `/reports/Mail_Week_Report.txt`
 
 ---
 
@@ -109,7 +109,7 @@ Usar el template de abajo. Completar todos los placeholders. Respetar las reglas
 **TEMPLATE DEL CORREO:**
 
 ```
-Asunto: Reporte Semanal — [PERIODO: ej. "24 al 28 de Marzo, 2026"]
+Asunto: Reporte Semanal — [Titulo ejecutivo y sintactico de lo trabajado]
 
 Buen día Fer,
 
@@ -147,7 +147,7 @@ QA — Bluestack
 
 1. Verificar si existe la carpeta `/reports/` en la raíz del repositorio.
    - Si no existe: crearla con `mkdir -p reports`.
-2. Escribir el correo redactado en `/reports/Mail_Reporte_Semanal.txt`.
+2. Escribir el correo redactado en `/reports/Mail_Week_Report.txt`.
    - Sobrescribir si ya existe.
 
 ---
@@ -162,7 +162,7 @@ Mostrar en pantalla:
 Período cubierto: {FECHA_INICIO} al {FECHA_FIN}
 Commits procesados: {N}
 Logros identificados: {M}
-Archivo guardado en: /reports/Mail_Reporte_Semanal.txt
+Archivo guardado en: /reports/Mail_Week_Report.txt
 
 --- PREVIEW ---
 {primeras 20 líneas del archivo generado}

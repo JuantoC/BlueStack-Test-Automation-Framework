@@ -3,8 +3,13 @@ import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
 
 /**
- * Escribe texto en elementos con atributo contenteditable utilizando JS para el foco 
- * y limpieza, y sendKeys para la simulación de teclado.
+ * Escribe texto en elementos con atributo `contenteditable` (como editores CKEditor).
+ * Usa `sendKeys` con Ctrl+A y Delete para limpiar el contenido previo antes de escribir,
+ * simulando la interacción real del teclado. Llamada por `writeSafe` cuando `isContentEditable` retorna `true`.
+ *
+ * @param element - WebElement editable objetivo. Debe tener `contenteditable="true"` o `role="textbox"`.
+ * @param text - Texto a ingresar, sin sanitizar. Se escribe tal cual usando sendKeys.
+ * @param label - Contexto de trazabilidad para logs. Propagado desde el orquestador superior.
  */
 export async function writeToEditable(
   element: WebElement,
@@ -33,7 +38,14 @@ export async function writeToEditable(
 }
 
 /**
- * Escribe texto en elementos de input estándar (input, textarea).
+ * Escribe texto en elementos de input estándar (`input`, `textarea`).
+ * Utiliza Ctrl+A + Backspace + texto en un único `sendKeys` para minimizar latencia
+ * y reducir la probabilidad de que el DOM cambie a mitad de la escritura.
+ * Llamada por `writeSafe` cuando `isContentEditable` retorna `false`.
+ *
+ * @param element - WebElement de input estándar objetivo.
+ * @param text - Texto a ingresar, sin sanitizar.
+ * @param label - Contexto de trazabilidad para logs. Propagado desde el orquestador superior.
  */
 export async function writeToStandard(
   element: WebElement,

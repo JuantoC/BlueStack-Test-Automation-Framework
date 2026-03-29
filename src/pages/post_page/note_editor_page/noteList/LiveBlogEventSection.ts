@@ -13,6 +13,11 @@ export enum LiveBlogEventField {
     EVENT_ADDRESS = 'EVENT_ADDRESS'
 }
 
+/**
+ * Sub-componente que gestiona la sección del evento en notas de tipo LiveBlog.
+ * Encapsula los locators de los campos del evento (título, descripción, lugar, dirección)
+ * y expone el método de escritura del título del evento utilizado por `LiveBlogSection`.
+ */
 export class LiveBlogEventSection {
     private driver: WebDriver;
     private config: RetryOptions;
@@ -30,6 +35,13 @@ export class LiveBlogEventSection {
         this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "LiveBlogEventSection") };
     }
 
+    /**
+     * Escribe el título del evento en el campo correspondiente de la sección LiveBlog.
+     * Omite el paso silenciosamente si `value.eventLiveBlog.eventTitle` no está definido.
+     * Delega la escritura en `writeSafe` usando el locator del campo `EVENT_TITLE`.
+     *
+     * @param value - Datos del LiveBlog que contienen el objeto `eventLiveBlog` con el título.
+     */
     async fillEventTitle(value: LiveBlogData): Promise<void> {
         await step("Rellenar evento de Liveblog", async () => {
             try {

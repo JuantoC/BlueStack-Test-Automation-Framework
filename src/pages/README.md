@@ -32,7 +32,8 @@ src/pages/
 │   └── TwoFASection.ts
 ├── post_page/
 │   ├── AIPost/
-│   │   └── MainAIPage.ts          # Maestro — generación de notas con IA
+│   │   ├── MainAIPage.ts          # Maestro — generación de notas con IA
+│   │   └── AIPostModal.ts
 │   ├── MainPostPage.ts            # Maestro
 │   ├── PostTable.ts
 │   ├── NewNoteBtn.ts              # NoteType type
@@ -44,9 +45,12 @@ src/pages/
 │       ├── EditorAuthorSection.ts
 │       ├── EditorLateralSettings.ts
 │       ├── EditorImagesSection.ts
+│       ├── EditorFooterBtn.ts
 │       └── noteList/
 │           ├── BaseListicleSection.ts  # LiveBlogData interface
-│           └── ListicleItemSection.ts
+│           ├── ListicleItemSection.ts
+│           ├── ListicleStrategy.ts
+│           └── LiveBlogEventSection.ts
 ├── videos_page/
 │   ├── MainVideoPage.ts           # Maestro
 │   ├── VideoTable.ts
@@ -55,7 +59,8 @@ src/pages/
 │   ├── VideoActions.ts            # ActionType type
 ├── modals/
 │   ├── CKEditorImageModal.ts      # selectImage(index: number)
-│   └── PublishModal.ts            # Lógica de publicación (notas y videos)
+│   ├── PublishModal.ts            # Lógica de publicación (notas y videos)
+│   └── Banners.ts
 ├── comment_page/
 ├── image_page/
 └── user_profile_page/

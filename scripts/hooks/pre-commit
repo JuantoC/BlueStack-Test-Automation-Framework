@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+WATCH_DIRS=("src/pages" "src/core" "src/interfaces")
+PENDING_PATH=".claude/pending-doc-updates.json"
+
+# Obtener archivos .ts staged en los directorios vigilados
+CHANGED_FILES=()
+while IFS= read -r line; do
+  STATUS=$(echo "$line" | cut -f1)
+  FILE=$(echo "$line" | cut -f2)
+  if [[ "$FILE" == *.ts || "$FILE" == *.tsx ]]; then
+    for dir in "${WATCH_DIRS[@]}"; do
+      if [[ "$FILE" == $dir/* ]]; then
+        CHANGED_FILES+=("$FILE")
+        break
+      fi
+    done
+  fi
+done < <(git diff --cached --name-status)
+
+# Si no hay archivos relevantes, salir sin hacer nada
+if [ ${#CHANGED_FILES[@]} -eq 0 ]; then
+  exit 0
+fi
+
+# Asegurar que .claude/ existe
+mkdir -p .claude
+
+# Escribir pending-doc-updates.json
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+FILES_JSON=$(printf '"%s",' "${CHANGED_FILES[@]}")
+FILES_JSON="[${FILES_JSON%,}]"
+
+cat > "$PENDING_PATH" << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "changedFiles": $FILES_JSON,
+  "status": "pending-review"
+}
+EOF
+
+echo ""
+echo "📋 DOC-SYNC: Cambios detectados en src/"
+for f in "${CHANGED_FILES[@]}"; do
+  echo "   · $f"
+done
+echo "   Se generará un prompt de revisión documental post-commit."
+echo ""
+
+exit 0

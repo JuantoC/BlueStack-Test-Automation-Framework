@@ -87,7 +87,8 @@ Cuando el desarrollador diga "revisá la documentación pendiente" o pida leer `
 ```bash
 # Auditoría completa del estado documental
 npx ts-node scripts/audit-docs.ts
-# Output → docs/audit/doc-audit.json + docs/audit/AUDIT-SUMMARY.md
+# Output → docs/audit/doc-audit.json
+# Después pedirle a Claude Code que lea el JSON y genere el resumen
 
 # Validar consistencia código ↔ documentación
 npx ts-node scripts/validate-ssot.ts

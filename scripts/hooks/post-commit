@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+PENDING_PATH=".claude/pending-doc-updates.json"
+PROMPT_PATH=".claude/pending-doc-review-prompt.md"
+
+# Si no hay pendiente, salir
+if [ ! -f "$PENDING_PATH" ]; then
+  exit 0
+fi
+
+# Verificar status
+STATUS=$(grep '"status"' "$PENDING_PATH" | cut -d'"' -f4)
+if [ "$STATUS" != "pending-review" ]; then
+  exit 0
+fi
+
+HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+CHANGED_FILES=$(grep -o '"src/[^"]*"' "$PENDING_PATH" | tr -d '"' | tr '\n' ' ')
+DIFF=$(git diff HEAD~1 HEAD -- $CHANGED_FILES 2>/dev/null || git show HEAD -- $CHANGED_FILES 2>/dev/null)
+DIFF=$(echo "$DIFF" | head -c 8000)
+
+FILES_LIST=$(grep -o '"src/[^"]*"' "$PENDING_PATH" | tr -d '"' | sed 's/^/- /')
+
+# Escribir prompt línea a línea
+{
+  echo "# Revisión documental post-commit"
+  echo ""
+  echo "**Commit:** $HASH"
+  echo "**Fecha:** $TIMESTAMP"
+  echo "**Archivos TypeScript modificados:**"
+  echo "$FILES_LIST"
+  echo ""
+  echo "---"
+  echo ""
+  echo "## Tarea"
+  echo ""
+  echo "Analizá el siguiente diff y ejecutá estos pasos:"
+  echo ""
+  echo "### 1. Identificar cambios de contrato público"
+  echo "Del diff, identificá:"
+  echo "- Funciones o métodos con firma nueva o modificada"
+  echo "- Interfaces o tipos modificados en src/interfaces/"
+  echo "- Constructores de Page Objects modificados"
+  echo "- Exports nuevos o eliminados"
+  echo ""
+  echo "### 2. Verificar JSDoc de los archivos afectados"
+  echo "Para cada cambio de contrato:"
+  echo "- Leé el JSDoc actual del archivo .ts en el repositorio"
+  echo "- Verificá si @param, @returns y @throws reflejan el estado nuevo"
+  echo ""
+  echo "### 3. Verificar .md relacionados"
+  echo "Revisá si alguno de estos archivos referencia los módulos modificados:"
+  echo "- README.md"
+  echo "- src/pages/README.md (si aplica)"
+  echo "- .claude/CLAUDE.md"
+  echo "- .claude/skills/create-session/SKILL.md"
+  echo "- .claude/skills/sanitize-docs/SKILL.md"
+  echo ""
+  echo "### 4. Escribir sugerencias"
+  echo "Escribí los resultados en .claude/doc-update-suggestions.md"
+  echo "Usá el formato definido en .claude/skills/sync-docs/SKILL.md"
+  echo ""
+  echo "### 5. Reportar"
+  echo "Mostrá el resumen y preguntá qué aplicar."
+  echo "No apliques ningún cambio sin confirmación explícita."
+  echo ""
+  echo "---"
+  echo ""
+  echo "## Diff"
+  echo ""
+  echo '```diff'
+  echo "$DIFF"
+  echo '```'
+} > "$PROMPT_PATH"
+
+# Actualizar estado
+sed -i 's/"status": "pending-review"/"status": "prompt-generated"/' "$PENDING_PATH"
+
+echo ""
+echo "📝 Post-commit: Prompt de revisión documental generado."
+echo "   Commit: $HASH"
+echo "   → En Claude Code escribí:"
+echo '     "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea"'
+echo ""
+
+exit 0

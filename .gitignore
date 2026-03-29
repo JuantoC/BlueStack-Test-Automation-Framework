@@ -6,3 +6,9 @@ logs/
 allure-history.jsonl
 .env
 reports/
+
+# SSoT - archivos generados en runtime (no commitear)
+.claude/pending-doc-updates.json
+.claude/pending-doc-review-prompt.md
+.claude/doc-update-suggestions.md
+docs/audit/

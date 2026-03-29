@@ -40,31 +40,19 @@ Revisar si alguno de estos archivos referencia el módulo modificado:
 - Cualquier archivo en `docs/` si existe
 
 ## Paso 5 — Escribir sugerencias
-Crear o sobreescribir `.claude/doc-update-suggestions.md`:
+Crear o sobreescribir `.claude/doc-update-suggestions.md` con este formato:
 
-```markdown
-# Sugerencias de actualización documental
-Generado: [timestamp]
-Commit analizado: [hash]
+**Encabezado:**
+Fecha de generación, hash del commit analizado.
 
-# [PRIORIDAD ALTA] JSDoc desactualizado
-- **Archivo:** src/...
-- **Función/clase:** nombre
-- **Problema:** descripción exacta
-- **JSDoc propuesto:**
-  ```typescript
-  // bloque JSDoc sugerido
-  ```
+**Sección PRIORIDAD ALTA — JSDoc desactualizado:**
+Por cada caso: archivo afectado, nombre de función/clase, descripción del problema, JSDoc propuesto.
 
-# [PRIORIDAD MEDIA] .md con referencia desactualizada
-- **Archivo:** path del .md
-- **Sección:** nombre de la sección
-- **Problema:** descripción
-- **Cambio sugerido:** texto propuesto
+**Sección PRIORIDAD MEDIA — .md con referencia desactualizada:**
+Por cada caso: archivo afectado, sección, descripción del problema, cambio sugerido.
 
-# Sin cambios necesarios
-- Lista de archivos revisados que están OK
-
+**Sección Sin cambios necesarios:**
+Lista de archivos revisados que están OK.
 
 ## Paso 6 — Reportar y preguntar
 Mostrar el resumen de sugerencias y preguntar: *"¿Aplicamos alguna de estas actualizaciones?"*

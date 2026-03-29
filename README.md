@@ -1,3 +1,12 @@
+<!--
+@doc-type: readme
+@scope: project
+@audience: both
+@related: src/pages/README.md
+@last-reviewed: 2026-03-29
+@summary: Guía completa del framework de automatización BlueStack: setup, ejecución de tests, convenciones de código, estructura de Page Objects y pipeline CI/CD.
+-->
+
 # Bluestack Test Automation Framework
 
 A robust, production-ready UI test automation framework built with **Selenium WebDriver**, **TypeScript**, and **Jest**, designed to interact with the Bluestack CMS. The framework provides full end-to-end coverage for core editorial workflows — including content creation, video management, AI-assisted post generation, and publishing — with integrated **Allure** reporting, structured logging, and **Docker**-based **Selenium Grid** support.
@@ -344,16 +353,33 @@ npm run clean
 
 ### Page Object rules
 
-1. **One directory per CMS section** under `src/pages/`. Sub-components of the same page live in the same folder.
-2. **Constructor signature:** Every Page Object must accept `(driver: WebDriver, opts: RetryOptions)`. Maestros that manage a content type also receive the type as a string literal second argument. Pass `opts` down to all sub-components.
-3. **No raw element sleeps.** Use the shared wait utilities in `src/core/actions/` and `src/core/utils/`.
-4. **Log with context.** Use the injected `logger` and always pass `{ label: this.config.label }`.
-5. **Wrap multi-step operations with `step()` from `allure-js-commons`** in the Main Page Object class only — not in sub-components.
-6. **Shared modals** go in `src/pages/modals/` and are invoked by Maestros only, never directly from tests.
-7. **`FooterActions`** is a shared sub-component — instantiate it in every Maestro that needs footer-level actions.
+For the full specification of the Page Object layer — constructor contracts, method contracts, naming conventions, locator ownership, types, and shared utilities — see [src/pages/README.md](src/pages/README.md).
 
 ### Branching & PR
 
 - Branch from `main` using the pattern `feat/<short-description>` or `fix/<short-description>`.
 - Include the corresponding Jira ticket ID in both the branch name and the `issueId` metadata field of `runSession()`.
 - All new sessions must pass locally (`npm run test:dev`) before opening a PR.
+
+---
+
+## 🤖 Skills disponibles
+
+Skills automatizadas invocables en Claude Code para tareas recurrentes del proyecto:
+
+| Skill | Invocación | Descripción |
+|---|---|---|
+| `generate-readme` | `"Usando la skill generate-readme, documenta la carpeta X"` | Genera o actualiza un `README.md` para cualquier carpeta del proyecto siguiendo las convenciones de este repo |
+| `create-session` | `"Crea un nuevo test para el flujo X"` | Genera un archivo `.test.ts` en `/sessions` para un nuevo caso de prueba |
+| `sanitize-docs` | `"Sanitizá el archivo X"` | Revisa y completa JSDoc/TSDoc en archivos TypeScript |
+| `sync-docs` | `"Revisá la documentación pendiente"` | Sincroniza docs con el código tras commits recientes |
+| `audit-docs` | `"Auditá la documentación"` | Detecta inconsistencias entre código, JSDoc y archivos `.md` |
+| `validate-ssot` | `"Validá el SSoT"` | Verifica que ningún `.md` contenga lógica que debería estar en código |
+| `week-report` | `"Generá el reporte semanal"` | Genera el correo de reporte de avance QA para el PM |
+
+---
+
+## 🔗 Documentación relacionada
+
+- [src/pages/README.md](src/pages/README.md) — especificación autoritativa de la capa Page Object: arquitectura, contratos, naming y tipos
+- [src/core/README.md](src/core/README.md) — motor del framework: acciones, retry, configuración del driver, errores, utilidades y wrapper del ciclo de vida del test

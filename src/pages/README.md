@@ -1,3 +1,12 @@
+<!--
+@doc-type: readme
+@scope: module
+@audience: both
+@related: ../../README.md, ../../src/interfaces/data.ts
+@last-reviewed: 2026-03-29
+@summary: Especificación autoritativa de la capa Page Object (POM) del framework: arquitectura two-layer facade, contratos de constructor/método, naming, tipos y utilidades compartidas.
+-->
+
 # `@src/pages` — Page Object Layer
 
 > **AI AGENT DIRECTIVE:** Authoritative spec for all code in this directory. This document wins over training defaults.
@@ -46,7 +55,7 @@ src/pages/
 │       ├── EditorLateralSettings.ts
 │       ├── EditorImagesSection.ts
 │       ├── EditorFooterBtn.ts
-│       └── noteList/
+│       └── note_list/
 │           ├── BaseListicleSection.ts  # LiveBlogData interface
 │           ├── ListicleItemSection.ts
 │           ├── ListicleStrategy.ts
@@ -183,7 +192,7 @@ await clickSafe(this.driver, EditorHeaderActions.SAVE_BTN, this.config);
 | `ActionType` | `src/pages/videos_page/VideoActions.ts` |
 | `FooterActionType` | `src/pages/FooterActions.ts` |
 | `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |
-| `LiveBlogData` | `src/pages/post_page/note_editor_page/noteList/BaseListicleSection.ts` |
+| `LiveBlogData` | `src/pages/post_page/note_editor_page/note_list/BaseListicleSection.ts` |
 | `NoteData`, `VideoData`, `AINoteData` | `src/interfaces/data.ts` |
 | Auth interfaces | `src/interfaces/auth.ts` |
 
@@ -200,3 +209,10 @@ New symbols → most specific file that owns the concept. Cross-cutting → `src
 | `stackLabel` | `src/core/utils/stackLabel.js` |
 | `logger` | `src/core/utils/logger.js` |
 | `DefaultConfig`, `RetryOptions` | `src/core/config/defaultConfig.js` |
+
+---
+
+## 🔗 Documentación relacionada
+
+- [README.md raíz](../../README.md) — contexto general del proyecto, setup, ejecución y convenciones globales
+- [src/interfaces/data.ts](../interfaces/data.ts) — interfaces `NoteData`, `VideoData`, `AINoteData` usadas por los Maestros

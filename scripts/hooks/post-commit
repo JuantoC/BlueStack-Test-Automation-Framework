@@ -16,11 +16,11 @@ fi
 
 HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-CHANGED_FILES=$(grep -o '"src/[^"]*"' "$PENDING_PATH" | tr -d '"' | tr '\n' ' ')
+CHANGED_FILES=$(grep -o '"[^"]*\.\(ts\|tsx\|md\)"' "$PENDING_PATH" | tr -d '"' | tr '\n' ' ')
 DIFF=$(git diff HEAD~1 HEAD -- $CHANGED_FILES 2>/dev/null || git show HEAD -- $CHANGED_FILES 2>/dev/null)
 DIFF=$(echo "$DIFF" | head -c 8000)
 
-FILES_LIST=$(grep -o '"src/[^"]*"' "$PENDING_PATH" | tr -d '"' | sed 's/^/- /')
+FILES_LIST=$(grep -o '"[^"]*\.\(ts\|tsx\|md\)"' "$PENDING_PATH" | tr -d '"' | sed 's/^/- /')
 
 # Escribir prompt línea a línea
 {

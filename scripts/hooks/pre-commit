@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WATCH_DIRS=("src/pages" "src/core" "src/interfaces")
+WATCH_DIRS=("src/pages" "src/core" "src/interfaces" ".claude/skills")
 PENDING_PATH=".claude/pending-doc-updates.json"
 
 # Obtener archivos .ts staged en los directorios vigilados
@@ -8,7 +8,7 @@ CHANGED_FILES=()
 while IFS= read -r line; do
   STATUS=$(echo "$line" | cut -f1)
   FILE=$(echo "$line" | cut -f2)
-  if [[ "$FILE" == *.ts || "$FILE" == *.tsx ]]; then
+  if [[ "$FILE" == *.ts || "$FILE" == *.tsx || "$FILE" == *.md ]]; then
     for dir in "${WATCH_DIRS[@]}"; do
       if [[ "$FILE" == $dir/* ]]; then
         CHANGED_FILES+=("$FILE")

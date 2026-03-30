@@ -8,12 +8,7 @@ import { waitVisible } from "../../core/actions/waitVisible.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { step } from "allure-js-commons";
 
-export enum VideoType {
-  NATIVO = 'NATIVO',
-  EMBEDDED = 'EMBEDDED',
-  YOUTUBE = 'YOUTUBE',
-  SHORT = 'SHORT'
-}
+export type VideoType = keyof typeof UploadVideoBtn.VIDEO_TYPE_MAP;
 
 /**
  * Page Object que representa el botón de creación de videos y su menú desplegable de tipos.
@@ -23,19 +18,19 @@ export enum VideoType {
  *
  * @example
  * const btn = new UploadVideoBtn(driver, opts);
- * await btn.selectVideoType(VideoType.NATIVO);
+ * await btn.selectVideoType('NATIVO');
  */
 export class UploadVideoBtn {
 
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private static readonly VIDEO_TYPE_MAP: Record<VideoType, Set<string>> = {
-    [VideoType.EMBEDDED]: new Set(['Embedded Video', "Video Embedded", "Video Incorporado"]),
-    [VideoType.NATIVO]: new Set(['Native Video', "Video Nativo", "Video Nativo"]),
-    [VideoType.YOUTUBE]: new Set(['YouTube Video', "Video YouTube"]),
-    [VideoType.SHORT]: new Set(['YouTube Short Video', "Video Youtube Short", "Video Youtube Short"])
-  };
+  public static readonly VIDEO_TYPE_MAP = {
+    EMBEDDED: new Set(['Embedded Video', "Video Embedded", "Video Incorporado"]),
+    NATIVO: new Set(['Native Video', "Video Nativo", "Video Nativo"]),
+    YOUTUBE: new Set(['YouTube Video', "Video YouTube"]),
+    SHORT: new Set(['YouTube Short Video', "Video Youtube Short", "Video Youtube Short"])
+  } as const;
 
   private static readonly VIDEOS_TABLE: Locator = By.css('div#multimedia-table-body')
   private static readonly UPLOAD_VIDEO_BTN: Locator = By.css("button.btn-create-note");

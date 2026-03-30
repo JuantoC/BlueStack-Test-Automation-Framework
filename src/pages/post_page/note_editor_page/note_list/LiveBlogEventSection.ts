@@ -6,12 +6,7 @@ import logger from "../../../../core/utils/logger.js";
 import { LiveBlogData } from "./BaseListicleSection.js";
 import { step } from "allure-js-commons";
 
-export enum LiveBlogEventField {
-    EVENT_TITLE = 'EVENT_TITLE',
-    EVENT_DESCRIPTION = 'EVENT_DESCRIPTION',
-    PLACE_OF_EVENT = 'PLACE_OF_EVENT',
-    EVENT_ADDRESS = 'EVENT_ADDRESS'
-}
+export type LiveBlogEventField = keyof typeof LiveBlogEventSection.LOCATORS;
 
 /**
  * Sub-componente que gestiona la sección del evento en notas de tipo LiveBlog.
@@ -23,12 +18,12 @@ export class LiveBlogEventSection {
     private config: RetryOptions;
 
     // ========== LOCATORS (Private & Readonly) ==========
-    private static readonly LOCATORS: Record<LiveBlogEventField, Locator> = {
-        [LiveBlogEventField.EVENT_TITLE]: By.css('div[id="event-note"] input.mda-form-control'),
-        [LiveBlogEventField.EVENT_DESCRIPTION]: By.css('div[id="event-note"] textarea[cdktextareaautosize].ng-untouched'),
-        [LiveBlogEventField.PLACE_OF_EVENT]: By.css('div[id="event-note"] textarea[id^="mat-input-"]'),
-        [LiveBlogEventField.EVENT_ADDRESS]: By.css('div[id="event-note"] input#search-input'),
-    }
+    public static readonly LOCATORS = {
+        EVENT_TITLE: By.css('div[id="event-note"] input.mda-form-control'),
+        EVENT_DESCRIPTION: By.css('div[id="event-note"] textarea[cdktextareaautosize].ng-untouched'),
+        PLACE_OF_EVENT: By.css('div[id="event-note"] textarea[id^="mat-input-"]'),
+        EVENT_ADDRESS: By.css('div[id="event-note"] input#search-input'),
+    } as const
 
     constructor(driver: WebDriver, opts: RetryOptions) {
         this.driver = driver;
@@ -49,8 +44,8 @@ export class LiveBlogEventSection {
                     logger.debug(`No se proporcionó un título para el evento de LiveBlog. Omitiendo este paso.`, { label: this.config.label });
                     return;
                 }
-                logger.debug(`Escribiendo contenido en el campo: ${LiveBlogEventField.EVENT_TITLE}`, { label: this.config.label });
-                await writeSafe(this.driver, LiveBlogEventSection.LOCATORS[LiveBlogEventField.EVENT_TITLE], value.eventLiveBlog.eventTitle, this.config);
+                logger.debug(`Escribiendo contenido en el campo: EVENT_TITLE`, { label: this.config.label });
+                await writeSafe(this.driver, LiveBlogEventSection.LOCATORS['EVENT_TITLE'], value.eventLiveBlog.eventTitle, this.config);
             } catch (error: any) {
                 logger.error(`Error en fillEventTitle: ${error.message}`, { label: this.config.label, error: error.message });
                 throw error;

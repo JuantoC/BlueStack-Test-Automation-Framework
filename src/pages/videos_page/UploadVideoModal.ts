@@ -13,20 +13,13 @@ import { createRequire } from 'module';
 import { sleep } from "../../core/utils/backOff.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
-import { VideoType } from "./UploadVideoBtn.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 import { Banners } from "../modals/Banners.js";
 
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
 
-export enum UploadVideoModalFields {
-  URL_YOUTUBE = 'URL_YOUTUBE',
-  TITLE_INPUT = 'TITLE_INPUT',
-  DESCRIPTION_INPUT = 'DESCRIPTION_INPUT',
-  FILE_UPLOAD_INPUT = 'FILE_UPLOAD_INPUT',
-  IFRAME_URL = 'IFRAME_URL',
-}
+export type UploadVideoModalFields = keyof typeof UploadVideoModal.LOCATORS;
 
 /**
  * Page Object que representa el modal de subida de videos del CMS.
@@ -47,13 +40,13 @@ export class UploadVideoModal {
   private readonly banner: Banners;
 
 
-  private static readonly LOCATORS: Record<UploadVideoModalFields, Locator> = {
-    [UploadVideoModalFields.URL_YOUTUBE]: By.css('div#url-details input[data-testid="url-youtube"]'),
-    [UploadVideoModalFields.TITLE_INPUT]: By.css('div#title-details textarea[data-testid="title-uploadVideo"]'),
-    [UploadVideoModalFields.DESCRIPTION_INPUT]: By.css('div#title-details textarea.desc-textarea'),
-    [UploadVideoModalFields.FILE_UPLOAD_INPUT]: By.css('input#video-file'),
-    [UploadVideoModalFields.IFRAME_URL]: By.css('div#code textarea'),
-  };
+  public static readonly LOCATORS = {
+    URL_YOUTUBE: By.css('div#url-details input[data-testid="url-youtube"]'),
+    TITLE_INPUT: By.css('div#title-details textarea[data-testid="title-uploadVideo"]'),
+    DESCRIPTION_INPUT: By.css('div#title-details textarea.desc-textarea'),
+    FILE_UPLOAD_INPUT: By.css('input#video-file'),
+    IFRAME_URL: By.css('div#code textarea'),
+  } as const;
   private static readonly IMAGE_PREVIEW = By.css('div#imgPreview mat-icon');
   private static readonly UPLOAD_BTN = By.css('div[align="end"] app-cmsmedios-button[data-testid="btn-ok-upload"]');
   private static readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
@@ -77,11 +70,11 @@ export class UploadVideoModal {
   async fillAll(data: Partial<VideoData>): Promise<void> {
     await step("Rellenar campos del modal de subida de video", async () => {
       const textMapping: Array<{ key: keyof VideoData; type: UploadVideoModalFields }> = [
-        { key: 'url', type: UploadVideoModalFields.URL_YOUTUBE },
-        { key: 'title', type: UploadVideoModalFields.TITLE_INPUT },
-        { key: 'description', type: UploadVideoModalFields.DESCRIPTION_INPUT },
-        { key: 'path', type: UploadVideoModalFields.FILE_UPLOAD_INPUT },
-        { key: 'iframe', type: UploadVideoModalFields.IFRAME_URL },
+        { key: 'url', type: 'URL_YOUTUBE' },
+        { key: 'title', type: 'TITLE_INPUT' },
+        { key: 'description', type: 'DESCRIPTION_INPUT' },
+        { key: 'path', type: 'FILE_UPLOAD_INPUT' },
+        { key: 'iframe', type: 'IFRAME_URL' },
       ];
 
       for (const { key, type } of textMapping) {
@@ -91,7 +84,7 @@ export class UploadVideoModal {
         }
       }
 
-      if (data.video_type === VideoType.EMBEDDED) {
+      if (data.video_type === 'EMBEDDED') {
         await clickSafe(this.driver, UploadVideoModal.IMAGE_PREVIEW, this.config)
         await this.image.selectImage(0)
       }
@@ -112,12 +105,12 @@ export class UploadVideoModal {
       try {
         logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
 
-        if (field === UploadVideoModalFields.FILE_UPLOAD_INPUT) {
+        if (field === 'FILE_UPLOAD_INPUT') {
           await this.uploadFile(value);
           return;
         }
 
-        if (field === UploadVideoModalFields.TITLE_INPUT) {
+        if (field === 'TITLE_INPUT') {
           value = value + " | Subido por BlueStack_Test_Automation_Framework";
         }
 
@@ -199,7 +192,7 @@ export class UploadVideoModal {
 
     const fileInput = await waitFind(
       this.driver,
-      UploadVideoModal.LOCATORS[UploadVideoModalFields.FILE_UPLOAD_INPUT],
+      UploadVideoModal.LOCATORS['FILE_UPLOAD_INPUT'],
       this.config
     );
 

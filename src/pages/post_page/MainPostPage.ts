@@ -6,16 +6,16 @@ export class MainPostPage {
   private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly noteType: NoteType
+  private readonly NoteType: NoteType
   private readonly table: PostTable
   private readonly createBtn: NewNoteBtn
   private readonly footer: FooterActions
   private readonly banner: Banners;
 
-  constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
+  constructor(driver: WebDriver, NoteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
     this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainPostPage") };
-    this.noteType = noteType || 'POST';
+    this.NoteType = NoteType || 'POST';
 
     this.table = new PostTable(driver, this.config);
     this.createBtn = new NewNoteBtn(driver, this.config)
@@ -114,11 +114,11 @@ export class MainPostPage {
   /**
    * Crea una nueva nota del tipo indicado mediante el menú desplegable de creación.
    * Delega en `NewNoteBtn.selectNoteType` y monitorea banners tras la apertura del editor.
-   * Si no se pasa un tipo explícito, usa el `noteType` con el que fue instanciado el Maestro.
+   * Si no se pasa un tipo explícito, usa el `NoteType` con el que fue instanciado el Maestro.
    *
    * @param newNoteType - Tipo de nota a crear. Por defecto usa el tipo del constructor.
    */
-  async createNewNote(newNoteType: NoteType = this.noteType) {
+  async createNewNote(newNoteType: NoteType = this.NoteType) {
     await step(`Crear nueva nota ${newNoteType}`, async () => {
       try {
         logger.info(`Abriendo modal para nueva nota: ${newNoteType}`, { label: this.config.label });

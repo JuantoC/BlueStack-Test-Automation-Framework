@@ -6,11 +6,7 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
 import { step } from "allure-js-commons";
 
-export enum ActionType {
-  EDIT = 'EDIT',
-  DELETE = 'DELETE',
-  UNPUBLISH = 'UNPUBLISH',
-}
+export type ActionType = keyof typeof VideoActions.ACTION_TYPE_MAP;
 
 /**
  * Page Object que encapsula las acciones disponibles para un video en la tabla multimedia.
@@ -27,11 +23,11 @@ export class VideoActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private static readonly ACTION_TYPE_MAP: Record<ActionType, Set<string>> = {
-    [ActionType.EDIT]: new Set(['Edit', "Editar"]),
-    [ActionType.DELETE]: new Set(["Eliminar", "Remove"]),
-    [ActionType.UNPUBLISH]: new Set(['Unpublish', "Despublicar"]),
-  };
+  public static readonly ACTION_TYPE_MAP = {
+    EDIT: new Set(['Edit', "Editar"]),
+    DELETE: new Set(["Eliminar", "Remove"]),
+    UNPUBLISH: new Set(['Unpublish', "Despublicar"]),
+  } as const;
   private static readonly DROPDOWN_BTN: Locator = By.css('div#-dropMenu button.dropdown-toggle')
   private static readonly LABELS_OF_ACTIONS: Locator = By.css('div#-dropMenu button.dropdown-item')
 

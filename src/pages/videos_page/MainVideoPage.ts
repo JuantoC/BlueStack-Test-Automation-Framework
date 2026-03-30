@@ -1,7 +1,7 @@
 import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { WebDriver, WebElement } from "selenium-webdriver";
-import { UploadVideoBtn, VideoType } from "./UploadVideoBtn.js";
+import { UploadVideoBtn } from "./UploadVideoBtn.js";
 import { UploadVideoModal } from "./UploadVideoModal.js";
 import { VideoTable } from "./VideoTable.js";
 import { attachment, step } from "allure-js-commons";
@@ -76,7 +76,7 @@ export class MainVideoPage {
           return
         }
 
-        if (videoData.video_type === VideoType.NATIVO) {
+        if (videoData.video_type === 'NATIVO') {
           await this.uploadModal.checkProgressBar()
         }
 

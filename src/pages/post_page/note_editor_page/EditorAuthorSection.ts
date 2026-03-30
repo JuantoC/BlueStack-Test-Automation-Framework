@@ -7,11 +7,7 @@ import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
-export enum AuthorType {
-  INTERNAL = 'INTERNAL',
-  ANONYMOUS = 'ANONYMOUS',
-  MANUAL = 'MANUAL'
-}
+export type AuthorType = keyof typeof EditorAuthorSection.AUTHOR_BUTTON_MAP;
 
 /**
  * Representa la sección de autoría dentro del Editor de Notas.
@@ -22,11 +18,11 @@ export class EditorAuthorSection {
   private config: RetryOptions;
 
   // ========== LOCATORS (Private & Readonly) ==========
-  private static readonly AUTHOR_BUTTON_MAP: Record<AuthorType, Locator> = {
-    [AuthorType.INTERNAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),
-    [AuthorType.ANONYMOUS]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='person_outline']"),
-    [AuthorType.MANUAL]: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"),
-  };
+  public static readonly AUTHOR_BUTTON_MAP = {
+    INTERNAL: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='check_circle_outline']"),
+    ANONYMOUS: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='person_outline']"),
+    MANUAL: By.xpath("//div[contains(@class,'icon-preview')]//mat-icon[normalize-space()='draw']"),
+  } as const;
 
   private static readonly AUTHOR_DESCRIPTION: Locator = By.xpath("//div[contains(@class,'author-description')]//textarea[@type='text']");
   private static readonly AUTHOR_NAME: Locator = By.css(".image-container_description input[type='text']");
@@ -58,7 +54,7 @@ export class EditorAuthorSection {
       let authorType: AuthorType | undefined = data.authorType;
       if (!authorType) {
         if (hasName || hasDescription) {
-          authorType = AuthorType.MANUAL;
+          authorType = 'MANUAL';
           logger.debug("Tipo de autor no especificado. Infiriendo MANUAL por presencia de datos.", { label: this.config.label });
         } else {
           return;
@@ -67,15 +63,15 @@ export class EditorAuthorSection {
 
       try {
         switch (authorType) {
-          case AuthorType.INTERNAL:
+          case 'INTERNAL':
             return;
 
-          case AuthorType.ANONYMOUS:
-            await this.selectAuthorType(AuthorType.ANONYMOUS);
+          case 'ANONYMOUS':
+            await this.selectAuthorType('ANONYMOUS');
             break;
 
-          case AuthorType.MANUAL:
-            await this.selectAuthorType(AuthorType.MANUAL);
+          case 'MANUAL':
+            await this.selectAuthorType('MANUAL');
             if (hasName) await this.fillAuthorName(data.authorName!);
             if (hasDescription) await this.fillAuthorDescription(data.authorDescription!);
             break;

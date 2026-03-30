@@ -6,14 +6,7 @@ import logger from "../core/utils/logger.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { retry } from "../core/wrappers/retry.js";
 
-export enum SidebarOption {
-  COMMENTS = 'COMMENTS',
-  PLANNING = 'PLANNING',
-  NEWS = 'NEWS',
-  TAGS = 'TAGS',
-  IMAGES = 'IMAGES',
-  VIDEOS = 'VIDEOS'
-}
+export type SidebarOption = keyof typeof SidebarAndHeader.SIDEBAR_MAP;
 
 /**
  * Sub-componente que representa la barra lateral de navegación y el header del CMS.
@@ -32,14 +25,14 @@ export class SidebarAndHeader {
 
   private static readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
 
-  private static readonly SIDEBAR_MAP: Record<SidebarOption, Locator> = {
-    [SidebarOption.COMMENTS]: By.css('a[title="Comentarios"]'),
-    [SidebarOption.PLANNING]: By.css('a[title="Planning"]'),
-    [SidebarOption.NEWS]: By.css('a[title="Noticias"]'),
-    [SidebarOption.TAGS]: By.css('a[title="Tags"]'),
-    [SidebarOption.IMAGES]: By.css('a[title="Imagenes"]'),
-    [SidebarOption.VIDEOS]: By.css('a[title="Videos"]')
-  };
+  public static readonly SIDEBAR_MAP = {
+    COMMENTS: By.css('a[title="Comentarios"]'),
+    PLANNING: By.css('a[title="Planning"]'),
+    NEWS: By.css('a[title="Noticias"]'),
+    TAGS: By.css('a[title="Tags"]'),
+    IMAGES: By.css('a[title="Imagenes"]'),
+    VIDEOS: By.css('a[title="Videos"]')
+  } as const;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -60,7 +53,7 @@ export class SidebarAndHeader {
       const locator = SidebarAndHeader.SIDEBAR_MAP[component];
       try {
         logger.debug(`Ejecutando click en ${component}...`, { label: this.config.label })
-        if (component === SidebarOption.IMAGES || component === SidebarOption.VIDEOS) {
+        if (component === 'IMAGES' || component === 'VIDEOS') {
           await this.clickOnMultimediaFileBtn(component)
           return
         }
@@ -82,7 +75,7 @@ export class SidebarAndHeader {
    *
    * @param action - Sub-sección multimedia a seleccionar: IMAGES o VIDEOS.
    */
-  async clickOnMultimediaFileBtn(action: SidebarOption.IMAGES | SidebarOption.VIDEOS): Promise<void> {
+  async clickOnMultimediaFileBtn(action: 'IMAGES' | 'VIDEOS'): Promise<void> {
     const newConfig = { ...this.config, supressRetry: true }
     return retry(async () => {
       try {

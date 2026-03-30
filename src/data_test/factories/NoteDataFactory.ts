@@ -9,7 +9,7 @@
  */
 
 import { faker } from '@faker-js/faker';
-import { AuthorType } from '../../pages/post_page/note_editor_page/EditorAuthorSection.js';
+import type { AuthorType } from '../../pages/post_page/note_editor_page/EditorAuthorSection.js';
 import { NoteData } from '../../interfaces/data.js';
 
 // ─── Interfaces ────────────────────────────────────────────────────────────────
@@ -153,7 +153,7 @@ export class PostDataFactory {
       hiddenTags: [faker.word.noun(), 'contenido-editorial'],
       authorName: autor.name,
       authorDescription: autor.description,
-      authorType: AuthorType.MANUAL,
+      authorType: 'MANUAL',
     };
 
     return { ...defaultData, ...overrides };
@@ -194,7 +194,7 @@ export class ListicleDataFactory {
       hiddenTags: ['listicle', faker.word.adjective()],
       authorName: autor.name,
       authorDescription: autor.description,
-      authorType: AuthorType.MANUAL,
+      authorType: 'MANUAL',
       listicleItems: items,
     };
 

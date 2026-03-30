@@ -10,13 +10,12 @@
  */
 
 import { faker } from '@faker-js/faker';
-import { VideoType } from '../../pages/videos_page/UploadVideoBtn.js';
 import { VideoData } from '../../interfaces/data.js';
 
 // ─── Interfaces ────────────────────────────────────────────────────────────────
 
 export interface YoutubeVideoData extends VideoData {
-  video_type: VideoType.YOUTUBE;
+  video_type: 'YOUTUBE';
   url: string;       // URL válida de YouTube: https://www.youtube.com/watch?v=...
   title: string;
   description?: string;
@@ -24,7 +23,7 @@ export interface YoutubeVideoData extends VideoData {
 }
 
 export interface NativeVideoData extends VideoData {
-  video_type: VideoType.NATIVO;
+  video_type: 'NATIVO';
   title: string;
   path: string;      // Ruta relativa desde raíz del proyecto: src/data_test/archivo.mp4
   description?: string;
@@ -32,7 +31,7 @@ export interface NativeVideoData extends VideoData {
 }
 
 export interface EmbeddedVideoData extends VideoData {
-  video_type: VideoType.EMBEDDED;
+  video_type: 'EMBEDDED';
   iframe: string;       // URL de iframe embebido: https://www.youtube.com/embed/... u otros proveedores
   title: string;
   description?: string; // Obligatorio (a diferencia de YouTube y Nativo que lo tienen como opcional)
@@ -140,7 +139,7 @@ export class YoutubeVideoDataFactory {
 
     const defaultData: YoutubeVideoData = {
       url: `https://www.youtube.com/watch?v=${videoId}`,
-      video_type: VideoType.YOUTUBE,
+      video_type: 'YOUTUBE',
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
     };
@@ -185,7 +184,7 @@ export class NativeVideoDataFactory {
     const tema = pickRandom(TEMAS_VIDEO);
 
     const defaultData: NativeVideoData = {
-      video_type: VideoType.NATIVO,
+      video_type: 'NATIVO',
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
       // Rota entre los archivos disponibles para variar entre tests
@@ -222,7 +221,7 @@ export class EmbeddedVideoDataFactory {
     const tema = pickRandom(TEMAS_VIDEO);
 
     const defaultData: EmbeddedVideoData = {
-      video_type: VideoType.EMBEDDED,
+      video_type: 'EMBEDDED',
       iframe: pickRandom(EMBEDDED_IFRAME_URLS),
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),

@@ -31,7 +31,7 @@ runSession(
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // 4. Ingresar al componente de videos
-    await sidebar.goToComponent(SidebarOption.VIDEOS);
+    await sidebar.goToComponent('VIDEOS');
 
     // 5. Subir un nuevo video youtube
     await video.uploadNewVideo(newEmbeddedData);
@@ -59,5 +59,5 @@ import { description } from "allure-js-commons";
 // Imports de Page Objects
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
+import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
 import { EmbeddedVideoDataFactory } from "../src/data_test/factories/index.js";

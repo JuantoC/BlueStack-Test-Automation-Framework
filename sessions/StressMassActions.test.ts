@@ -66,7 +66,7 @@ runSession("Stress Mass Actions",
     await postPage.changePostTitle(listicleData.title);
     await postPage.changePostTitle(liveBlogData.title);
 
-    await sidebar.goToComponent(SidebarOption.VIDEOS);
+    await sidebar.goToComponent('VIDEOS');
 
     await video.uploadNewVideo(nativeVideoData);
 
@@ -78,7 +78,7 @@ runSession("Stress Mass Actions",
     await video.changeVideoTitle(youtubeVideoData.title!);
     //await video.changeVideoTitle(embeddedVideoData.title!);
 
-    await sidebar.goToComponent(SidebarOption.NEWS);
+    await sidebar.goToComponent('NEWS');
 
     await postPage.createNewNote('AI_POST');
     await ai.generateNewAINote(AIData);
@@ -111,5 +111,5 @@ import {
   AINoteDataFactory
 } from "../src/data_test/factories/index.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
+import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
 

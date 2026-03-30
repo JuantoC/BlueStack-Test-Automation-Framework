@@ -30,7 +30,7 @@ runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
 
   await login.passLoginAndTwoFA({ username: user, password: pass });
 
-  await sidebar.goToComponent(SidebarOption.VIDEOS);
+  await sidebar.goToComponent('VIDEOS');
 
   await video.uploadNewVideo(nativeVideoData);
 
@@ -58,5 +58,5 @@ import { runSession } from "../src/core/wrappers/testWrapper.js";
 import { NativeVideoDataFactory, YoutubeVideoDataFactory, EmbeddedVideoDataFactory } from "../src/data_test/factories/index.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
 import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
+import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
 import { description } from "allure-js-commons"; 

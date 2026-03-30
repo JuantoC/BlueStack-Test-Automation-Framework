@@ -48,20 +48,20 @@ runSession(
     await editor.closeNoteEditor('BACK_SAVE_AND_EXIT');
 
     // 4. Ingresar al componente de videos
-    await sidebar.goToComponent(SidebarOption.VIDEOS);
+    await sidebar.goToComponent('VIDEOS');
 
     // 5. Subir un nuevo video youtube
     await video.uploadNewVideo(newYoutubeData);
 
     // 6. Volver a la página de posts (noticias)
-    await sidebar.goToComponent(SidebarOption.NEWS);
+    await sidebar.goToComponent('NEWS');
 
     await post.enterToEditorPage(newPostData.title!);
 
     // 9. Publicarla y salir
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 
-    await sidebar.goToComponent(SidebarOption.VIDEOS)
+    await sidebar.goToComponent('VIDEOS')
 
     /*    const videos = await video.getVideoContainers(1);
        await video.selectAndPublishFooter(videos); */
@@ -89,4 +89,4 @@ import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
 import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
 import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
 import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
+import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";

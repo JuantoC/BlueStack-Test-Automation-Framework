@@ -71,7 +71,7 @@ src/pages/
 │   ├── PublishModal.ts            # Lógica de publicación (notas y videos)
 │   └── Banners.ts
 ├── comment_page/
-├── image_pages/
+├── images_pages/
 │   ├── MainImagePage.ts           # Maestro — subida, edición, acciones, publicación masiva
 │   ├── ImageTable.ts
 │   ├── UploadImageBtn.ts          # ImageType type
@@ -195,10 +195,10 @@ await clickSafe(this.driver, EditorHeaderActions.SAVE_BTN, this.config);
 | `NoteExitAction` | `src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
 | `VideoType` | `src/pages/videos_page/UploadVideoBtn.ts` |
 | `ActionType` | `src/pages/videos_page/VideoActions.ts` |
-| `ImageType` | `src/pages/image_pages/UploadImageBtn.ts` |
-| `ImageActionType` | `src/pages/image_pages/ImageActions.ts` |
-| `ImageData` | `src/pages/image_pages/UploadImageModal.ts` |
-| `UploadImageModalFields` | `src/pages/image_pages/UploadImageModal.ts` |
+| `ImageType` | `src/pages/images_pages/UploadImageBtn.ts` |
+| `ImageActionType` | `src/pages/images_pages/ImageActions.ts` |
+| `ImageData` | `src/pages/images_pages/UploadImageModal.ts` |
+| `UploadImageModalFields` | `src/pages/images_pages/UploadImageModal.ts` |
 | `FooterActionType` | `src/pages/FooterActions.ts` |
 | `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |
 | `LiveBlogData` | `src/pages/post_page/note_editor_page/note_list/BaseListicleSection.ts` |

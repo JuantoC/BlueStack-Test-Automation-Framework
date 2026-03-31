@@ -7,7 +7,7 @@ import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentCont
 import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
-export type ActionType = keyof typeof ImageActions.ACTION_TYPE_MAP;
+export type ImageActionType = keyof typeof ImageActions.ACTION_TYPE_MAP;
 
 /**
  * Page Object que encapsula las acciones disponibles para una imagen en la tabla multimedia.
@@ -46,7 +46,7 @@ export class ImageActions {
    * @param imageContainer - Contenedor WebElement de la imagen sobre la que se ejecuta la acción.
    * @param action - Tipo de acción a ejecutar (EDIT, DELETE o UNPUBLISH).
    */
-  async clickOnAction(imageContainer: WebElement, action: ActionType): Promise<void> {
+  async clickOnAction(imageContainer: WebElement, action: ImageActionType): Promise<void> {
     try {
       logger.debug(`Buscando el boton de ${action} dentro de la imagen..`, { label: this.config.label })
       const editorBtn = await imageContainer.findElement(ImageActions.DROPDOWN_BTN);
@@ -66,7 +66,7 @@ export class ImageActions {
     }
   }
 
-  private async findAction(imageContainer: WebElement, action: ActionType): Promise<WebElement> {
+  private async findAction(imageContainer: WebElement, action: ImageActionType): Promise<WebElement> {
     try {
       const elements = await imageContainer.findElements(ImageActions.LABELS_OF_ACTIONS);
       for (const element of elements) {

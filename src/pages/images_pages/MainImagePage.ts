@@ -1,12 +1,11 @@
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { WebDriver, WebElement } from "selenium-webdriver";
 import { UploadImageBtn } from "./UploadImageBtn.js";
 import { UploadImageModal, ImageData } from "./UploadImageModal.js";
 import { ImageTable } from "./ImageTable.js";
 import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
-import { ActionType, ImageActions } from "./ImageActions.js";
+import { ImageActionType, ImageActions } from "./ImageActions.js";
 import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 import { Banners } from "../modals/Banners.js";
@@ -31,7 +30,6 @@ export class MainImagePage {
   private readonly table: ImageTable
   private readonly actions: ImageActions
   private readonly footer: FooterActions
-  private readonly image: CKEditorImageModal;
   private readonly banner: Banners;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
@@ -43,7 +41,6 @@ export class MainImagePage {
     this.table = new ImageTable(this.driver, this.config);
     this.actions = new ImageActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
-    this.image = new CKEditorImageModal(this.driver, this.config)
     this.banner = new Banners(this.driver, this.config);
   }
 
@@ -54,8 +51,9 @@ export class MainImagePage {
    * Para imágenes de tipo `LOCAL`, también verifica la barra de progreso de carga.
    *
    * @param imageData - Datos completos de la imagen a subir, incluyendo tipo, título, URL o ruta de archivo.
+   * @returns {Promise<void>}
    */
-  async uploadNewImage(imageData: ImageData): Promise<any> {
+  async uploadNewImage(imageData: ImageData): Promise<void> {
     await step(`Subiendo nueva imagen con datos dinámicos`, async (stepContext) => {
       attachment(`${imageData.image_type} Data`, JSON.stringify(imageData, null, 2), "application/json");
       imageData.image_type && stepContext.parameter("Image Type", imageData.image_type)
@@ -102,14 +100,15 @@ export class MainImagePage {
    * Localiza el contenedor de la imagen por su título y delega en `ImageTable.changeImageTitle`
    * para realizar la edición inline.
    *
-   * @param titleID - Fragmento o título completo de la imagen a modificar, usado para localizar su fila en la tabla.
+   * @param TitleID - Fragmento o título completo de la imagen a modificar, usado para localizar su fila en la tabla.
+   * @returns {Promise<void>}
    */
-  async changeImageTitle(titleID: string): Promise<any> {
-    await step(`Cambiando titulo de la imagen ${titleID}`, async () => {
+  async changeImageTitle(TitleID: string): Promise<void> {
+    await step(`Cambiando titulo de la imagen ${TitleID}`, async () => {
 
       try {
         logger.debug("Ejecutando busqueda del contenedor para el titulo de la imagen...", { label: this.config.label })
-        const imageContainer = await this.table.getImageContainerByTitle(titleID);
+        const imageContainer = await this.table.getImageContainerByTitle(TitleID);
 
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeImageTitle(imageContainer);
@@ -120,7 +119,7 @@ export class MainImagePage {
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo de la imagen: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: titleID,
+          title: TitleID,
           error: getErrorMessage(error)
         })
         throw error;
@@ -133,17 +132,18 @@ export class MainImagePage {
    * Delega la búsqueda del contenedor en `ImageTable.getImageContainerByTitle` y
    * la interacción con el menú en `ImageActions.clickOnAction`.
    *
-   * @param postTitle - Título de la imagen objetivo, usado para identificar su fila en la tabla.
+   * @param ImageTitle - Título de la imagen objetivo, usado para identificar su fila en la tabla.
    * @param action - Tipo de acción a ejecutar sobre la imagen (EDIT, DELETE, UNPUBLISH).
+   * @returns {Promise<void>}
    */
-  async clickOnActionImage(postTitle: string, action: ActionType): Promise<any> {
-    await step(`Clickeando en la accion: "${action}" de la imagen: "${postTitle}"`, async (stepContext) => {
-      stepContext.parameter("Titulo de la imagen", postTitle);
+  async clickOnActionImage(ImageTitle: string, action: ImageActionType): Promise<void> {
+    await step(`Clickeando en la accion: "${action}" de la imagen: "${ImageTitle}"`, async (stepContext) => {
+      stepContext.parameter("Titulo de la imagen", ImageTitle);
       stepContext.parameter("Acción", action);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        const imageContainer = await this.table.getImageContainerByTitle(postTitle);
+        const imageContainer = await this.table.getImageContainerByTitle(ImageTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(imageContainer, action);
 
@@ -152,7 +152,7 @@ export class MainImagePage {
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en la imagen: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: postTitle,
+          title: ImageTitle,
           action,
           error: getErrorMessage(error)
         })
@@ -167,8 +167,9 @@ export class MainImagePage {
    * Finaliza con una acción de publicación mediante `FooterActions.clickFooterAction`.
    *
    * @param images - Array de contenedores WebElement de las imágenes que se desean seleccionar y publicar.
+   * @returns {Promise<void>}
    */
-  async selectAndPublishFooter(images: WebElement[]): Promise<any> {
+  async selectAndPublishFooter(images: WebElement[]): Promise<void> {
     await step("Seleccionar y publicar imágenes", async (stepContext) => {
       stepContext.parameter("Cantidad", images.length.toString());
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
@@ -193,19 +194,19 @@ export class MainImagePage {
    * Obtiene un array de contenedores WebElement de las primeras N imágenes de la tabla.
    * Itera por índice comenzando desde 0 y delega cada búsqueda en `ImageTable.getImageContainerByIndex`.
    *
-   * @param numberOfImages - Cantidad de imágenes a recuperar desde la parte superior de la tabla.
+   * @param NumberOfImages - Cantidad de imágenes a recuperar desde la parte superior de la tabla.
    * @returns {Promise<WebElement[]>} Array con los contenedores DOM de las imágenes solicitadas.
    */
-  async getImageContainers(numberOfImages: number): Promise<WebElement[]> {
+  async getImageContainers(NumberOfImages: number): Promise<WebElement[]> {
     try {
       let images = []
-      for (let i = 0; i < numberOfImages; i++) {
+      for (let i = 0; i < NumberOfImages; i++) {
         const image = await this.table.getImageContainerByIndex(i);
         images.push(image)
       }
       return images
     } catch (error: unknown) {
-      logger.error(`Error al obtener las ultimas ${numberOfImages} imágenes: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      logger.error(`Error al obtener las ultimas ${NumberOfImages} imágenes: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

@@ -8,48 +8,89 @@ if [ ! -f "$PENDING_PATH" ]; then
   exit 0
 fi
 
-# Verificar status
-STATUS=$(grep '"status"' "$PENDING_PATH" | cut -d'"' -f4)
-if [ "$STATUS" != "pending-review" ]; then
+# Verificar si hay alguna entrada con hash __PENDING__ (generada por pre-commit)
+HAS_PENDING=$(python3 -c "
+import json
+try:
+    with open('$PENDING_PATH') as f:
+        data = json.load(f)
+    commits = data.get('pendingCommits', [])
+    pending = [c for c in commits if c.get('hash') == '__PENDING__']
+    print('yes' if pending else 'no')
+except Exception:
+    print('no')
+" 2>/dev/null)
+
+if [ "$HAS_PENDING" != "yes" ]; then
   exit 0
 fi
 
 HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-CHANGED_FILES=$(grep -o '"[^"]*\.\(ts\|tsx\|md\)"' "$PENDING_PATH" | tr -d '"' | tr '\n' ' ')
+COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
+
+# Actualizar el primer __PENDING__ con el hash real y obtener sus archivos
+CHANGED_FILES=$(PENDING_PATH="$PENDING_PATH" HASH="$HASH" TIMESTAMP="$TIMESTAMP" python3 -c "
+import json, os
+
+pending_path = os.environ['PENDING_PATH']
+hash_val = os.environ['HASH']
+timestamp = os.environ['TIMESTAMP']
+
+with open(pending_path) as f:
+    data = json.load(f)
+
+changed = []
+for c in data.get('pendingCommits', []):
+    if c.get('hash') == '__PENDING__':
+        c['hash'] = hash_val
+        c['timestamp'] = timestamp
+        c['status'] = 'prompt-generated'
+        changed = c.get('changedFiles', [])
+        break  # solo el primero (el más reciente del pre-commit)
+
+with open(pending_path, 'w') as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+
+print(' '.join(changed))
+" 2>/dev/null)
+
+# Obtener diff de esos archivos
 DIFF=$(git diff HEAD~1 HEAD -- $CHANGED_FILES 2>/dev/null || git show HEAD -- $CHANGED_FILES 2>/dev/null)
 DIFF=$(echo "$DIFF" | head -c 8000)
 
-FILES_LIST=$(grep -o '"[^"]*\.\(ts\|tsx\|md\)"' "$PENDING_PATH" | tr -d '"' | sed 's/^/- /')
+FILES_LIST=$(echo "$CHANGED_FILES" | tr ' ' '\n' | sed '/^$/d' | sed 's/^/- /')
 
-# Escribir prompt línea a línea
+# Inicializar el prompt si no existe (usa append para no sobreescribir nunca)
+if [ ! -f "$PROMPT_PATH" ]; then
+  printf '# Revisión documental pendiente\n\n' >> "$PROMPT_PATH"
+fi
+
+# Agregar nueva sección al final (modo append, delimitada por hash)
 {
-  echo "# Revisión documental post-commit"
+  echo "<!-- COMMIT $HASH — $TIMESTAMP — status: pending -->"
+  echo "## Commit $HASH — $COMMIT_MSG"
   echo ""
-  echo "**Commit:** $HASH"
-  echo "**Fecha:** $TIMESTAMP"
-  echo "**Archivos TypeScript modificados:**"
+  echo "**Archivos:**"
   echo "$FILES_LIST"
   echo ""
-  echo "---"
-  echo ""
-  echo "## Tarea"
+  echo "### Tarea"
   echo ""
   echo "Analizá el siguiente diff y ejecutá estos pasos:"
   echo ""
-  echo "### 1. Identificar cambios de contrato público"
+  echo "#### 1. Identificar cambios de contrato público"
   echo "Del diff, identificá:"
   echo "- Funciones o métodos con firma nueva o modificada"
   echo "- Interfaces o tipos modificados en src/interfaces/"
   echo "- Constructores de Page Objects modificados"
   echo "- Exports nuevos o eliminados"
   echo ""
-  echo "### 2. Verificar JSDoc de los archivos afectados"
+  echo "#### 2. Verificar JSDoc de los archivos afectados"
   echo "Para cada cambio de contrato:"
   echo "- Leé el JSDoc actual del archivo .ts en el repositorio"
   echo "- Verificá si @param, @returns y @throws reflejan el estado nuevo"
   echo ""
-  echo "### 3. Verificar .md relacionados"
+  echo "#### 3. Verificar .md relacionados"
   echo "Revisá si alguno de estos archivos referencia los módulos modificados:"
   echo "- README.md"
   echo "- src/pages/README.md (si aplica)"
@@ -57,29 +98,30 @@ FILES_LIST=$(grep -o '"[^"]*\.\(ts\|tsx\|md\)"' "$PENDING_PATH" | tr -d '"' | se
   echo "- .claude/skills/create-session/SKILL.md"
   echo "- .claude/skills/sanitize-docs/SKILL.md"
   echo ""
-  echo "### 4. Escribir sugerencias"
-  echo "Escribí los resultados en .claude/doc-update-suggestions.md"
+  echo "#### 4. Escribir sugerencias"
+  echo "Escribí los resultados en .claude/doc-update-suggestions.md (modo append, no overwrite)"
   echo "Usá el formato definido en .claude/skills/sync-docs/SKILL.md"
   echo ""
-  echo "### 5. Reportar"
+  echo "#### 5. Reportar"
   echo "Mostrá el resumen y preguntá qué aplicar."
   echo "No apliques ningún cambio sin confirmación explícita."
   echo ""
   echo "---"
   echo ""
-  echo "## Diff"
+  echo "**Diff:**"
   echo ""
   echo '```diff'
   echo "$DIFF"
   echo '```'
-} > "$PROMPT_PATH"
-
-# Actualizar estado
-sed -i 's/"status": "pending-review"/"status": "prompt-generated"/' "$PENDING_PATH"
+  echo ""
+  echo "<!-- END $HASH -->"
+  echo ""
+} >> "$PROMPT_PATH"
 
 echo ""
-echo "📝 Post-commit: Prompt de revisión documental generado."
+echo "📝 Post-commit: Sección de revisión documental agregada."
 echo "   Commit: $HASH"
+echo "   Secciones pendientes en .claude/pending-doc-review-prompt.md"
 echo "   → En Claude Code escribí:"
 echo '     "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea"'
 echo ""

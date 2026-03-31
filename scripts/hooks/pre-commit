@@ -2,11 +2,11 @@
 
 WATCH_DIRS=("src/pages" "src/core" "src/interfaces" ".claude/skills")
 PENDING_PATH=".claude/pending-doc-updates.json"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Obtener archivos .ts staged en los directorios vigilados
+# Obtener archivos staged en los directorios vigilados
 CHANGED_FILES=()
 while IFS= read -r line; do
-  STATUS=$(echo "$line" | cut -f1)
   FILE=$(echo "$line" | cut -f2)
   if [[ "$FILE" == *.ts || "$FILE" == *.tsx || "$FILE" == *.md ]]; then
     for dir in "${WATCH_DIRS[@]}"; do
@@ -26,18 +26,82 @@ fi
 # Asegurar que .claude/ existe
 mkdir -p .claude
 
-# Escribir pending-doc-updates.json
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-FILES_JSON=$(printf '"%s",' "${CHANGED_FILES[@]}")
-FILES_JSON="[${FILES_JSON%,}]"
+# --- Guard: verificar deuda documental acumulada (> 4 horas) ---
+if [ -f "$PENDING_PATH" ]; then
+  GUARD_OUTPUT=$(PENDING_PATH="$PENDING_PATH" python3 -c "
+import json, os
+from datetime import datetime, timezone, timedelta
 
-cat > "$PENDING_PATH" << EOF
-{
-  "timestamp": "$TIMESTAMP",
-  "changedFiles": $FILES_JSON,
-  "status": "pending-review"
+pending_path = os.environ['PENDING_PATH']
+try:
+    with open(pending_path) as f:
+        data = json.load(f)
+    commits = data.get('pendingCommits', [])
+    now = datetime.now(timezone.utc)
+    threshold = timedelta(hours=4)
+    old = []
+    for c in commits:
+        if c.get('status') in ('pending', 'prompt-generated'):
+            try:
+                ts = datetime.fromisoformat(c['timestamp'].replace('Z', '+00:00'))
+                age = now - ts
+                if age > threshold:
+                    hours = int(age.total_seconds() // 3600)
+                    minutes = int((age.total_seconds() % 3600) // 60)
+                    old.append(f\"{c.get('hash', '?')} (hace {hours}h {minutes}m)\")
+            except Exception:
+                pass
+    if old:
+        print(str(len(old)))
+        for entry in old:
+            print(entry)
+except Exception:
+    pass
+" 2>/dev/null)
+
+  if [ -n "$GUARD_OUTPUT" ]; then
+    COUNT=$(echo "$GUARD_OUTPUT" | head -1)
+    OLDEST=$(echo "$GUARD_OUTPUT" | sed -n '2p')
+    echo ""
+    echo "⚠️  DOC-DEBT: Tenés ${COUNT} commit(s) con revisión documental pendiente."
+    echo "   Más antiguo: $OLDEST"
+    echo '   Ejecutá "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea" antes de continuar acumulando más deuda.'
+    echo "   Podés continuar de todas formas. Este es un recordatorio, no un bloqueo."
+    echo ""
+  fi
+fi
+
+# --- Acumular nueva entrada en pending-doc-updates.json ---
+# Convertir array bash a JSON usando python
+FILES_JSON_ARRAY=$(python3 -c "import json, sys; print(json.dumps(sys.argv[1:]))" "${CHANGED_FILES[@]}")
+
+PENDING_PATH="$PENDING_PATH" TIMESTAMP="$TIMESTAMP" FILES_JSON="$FILES_JSON_ARRAY" python3 -c "
+import json, os
+
+pending_path = os.environ['PENDING_PATH']
+timestamp = os.environ['TIMESTAMP']
+files = json.loads(os.environ['FILES_JSON'])
+
+new_entry = {
+    'hash': '__PENDING__',
+    'timestamp': timestamp,
+    'changedFiles': files,
+    'status': 'pending'
 }
-EOF
+
+try:
+    with open(pending_path) as f:
+        data = json.load(f)
+    if not isinstance(data.get('pendingCommits'), list):
+        data = {'pendingCommits': []}
+except Exception:
+    data = {'pendingCommits': []}
+
+data['pendingCommits'].append(new_entry)
+
+with open(pending_path, 'w') as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+" 2>/dev/null
 
 echo ""
 echo "📋 DOC-SYNC: Cambios detectados en src/"

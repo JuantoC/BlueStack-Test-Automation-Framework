@@ -10,33 +10,9 @@
  */
 
 import { faker } from '@faker-js/faker';
-import { VideoData } from '../../interfaces/data.js';
+import { VideoData, YoutubeVideoData, NativeVideoData, EmbeddedVideoData } from '../../interfaces/data.js';
 
-// ─── Interfaces ────────────────────────────────────────────────────────────────
-
-export interface YoutubeVideoData extends VideoData {
-  video_type: 'YOUTUBE';
-  url: string;       // URL válida de YouTube: https://www.youtube.com/watch?v=...
-  title: string;
-  description?: string;
-  // Campo PROHIBIDO: path, iframe
-}
-
-export interface NativeVideoData extends VideoData {
-  video_type: 'NATIVO';
-  title: string;
-  path: string;      // Ruta relativa desde raíz del proyecto: src/data_test/archivo.mp4
-  description?: string;
-  // Campo PROHIBIDO: url, iframe
-}
-
-export interface EmbeddedVideoData extends VideoData {
-  video_type: 'EMBEDDED';
-  iframe: string;       // URL de iframe embebido: https://www.youtube.com/embed/... u otros proveedores
-  title: string;
-  description?: string; // Obligatorio (a diferencia de YouTube y Nativo que lo tienen como opcional)
-  // Campo PROHIBIDO: path, url
-}
+export type { YoutubeVideoData, NativeVideoData, EmbeddedVideoData } from '../../interfaces/data.js';
 
 // ─── Pools de IDs de YouTube reales (videos educativos/tech de dominio público) ──
 

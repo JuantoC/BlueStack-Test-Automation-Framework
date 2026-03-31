@@ -9,57 +9,9 @@
  */
 
 import { faker } from '@faker-js/faker';
-import type { AuthorType } from '../../pages/post_page/note_editor_page/EditorAuthorSection.js';
-import { NoteData } from '../../interfaces/data.js';
+import { NoteData, ListicleItem, EventLiveBlog, PostData, ListicleData, LiveBlogData } from '../../interfaces/data.js';
 
-// ─── Interfaces ────────────────────────────────────────────────────────────────
-
-export interface PostData extends NoteData {
-  title: string;
-  subTitle?: string;
-  body: string;
-  tags: string[];
-  hiddenTags?: string[];
-  authorName: string;
-  authorDescription?: string;
-  authorType: AuthorType;
-  // Campos PROHIBIDOS en Post: secondaryTitle, halfTitle, listicleItems, eventLiveBlog
-}
-
-export interface ListicleItem {
-  title: string;
-  body: string;
-}
-
-export interface ListicleData extends NoteData {
-  title: string;
-  subTitle?: string;
-  body: string;
-  tags: string[];
-  hiddenTags?: string[];
-  authorName: string;
-  authorDescription?: string;
-  authorType: AuthorType;
-  listicleItems: ListicleItem[]; // mínimo 3, máximo 20
-  // Campos PROHIBIDOS en Listicle: secondaryTitle, halfTitle, eventLiveBlog
-}
-
-export interface EventLiveBlog {
-  eventTitle: string;
-  [key: string]: unknown; // campos opcionales del evento
-}
-
-export interface LiveBlogData extends NoteData {
-  title: string;
-  subTitle?: string;
-  tags: string[];
-  hiddenTags?: string[];
-  authorName: string;
-  authorDescription?: string;
-  listicleItems: ListicleItem[]; // entradas cronológicas, mínimo 5
-  eventLiveBlog: EventLiveBlog;
-  // Campos PROHIBIDOS en LiveBlog: secondaryTitle, halfTitle, body
-}
+export type { ListicleItem, EventLiveBlog, PostData, ListicleData, LiveBlogData } from '../../interfaces/data.js';
 
 // ─── Pools de datos en español ─────────────────────────────────────────────────
 

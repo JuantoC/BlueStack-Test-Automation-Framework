@@ -151,11 +151,6 @@ export interface EmbeddedVideoData extends VideoData {
  * Parámetros de contexto y tono que controlan el asistente IA del CMS.
  * Todos los campos son opcionales.
  */
-/**
- * Datos para la generación asistida por IA de notas.
- * Parámetros de contexto y tono que controlan el asistente IA del CMS.
- * Todos los campos son opcionales.
- */
 export interface AIDataNote {
   task?: string;
   context?: string;

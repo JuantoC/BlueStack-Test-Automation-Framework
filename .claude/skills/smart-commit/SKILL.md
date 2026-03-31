@@ -246,6 +246,39 @@ Push ejecutado: [Sí → origin/<rama> / No]
 
 ---
 
+### Paso 10 — Auditoría documental automática post-commit
+
+Después de confirmar que todos los commits fueron exitosos (Paso 9), ejecutar automáticamente
+la skill `sync-docs` sobre los commits recién generados. Este paso se ejecuta **siempre**,
+independientemente del parámetro `--push`.
+
+1. Leer `.claude/pending-doc-review-prompt.md`
+2. Identificar las secciones correspondientes a los commits que acabás de generar:
+   buscar los bloques `<!-- COMMIT {hash} ... -->` cuyos hashes coincidan con los
+   capturados en el Paso 7
+3. Ejecutar el análisis de sync-docs sobre esas secciones (Pasos 2 a 5 de sync-docs)
+4. Escribir las sugerencias en `.claude/doc-update-suggestions.md` en **modo append**
+   (no sobreescribir — pueden existir sugerencias de commits anteriores)
+5. Mostrar el resumen de sugerencias al desarrollador
+6. Preguntar: *"¿Aplicamos alguna de estas actualizaciones ahora?"*
+
+**Si el desarrollador confirma cambios:**
+- Aplicarlos inmediatamente (Paso 6 de sync-docs)
+- Generar un commit adicional de tipo `docs(...)` con esos cambios usando el mismo
+  formato de mensaje que el Paso 5 de esta skill
+- Marcar las entradas correspondientes como `reviewed` en `pending-doc-updates.json`
+  (Paso 7 de sync-docs)
+
+**Si el desarrollador pospone:**
+- Mostrar recordatorio:
+  ```
+  📋 Tenés N sección(es) pendiente(s) en .claude/pending-doc-review-prompt.md
+     Podés revisarlas después con: "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea"
+  ```
+- No marcar como reviewed — el pre-commit guard avisará si supera las 4 horas
+
+---
+
 ## MANEJO DE EXCEPCIONES
 
 ### Sin cambios en el repositorio

@@ -40,7 +40,9 @@ Revisar si alguno de estos archivos referencia el módulo modificado:
 - Cualquier archivo en `docs/` si existe
 
 ## Paso 5 — Escribir sugerencias
-Crear o sobreescribir `.claude/doc-update-suggestions.md` con este formato:
+Agregar al final de `.claude/doc-update-suggestions.md` (modo **append**, no sobreescribir —
+pueden existir sugerencias de commits anteriores aún no revisados). Si el archivo no existe,
+crearlo. Usar este formato:
 
 **Encabezado:**
 Fecha de generación, hash del commit analizado.
@@ -58,6 +60,36 @@ Lista de archivos revisados que están OK.
 Mostrar el resumen de sugerencias y preguntar: *"¿Aplicamos alguna de estas actualizaciones?"*
 
 Aplicar **solo los cambios que el desarrollador confirme explícitamente**, uno por uno.
+
+## Paso 7 — Marcar commits como revisados
+
+Una vez que el desarrollador confirme qué sugerencias aplicar **o** diga explícitamente
+"no hay cambios necesarios", actualizar el estado de los commits procesados:
+
+**En `pending-doc-updates.json`:**
+- Para cada entrada cuyo hash aparezca en las secciones que acabamos de revisar:
+  - Cambiar `status` de `pending` o `prompt-generated` a `reviewed`
+
+**En `pending-doc-review-prompt.md`:**
+- Para cada sección procesada, cambiar el comentario de apertura de:
+  `<!-- COMMIT {hash} — {timestamp} — status: pending -->`
+  a:
+  `<!-- COMMIT {hash} — {timestamp} — status: reviewed -->`
+
+Esto garantiza que el guard del pre-commit no vuelva a avisar sobre commits ya revisados.
+
+**Sub-paso opcional — Verificación final con validate-ssot:**
+
+Después de marcar los commits como reviewed, preguntar al desarrollador:
+*"¿Querés ejecutar validate-ssot para verificar que el modelo SSoT está íntegro?"*
+
+Si confirma:
+- Ejecutar la skill `validate-ssot` (Pasos 1 a 5 de esa skill)
+- Si no hay violaciones: reportar `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
+- Si hay violaciones: presentarlas con el formato `[TIPO] archivo → Problema → Acción recomendada`
+  y preguntar cuáles corregir
+
+Si omite: continuar sin ejecutar validate-ssot (no es un paso bloqueante).
 
 ---
 

@@ -4,10 +4,16 @@ services:
     container_name: selenium-hub
     ports:
       - "4442-4444:4442-4444"
+    deploy:
+      resources:
+        limits:
+          memory: 512m # El hub consume muy poco, lo limitamos para ahorrar RAM
 
   chrome-node:
     image: selenium/node-chrome:4.38.0
-    shm_size: 2gb
+    # ATENCIÓN: Redujimos shm_size a 1gb. 
+    # Si limitas el contenedor a 2gb y pones shm_size en 2gb, no quedará RAM para Java ni el proceso base de Chrome y explotará.
+    shm_size: 1gb 
     depends_on:
       - selenium-hub
     environment:
@@ -17,6 +23,10 @@ services:
       - SE_NODE_MAX_SESSIONS=1
     deploy:
       replicas: ${MAX_INSTANCES:-1}
-
+      resources:
+        limits:
+          memory: 2gb # Límite MÁXIMO por cada nodo individual
+        reservations:
+          memory: 1gb # Mínimo GARANTIZADO por cada nodo individual
     volumes:
       - ./src/data_test:/app/src/data_test

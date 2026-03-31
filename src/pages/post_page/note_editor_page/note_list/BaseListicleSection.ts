@@ -41,6 +41,7 @@ export abstract class BaseListicleSection {
    * y luego rellena los ítems de la lista si existen en `data`.
    *
    * @param data - Datos de la sección de lista, incluyendo ítems y opcionalmente el evento LiveBlog.
+   * @returns {Promise<void>}
    */
   async fillAll(data: ListicleData | LiveBlogData): Promise<void> {
 

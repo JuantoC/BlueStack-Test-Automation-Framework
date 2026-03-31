@@ -9,8 +9,8 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Sub-componente transversal que monitorea y gestiona los toast de notificación del CMS.
- * Detecta la presencia de toasts de éxito (`toast-success`) y de error (`div[role='alert']`)
- * usando polling con un timeout variable según el modo de operación.
+ * Detecta toasts de tres tipos: éxito (`toast-success`), error (`toast-error`) y
+ * advertencia (`toast-warning`), usando polling con un timeout variable según el modo de operación.
  * En modo `expectSuccess: true`, aguarda activamente hasta encontrar un toast de éxito y lanza
  * un error si no aparece o si solo aparece uno de error.
  * Consumido por todos los Maestros después de operaciones que generan feedback de backend.
@@ -42,7 +42,7 @@ export class Banners {
    * Monitorea el contenedor de toasts del CMS y gestiona los que aparezcan durante la espera.
    * Si `expectSuccess` es `true`, aguarda activamente un toast de éxito (hasta `config.timeoutMs`);
    * si es `false`, monitorea brevemente (800ms) y procesa lo que encuentre.
-   * Delega el procesamiento concreto en `handleSuccessToast` y `handleErrorToast` con elementos frescos
+   * Delega el procesamiento concreto en `handleSuccessToast`, `handleErrorToast` y `handleWarningToast` con elementos frescos
    * del DOM para evitar `StaleElementReferenceException`.
    * Lanza un error con screenshot adjunto si se esperaba éxito y no se obtuvo.
    *

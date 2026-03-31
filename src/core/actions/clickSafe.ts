@@ -18,11 +18,11 @@ import { Banners } from "../../pages/modals/Banners.js";
  * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
  * @returns {Promise<WebElement>} El elemento objetivo tras confirmar el clic exitoso.
  */
-export async function clickSafe(
+export async function clickSafe<T extends WebElement = WebElement>(
   driver: WebDriver,
-  ID: Locator | WebElement,
+  ID: Locator | T,
   opts: RetryOptions = {}
-): Promise<WebElement> {
+): Promise<T> {
 
   const config = {
     ...opts,
@@ -44,10 +44,10 @@ export async function clickSafe(
       await element.click();
 
       logger.debug(`Click ejecutado correctamente`, { label: config.label });
-      return element;
+      return element as T;
 
-    } catch (error: any) {
-      if (error.name === 'ElementClickInterceptedError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'ElementClickInterceptedError') {
         logger.debug(`Intercepción detectada. Verificando si es un toast...`, { label: config.label });
         const banner = new Banners(driver, config)
         const isToast = await banner.checkBanners(false)

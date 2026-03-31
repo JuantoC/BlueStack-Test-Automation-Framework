@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../config/defaultConfig.js";
 import { scrollIntoView } from "../helpers/scrollIntoView.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
@@ -27,11 +27,7 @@ export async function waitVisible(
         throw new Error(`[waitVisible] Se esperaba un WebElement pero se recibió un objeto inválido.`);
     }
 
-    const config = {
-        ...DefaultConfig,
-        ...opts,
-        label: stackLabel(opts.label, `waitVisible`)
-    };
+    const config = resolveRetryConfig(opts, 'waitVisible');
     return await retry(async () => {
         try {
 

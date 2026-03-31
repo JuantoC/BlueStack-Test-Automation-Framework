@@ -1,8 +1,9 @@
 import { WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import { retry } from "../wrappers/retry.js";
 import logger from "../utils/logger.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Desplaza el viewport del navegador hasta que el elemento sea visible.
@@ -15,11 +16,7 @@ export async function scrollIntoView(
   element: WebElement,
   opts: RetryOptions = {}
 ): Promise<WebElement> {
-  const config = {
-    ...DefaultConfig,
-    ...opts,
-    label: stackLabel(opts.label, "scrollIntoView"),
-  };
+  const config = resolveRetryConfig(opts, 'scrollIntoView');
 
   return await retry(async () => {
     try {
@@ -34,10 +31,9 @@ export async function scrollIntoView(
       logger.debug(`Scroll completado con éxito.`, { label: config.label });
       return element;
 
-    } catch (error: any) {
-      logger.debug(`Fallo scroll (reintentable): ${error.message}`, { label: config.label });
-      error.message = `scrollIntoView falló: ${error.message}`;
-      throw error;
+    } catch (error: unknown) {
+      logger.debug(`Fallo scroll (reintentable): ${getErrorMessage(error)}`, { label: config.label });
+      throw new Error(`scrollIntoView falló: ${getErrorMessage(error)}`);
     }
   }, config);
 }

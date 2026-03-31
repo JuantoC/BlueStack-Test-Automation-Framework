@@ -1,5 +1,5 @@
 import { WebDriver, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import { waitVisible } from "../actions/waitVisible.js";
 import { waitEnabled } from "../actions/waitEnabled.js";
@@ -26,11 +26,7 @@ export async function waitClickable(
   if (!element || typeof element.getId !== "function") {
     throw new Error(`Se esperaba un WebElement válido pero se recibió: ${element}`);
   }
-  const fullOpts = {
-    ...DefaultConfig,
-    ...opts,
-    label: stackLabel(opts.label, `waitClickable`)
-  };
+  const fullOpts = resolveRetryConfig(opts, 'waitClickable');
 
   return await retry(async () => {
     try {
@@ -40,7 +36,7 @@ export async function waitClickable(
 
       return element;
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof error.TimeoutError) {
         err.message = `El elemento no fue interactuable tras ${fullOpts.timeoutMs / 1000}s. ${err.message}`;
       }

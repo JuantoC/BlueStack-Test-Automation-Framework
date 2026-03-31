@@ -2,6 +2,7 @@ import { By, WebDriver, WebElement } from "selenium-webdriver";
 import { RetryOptions } from "../config/defaultConfig.js";
 import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Navega hasta un ancestro del elemento y ejecuta un hover escalonado para forzar su visibilidad.
@@ -70,8 +71,8 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
         logger.debug(`El hover escalonado no logró hacer visible el elemento`, { label: config.label });
         return false;
 
-    } catch (err: any) {
-        logger.debug(`Error crítico durante hover recovery: ${err.message}`, { label: config.label });
+    } catch (err: unknown) {
+        logger.debug(`Error crítico durante hover recovery: ${getErrorMessage(err)}`, { label: config.label });
         return false;
     }
 }

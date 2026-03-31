@@ -90,7 +90,7 @@ Obtenido (frag): "...${actualSnippet}..."`
         );
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.debug('Error en la validacion del texto.')
       throw error;
     }

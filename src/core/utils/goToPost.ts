@@ -1,9 +1,10 @@
 import { WebDriver } from "selenium-webdriver";
 import { postUrl } from "./routes.js";
 import { stackLabel } from "./stackLabel.js";
-import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../config/defaultConfig.js";
 import logger from "./logger.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "./errorUtils.js";
 
 /**
  * Navega directamente a la página de edición de un post específico.
@@ -18,11 +19,7 @@ export async function goToPost(
   id: number | string,
   opts: RetryOptions = {}
 ): Promise<void> {
-  const config = {
-    ...DefaultConfig,
-    ...opts,
-    label: stackLabel(opts.label, "goToPost")
-  };
+  const config = resolveRetryConfig(opts, 'goToPost');
   const url = postUrl(baseURL, id);
 
 
@@ -40,8 +37,8 @@ export async function goToPost(
         label: config.label
       });
 
-    } catch (error: any) {
-      logger.error(`Fallo en la navegación al post ${id}: ${error.message}`, {
+    } catch (error: unknown) {
+      logger.error(`Fallo en la navegación al post ${id}: ${getErrorMessage(error)}`, {
         label: config.label,
         metadata: { url, id }
       });

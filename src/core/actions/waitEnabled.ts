@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
@@ -24,11 +24,7 @@ export async function waitEnabled(
     throw new Error(`[waitEnabled] Se esperaba un WebElement pero se recibió: ${element}`);
   }
 
-  const config = {
-    ...DefaultConfig,
-    ...opts,
-    label: stackLabel(opts.label, `waitEnabled`)
-  };
+  const config = resolveRetryConfig(opts, 'waitEnabled');
 
   return await retry(async () => {
     try {

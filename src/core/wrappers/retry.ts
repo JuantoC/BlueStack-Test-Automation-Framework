@@ -3,6 +3,7 @@ import { calcBackoff, sleep } from "../utils/backOff.js";
 import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { classifyError, ErrorCategory } from "../errors/errorHandler.js";
 import { handleUpdateModal } from "../helpers/handleUpdateModal.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Wrapper de resiliencia con Exponential Backoff.
@@ -48,9 +49,9 @@ export async function retry<T>(
 
       return result;
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       const category = classifyError(err);
-      const errorMsg = err.message || "Error desconocido";
+      const errorMsg = getErrorMessage(err);
 
       // 2. Caso: Error Fatal (Configuración, sintaxis, etc.)
       if (category === ErrorCategory.FATAL) {

@@ -1,6 +1,7 @@
 import { Key, WebElement } from "selenium-webdriver";
 import logger from "../utils/logger.js";
 import { stackLabel } from "../utils/stackLabel.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Escribe texto en elementos con atributo `contenteditable` (como editores CKEditor).
@@ -61,12 +62,12 @@ export async function writeToStandard(
     // reduce la latencia y la probabilidad de que el DOM cambie a mitad de camino.
     await element.sendKeys(Key.chord(cmdCtrl, "a"), Key.BACK_SPACE, text);
 
-  } catch (error: any) {
-    const isStale = error.name === 'StaleElementReferenceError' || error.message?.includes('stale');
+  } catch (error: unknown) {
+    const isStale = (error instanceof Error && error.name === 'StaleElementReferenceError') || getErrorMessage(error).includes('stale');
 
     logger.error(`Fallo al escribir en input estándar.`, {
       label: configLabel,
-      error: error.message,
+      error: getErrorMessage(error),
       suggestion: isStale ? "El elemento murió durante la escritura. El retry superior debe manejarlo." : "Verificar si el elemento es interactuable."
     });
 

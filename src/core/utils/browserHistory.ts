@@ -2,6 +2,7 @@ import { WebDriver } from "selenium-webdriver";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { RetryOptions } from "../config/defaultConfig.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Navega en el historial del navegador hacia adelante o hacia atrás.
@@ -36,8 +37,8 @@ export async function browserHistory(
       label: config.label
     });
 
-  } catch (error: any) {
-    logger.error(`Error al intentar navegar hacia ${direction}: ${error.message}`, {
+  } catch (error: unknown) {
+    logger.error(`Error al intentar navegar hacia ${direction}: ${getErrorMessage(error)}`, {
       label: config.label
     });
     throw error;

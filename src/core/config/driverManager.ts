@@ -1,11 +1,12 @@
 import { Builder, WebDriver } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions, DriverOptions } from "./chromeOptions.js";
-import { DefaultConfig, RetryOptions } from "./defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "./defaultConfig.js";
 import { startNetworkMonitoring, NetworkMonitorHandle } from './networkMonitor.js';
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { sleep } from '../utils/backOff.js';
+import { getErrorMessage } from '../utils/errorUtils.js';
 
 declare global {
     // var es necesario aquí para que se fusione con el scope global
@@ -31,7 +32,7 @@ export interface DriverSession {
  * @returns {Promise<DriverSession>} La sesión activa con el driver y el monitor de red listos.
  */
 export async function initializeDriver(options: DriverOptions, opts: RetryOptions = {}): Promise<DriverSession> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "initializeDriver") };
+    const config = resolveRetryConfig(opts, "initializeDriver");
 
     try {
         const chromeOptions = setChromeOptions(options);
@@ -55,8 +56,8 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
         logger.info('🚀 WebDriver y CDP listos', { label: config.label });
 
         return { driver, networkMonitor };
-    } catch (error: any) {
-        logger.error(`Fallo en inicialización: ${error.message}`, { label: config.label });
+    } catch (error: unknown) {
+        logger.error(`Fallo en inicialización: ${getErrorMessage(error)}`, { label: config.label });
         throw error;
     }
 }
@@ -70,7 +71,7 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
  * @param opts - Opciones de trazabilidad y tiempo de espera antes del cierre.
  */
 export async function quitDriver(session: DriverSession | null, opts: RetryOptions = {}): Promise<void> {
-    const config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "quitDriver") };
+    const config = resolveRetryConfig(opts, "quitDriver");
     if (!session?.driver) return;
 
     try {
@@ -78,9 +79,9 @@ export async function quitDriver(session: DriverSession | null, opts: RetryOptio
         await session.driver.quit();
         global.activeMonitor = undefined;
         logger.info('🏁 Sesión cerrada', { label: config.label });
-    } catch (error: any) {
-        if (!error.message.includes('NoSuchSession')) {
-            logger.warn(`Cierre parcial: ${error.message}`, { label: config.label });
+    } catch (error: unknown) {
+        if (!getErrorMessage(error).includes('NoSuchSession')) {
+            logger.warn(`Cierre parcial: ${getErrorMessage(error)}`, { label: config.label });
         }
     }
 }

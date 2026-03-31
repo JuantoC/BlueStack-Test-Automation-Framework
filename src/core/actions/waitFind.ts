@@ -1,5 +1,5 @@
 import { WebDriver, until, WebElement, Locator, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../config/defaultConfig.js";
 import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
@@ -14,17 +14,13 @@ import { retry } from "../wrappers/retry.js";
  * @param opts - Opciones de reintento y trazabilidad. Propagadas a todos los sub-llamados internos.
  * @returns {Promise<WebElement>} El WebElement localizado una vez que está presente en el DOM.
  */
-export async function waitFind(
+export async function waitFind<T extends WebElement = WebElement>(
   driver: WebDriver,
   locator: Locator,
   opts: RetryOptions = {}
-): Promise<WebElement> {
+): Promise<T> {
 
-  const config = {
-    ...DefaultConfig,
-    ...opts,
-    label: stackLabel(opts.label, `waitFind`)
-  };
+  const config = resolveRetryConfig(opts, 'waitFind');
   return await retry(async () => {
     try {
 
@@ -32,7 +28,7 @@ export async function waitFind(
         until.elementLocated(locator),
         config.timeoutMs
       );
-      return element;
+      return element as T;
     } catch (err) {
       throw err;
     }

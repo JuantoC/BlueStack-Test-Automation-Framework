@@ -5,6 +5,7 @@ import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { initializeDriver, quitDriver, DriverSession } from "../config/driverManager.js";
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Metadata de negocio y clasificación para el reporte Allure del test.
@@ -95,7 +96,7 @@ export function runSession(
         log: logger
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       // --- 3. MANEJO DE ERRORES AUTOMÁTICO ---
       // Screenshot automático
       if (session?.driver) {
@@ -107,7 +108,7 @@ export function runSession(
         }
       }
 
-      const msg = error.diff ? `${error.message}\n>>> DIFF <<< ${error.diff}` : error.message;
+      const msg = (error as any).diff ? `${getErrorMessage(error)}\n>>> DIFF <<< ${(error as any).diff}` : getErrorMessage(error);
       logger.error(`❌ FALLO CRÍTICO en ${opts.label}`, { label: opts.label, details: msg });
 
       throw error; // Re-lanzamos para que Jest falle

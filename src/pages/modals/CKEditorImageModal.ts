@@ -1,5 +1,5 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
@@ -26,7 +26,7 @@ export class CKEditorImageModal {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "CKEditorImageModal") }
+    this.config = resolveRetryConfig(opts, "CKEditorImageModal")
   }
 
   /**

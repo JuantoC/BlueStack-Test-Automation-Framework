@@ -1,5 +1,5 @@
 import { By, Locator, WebDriver } from 'selenium-webdriver';
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
@@ -16,7 +16,7 @@ export class TwoFASection {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "TwoFASection") }
+    this.config = resolveRetryConfig(opts, "TwoFASection")
   }
 
   /**
@@ -36,7 +36,7 @@ export class TwoFASection {
         label: this.config.label
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   }

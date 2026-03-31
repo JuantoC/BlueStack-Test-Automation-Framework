@@ -1,5 +1,5 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
@@ -7,8 +7,10 @@ import { waitFind } from "../../core/actions/waitFind.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
-export type VideoType = keyof typeof UploadVideoBtn.VIDEO_TYPE_MAP;
+import type { VideoType } from '../../interfaces/data.js';
+export type { VideoType } from '../../interfaces/data.js';
 
 /**
  * Page Object que representa el botón de creación de videos y su menú desplegable de tipos.
@@ -39,7 +41,7 @@ export class UploadVideoBtn {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "UploadVideoBtn") };
+    this.config = resolveRetryConfig(opts, "UploadVideoBtn");
   }
 
   /**
@@ -64,8 +66,8 @@ export class UploadVideoBtn {
         logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
         await clickSafe(this.driver, elementToClick, this.config);
 
-      } catch (error: any) {
-        logger.error(`Error en selectVideoType: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en selectVideoType: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -99,8 +101,8 @@ export class UploadVideoBtn {
     try {
       await this.waitUntilIsReady(UploadVideoBtn.DROPDOWN_COMBO_MODAL)
 
-    } catch (error: any) {
-      logger.error(`El menú no se desplegó correctamente: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`El menú no se desplegó correctamente: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
 

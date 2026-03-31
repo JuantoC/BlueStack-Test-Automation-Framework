@@ -1,10 +1,11 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { stackLabel } from "../../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../../core/config/defaultConfig.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
 import { LiveBlogData } from "./BaseListicleSection.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../../../core/utils/errorUtils.js";
 
 export type LiveBlogEventField = keyof typeof LiveBlogEventSection.LOCATORS;
 
@@ -27,7 +28,7 @@ export class LiveBlogEventSection {
 
     constructor(driver: WebDriver, opts: RetryOptions) {
         this.driver = driver;
-        this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "LiveBlogEventSection") };
+        this.config = resolveRetryConfig(opts, "LiveBlogEventSection");
     }
 
     /**
@@ -46,8 +47,8 @@ export class LiveBlogEventSection {
                 }
                 logger.debug(`Escribiendo contenido en el campo: EVENT_TITLE`, { label: this.config.label });
                 await writeSafe(this.driver, LiveBlogEventSection.LOCATORS['EVENT_TITLE'], value.eventLiveBlog.eventTitle, this.config);
-            } catch (error: any) {
-                logger.error(`Error en fillEventTitle: ${error.message}`, { label: this.config.label, error: error.message });
+            } catch (error: unknown) {
+                logger.error(`Error en fillEventTitle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
                 throw error;
             }
         });

@@ -1,10 +1,11 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { PublishModal } from "../../modals/PublishModal.js";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
 
@@ -49,7 +50,7 @@ export class EditorHeaderActions {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorHeaderActions") }
+    this.config = resolveRetryConfig(opts, "EditorHeaderActions")
 
     this.publishModal = new PublishModal(this.driver, this.config)
   }
@@ -117,8 +118,8 @@ export class EditorHeaderActions {
 
       logger.debug(`Acción header ${action} ejecutada correctamente`, { label: this.config.label });
 
-    } catch (error: any) {
-      logger.error(`Error en clickExitAction: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en clickExitAction: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

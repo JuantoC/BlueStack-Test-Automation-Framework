@@ -1,11 +1,12 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Sub-componente modal que gestiona la confirmación de publicación de notas y videos en el CMS.
@@ -23,7 +24,7 @@ export class PublishModal {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PublishModal"), timeoutMs: 10000 }
+    this.config = resolveRetryConfig({ ...opts, timeoutMs: 10000 }, "PublishModal")
   }
 
   /**
@@ -36,8 +37,8 @@ export class PublishModal {
       await this.waitUntilAISummaryGenerated()
       await clickSafe(this.driver, PublishModal.PUBLISH_CONFIRM_BTN, this.config)
       logger.debug('Clickado el boton de publicar', { label: this.config.label })
-    } catch (error: any) {
-      logger.error(`Error clickeando el boton de publicar: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Error clickeando el boton de publicar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }
@@ -52,8 +53,8 @@ export class PublishModal {
       const elementToClick = await this.waitUntilIsReady(PublishModal.PUBLISH_CANCEL_BTN)
       await clickSafe(this.driver, elementToClick, this.config)
       logger.debug('Clickado el boton de cancelar', { label: this.config.label })
-    } catch (error: any) {
-      logger.error(`Error clickeando el boton de cancelar: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Error clickeando el boton de cancelar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }
@@ -76,8 +77,8 @@ export class PublishModal {
         }
         return false;
       }, 30000)
-    } catch (error: any) {
-      logger.error(`Error esperando a que se genere el resumen por IA: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Error esperando a que se genere el resumen por IA: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }

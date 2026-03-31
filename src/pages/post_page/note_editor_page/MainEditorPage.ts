@@ -19,7 +19,7 @@ export class MainEditorPage {
 
   constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainEditorPage") };
+    this.config = resolveRetryConfig(opts, "MainEditorPage");
     this.noteType = noteType || 'POST';
     this.tags = new EditorTagsSection(driver, this.config);
     this.author = new EditorAuthorSection(driver, this.config);
@@ -68,10 +68,10 @@ export class MainEditorPage {
 
         logger.info('Todos los campos de la nota fueron completados exitosamente', { label: this.config.label })
 
-      } catch (error: any) {
-        logger.error(`Fallo en el rellenado dinámico de la nota: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Fallo en el rellenado dinámico de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -98,11 +98,11 @@ export class MainEditorPage {
         }
         logger.info(`Editor ejecuto accion del header correctamente.`, { label: this.config.label });
 
-      } catch (error: any) {
-        logger.error(`Error en flujo de cierre (${exitAction}): ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error en flujo de cierre (${exitAction}): ${getErrorMessage(error)}`, {
           label: this.config.label,
           exitAction: exitAction,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -145,7 +145,7 @@ import { EditorHeaderActions, NoteExitAction } from "./EditorHeaderActions.js";
 import { EditorLateralSettings } from "./EditorLateralSettings.js";
 import { EditorTextSection } from "./EditorTextSection.js";
 import { EditorTagsSection } from './EditorTagsSection.js';
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { stackLabel } from '../../../core/utils/stackLabel.js';
 import { ListicleSection, LiveBlogSection } from './note_list/ListicleItemSection.js';
@@ -155,4 +155,5 @@ import { step, attachment } from "allure-js-commons";
 import logger from '../../../core/utils/logger.js';
 import { NewNoteBtn, NoteType } from '../NewNoteBtn.js';
 import { Banners } from '../../modals/Banners.js';
+import { getErrorMessage } from '../../../core/utils/errorUtils.js';
 

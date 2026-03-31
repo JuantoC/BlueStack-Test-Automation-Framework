@@ -1,10 +1,11 @@
 import { WebDriver } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
 import { AIDataNote } from "../../../interfaces/data.js";
 import { AIPostModal } from "./AIPostModal.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 /**
  * Page Object Maestro para la sección de generación de notas con IA del CMS.
@@ -24,7 +25,7 @@ export class MainAIPage {
 
   constructor(driver: WebDriver, config: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, 'MainAIPage') };
+    this.config = resolveRetryConfig(config, 'MainAIPage');
     this.ai_post = new AIPostModal(this.driver, this.config);
   }
 
@@ -44,8 +45,8 @@ export class MainAIPage {
         await this.ai_post.waitForLoadingPreview();
         await this.ai_post.isAIFailed();
         await this.ai_post.clickOnDoneBtn();
-      } catch (error: any) {
-        logger.error(`Error al generar nueva nota IA`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al generar nueva nota IA`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

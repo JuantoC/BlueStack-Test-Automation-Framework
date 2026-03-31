@@ -1,5 +1,5 @@
 import { Locator, By, WebDriver } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 
 /**
@@ -17,7 +17,7 @@ export class NoteFooterBtn {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorFooterBtn") }
+    this.config = resolveRetryConfig(opts, "EditorFooterBtn")
   }
 
 

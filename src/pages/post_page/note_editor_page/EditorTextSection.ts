@@ -1,10 +1,11 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export type NoteTextField = keyof typeof EditorTextSection.LOCATORS;
 
@@ -31,7 +32,7 @@ export class EditorTextSection {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorTextSection") }
+    this.config = resolveRetryConfig(opts, "EditorTextSection")
   }
 
   /**
@@ -74,8 +75,8 @@ export class EditorTextSection {
         await writeSafe(this.driver, locator, value, this.config);
 
         logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
-      } catch (error: any) {
-        logger.error(`Error en fillField (${field}): ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en fillField (${field}): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

@@ -1,10 +1,11 @@
 import { By, Locator, WebDriver } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
 import logger from "../core/utils/logger.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { retry } from "../core/wrappers/retry.js";
+import { getErrorMessage } from "../core/utils/errorUtils.js";
 
 export type SidebarOption = keyof typeof SidebarAndHeader.SIDEBAR_MAP;
 
@@ -36,7 +37,7 @@ export class SidebarAndHeader {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "SidebarAndHeader") }
+    this.config = resolveRetryConfig(opts, "SidebarAndHeader")
   }
 
   /**
@@ -58,10 +59,10 @@ export class SidebarAndHeader {
           return
         }
         await clickSafe(this.driver, locator, this.config)
-      } catch (error: any) {
-        logger.error(`Fallo al navegar al componente ${component}: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Fallo al navegar al componente ${component}: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -82,7 +83,7 @@ export class SidebarAndHeader {
         logger.debug(`Ejecutando click en el botón de multimedia para ir a ${action}...`, { label: newConfig.label })
         await clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, newConfig)
         await clickSafe(this.driver, SidebarAndHeader.SIDEBAR_MAP[action], newConfig)
-      } catch (error: any) {
+      } catch (error: unknown) {
         throw error;
       }
     }, this.config)

@@ -1,5 +1,5 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { attachment, step } from "allure-js-commons";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
@@ -7,6 +7,7 @@ import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { AIDataNote } from "../../../interfaces/data.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export type AIPostField = keyof typeof AIPostModal.LOCATORS;
 
@@ -45,7 +46,7 @@ export class AIPostModal {
 
   constructor(driver: WebDriver, config: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...config, label: stackLabel(config.label, 'AIPostModal') };
+    this.config = resolveRetryConfig(config, 'AIPostModal');
   }
 
   /**
@@ -56,8 +57,8 @@ export class AIPostModal {
     await step("Click en el boton done", async () => {
       try {
         await clickSafe(this.driver, AIPostModal.DONE_BTN, this.config);
-      } catch (error: any) {
-        logger.error(`Error al hacer click en el boton done`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al hacer click en el boton done`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -78,8 +79,8 @@ export class AIPostModal {
         } else {
           throw new Error("El boton generar esta deshabilitado");
         }
-      } catch (error: any) {
-        logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -157,7 +158,7 @@ export class AIPostModal {
         throw new Error(`No se encontro ningun elemento en el selector: ${AIPostModal.COMBO_OPTION}`);
       }
       return elements[index];
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw new Error(`No se encontró la opción "${index}" en el menú.`);
     }
   }

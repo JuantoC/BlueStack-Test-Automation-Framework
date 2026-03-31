@@ -1,5 +1,5 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
@@ -10,6 +10,7 @@ import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { sleep } from "../../core/utils/backOff.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Sub-componente que representa la tabla de notas del CMS.
@@ -39,7 +40,7 @@ export class PostTable {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "PostTable") };
+    this.config = resolveRetryConfig(opts, "PostTable");
   }
   /**
    * Selecciona el checkbox de un post en la tabla si aún no está marcado.
@@ -61,8 +62,8 @@ export class PostTable {
         }
       }
       logger.debug("Checkbox seleccionado", { label: this.config.label });
-    } catch (error: any) {
-      logger.error(`Error al seleccionar el post: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error al seleccionar el post: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -111,8 +112,8 @@ export class PostTable {
           }
         }
         throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
-      } catch (error: any) {
-        logger.error(`Error en búsqueda de nota: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en búsqueda de nota: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     }, { ...this.config, retries: 2 });
@@ -161,8 +162,8 @@ export class PostTable {
       const btnElement = await postContainer.findElement(PostTable.POST_EDIT_BTN);
       await hoverOverParentContainer(this.driver, postContainer, this.config);
       await clickSafe(this.driver, btnElement, { ...this.config, timeoutMs: 8000 });
-    } catch (error: any) {
-      logger.error(`Fallo al clickear botón editar en la nota: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Fallo al clickear botón editar en la nota: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -205,8 +206,8 @@ export class PostTable {
       }
 
       throw new Error("No hay Label ni Input visible para extraer el texto.");
-    } catch (error: any) {
-      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error; // Delegamos al retry principal
     }
   }
@@ -319,8 +320,8 @@ export class PostTable {
           const currentTitle = await titleEl.getText();
           logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
           return currentTitle.includes(expectedTitle);
-        } catch (error: any) {
-          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${error.message}`, { label: this.config.label });
+        } catch (error: unknown) {
+          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${getErrorMessage(error)}`, { label: this.config.label });
           // Esperamos 500ms para que el DOM se actualice
           await sleep(500)
           return false;
@@ -328,8 +329,8 @@ export class PostTable {
       }, timeoutMs, `Timeout: La nueva nota "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
 
       logger.debug('Nueva nota detectada en index 0. Tabla actualizada.', { label: this.config.label });
-    } catch (error: any) {
-      logger.error(`Error en waitForNewPostAtIndex0: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en waitForNewPostAtIndex0: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

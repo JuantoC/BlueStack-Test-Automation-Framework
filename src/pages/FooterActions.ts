@@ -1,11 +1,12 @@
 import { By, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import { stackLabel } from "../core/utils/stackLabel.js";
 import logger from "../core/utils/logger.js";
 import { waitFind } from "../core/actions/waitFind.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { PublishModal } from "./modals/PublishModal.js";
 import { Banners } from "./modals/Banners.js";
+import { getErrorMessage } from "../core/utils/errorUtils.js";
 
 export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
 
@@ -38,7 +39,7 @@ export class FooterActions {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "FooterActions") }
+    this.config = resolveRetryConfig(opts, "FooterActions")
 
     this.publishModal = new PublishModal(this.driver, this.config)
     this.banner = new Banners(this.driver, { ...this.config, timeoutMs: 10000 })
@@ -81,8 +82,8 @@ export class FooterActions {
           break
 
       }
-    } catch (error: any) {
-      logger.error(`Error realizando accion en el footer: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Error realizando accion en el footer: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }
@@ -100,8 +101,8 @@ export class FooterActions {
       const publishBtn = await waitFind(this.driver, FooterActions.FOOTER_PUBLISH_BTN, this.config);
       const isEnabled = await publishBtn.getAttribute('disabled');
       return isEnabled === null;
-    } catch (error: any) {
-      logger.error(`Error revisando el btn de publicar: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Error revisando el btn de publicar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }

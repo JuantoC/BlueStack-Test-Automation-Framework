@@ -1,5 +1,5 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { retry } from "../../core/wrappers/retry.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
@@ -10,6 +10,7 @@ import { waitFind } from "../../core/actions/waitFind.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Page Object que representa la tabla de multimedia de videos del CMS.
@@ -36,7 +37,7 @@ export class VideoTable {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "VideoTable") }
+    this.config = resolveRetryConfig(opts, "VideoTable")
   }
 
 
@@ -78,9 +79,9 @@ export class VideoTable {
         }
         throw new Error(`No se encontró el video con título parcial "${title}" tras escanear ${limit} videos.`);
       }, { ...this.config, retries: 2 })
-    } catch (error: any) {
-      logger.error(`Error en búsqueda de video: ${error.message}`, { label: this.config.label, error: error.message });
-      throw new Error(`Error en búsqueda de video: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (error: unknown) {
+      logger.error(`Error en búsqueda de video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw new Error(`Error en búsqueda de video: ${getErrorMessage(error)}`);
     }
   }
 
@@ -110,8 +111,8 @@ export class VideoTable {
         await this.writeAndValidateTitle(newTitle);
 
       }, this.config);
-    } catch (error: any) {
-      logger.error(`Error al cambiar titulo de video: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error al cambiar titulo de video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -132,8 +133,8 @@ export class VideoTable {
       }
       logger.debug('Seleccionando video...', { label: this.config.label });
       await clickSafe(this.driver, videoContainer, this.config);
-    } catch (error: any) {
-      logger.error(`Error al seleccionar el video deseado. Error:${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error al seleccionar el video deseado. Error:${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -158,8 +159,8 @@ export class VideoTable {
         await textarea.sendKeys(Key.ESCAPE);
         logger.debug('Key de escape enviada. Edicion inline sacada', { label: this.config.label })
 
-      } catch (error: any) {
-        logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${error.message}`, { label: this.config.label, error: error.message })
+      } catch (error: unknown) {
+        logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
         throw error;
       }
     })
@@ -184,8 +185,8 @@ export class VideoTable {
           const currentTitle = await titleEl.getAttribute('value');
           logger.debug(`Título actual en index 0: "${currentTitle}"`, { label: this.config.label });
           return currentTitle.includes(expectedTitle);
-        } catch (error: any) {
-          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${error.message}`, { label: this.config.label });
+        } catch (error: unknown) {
+          logger.debug(`El DOM todavía está actualizándose, reintentamos... ${getErrorMessage(error)}`, { label: this.config.label });
           // Esperamos 500ms para que el DOM se actualice
           await sleep(500)
           return false;
@@ -193,8 +194,8 @@ export class VideoTable {
       }, timeoutMs, `Timeout: El nuevo video "${expectedTitle}" nunca apareció en index 0 de la tabla.`);
 
       logger.debug('Nuevo video detectado en index 0. Tabla actualizada.', { label: this.config.label });
-    } catch (error: any) {
-      logger.error(`Error en waitForNewVideoAtIndex0: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en waitForNewVideoAtIndex0: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -213,8 +214,8 @@ export class VideoTable {
       const rowLocator = By.css(`div[id = "video-selector-${index}"]`);
       logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
       return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
-    } catch (error: any) {
-      logger.error(`Ocurrio un error encontrando el contenedor del video por ID: ${error.message}`, { label: this.config.label, error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Ocurrio un error encontrando el contenedor del video por ID: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
       throw error;
     }
   }
@@ -242,8 +243,8 @@ export class VideoTable {
       }
 
       throw new Error("No hay Label ni textarea visible para extraer el texto.");
-    } catch (error: any) {
-      logger.debug(`Interrupción al leer texto (posible reflow de Angular): ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.debug(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

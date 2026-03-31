@@ -2,12 +2,13 @@ import { By, Locator, WebDriver } from "selenium-webdriver";
 import { ListicleStrategy } from "./ListicleStrategy.js";
 import { waitFind } from "../../../../core/actions/waitFind.js";
 import { stackLabel } from "../../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";
 import { NoteData } from "../../../../interfaces/data.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../../../core/utils/errorUtils.js";
 import { sleep } from "../../../../core/utils/backOff.js";
 
 export type ListicleData = Pick<NoteData, 'listicleItems'>;
@@ -31,7 +32,7 @@ export abstract class BaseListicleSection {
     protected strategy: ListicleStrategy,
     opts: RetryOptions
   ) {
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "BaseListicleSection") }
+    this.config = resolveRetryConfig(opts, "BaseListicleSection")
   }
 
   /**
@@ -98,10 +99,10 @@ export abstract class BaseListicleSection {
         );
         await clickSafe(this.driver, iconLocator, this.config);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(
         `No se pudo interactuar con el icono del ítem #${uiIndex}`,
-        { label: this.config.label, error: error.message }
+        { label: this.config.label, error: getErrorMessage(error) }
       );
       throw error;
     }

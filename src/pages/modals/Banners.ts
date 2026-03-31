@@ -1,10 +1,11 @@
 import { By, until, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { step, attachment } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Sub-componente transversal que monitorea y gestiona los toast de notificación del CMS.
@@ -33,7 +34,7 @@ export class Banners {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "Banners") }
+    this.config = resolveRetryConfig(opts, "Banners")
   }
 
   /**
@@ -153,9 +154,9 @@ export class Banners {
         await clickSafe(this.driver, closeBtns, { ...this.config, supressRetry: true, timeoutMs: 800 });
         logger.debug('Toast de error cerrado.', { label: this.config.label });
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Ahora sí, si falla, sabrás que no fue por un StaleElement al inicio
-        logger.error(`Error interno procesando la UI del toast de error: ${error.message}`, { label: this.config.label });
+        logger.error(`Error interno procesando la UI del toast de error: ${getErrorMessage(error)}`, { label: this.config.label });
       }
     });
   }
@@ -176,8 +177,8 @@ export class Banners {
         const toastText = await successElements[0].getText();
         logger.debug(`Éxito confirmado: ${toastText}`, { label: this.config.label });
         await stepContext.parameter("Toast Message", toastText);
-      } catch (error: any) {
-        logger.error(`Error procesando toast de éxito: ${error.message}`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error procesando toast de éxito: ${getErrorMessage(error)}`, { label: this.config.label });
       }
     });
   }

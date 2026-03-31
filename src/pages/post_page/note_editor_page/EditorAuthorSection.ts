@@ -1,13 +1,15 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
-export type AuthorType = keyof typeof EditorAuthorSection.AUTHOR_BUTTON_MAP;
+import type { AuthorType } from '../../../interfaces/data.js';
+export type { AuthorType } from '../../../interfaces/data.js';
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 /**
  * Representa la sección de autoría dentro del Editor de Notas.
@@ -30,7 +32,7 @@ export class EditorAuthorSection {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorAuthorSection") }
+    this.config = resolveRetryConfig(opts, "EditorAuthorSection")
   }
 
   // ========== MÉTODOS PÚBLICOS (Orquestadores de Componente) ==========
@@ -77,8 +79,8 @@ export class EditorAuthorSection {
             break;
         }
         logger.debug(`Autor configurado exitosamente como: ${authorType}`, { label: this.config.label });
-      } catch (error: any) {
-        logger.error(`Error en fillAll de EditorAuthorSection: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en fillAll de EditorAuthorSection: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

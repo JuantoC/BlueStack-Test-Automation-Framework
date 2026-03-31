@@ -1,9 +1,10 @@
 import { Locator, WebDriver, By, WebElement, until } from "selenium-webdriver";
 import { clickSafe } from "../../core/actions/clickSafe.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
 
@@ -34,7 +35,7 @@ export class NewNoteBtn {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "NewNoteBtn") };
+    this.config = resolveRetryConfig(opts, "NewNoteBtn");
   }
 
   private async clickOnNewNoteButton(): Promise<void> {
@@ -62,8 +63,8 @@ export class NewNoteBtn {
       const elementToClick = await this.matchNoteType(noteType);
       logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
       await clickSafe(this.driver, elementToClick, this.config);
-    } catch (error: any) {
-      logger.error(`Error en selectNoteType: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en selectNoteType: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -85,8 +86,8 @@ export class NewNoteBtn {
         this.config.timeoutMs,
         "El menú dropdown existe pero no es visible"
       );
-    } catch (error: any) {
-      logger.error(`El menú no se desplegó correctamente: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`El menú no se desplegó correctamente: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
 

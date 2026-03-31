@@ -1,4 +1,4 @@
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { WebDriver, WebElement } from "selenium-webdriver";
 import { UploadVideoBtn } from "./UploadVideoBtn.js";
@@ -11,6 +11,7 @@ import { ActionType, VideoActions } from "./VideoActions.js";
 import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 import { Banners } from "../modals/Banners.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Page Object Maestro para la sección de Videos del CMS.
@@ -36,7 +37,7 @@ export class MainVideoPage {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainVideoPage") }
+    this.config = resolveRetryConfig(opts, "MainVideoPage")
 
     this.uploadBtn = new UploadVideoBtn(this.driver, this.config);
     this.uploadModal = new UploadVideoModal(this.driver, this.config);
@@ -86,10 +87,10 @@ export class MainVideoPage {
 
         logger.info(`Subida finalizada`, { label: this.config.label });
 
-      } catch (error: any) {
-        logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${getErrorMessage(error)}`, {
           label: this.config.label,
-          error: error.message
+          error: getErrorMessage(error)
         });
         throw error;
       }
@@ -117,11 +118,11 @@ export class MainVideoPage {
         await this.banner.checkBanners(true);
 
         logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
-      } catch (error: any) {
-        logger.error(`Error al cambiar el titulo del video: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error al cambiar el titulo del video: ${getErrorMessage(error)}`, {
           label: this.config.label,
           title: titleID,
-          error: error.message
+          error: getErrorMessage(error)
         })
         throw error;
       }
@@ -149,12 +150,12 @@ export class MainVideoPage {
 
         await this.banner.checkBanners(false)
         logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
-      } catch (error: any) {
-        logger.error(`Error al clickear la accion: "${action}" en el video: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error al clickear la accion: "${action}" en el video: ${getErrorMessage(error)}`, {
           label: this.config.label,
           title: postTitle,
           action,
-          error: error.message
+          error: getErrorMessage(error)
         })
         throw error;
       }
@@ -182,8 +183,8 @@ export class MainVideoPage {
         await this.footer.clickFooterAction('PUBLISH_ONLY')
         logger.info('Video/s publicados exitosamente', { label: this.config.label })
 
-      } catch (error: any) {
-        logger.error(`Error al seleccionar y publicar videos: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al seleccionar y publicar videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -204,8 +205,8 @@ export class MainVideoPage {
         videos.push(video)
       }
       return videos
-    } catch (error: any) {
-      logger.error(`Error al obtener los ultimos ${numberOfVideos} videos: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error al obtener los ultimos ${numberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

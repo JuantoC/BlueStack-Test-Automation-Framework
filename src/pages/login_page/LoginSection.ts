@@ -1,11 +1,12 @@
 import { By, Locator, WebDriver, WebElement } from 'selenium-webdriver';
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from '../../core/actions/waitFind.js';
 import { BusinessLogicError } from '../../core/errors/bussinesLogicError.js';
+import { LoginAttemptResult } from './login.types.js';
 
 /**
  * Componente de campos de Login.
@@ -24,7 +25,7 @@ export class LoginSection {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "LoginSection") };
+    this.config = resolveRetryConfig(opts, "LoginSection");
   }
 
   /**
@@ -109,7 +110,7 @@ export class LoginSection {
    * @param password - Contraseña a ingresar.
    * @returns {Promise<{ success: boolean, errorMessage: string | null }>} Objeto con el estado del intento y el mensaje de error de la UI si existe.
    */
-  async attemptLogin(username: string, password: string): Promise<{ success: boolean, errorMessage: string | null }> {
+  async attemptLogin(username: string, password: string): Promise<LoginAttemptResult> {
 
     await this.fillUsername(username);
     await this.fillPassword(password);

@@ -1,10 +1,11 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 type NoteTagField = keyof typeof EditorTagsSection.LOCATORS;
 type NoteTagsData = Pick<NoteData, NoteTagField>;
@@ -24,7 +25,7 @@ export class EditorTagsSection {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorTagsSection") }
+    this.config = resolveRetryConfig(opts, "EditorTagsSection")
   }
 
   /**
@@ -70,8 +71,8 @@ export class EditorTagsSection {
       }
 
       logger.debug(`Se agregaron ${tags.length} etiquetas exitosamente al campo ${type}`, { label: this.config.label });
-    } catch (error: any) {
-      logger.error(`Error procesando los tags de ${type}: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error procesando los tags de ${type}: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

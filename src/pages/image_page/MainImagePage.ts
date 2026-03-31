@@ -1,5 +1,5 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 
 /**
@@ -13,6 +13,6 @@ export class MainImagePage {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "VideoTable") }
+    this.config = resolveRetryConfig(opts, "VideoTable")
   }
 }

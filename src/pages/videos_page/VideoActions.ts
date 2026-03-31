@@ -1,10 +1,11 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 export type ActionType = keyof typeof VideoActions.ACTION_TYPE_MAP;
 
@@ -33,7 +34,7 @@ export class VideoActions {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "VideoActions") }
+    this.config = resolveRetryConfig(opts, "VideoActions")
   }
 
 
@@ -59,9 +60,9 @@ export class VideoActions {
       const actionBtn = await this.findAction(videoContainer, action)
       logger.debug(`Encontrado el boton de ${action}, clickeando...`, { label: this.config.label })
       await clickSafe(this.driver, actionBtn, this.config)
-    } catch (error: any) {
-      logger.error(`Fallo al clickear botón ${action} en el video: ${error.message}`, { label: this.config.label, error: error.message });
-      throw new Error(`Fallo al clickear botón ${action} en el video: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (error: unknown) {
+      logger.error(`Fallo al clickear botón ${action} en el video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw new Error(`Fallo al clickear botón ${action} en el video: ${getErrorMessage(error)}`);
     }
   }
 
@@ -77,8 +78,8 @@ export class VideoActions {
         }
       }
       throw new Error(`No se encontro la accion ${action}`)
-    } catch (error: any) {
-      logger.error(`Error en findAction: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en findAction: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -87,8 +88,8 @@ export class VideoActions {
     try {
       const ariaExpanded = await editorBtn.getAttribute('aria-expanded')
       return ariaExpanded === 'true'
-    } catch (error: any) {
-      logger.error(`Error en isActionsModalOpen: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error en isActionsModalOpen: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

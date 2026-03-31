@@ -1,10 +1,11 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginSection } from "./LoginSection.js";
 import { TwoFASection } from "./TwoFASection.js";
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import logger from "../../core/utils/logger.js";
-import { AuthCredentials } from "../../interfaces/auth.js";
+import { AuthCredentials } from "./login.types.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 import { parameter, step } from "allure-js-commons";
 
 /**
@@ -24,11 +25,7 @@ export class MainLoginPage {
   private readonly config: RetryOptions;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.config = {
-      ...DefaultConfig,
-      ...opts,
-      label: stackLabel(opts.label, "MainLoginPage")
-    };
+    this.config = resolveRetryConfig(opts, "MainLoginPage");
     this.driver = driver;
     this.login = new LoginSection(driver, this.config);
     this.twoFA = new TwoFASection(driver, this.config);
@@ -56,7 +53,7 @@ export class MainLoginPage {
 
         logger.debug(`Flujo AuthPage completado correctamente: ${credentials.username}`, { label: this.config.label });
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         throw error;
       }
     });
@@ -94,10 +91,10 @@ export class MainLoginPage {
         logger.debug(`Intentos fallidos validados. Procediendo con credenciales válidas.`, { label: this.config.label });
         await this.passLoginAndTwoFA(validCredentials);
 
-      } catch (error: any) {
-        logger.error(`Error en failLogin: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error en failLogin: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          error: error.message,
+          error: getErrorMessage(error),
         });
         throw error;
       }

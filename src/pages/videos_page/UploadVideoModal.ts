@@ -1,7 +1,8 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, RetryOptions } from "../../core/config/defaultConfig.js";
+import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { stackLabel } from "../../core/utils/stackLabel.js";
 import { step } from "allure-js-commons";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 import { VideoData } from "../../interfaces/data.js";
 import logger from "../../core/utils/logger.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
@@ -54,7 +55,7 @@ export class UploadVideoModal {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "UploadVideoModal") }
+    this.config = resolveRetryConfig(opts, "UploadVideoModal")
     this.image = new CKEditorImageModal(this.driver, this.config)
     this.banner = new Banners(this.driver, this.config);
 
@@ -117,8 +118,8 @@ export class UploadVideoModal {
         await writeSafe(this.driver, locator, value, this.config);
 
         logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
-      } catch (error: any) {
-        logger.error(`Error en fillField: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en fillField: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -144,8 +145,8 @@ export class UploadVideoModal {
           }
           await sleep(200);
         }
-      } catch (error: any) {
-        logger.error(`Error verificando barra de progreso: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error verificando barra de progreso: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -159,8 +160,8 @@ export class UploadVideoModal {
     await step("Click en botón de subida", async () => {
       try {
         await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
-      } catch (error: any) {
-        logger.error(`Error al clickear subir: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al clickear subir: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -175,8 +176,8 @@ export class UploadVideoModal {
         return true;
       }
       return false;
-    } catch (error: any) {
-      logger.error(`Error verificando barra de progreso completa: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error verificando barra de progreso completa: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -210,8 +211,8 @@ export class UploadVideoModal {
         // Aplicamos el detector al driver
         this.driver.setFileDetector(new DetectorClass());
         logger.debug('FileDetector activado correctamente.', { label: this.config.label });
-      } catch (err: any) {
-        logger.error(`Error en configuración Grid: ${err.message}`, { label: this.config.label });
+      } catch (err: unknown) {
+        logger.error(`Error en configuración Grid: ${getErrorMessage(err)}`, { label: this.config.label });
         throw err;
       }
     } else {
@@ -223,8 +224,8 @@ export class UploadVideoModal {
       // Este comando empaquetará el video desde WSL y lo enviará al contenedor
       await fileInput.sendKeys(absolutePath);
       logger.debug('Archivo enviado al nodo de Chrome en Docker.', { label: this.config.label });
-    } catch (error: any) {
-      throw new Error(`Error en sendKeys: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Error en sendKeys: ${getErrorMessage(error)}`);
     }
   }
 

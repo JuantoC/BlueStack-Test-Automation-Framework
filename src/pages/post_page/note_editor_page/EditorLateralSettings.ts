@@ -1,10 +1,11 @@
 import { Locator, By, WebDriver, WebElement } from "selenium-webdriver";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { step } from "allure-js-commons";
 import { waitFind } from "../../../core/actions/waitFind.js";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 /**
  * Maneja el panel lateral de configuración de la nota (Settings).
@@ -21,7 +22,7 @@ export class EditorLateralSettings {
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorLateralSettings") }
+    this.config = resolveRetryConfig(opts, "EditorLateralSettings")
   }
 
   // ========== MÉTODOS ==========
@@ -41,8 +42,8 @@ export class EditorLateralSettings {
 
         logger.debug(`Intentando hacer click en la opción "${index}"...`, { label: this.config.label });
         await clickSafe(this.driver, elementToClick, this.config);
-      } catch (error: any) {
-        logger.error(`Error en selectSectionOption con index ${index}: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en selectSectionOption con index ${index}: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -61,7 +62,7 @@ export class EditorLateralSettings {
         throw new Error(`No se encontro ningun elemento en el selector: ${EditorLateralSettings.SECTION_OPT}`);
       }
       return elements[index];
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw new Error(`No se encontró la opción "${index}" en el menú.`);
     }
 
@@ -104,8 +105,8 @@ export class EditorLateralSettings {
       try {
         logger.debug("Cambiando estado del panel lateral de configuración", { label: this.config.label });
         await clickSafe(this.driver, EditorLateralSettings.SETTINGS_TOGGLE_BTN, this.config);
-      } catch (error: any) {
-        logger.error(`Error en toggleSettingsPanel: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en toggleSettingsPanel: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

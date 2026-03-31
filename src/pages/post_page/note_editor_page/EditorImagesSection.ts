@@ -1,11 +1,12 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { stackLabel } from "../../../core/utils/stackLabel.js";
 import logger from "../../../core/utils/logger.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { step } from "allure-js-commons";
 import { CKEditorImageModal } from "../../modals/CKEditorImageModal.js";
+import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 /**
  * Sub-componente que gestiona la sección de imagen principal del Editor de Notas.
@@ -24,7 +25,7 @@ export class EditorImageSection {
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "EditorImageSection") }
+    this.config = resolveRetryConfig(opts, "EditorImageSection")
 
     this.CKEditorSelector = new CKEditorImageModal(driver, opts);
   }
@@ -45,8 +46,8 @@ export class EditorImageSection {
         await this.CKEditorSelector.selectImage(index);
 
         await this.writeOnMainImageDescription();
-      } catch (error: any) {
-        logger.error(`Error en selectAndWriteMainImage: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error en selectAndWriteMainImage: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

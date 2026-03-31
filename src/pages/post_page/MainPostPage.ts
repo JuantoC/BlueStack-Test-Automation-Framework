@@ -14,7 +14,7 @@ export class MainPostPage {
 
   constructor(driver: WebDriver, NoteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
-    this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "MainPostPage") };
+    this.config = resolveRetryConfig(opts, "MainPostPage");
     this.NoteType = NoteType || 'POST';
 
     this.table = new PostTable(driver, this.config);
@@ -44,8 +44,8 @@ export class MainPostPage {
         await this.footer.clickFooterAction('PUBLISH_ONLY')
         logger.info('Post/s publicados exitosamente', { label: this.config.label })
 
-      } catch (error: any) {
-        logger.error(`Error al seleccionar y publicar posts: ${error.message}`, { label: this.config.label, error: error.message });
+      } catch (error: unknown) {
+        logger.error(`Error al seleccionar y publicar posts: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -71,11 +71,11 @@ export class MainPostPage {
 
           logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label })
         }, this.config);
-      } catch (error: any) {
-        logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error al cambiar el titulo de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
           title: title,
-          error: error.message
+          error: getErrorMessage(error)
         })
         throw error;
       }
@@ -100,11 +100,11 @@ export class MainPostPage {
         await this.banner.checkBanners(false);
 
         logger.info('Entrada a la edicion de la nota exitosa.', { label: this.config.label })
-      } catch (error: any) {
-        logger.error(`Error al cambiar el titulo de la nota: ${error.message}`, {
+      } catch (error: unknown) {
+        logger.error(`Error al cambiar el titulo de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
           title: postTitle,
-          error: error.message
+          error: getErrorMessage(error)
         })
         throw error;
       }
@@ -127,8 +127,8 @@ export class MainPostPage {
         await this.banner.checkBanners(false);
 
         logger.info(`Nueva nota tipo: ${newNoteType} creada exitosamente`, { label: this.config.label });
-      } catch (error: any) {
-        logger.error(`Error en flujo de creación [${newNoteType}]: ${error.message}`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error en flujo de creación [${newNoteType}]: ${getErrorMessage(error)}`, { label: this.config.label });
         throw error;
       }
     });
@@ -149,15 +149,15 @@ export class MainPostPage {
         posts.push(post)
       }
       return posts
-    } catch (error: any) {
-      logger.error(`Error al obtener los ultimos ${numberOfPosts} posts: ${error.message}`, { label: this.config.label, error: error.message });
+    } catch (error: unknown) {
+      logger.error(`Error al obtener los ultimos ${numberOfPosts} posts: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
 }
 
 import { WebDriver, WebElement } from 'selenium-webdriver';
-import { RetryOptions, DefaultConfig } from "../../core/config/defaultConfig.js";
+import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { stackLabel } from '../../core/utils/stackLabel.js';
 import { step } from "allure-js-commons";
 import logger from '../../core/utils/logger.js';
@@ -166,4 +166,5 @@ import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 import { FooterActions } from '../FooterActions.js';
 import { retry } from '../../core/wrappers/retry.js';
 import { Banners } from '../modals/Banners.js';
+import { getErrorMessage } from '../../core/utils/errorUtils.js';
 

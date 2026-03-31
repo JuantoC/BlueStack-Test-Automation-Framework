@@ -25,11 +25,12 @@ export class Banners {
 
   private static readonly TOAST_CONTAINER = By.css("div#toast-container");
   private static readonly TOAST_SUCCESS = By.css("div.toast-success");
-  private static readonly TOAST_ERROR = By.css("div[role='alert']");
+  private static readonly TOAST_ERROR = By.css("div.toast-error");
+  private static readonly TOAST_WARNING = By.css("div.toast-warning");
 
-  private static readonly TOAST_ERROR_TITLE = By.css("div.toast-title");
-  private static readonly TOAST_ERROR_DETAIL = By.css("div.toast-error-detail");
-  private static readonly TOAST_ERROR_ROUTE = By.css("div.toast-error-route");
+  private static readonly TOAST_TITLE = By.css("div.toast-title");
+  private static readonly TOAST_DETAIL = By.css("div.toast-error-detail");
+  private static readonly TOAST_ROUTE = By.css("div.toast-error-route");
   private static readonly TOAST_CLOSE_BTN = By.css("button.toast-close-button");
 
   constructor(driver: WebDriver, opts: RetryOptions) {
@@ -53,6 +54,7 @@ export class Banners {
       // Usamos flags booleanos para evitar StaleElementReferenceException luego
       let hasSuccess = false;
       let hasError = false;
+      let hasWarning = false;
 
       try {
         const waitTime = expectSuccess ? this.config.timeoutMs : 800;
@@ -66,9 +68,11 @@ export class Banners {
             // Revisamos qué tipo de toast existe
             const errors = await container.findElements(Banners.TOAST_ERROR);
             const successes = await container.findElements(Banners.TOAST_SUCCESS);
+            const warnings = await container.findElements(Banners.TOAST_WARNING);
 
             if (errors.length > 0) hasError = true;
             if (successes.length > 0) hasSuccess = true;
+            if (warnings.length > 0) hasWarning = true;
 
             // NUEVA LÓGICA DE SALIDA
             if (expectSuccess) {
@@ -76,7 +80,7 @@ export class Banners {
               return hasSuccess;
             } else {
               // Si solo monitoreamos, salimos apenas encontremos cualquiera
-              return hasError || hasSuccess;
+              return hasError || hasSuccess || hasWarning;
             }
           } catch (e) {
             return false;
@@ -98,6 +102,11 @@ export class Banners {
       if (hasError) {
         logger.debug('Se detectó un toast de error, delegando manejo...', { label: this.config.label });
         await this.handleErrorToast();
+      }
+
+      if (hasWarning) {
+        logger.debug('Se detectó un toast de advertencia, delegando manejo...', { label: this.config.label });
+        await this.handleWarningToast();
       }
 
 
@@ -133,9 +142,9 @@ export class Banners {
 
         const errorElement = errorElements[0];
 
-        const titleElements = await errorElement.findElements(Banners.TOAST_ERROR_TITLE);
-        const detailElements = await errorElement.findElements(Banners.TOAST_ERROR_DETAIL);
-        const routeElements = await errorElement.findElements(Banners.TOAST_ERROR_ROUTE);
+        const titleElements = await errorElement.findElements(Banners.TOAST_TITLE);
+        const detailElements = await errorElement.findElements(Banners.TOAST_DETAIL);
+        const routeElements = await errorElement.findElements(Banners.TOAST_ROUTE);
 
         const titleText = titleElements.length > 0 ? await titleElements[0].getText() : 'Sin título';
         const detailText = detailElements.length > 0 ? await detailElements[0].getText() : 'Sin detalle';
@@ -157,6 +166,49 @@ export class Banners {
       } catch (error: unknown) {
         // Ahora sí, si falla, sabrás que no fue por un StaleElement al inicio
         logger.error(`Error interno procesando la UI del toast de error: ${getErrorMessage(error)}`, { label: this.config.label });
+      }
+    });
+  }
+
+  /**
+   * Maneja el toast de advertencia. Busca el elemento internamente para evitar Stale Elements.
+   * Registra el contenido como advertencia funcional (no como fallo del sistema).
+   */
+  private async handleWarningToast(): Promise<void> {
+    await step('Procesando toast de advertencia', async () => {
+      try {
+        // 1. Buscamos el elemento FRESCO en el DOM
+        const warningElements = await this.driver.findElements(Banners.TOAST_WARNING);
+        if (warningElements.length === 0) {
+          logger.debug('No se detectaron elementos de advertencia en el DOM.', { label: this.config.label });
+          return;
+        }
+
+        const warningElement = warningElements[0];
+
+        const titleElements = await warningElement.findElements(Banners.TOAST_TITLE);
+        const detailElements = await warningElement.findElements(Banners.TOAST_DETAIL);
+        const routeElements = await warningElement.findElements(Banners.TOAST_ROUTE);
+
+        const titleText = titleElements.length > 0 ? await titleElements[0].getText() : 'Sin título';
+        const detailText = detailElements.length > 0 ? await detailElements[0].getText() : 'Sin detalle';
+        const routeText = routeElements.length > 0 ? await routeElements[0].getText() : 'Sin ruta';
+
+        const warningData = `Ruta: ${routeText}\nTítulo: ${titleText}\nDetalle: ${detailText}`;
+        logger.warn(`Información del Toast de advertencia:\n${warningData}`, { label: this.config.label });
+
+        // 2. Adjuntamos texto y screenshot
+        await attachment("Detalles del Toast de Advertencia", Buffer.from(warningData, "utf-8"), "text/plain");
+        const screenshot = await this.driver.takeScreenshot();
+        await attachment("Captura_Warning_Toast", Buffer.from(screenshot, 'base64'), 'image/png');
+
+        // 3. Cerramos el Toast
+        const closeBtns = await waitFind(this.driver, Banners.TOAST_CLOSE_BTN, { ...this.config, supressRetry: true, timeoutMs: 800 });
+        await clickSafe(this.driver, closeBtns, { ...this.config, supressRetry: true, timeoutMs: 800 });
+        logger.debug('Toast de advertencia cerrado.', { label: this.config.label });
+
+      } catch (error: unknown) {
+        logger.error(`Error interno procesando la UI del toast de advertencia: ${getErrorMessage(error)}`, { label: this.config.label });
       }
     });
   }

@@ -71,7 +71,12 @@ src/pages/
 │   ├── PublishModal.ts            # Lógica de publicación (notas y videos)
 │   └── Banners.ts
 ├── comment_page/
-├── image_page/
+├── image_pages/
+│   ├── MainImagePage.ts           # Maestro — subida, edición, acciones, publicación masiva
+│   ├── ImageTable.ts
+│   ├── UploadImageBtn.ts          # ImageType type
+│   ├── UploadImageModal.ts        # ImageData interface, UploadImageModalFields type
+│   └── ImageActions.ts            # ImageActionType type (EDIT, DELETE, UNPUBLISH)
 └── user_profile_page/
 ```
 
@@ -90,13 +95,13 @@ src/pages/
 ```typescript
 constructor(driver: WebDriver, opts: RetryOptions) {
   this.driver = driver;
-  this.config = { ...DefaultConfig, ...opts, label: stackLabel(opts.label, "ClassName") };
+  this.config = resolveRetryConfig(opts, "ClassName");
 }
 // Maestros con tipo de nota: constructor(driver, noteType: NoteType, opts)
 // El tipo de nota se almacena internamente — no se repite en cada llamada a método.
 ```
 
-Rules: spread `DefaultConfig` first. Pass `this.config` (never `opts`) to sub-components.
+Rules: usar `resolveRetryConfig` (de `src/core/config/defaultConfig.js`). Pass `this.config` (never `opts`) to sub-components.
 
 ---
 
@@ -190,11 +195,15 @@ await clickSafe(this.driver, EditorHeaderActions.SAVE_BTN, this.config);
 | `NoteExitAction` | `src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
 | `VideoType` | `src/pages/videos_page/UploadVideoBtn.ts` |
 | `ActionType` | `src/pages/videos_page/VideoActions.ts` |
+| `ImageType` | `src/pages/image_pages/UploadImageBtn.ts` |
+| `ImageActionType` | `src/pages/image_pages/ImageActions.ts` |
+| `ImageData` | `src/pages/image_pages/UploadImageModal.ts` |
+| `UploadImageModalFields` | `src/pages/image_pages/UploadImageModal.ts` |
 | `FooterActionType` | `src/pages/FooterActions.ts` |
 | `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |
 | `LiveBlogData` | `src/pages/post_page/note_editor_page/note_list/BaseListicleSection.ts` |
 | `NoteData`, `VideoData`, `AINoteData` | `src/interfaces/data.ts` |
-| Auth interfaces | `src/interfaces/auth.ts` |
+| `AuthCredentials`, `LoginAttemptResult` | `src/pages/login_page/login.types.ts` |
 
 New symbols → most specific file that owns the concept. Cross-cutting → `src/interfaces/data.ts`.
 

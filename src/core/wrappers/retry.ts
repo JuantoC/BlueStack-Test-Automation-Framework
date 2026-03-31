@@ -9,9 +9,12 @@ import { getErrorMessage } from "../utils/errorUtils.js";
  * Wrapper de resiliencia con Exponential Backoff.
  * Gestiona la política de reintentos basada en la categorización de errores
  * y permite la supresión de reintentos para orquestaciones anidadas.
- * * @param action - Función asíncrona a ejecutar.
- * @param options - Configuración de reintentos y trazabilidad.
- * @returns El resultado de la acción si tiene éxito.
+ *
+ * @param action - Función asíncrona a ejecutar con reintento automático.
+ * @param options - Configuración de reintentos y trazabilidad. Fusionada sobre `DefaultConfig`.
+ * @returns {Promise<T>} El resultado de la acción si tiene éxito dentro del límite de intentos.
+ * @throws Lanza el último error capturado si se agota el límite de reintentos.
+ * @throws Lanza inmediatamente si `classifyError` categoriza el error como `FATAL`.
  */
 export async function retry<T>(
   action: () => Promise<T>,

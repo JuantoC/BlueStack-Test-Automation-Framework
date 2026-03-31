@@ -14,6 +14,12 @@ import { RetryOptions } from "../../../../core/config/defaultConfig.js";
 export class LiveBlogSection extends BaseListicleSection {
   private eventSection: LiveBlogEventSection;
 
+  /**
+   * Constructor para la sección de LiveBlog.
+   *
+   * @param driver - Instancia activa de WebDriver para la sesión actual.
+   * @param opts - Opciones de reintento y trazabilidad del framework.
+   */
   constructor(driver: WebDriver, opts: RetryOptions) {
     super(driver, LiveBlogStrategy, opts);
     this.eventSection = new LiveBlogEventSection(driver, this.config);
@@ -40,6 +46,12 @@ export class LiveBlogSection extends BaseListicleSection {
  * No sobrescribe ningún hook; usa `StandardStrategy` que preserva el orden original de los ítems.
  */
 export class ListicleSection extends BaseListicleSection {
+  /**
+   * Constructor para la sección de Listicle.
+   *
+   * @param driver - Instancia activa de WebDriver para la sesión actual.
+   * @param opts - Opciones de reintento y trazabilidad del framework.
+   */
   constructor(driver: WebDriver, opts: RetryOptions) {
     super(driver, StandardStrategy, opts);
   }

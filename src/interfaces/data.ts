@@ -1,11 +1,24 @@
+/** Tipo de autor que puede tener una nota. Derivado de los valores válidos en `NoteData.authorType`. */
 export type AuthorType = 'INTERNAL' | 'ANONYMOUS' | 'MANUAL';
+
+/** Tipo de video que puede ser subido. Valores soportados: YouTube, video nativo o embedded. */
 export type VideoType  = 'YOUTUBE' | 'NATIVO' | 'EMBEDDED';
 
+/**
+ * Represent un ítem individual dentro de una sección de lista (listicle).
+ * Cada ítem tiene un título y un cuerpo editable.
+ * Usado como elemento de `ListicleData.listicleItems`.
+ */
 export interface ListicleItem {
   title: string;
   body: string;
 }
 
+/**
+ * Documento de evento para secciones de LiveBlog.
+ * Contiene metadata del evento tales como título, descripción, lugar y dirección.
+ * ⚠️ El campo `eventAdress` conserva intencionalmente el typo del backend para compatibilidad con la UI.
+ */
 export interface EventLiveBlog {
   eventTitle?: string;
   eventDescription?: string;
@@ -14,6 +27,11 @@ export interface EventLiveBlog {
   eventAdress?: string;
 }
 
+/**
+ * Datos editable de una nota para el formulario del editor del CMS.
+ * Base de otros tipos como `PostData`, `ListicleData` y `LiveBlogData`.
+ * Todos los campos son opcionales para permitir relleno parcial en tests de datos.
+ */
 export interface NoteData {
   // Campos de texto principales
   title?: string;
@@ -37,6 +55,12 @@ export interface NoteData {
   eventLiveBlog?: EventLiveBlog;
 }
 
+/**
+ * Datos de un post completo para el formulario del editor.
+ * Extiende `NoteData` con validación de campos requeridos (title, body, tags, authorName, authorType).
+ * ⚠️ Campos prohibidos: `secondaryTitle`, `halfTitle`, `listicleItems`, `eventLiveBlog`.
+ * Estos son derivados automáticamente por el backend y no deben ser enviados.
+ */
 export interface PostData extends NoteData {
   title: string;
   body: string;
@@ -46,6 +70,11 @@ export interface PostData extends NoteData {
   // Campos PROHIBIDOS: secondaryTitle, halfTitle, listicleItems, eventLiveBlog
 }
 
+/**
+ * Datos de una nota listicle (artículo en formato de lista) para el editor.
+ * Extiende `NoteData` con validación de lista de ítems (`listicleItems`).
+ * ⚠️ Campos prohibidos: `secondaryTitle`, `halfTitle`, `eventLiveBlog`.
+ */
 export interface ListicleData extends NoteData {
   title: string;
   body: string;
@@ -56,6 +85,11 @@ export interface ListicleData extends NoteData {
   // Campos PROHIBIDOS: secondaryTitle, halfTitle, eventLiveBlog
 }
 
+/**
+ * Datos de un evento de livestream/liveblog para el editor.
+ * Extiende `NoteData` con validación de ítems y evento (`eventLiveBlog`).
+ * ⚠️ Campos prohibidos: `secondaryTitle`, `halfTitle`, `body`.
+ */
 export interface LiveBlogData extends NoteData {
   title: string;
   tags: string[];
@@ -65,6 +99,11 @@ export interface LiveBlogData extends NoteData {
   // Campos PROHIBIDOS: secondaryTitle, halfTitle, body
 }
 
+/**
+ * Datos base de un video para el formulario de subida.
+ * Define la estructura común a todos los tipos de video.
+ * Cada subtipo (`YoutubeVideoData`, `NativeVideoData`, `EmbeddedVideoData`) refina el contrato.
+ */
 export interface VideoData {
   video_type: VideoType
   url?: string;
@@ -74,6 +113,10 @@ export interface VideoData {
   path?: string;
 }
 
+/**
+ * Datos específicos de un video alojado en YouTube.
+ * Requiere obligatoriamente una URL válida de YouTube.
+ */
 export interface YoutubeVideoData extends VideoData {
   video_type: 'YOUTUBE';
   url: string;
@@ -81,6 +124,10 @@ export interface YoutubeVideoData extends VideoData {
   description?: string;
 }
 
+/**
+ * Datos específicos de un video nativo (alojado localmente o en CDN).
+ * Requiere obligatoriamente una ruta (`path`) válida del servidor.
+ */
 export interface NativeVideoData extends VideoData {
   video_type: 'NATIVO';
   title: string;
@@ -88,6 +135,10 @@ export interface NativeVideoData extends VideoData {
   description?: string;
 }
 
+/**
+ * Datos específicos de un video embebido (iframe externo).
+ * Requiere obligatoriamente un código iframe válido (HTML embed code).
+ */
 export interface EmbeddedVideoData extends VideoData {
   video_type: 'EMBEDDED';
   iframe: string;
@@ -95,6 +146,16 @@ export interface EmbeddedVideoData extends VideoData {
   description?: string;
 }
 
+/**
+ * Datos para la generación asistida por IA de notas.
+ * Parámetros de contexto y tono que controlan el asistente IA del CMS.
+ * Todos los campos son opcionales.
+ */
+/**
+ * Datos para la generación asistida por IA de notas.
+ * Parámetros de contexto y tono que controlan el asistente IA del CMS.
+ * Todos los campos son opcionales.
+ */
 export interface AIDataNote {
   task?: string;
   context?: string;

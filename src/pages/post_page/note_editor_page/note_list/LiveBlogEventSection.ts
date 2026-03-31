@@ -26,6 +26,12 @@ export class LiveBlogEventSection {
         EVENT_ADDRESS: By.css('div[id="event-note"] input#search-input'),
     } as const
 
+    /**
+     * Constructor para la sección de evento de LiveBlog.
+     *
+     * @param driver - Instancia activa de WebDriver para la sesión actual.
+     * @param opts - Opciones de reintento y trazabilidad del framework.
+     */
     constructor(driver: WebDriver, opts: RetryOptions) {
         this.driver = driver;
         this.config = resolveRetryConfig(opts, "LiveBlogEventSection");

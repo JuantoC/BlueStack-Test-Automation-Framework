@@ -27,6 +27,13 @@ export abstract class BaseListicleSection {
   private static readonly CREATE_MENU_BTN: Locator = By.css('.dropdown-noteList button');
   private static readonly ADD_OPT: Locator = By.id('option-dropdown-0');
 
+  /**
+   * Constructor de la clase abstracta.
+   *
+   * @param driver - Instancia activa de WebDriver para la sesión actual.
+   * @param strategy - Estrategia de normalización de ítems (Listicle o LiveBlog).
+   * @param opts - Opciones de reintento y trazabilidad del framework.
+   */
   constructor(
     protected driver: WebDriver,
     protected strategy: ListicleStrategy,

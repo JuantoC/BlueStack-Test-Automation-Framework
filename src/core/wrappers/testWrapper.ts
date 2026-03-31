@@ -21,8 +21,12 @@ export interface TestMetadata {
   tags?: string[];
 }
 
-// Definimos qué recibe el test
-interface TestContext {
+/**
+ * Contexto inyectado en cada función de test por `runSession`.
+ * Provee acceso al driver WebDriver activo, al monitor de red y a la configuración de reintentos.
+ * Usar este contexto para interactuar con el navegador y acceder a los metadatos de ejecución.
+ */
+export interface TestContext {
   driver: WebDriver;
   session: DriverSession; // Por si necesitas acceso al monitor u otros internals
   opts: RetryOptions;

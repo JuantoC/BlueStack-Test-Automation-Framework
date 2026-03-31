@@ -134,17 +134,17 @@ export class MainVideoPage {
    * Delega la búsqueda del contenedor en `VideoTable.getVideoContainerByTitle` y
    * la interacción con el menú en `VideoActions.clickOnAction`.
    *
-   * @param postTitle - Título del video objetivo, usado para identificar su fila en la tabla.
+   * @param VideoTitle - Título del video objetivo, usado para identificar su fila en la tabla.
    * @param action - Tipo de acción a ejecutar sobre el video (EDIT, DELETE, UNPUBLISH).
    */
-  async clickOnActionVideo(postTitle: string, action: ActionType): Promise<any> {
-    await step(`Clickeando en la accion: "${action}" del video: "${postTitle}"`, async (stepContext) => {
-      stepContext.parameter("Titulo del video", postTitle);
+  async clickOnActionVideo(VideoTitle: string, action: ActionType): Promise<any> {
+    await step(`Clickeando en la accion: "${action}" del video: "${VideoTitle}"`, async (stepContext) => {
+      stepContext.parameter("Titulo del video", VideoTitle);
       stepContext.parameter("Acción", action);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        const videoContainer = await this.table.getVideoContainerByTitle(postTitle);
+        const videoContainer = await this.table.getVideoContainerByTitle(VideoTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(videoContainer, action);
 
@@ -153,7 +153,7 @@ export class MainVideoPage {
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en el video: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: postTitle,
+          title: VideoTitle,
           action,
           error: getErrorMessage(error)
         })
@@ -167,16 +167,16 @@ export class MainVideoPage {
    * Itera sobre cada contenedor de video recibido y delega la selección en `VideoTable.selectVideo`.
    * Finaliza con una acción de publicación mediante `FooterActions.clickFooterAction`.
    *
-   * @param videos - Array de contenedores WebElement de los videos que se desean seleccionar y publicar.
+   * @param Videos - Array de contenedores WebElement de los videos que se desean seleccionar y publicar.
    */
-  async selectAndPublishFooter(videos: WebElement[]): Promise<any> {
-    await step("Seleccionar y publicar videos", async (stepContext) => {
-      stepContext.parameter("Cantidad", videos.length.toString());
+  async selectAndPublishFooter(Videos: WebElement[]): Promise<any> {
+    await step("Seleccionar y publicar Videos", async (stepContext) => {
+      stepContext.parameter("Cantidad", Videos.length.toString());
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        logger.debug('Seleccionando el/los videos enviados...', { label: this.config.label })
-        for (const video of videos) {
+        logger.debug('Seleccionando el/los Videos enviados...', { label: this.config.label })
+        for (const video of Videos) {
           await this.table.selectVideo(video);
         }
         logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
@@ -184,7 +184,7 @@ export class MainVideoPage {
         logger.info('Video/s publicados exitosamente', { label: this.config.label })
 
       } catch (error: unknown) {
-        logger.error(`Error al seleccionar y publicar videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        logger.error(`Error al seleccionar y publicar Videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });
@@ -194,19 +194,19 @@ export class MainVideoPage {
    * Obtiene un array de contenedores WebElement de los primeros N videos de la tabla.
    * Itera por índice comenzando desde 0 y delega cada búsqueda en `VideoTable.getVideoContainerByIndex`.
    *
-   * @param numberOfVideos - Cantidad de videos a recuperar desde la parte superior de la tabla.
+   * @param NumberOfVideos - Cantidad de videos a recuperar desde la parte superior de la tabla.
    * @returns {Promise<WebElement[]>} Array con los contenedores DOM de los videos solicitados.
    */
-  async getVideoContainers(numberOfVideos: number): Promise<WebElement[]> {
+  async getVideoContainers(NumberOfVideos: number): Promise<WebElement[]> {
     try {
       let videos = []
-      for (let i = 0; i < numberOfVideos; i++) {
+      for (let i = 0; i < NumberOfVideos; i++) {
         const video = await this.table.getVideoContainerByIndex(i);
         videos.push(video)
       }
       return videos
     } catch (error: unknown) {
-      logger.error(`Error al obtener los ultimos ${numberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      logger.error(`Error al obtener los ultimos ${NumberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

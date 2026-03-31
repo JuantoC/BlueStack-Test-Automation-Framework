@@ -21,7 +21,6 @@ export class TwoFASection {
 
   /**
    * Omite el modal de 2FA haciendo clic en el botón de continuar/descartar.
-   * @param opts - Opciones de reintento y trazabilidad (incluye timeoutMs).
    */
   async passTwoFA(): Promise<void> {
     try {

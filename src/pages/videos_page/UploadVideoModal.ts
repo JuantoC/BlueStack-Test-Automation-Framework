@@ -1,6 +1,5 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 import { VideoData } from "../../interfaces/data.js";

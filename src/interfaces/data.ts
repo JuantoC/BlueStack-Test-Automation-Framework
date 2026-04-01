@@ -160,3 +160,22 @@ export interface AIDataNote {
   language?: number;
 }
 
+/**
+ * Datos para la subida de una imagen nativa al CMS.
+ * No existe distinción de tipos de imagen equivalente a `VideoType`:
+ * el único flujo soportado es la subida de archivo local vía `input[type="file"]`.
+ *
+ * @see UploadImageBtn.sendFileToUploadInput
+ */
+export interface ImageData {
+  /** Ruta relativa al archivo de imagen desde la raíz del proyecto. */
+  path: string;
+  /**
+   * Título que se espera ver en la tabla tras la subida (usualmente el nombre del archivo sin extensión).
+   * Si no se provee, se omite la verificación de presencia post-subida en la tabla.
+   */
+  title?: string;
+  /** Descripción opcional de la imagen. */
+  description?: string;
+}
+

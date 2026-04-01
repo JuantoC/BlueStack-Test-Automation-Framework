@@ -9,7 +9,7 @@
  */
 
 import { faker } from '@faker-js/faker';
-import { NoteData, ListicleItem, EventLiveBlog, PostData, ListicleData, LiveBlogData } from '../../interfaces/data.js';
+import { ListicleItem, EventLiveBlog, PostData, ListicleData, LiveBlogData } from '../../interfaces/data.js';
 
 export type { ListicleItem, EventLiveBlog, PostData, ListicleData, LiveBlogData } from '../../interfaces/data.js';
 

@@ -41,3 +41,12 @@ export {
 export type {
   AINoteData,
 } from './AINoteDataFactory.js';
+
+export {
+  ImageDataFactory,
+  IMAGE_PATHS,
+} from './ImageDataFactory.js';
+
+export type {
+  ImageData,
+} from './ImageDataFactory.js';

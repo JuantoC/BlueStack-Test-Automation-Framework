@@ -1,10 +1,8 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { hoverOverParentContainer } from "../../core/helpers/hoverOverParentContainer.js";
-import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 export type ImageActionType = keyof typeof ImageActions.ACTION_TYPE_MAP;
@@ -29,8 +27,9 @@ export class ImageActions {
     DELETE: new Set(["Eliminar", "Remove"]),
     UNPUBLISH: new Set(['Unpublish', "Despublicar"]),
   } as const;
-  private static readonly DROPDOWN_BTN: Locator = By.css('div#-dropMenu button.dropdown-toggle')
-  private static readonly LABELS_OF_ACTIONS: Locator = By.css('div#-dropMenu button.dropdown-item')
+  private static readonly DROPDOWN_BTN: Locator = By.css('div.dropdown-options-table button.dropdown-toggle')
+  private static readonly LABELS_OF_ACTIONS: Locator = By.css('div[aria-labelledby="dropdownBasic1"] button.dropdown-item')
+  private static readonly EDITOR_BTN: Locator = By.css('div.icon-default button[mat-icon-button]')
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -53,16 +52,35 @@ export class ImageActions {
 
       await hoverOverParentContainer(this.driver, editorBtn, this.config)
 
+      if(action === 'EDIT') {
+        logger.debug(`La acción es EDIT, realizando click seguro sobre el botón de edición.`, { label: this.config.label })
+        await this.clickOnEditImage(imageContainer);
+        return;
+      }
+      
       if (!await this.isActionsModalOpen(editorBtn)) {
         logger.debug(`El modal de acciones no se encuentra abierto, clickeando el boton de ${action}`, { label: this.config.label })
         await clickSafe(this.driver, editorBtn, this.config)
       }
+
       const actionBtn = await this.findAction(imageContainer, action)
       logger.debug(`Encontrado el boton de ${action}, clickeando...`, { label: this.config.label })
       await clickSafe(this.driver, actionBtn, this.config)
+
     } catch (error: unknown) {
       logger.error(`Fallo al clickear botón ${action} en la imagen: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw new Error(`Fallo al clickear botón ${action} en la imagen: ${getErrorMessage(error)}`);
+    }
+  }
+
+  async clickOnEditImage(imageContainer: WebElement): Promise<void> {
+    try {
+      logger.debug(`Buscando el boton de Edit dentro de la imagen..`, { label: this.config.label })
+      const editorBtn = await imageContainer.findElement(ImageActions.EDITOR_BTN);
+      clickSafe(this.driver, editorBtn, this.config)
+    } catch (error: unknown) {
+      logger.error(`Fallo al clickear botón Edit en la imagen: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw new Error(`Fallo al clickear botón Edit en la imagen: ${getErrorMessage(error)}`);
     }
   }
 

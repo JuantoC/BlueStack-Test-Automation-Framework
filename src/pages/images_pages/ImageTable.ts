@@ -1,6 +1,5 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { retry } from "../../core/wrappers/retry.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { writeToStandard } from "../../core/helpers/write.js";
@@ -27,9 +26,7 @@ export class ImageTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private static readonly IMAGE_TABLE: Locator = By.css('div#multimedia-table-body')
-  private static readonly IMAGE_INPUT_FILE: Locator = By.css('input#image-file[type="file"]')
-  private static readonly BACKGROUND_UPDATE_BTN: Locator = By.css('div.second-section')
+  private static readonly IMAGE_TABLE: Locator = By.css('div#container-table-body')
   private static readonly CHECK_BOX: Locator = By.css('mat-icon.icon-check')
 
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
@@ -69,7 +66,7 @@ export class ImageTable {
 
           // 2. Búsqueda Escalonada:
           logger.debug(`Contenedor de imagen ${i} encontrado, buscando título dentro de este...`, { label: this.config.label });
-          const titleElement = await container.findElement(By.css(`div#title-image-${i}`));
+          const titleElement = await container.findElement(By.css(`div#enableInput-${i}`));
           const currentTitle = await titleElement.getText();
           logger.debug("Texto del elemento conseguido con exito.", { label: this.config.label })
 
@@ -146,12 +143,34 @@ export class ImageTable {
   }
 
   /**
+  * Deselecciona una imagen en la tabla haciendo click sobre su contenedor si está seleccionada.
+  * Verifica la presencia del ícono de check antes de actuar para evitar selecciones accidentales.
+  *
+  * @param imageContainer - Contenedor WebElement de la imagen que se desea deseleccionar.
+  */
+  async deselectImage(imageContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Revisando que la imagen no este seleccionada...', { label: this.config.label });
+      const checkBox = await imageContainer.findElements(ImageTable.CHECK_BOX);
+      if (checkBox.length === 0) {
+        logger.debug('La imagen no se encuentra seleccionada...', { label: this.config.label })
+        return
+      }
+      logger.debug('Deseleccionando imagen...', { label: this.config.label });
+      await clickSafe(this.driver, imageContainer, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error al deseleccionar la imagen deseada. Error:${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
    * Cierra el textarea de edición inline que el CMS activa automáticamente al subir una nueva imagen.
    * Espera a que el textarea aparezca en el contenedor de la primera imagen y envía la tecla
    * ESCAPE para salir del modo de edición sin modificar el título.
    */
   async skipInlineTitleEdit() {
-    await step('Sacando la edicion inline automatica al subir una nueva imagen', async (stepContext) => {
+    await step('Sacando la edicion inline automatica al subir una nueva imagen', async () => {
       try {
         logger.debug('Esperando y sacando la edicion inline automatica al subir una nueva imagen...', { label: this.config.label })
         const actualImage = await this.getImageContainerByIndex(0);
@@ -220,7 +239,7 @@ export class ImageTable {
   async getImageContainerByIndex(index: number): Promise<WebElement> {
     try {
       // Aquí sí construimos el locator del padre porque es el punto de entrada
-      const rowLocator = By.css(`div[id = "image-selector-${index}"]`);
+      const rowLocator = By.css(`div[id = "video-selector-${index}"]`);
       logger.debug(`Buscando contenedor de imagen en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
       return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
     } catch (error: unknown) {

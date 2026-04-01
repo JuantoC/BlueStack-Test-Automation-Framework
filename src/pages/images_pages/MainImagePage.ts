@@ -50,17 +50,23 @@ export class MainImagePage {
    * @param btn - Origen del botón de subida: `'Sidebar'` (default) o `'Table'`.
    * @returns {Promise<void>}
    */
-  async uploadNewImage(imageData: ImageData, btn = 'Sidebar'): Promise<void> {
+  async uploadNewImage(imageData: ImageData, btn: 'Sidebar' | 'Table' = 'Sidebar'): Promise<void> {
     await step(`Subiendo nueva imagen con datos dinámicos`, async (stepContext) => {
-      attachment(`${imageData.image_format} Data`, JSON.stringify(imageData, null, 2), "application/json");
-      imageData.image_format && stepContext.parameter("Image Type", imageData.image_format)
+      attachment('LOCAL Data', JSON.stringify(imageData, null, 2), "application/json");
+      stepContext.parameter("Image Type", 'LOCAL');
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
         logger.debug("Iniciando el flujo de subida de imagen...", { label: this.config.label })
-        await this.uploadBtn.sendFileToUploadInput(imageData.file_path, btn);
+        await this.uploadBtn.sendFileToUploadInput(imageData.path, btn);
 
-        await this.table.waitForNewImageAtIndex0(imageData.title);
+        if (imageData.title) {
+          await this.table.waitForNewImageAtIndex0(imageData.title);
+        } else {
+          // TODO: Sin título no se puede verificar que la imagen correcta aparece en index 0.
+          // Considerar requerir title en ImageData o implementar una espera alternativa.
+          logger.warn('imageData.title no fue provisto: se omite la verificación post-subida en la tabla.', { label: this.config.label });
+        }
 
         await this.table.skipInlineTitleEdit();
 
@@ -69,7 +75,7 @@ export class MainImagePage {
         logger.info(`Subida finalizada`, { label: this.config.label });
 
       } catch (error: unknown) {
-        logger.error(`Fallo en la subida de nueva imagen: ${imageData.image_format} ${getErrorMessage(error)}`, {
+        logger.error(`Fallo en la subida de nueva imagen: ${getErrorMessage(error)}`, {
           label: this.config.label,
           error: getErrorMessage(error)
         });

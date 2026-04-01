@@ -13,7 +13,7 @@ description: Audita todas las fuentes de verdad del repositorio BlueStack y prod
 
 Ejecutá la auditoría documental del proyecto con estos pasos en orden:
 
-1. Corré `npx ts-node scripts/audit-docs.ts` en la terminal
+1. Corré `./node_modules/.bin/tsx scripts/audit-docs.ts` en la terminal
 2. Leé el archivo generado en `docs/audit/doc-audit.json`
 3. Producí un resumen en `docs/audit/AUDIT-SUMMARY.md` con estas secciones:
    - **Archivos .md con lógica embebida** (riesgo alto): listado con path y descripción del problema

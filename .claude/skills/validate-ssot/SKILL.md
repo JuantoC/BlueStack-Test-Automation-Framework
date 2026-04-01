@@ -15,7 +15,7 @@ description: Valida que el modelo SSoT se respete en todo el repositorio BlueSta
 
 ## Paso 1 — Correr el script de validación
 ```bash
-npx ts-node scripts/validate-ssot.ts
+./node_modules/.bin/tsx scripts/validate-ssot.ts
 ```
 
 ## Paso 2 — Leer el reporte generado

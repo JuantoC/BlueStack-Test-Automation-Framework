@@ -1,6 +1,5 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { waitFind } from "../../../core/actions/waitFind.js";

@@ -1,10 +1,9 @@
 import { WebDriver } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
+import { resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
 import { AIDataNote } from "../../../interfaces/data.js";
 import { AIPostModal } from "./AIPostModal.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 /**

@@ -1,10 +1,8 @@
 import { Locator, WebDriver, By } from "selenium-webdriver";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
+import { RetryOptions, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import logger from "../../../core/utils/logger.js";
-import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";
 
 import type { AuthorType } from '../../../interfaces/data.js';

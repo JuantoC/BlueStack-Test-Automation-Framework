@@ -1,5 +1,4 @@
 import { Options as ChromeOptions } from 'selenium-webdriver/chrome.js';
-import { Preferences, Type, Level } from 'selenium-webdriver/lib/logging.js';
 
 /**
  * Opciones de configuración del WebDriver Chrome para cada sesión de prueba.

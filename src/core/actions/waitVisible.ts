@@ -1,7 +1,6 @@
 import { WebDriver, until, WebElement, error } from "selenium-webdriver";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../config/defaultConfig.js";
+import { RetryOptions, resolveRetryConfig } from "../config/defaultConfig.js";
 import { scrollIntoView } from "../helpers/scrollIntoView.js";
-import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
 import { hoverOverParentContainer } from "../helpers/hoverOverParentContainer.js";

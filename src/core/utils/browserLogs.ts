@@ -1,8 +1,6 @@
 import { WebDriver, logging } from "selenium-webdriver";
 import logger from "./logger.js";
 import * as allure from "allure-js-commons";
-import { RetryOptions } from "../config/defaultConfig.js";
-import { stackLabel } from "./stackLabel.js";
 
 /**
  * Extrae y reporta los errores de consola del navegador al finalizar un test.

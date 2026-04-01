@@ -1,6 +1,5 @@
 import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { retry } from "../../core/wrappers/retry.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import { writeToStandard } from "../../core/helpers/write.js";

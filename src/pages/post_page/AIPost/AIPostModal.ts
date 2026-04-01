@@ -1,12 +1,11 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
+import { resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
 import { attachment, step } from "allure-js-commons";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
 import logger from "../../../core/utils/logger.js";
 import { AIDataNote } from "../../../interfaces/data.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export type AIPostField = keyof typeof AIPostModal.LOCATORS;

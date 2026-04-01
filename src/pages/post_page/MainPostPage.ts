@@ -157,8 +157,7 @@ export class MainPostPage {
 }
 
 import { WebDriver, WebElement } from 'selenium-webdriver';
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
-import { stackLabel } from '../../core/utils/stackLabel.js';
+import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from '../../core/utils/logger.js';
 import { PostTable } from './PostTable.js';

@@ -1,6 +1,5 @@
 import { By, WebDriver, WebElement } from "selenium-webdriver";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../core/config/defaultConfig.js";
-import { stackLabel } from "../core/utils/stackLabel.js";
+import { resolveRetryConfig, RetryOptions } from "../core/config/defaultConfig.js";
 import logger from "../core/utils/logger.js";
 import { waitFind } from "../core/actions/waitFind.js";
 import { clickSafe } from "../core/actions/clickSafe.js";

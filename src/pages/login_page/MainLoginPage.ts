@@ -1,8 +1,7 @@
 import { WebDriver } from "selenium-webdriver";
 import { LoginSection } from "./LoginSection.js";
 import { TwoFASection } from "./TwoFASection.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import logger from "../../core/utils/logger.js";
 import { AuthCredentials } from "./login.types.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";

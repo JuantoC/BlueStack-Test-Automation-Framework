@@ -1,7 +1,6 @@
 import { WebDriver, By, Locator } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
-import { stackLabel } from "../../../core/utils/stackLabel.js";
+import { RetryOptions, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
 import { step } from "allure-js-commons";

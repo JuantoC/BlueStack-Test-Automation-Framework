@@ -1,8 +1,7 @@
 import { By, Locator, WebDriver } from "selenium-webdriver";
 import { ListicleStrategy } from "./ListicleStrategy.js";
 import { waitFind } from "../../../../core/actions/waitFind.js";
-import { stackLabel } from "../../../../core/utils/stackLabel.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../../../core/config/defaultConfig.js";
+import { RetryOptions, resolveRetryConfig } from "../../../../core/config/defaultConfig.js";
 import { clickSafe } from "../../../../core/actions/clickSafe.js";
 import { writeSafe } from "../../../../core/actions/writeSafe.js";
 import logger from "../../../../core/utils/logger.js";

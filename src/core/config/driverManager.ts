@@ -1,9 +1,8 @@
 import { Builder, WebDriver } from 'selenium-webdriver';
 import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions, DriverOptions } from "./chromeOptions.js";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "./defaultConfig.js";
+import { resolveRetryConfig, RetryOptions } from "./defaultConfig.js";
 import { startNetworkMonitoring, NetworkMonitorHandle } from './networkMonitor.js';
-import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { sleep } from '../utils/backOff.js';
 import { getErrorMessage } from '../utils/errorUtils.js';

@@ -1,7 +1,6 @@
 import { Locator, WebDriver, By, WebElement, until } from "selenium-webdriver";
 import { clickSafe } from "../../core/actions/clickSafe.js";
-import { RetryOptions, DefaultConfig, resolveRetryConfig } from "../../core/config/defaultConfig.js";
-import { stackLabel } from "../../core/utils/stackLabel.js";
+import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";

@@ -1,7 +1,6 @@
 import { WebDriver } from "selenium-webdriver";
 import { postUrl } from "./routes.js";
-import { stackLabel } from "./stackLabel.js";
-import { DefaultConfig, resolveRetryConfig, RetryOptions } from "../config/defaultConfig.js";
+import { resolveRetryConfig, RetryOptions } from "../config/defaultConfig.js";
 import logger from "./logger.js";
 import { step } from "allure-js-commons";
 import { getErrorMessage } from "./errorUtils.js";

@@ -74,8 +74,7 @@ src/pages/
 ├── images_pages/
 │   ├── MainImagePage.ts           # Maestro — subida, edición, acciones, publicación masiva
 │   ├── ImageTable.ts
-│   ├── UploadImageBtn.ts          # ImageType type
-│   ├── UploadImageModal.ts        # ImageData interface, UploadImageModalFields type
+│   ├── UploadImageBtn.ts
 │   └── ImageActions.ts            # ImageActionType type (EDIT, DELETE, UNPUBLISH)
 └── user_profile_page/
 ```

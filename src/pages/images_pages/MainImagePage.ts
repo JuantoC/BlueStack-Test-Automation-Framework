@@ -1,5 +1,6 @@
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { WebDriver, WebElement } from "selenium-webdriver";
+import { ImageData } from "../../interfaces/data.js";
 import { UploadImageBtn } from "./UploadImageBtn.js";
 import { ImageTable } from "./ImageTable.js";
 import { attachment, step } from "allure-js-commons";
@@ -41,12 +42,12 @@ export class MainImagePage {
   }
 
   /**
-   * Orquesta el flujo completo de subida de una nueva imagen.
-   * Selecciona el tipo de imagen, rellena todos los campos del modal, dispara la subida
-   * y espera a que la nueva imagen aparezca en la primera posición de la tabla.
-   * Para imágenes de tipo `LOCAL`, también verifica la barra de progreso de carga.
+   * Orquesta el flujo completo de subida de una nueva imagen vía input de archivo directo.
+   * Envía el archivo al input correspondiente, espera que la imagen aparezca en index 0 de la tabla,
+   * cierra la edición inline automática y deselecciona la imagen recién subida.
    *
-   * @param imageData - Datos completos de la imagen a subir, incluyendo tipo, título, URL o ruta de archivo.
+   * @param imageData - Datos de la imagen a subir. Debe incluir `file_path` (ruta absoluta) y `title`.
+   * @param btn - Origen del botón de subida: `'Sidebar'` (default) o `'Table'`.
    * @returns {Promise<void>}
    */
   async uploadNewImage(imageData: ImageData, btn = 'Sidebar'): Promise<void> {

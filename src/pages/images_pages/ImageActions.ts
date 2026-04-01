@@ -8,15 +8,15 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
 export type ImageActionType = keyof typeof ImageActions.ACTION_TYPE_MAP;
 
 /**
- * Page Object que encapsula las acciones disponibles para una imagen en la tabla multimedia.
- * Gestiona la apertura del menú desplegable de acciones mediante hover y click,
- * y la selección de la acción correcta comparando el texto visible contra el mapa
- * de alias multilinguales definido en `ACTION_TYPE_MAP`.
- * Consumido por `MainImagePage.clickOnActionImage` como paso de interacción con el menú de opciones.
+ * Sub-componente que encapsula las acciones disponibles para una imagen en la tabla multimedia.
+ * Para la acción `EDIT`, usa el botón de edición directo (`div.icon-default button[mat-icon-button]`).
+ * Para `DELETE` y `UNPUBLISH`, gestiona el menú desplegable mediante hover, apertura y selección
+ * por texto visible contra el mapa de alias multilinguales `ACTION_TYPE_MAP`.
+ * Consumido por `MainImagePage.clickOnActionImage`.
  *
  * @example
  * const actions = new ImageActions(driver, opts);
- * await actions.clickOnAction(imageContainer, 'EDIT');
+ * await actions.clickOnAction(imageContainer, 'DELETE');
  */
 export class ImageActions {
   private readonly driver: WebDriver;
@@ -44,6 +44,7 @@ export class ImageActions {
    *
    * @param imageContainer - Contenedor WebElement de la imagen sobre la que se ejecuta la acción.
    * @param action - Tipo de acción a ejecutar (EDIT, DELETE o UNPUBLISH).
+   * @note Para `EDIT`, bypasea el dropdown y hace click directo en `EDITOR_BTN` vía `clickOnEditImage`.
    */
   async clickOnAction(imageContainer: WebElement, action: ImageActionType): Promise<void> {
     try {
@@ -73,6 +74,13 @@ export class ImageActions {
     }
   }
 
+  /**
+   * Hace click en el botón de edición directa de la imagen (`div.icon-default button[mat-icon-button]`).
+   * Invocado por `clickOnAction` cuando la acción es `EDIT`, bypaseando el flujo de dropdown.
+   *
+   * @param imageContainer - Contenedor WebElement de la imagen a editar.
+   * @returns {Promise<void>}
+   */
   async clickOnEditImage(imageContainer: WebElement): Promise<void> {
     try {
       logger.debug(`Buscando el boton de Edit dentro de la imagen..`, { label: this.config.label })

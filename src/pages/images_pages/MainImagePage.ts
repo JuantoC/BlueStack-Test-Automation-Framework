@@ -1,13 +1,11 @@
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { WebDriver, WebElement } from "selenium-webdriver";
 import { UploadImageBtn } from "./UploadImageBtn.js";
-import { UploadImageModal, ImageData } from "./UploadImageModal.js";
 import { ImageTable } from "./ImageTable.js";
 import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { ImageActionType, ImageActions } from "./ImageActions.js";
 import { FooterActions } from "../FooterActions.js";
-import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 import { Banners } from "../modals/Banners.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
@@ -26,7 +24,6 @@ export class MainImagePage {
   private config: RetryOptions;
 
   private readonly uploadBtn: UploadImageBtn
-  private readonly uploadModal: UploadImageModal
   private readonly table: ImageTable
   private readonly actions: ImageActions
   private readonly footer: FooterActions
@@ -37,7 +34,6 @@ export class MainImagePage {
     this.config = resolveRetryConfig(opts, "MainImagePage")
 
     this.uploadBtn = new UploadImageBtn(this.driver, this.config);
-    this.uploadModal = new UploadImageModal(this.driver, this.config);
     this.table = new ImageTable(this.driver, this.config);
     this.actions = new ImageActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
@@ -53,39 +49,26 @@ export class MainImagePage {
    * @param imageData - Datos completos de la imagen a subir, incluyendo tipo, título, URL o ruta de archivo.
    * @returns {Promise<void>}
    */
-  async uploadNewImage(imageData: ImageData): Promise<void> {
+  async uploadNewImage(imageData: ImageData, btn = 'Sidebar'): Promise<void> {
     await step(`Subiendo nueva imagen con datos dinámicos`, async (stepContext) => {
-      attachment(`${imageData.image_type} Data`, JSON.stringify(imageData, null, 2), "application/json");
-      imageData.image_type && stepContext.parameter("Image Type", imageData.image_type)
+      attachment(`${imageData.image_format} Data`, JSON.stringify(imageData, null, 2), "application/json");
+      imageData.image_format && stepContext.parameter("Image Type", imageData.image_format)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        logger.debug(`Abriendo modal de subida para imágenes: ${imageData.image_type}`, { label: this.config.label })
-        await this.uploadBtn.selectImageType(imageData.image_type)
-
-        logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
-        await this.uploadModal.fillAll(imageData);
-
-        logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
-        await this.uploadModal.clickOnUploadBtn();
-
-        const isError = await this.banner.checkBanners(false);
-        if (isError) {
-          return
-        }
-
-        if (imageData.image_type === 'LOCAL') {
-          await this.uploadModal.checkProgressBar()
-        }
+        logger.debug("Iniciando el flujo de subida de imagen...", { label: this.config.label })
+        await this.uploadBtn.sendFileToUploadInput(imageData.file_path, btn);
 
         await this.table.waitForNewImageAtIndex0(imageData.title);
 
         await this.table.skipInlineTitleEdit();
 
+        await this.table.deselectImage(await this.table.getImageContainerByIndex(0))
+
         logger.info(`Subida finalizada`, { label: this.config.label });
 
       } catch (error: unknown) {
-        logger.error(`Fallo en la subida de nueva imagen: ${imageData.image_type} ${getErrorMessage(error)}`, {
+        logger.error(`Fallo en la subida de nueva imagen: ${imageData.image_format} ${getErrorMessage(error)}`, {
           label: this.config.label,
           error: getErrorMessage(error)
         });

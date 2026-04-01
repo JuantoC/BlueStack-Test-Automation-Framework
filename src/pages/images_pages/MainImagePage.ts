@@ -46,7 +46,9 @@ export class MainImagePage {
    * Envía el archivo al input correspondiente, espera que la imagen aparezca en index 0 de la tabla,
    * cierra la edición inline automática y deselecciona la imagen recién subida.
    *
-   * @param imageData - Datos de la imagen a subir. Debe incluir `file_path` (ruta absoluta) y `title`.
+   * @param imageData - Datos de la imagen a subir. Debe incluir `path` (ruta relativa desde la raíz del proyecto).
+   *   Si se provee `title`, se verifica que la imagen aparezca en index 0 de la tabla tras la subida.
+   *   Si `title` se omite, la verificación post-subida se saltea y se emite un `warn` en el log.
    * @param btn - Origen del botón de subida: `'Sidebar'` (default) o `'Table'`.
    * @returns {Promise<void>}
    */

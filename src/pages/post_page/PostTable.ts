@@ -296,7 +296,7 @@ export class PostTable {
   }
 
   // =========================================================================
-  //      MÉTODOS HELPERS PRIVADOS
+  //      HELPERS INTERNOS Y ACCESOS PÚBLICOS DE SOPORTE
   // =========================================================================
 
   /**

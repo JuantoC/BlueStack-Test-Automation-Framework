@@ -85,6 +85,11 @@ export class EditorAuthorSection {
   }
   // ========== PIEZAS LEGO (Atómicas) ==========
 
+  /**
+   * Selecciona el tipo de autor haciendo click en el botón correspondiente del mapa `AUTHOR_BUTTON_MAP`.
+   *
+   * @param type - Tipo de autor a seleccionar (INTERNAL, ANONYMOUS, MANUAL).
+   */
   public async selectAuthorType(type: AuthorType): Promise<void> {
     const locator = EditorAuthorSection.AUTHOR_BUTTON_MAP[type];
 
@@ -92,11 +97,21 @@ export class EditorAuthorSection {
     await clickSafe(this.driver, locator, this.config);
   }
 
+  /**
+   * Escribe el nombre del autor en el campo de texto correspondiente.
+   *
+   * @param name - Nombre del autor a ingresar.
+   */
   public async fillAuthorName(name: string): Promise<void> {
     logger.debug(`Escribiendo nombre de autor`, { label: this.config.label });
     const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_NAME, name, this.config);
   }
 
+  /**
+   * Escribe la descripción del autor en el textarea correspondiente.
+   *
+   * @param description - Descripción del autor a ingresar.
+   */
   public async fillAuthorDescription(description: string): Promise<void> {
     logger.debug(`Escribiendo descripción de autor`, { label: this.config.label });
     const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_DESCRIPTION, description, this.config);

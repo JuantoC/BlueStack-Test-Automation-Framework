@@ -65,7 +65,7 @@ export class AIPostModal {
 
   /**
    * Verifica el estado del checkbox de confirmación y hace click en el botón de generar.
-   * Primero asegura que el checkbox esté seleccionado vía `getCheckboxCheck` y luego
+   * Primero asegura que el checkbox esté seleccionado vía `ensureCheckboxSelected` y luego
    * verifica que el botón esté habilitado antes de ejecutar el click.
    */
   async clickOnGenerateBtn() {

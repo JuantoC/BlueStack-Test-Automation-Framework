@@ -37,8 +37,12 @@ export class NewNoteBtn {
     this.config = resolveRetryConfig(opts, "NewNoteBtn");
   }
 
-  private async clickOnNewNoteButton(): Promise<void> {
-    const isVisible = await this.isDropdownVisible();
+  /**
+   * Abre el dropdown de tipos de nota si aún no está abierto.
+   * Verifica el estado mediante `isDropdownOpen` antes de ejecutar el click.
+   */
+  async openNoteTypeDropdown(): Promise<void> {
+    const isVisible = await this.isDropdownOpen();
 
     if (!isVisible) {
       logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
@@ -51,17 +55,16 @@ export class NewNoteBtn {
   /**
    * Abre el dropdown de tipos de nota y selecciona la opción que corresponde al tipo indicado.
    * Si el dropdown ya está abierto, omite el click de apertura. Localiza la etiqueta correcta
-   * mediante `matchNoteType`, que compara el texto visible contra los alias de `NOTE_TYPE_MAP`.
+   * mediante `findNoteTypeOption`, que compara el texto visible contra los alias de `NOTE_TYPE_MAP`.
    *
    * @param noteType - Tipo de nota a seleccionar del menú (POST, LISTICLE, LIVEBLOG o AI_POST).
    */
   async selectNoteType(noteType: NoteType): Promise<void> {
     try {
-      await this.clickOnNewNoteButton();
+      await this.openNoteTypeDropdown();
 
-      const elementToClick = await this.matchNoteType(noteType);
-      logger.debug(`Intentando hacer click en la opción "${noteType}"...`, { label: this.config.label });
-      await clickSafe(this.driver, elementToClick, this.config);
+      const elementToClick = await this.findNoteTypeOption(noteType);
+      await this.clickNoteTypeOption(elementToClick);
     } catch (error: unknown) {
       logger.error(`Error en selectNoteType: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
@@ -70,9 +73,13 @@ export class NewNoteBtn {
 
   /**
    * Busca en la lista de opciones desplegadas el WebElement que coincide con el NoteType.
-   * Retorna el elemento para ser clickeado posteriormente.
+   * Espera a que el dropdown sea visible antes de iterar los labels disponibles.
+   * Retorna el elemento para ser clickeado posteriormente con `clickNoteTypeOption`.
+   *
+   * @param noteType - Tipo de nota a localizar en el menú desplegable.
+   * @returns {Promise<WebElement>} Elemento del menú que corresponde al tipo indicado.
    */
-  private async matchNoteType(noteType: NoteType): Promise<WebElement> {
+  async findNoteTypeOption(noteType: NoteType): Promise<WebElement> {
     // 1. Esperar a que el contenedor del menú sea visible en pantalla
     try {
       const menuContainer = await this.driver.wait(
@@ -101,7 +108,6 @@ export class NewNoteBtn {
 
     // 3. Iterar dinámicamente
     for (const element of elements) {
-      // Obtenemos el texto limpio (trim)
       const text = await element.getText();
       const cleanLabel = text.trim();
 
@@ -114,10 +120,25 @@ export class NewNoteBtn {
     throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
   }
 
-  private async isDropdownVisible(): Promise<boolean> {
+  /**
+   * Ejecuta el click sobre un elemento de opción del menú desplegable de tipos de nota.
+   *
+   * @param element - WebElement de la opción a clickear (obtenido desde `findNoteTypeOption`).
+   */
+  async clickNoteTypeOption(element: WebElement): Promise<void> {
+    logger.debug(`Intentando hacer click en la opción del menú...`, { label: this.config.label });
+    await clickSafe(this.driver, element, this.config);
+  }
+
+  /**
+   * Verifica si el dropdown de tipos de nota está actualmente abierto.
+   * Lee el atributo `aria-expanded` del botón principal del dropdown.
+   *
+   * @returns {Promise<boolean>} `true` si el dropdown está abierto, `false` en caso contrario.
+   */
+  async isDropdownOpen(): Promise<boolean> {
     const element = await waitFind(this.driver, NewNoteBtn.NEW_NOTE_DROPDOWN_BTN, this.config);
 
-    // Verificamos visualmente el atributo
     const isExpanded = await element.getAttribute("aria-expanded");
     return isExpanded === "true";
   }

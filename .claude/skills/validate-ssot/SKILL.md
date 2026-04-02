@@ -18,8 +18,20 @@ description: Valida que el modelo SSoT se respete en todo el repositorio BlueSta
 ./node_modules/.bin/tsx scripts/validate-ssot.ts
 ```
 
-## Paso 2 — Leer el reporte generado
-Leer `docs/audit/ssot-violations.json`.
+El script imprime en stdout un resumen de la forma:
+```
+📋 SSoT Validation Report
+   Errors: N | Warnings: M
+```
+
+## Paso 2 — Leer el reporte generado (condicional)
+
+**Si el stdout reporta `Errors: 0` y `Warnings: 0`:** no leer el JSON — reportar directamente:
+```
+✅ Modelo SSoT íntegro. No se detectaron violaciones.
+```
+
+**Si hay errores o warnings:** leer `docs/audit/ssot-violations.json` para obtener el detalle completo.
 
 ## Paso 3 — Clasificar y presentar violaciones
 

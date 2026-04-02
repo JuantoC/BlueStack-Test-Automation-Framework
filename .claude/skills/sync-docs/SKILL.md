@@ -5,33 +5,62 @@ description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con
 
 # Cuándo invocar
 - Cuando el desarrollador diga "sincronizá la documentación", "revisá qué docs quedaron desactualizados"
-- Cuando exista el archivo `.claude/pending-doc-review-prompt.md` generado por el post-commit hook
 - Después de un refactor o cambio de firma en `src/pages/`, `src/core/` o `src/interfaces/`
+- Automáticamente desde el Paso 10 de la skill `smart-commit`
 
 ---
 
 # Instrucción de ejecución
 
-## Paso 1 — Obtener el diff relevante
-Si existe `.claude/pending-doc-review-prompt.md`, leerlo y usarlo como punto de partida.
+## Paso 1 — Obtener commits pendientes de revisión
 
-Si no existe, obtener el diff del último commit:
+Leer `.claude/pending-doc-updates.json` y filtrar entradas con `status` en `["pending", "prompt-generated"]`:
+
+```bash
+python3 -c "
+import json
+with open('.claude/pending-doc-updates.json') as f:
+    data = json.load(f)
+pending = [c for c in data['pendingCommits'] if c['status'] in ('pending', 'prompt-generated')]
+for c in pending:
+    print(c['hash'], '|', ' '.join(c['changedFiles']))
+"
+```
+
+Para cada commit pendiente, obtener su diff sobre los archivos afectados:
+```bash
+git show <hash> -- <archivo1> <archivo2> ...
+```
+
+**Si no hay entradas pendientes:** informar y detener.
+```
+✅ No hay commits pendientes de revisión documental.
+```
+
+**Si `pending-doc-updates.json` no existe:** obtener el diff del último commit como fallback:
 ```bash
 git diff HEAD~1 HEAD -- '*.ts' '*.tsx'
 ```
 
 ## Paso 2 — Identificar cambios de contrato público
-Del diff, identificar específicamente:
+Del diff de cada commit, identificar específicamente:
 - Funciones o métodos con firma modificada en `src/pages/` o `src/core/`
 - Interfaces o tipos modificados en `src/interfaces/`
 - Exports nuevos o eliminados
 - Cambios en constructores de Page Objects (especialmente la firma `driver, opts`)
 
+Clasificar cada cambio antes de leer archivos:
+- **Cambio de visibilidad únicamente** (`private` → `public` o viceversa): el diff es suficiente, no leer el `.ts`
+- **Cambio estructural** (nueva firma, rename, nuevo método, tipo modificado): leer el `.ts`
+
 ## Paso 3 — Verificar JSDoc de los archivos afectados
-Para cada cambio de contrato encontrado:
+Para cada archivo con cambio estructural:
 1. Leer el JSDoc actual del archivo `.ts` afectado
 2. Verificar si el JSDoc refleja el estado nuevo de la firma
 3. Verificar si los `@param`, `@returns` y `@throws` son consistentes con el código actual
+
+> **Optimización:** lanzar todas las lecturas de archivos `.ts` independientes entre sí en paralelo
+> (múltiples `Read` en un solo mensaje). No esperar el resultado de uno para leer el siguiente.
 
 ## Paso 4 — Verificar `.md` relacionados
 Revisar si alguno de estos archivos referencia el módulo modificado:
@@ -61,22 +90,27 @@ Mostrar el resumen de sugerencias y preguntar: *"¿Aplicamos alguna de estas act
 
 Aplicar **solo los cambios que el desarrollador confirme explícitamente**, uno por uno.
 
+> **Optimización:** Si hay múltiples ediciones JSDoc en el mismo archivo, agruparlas en una
+> sola operación `Edit` en lugar de múltiples llamadas separadas.
+
 ## Paso 7 — Marcar commits como revisados
 
 Una vez que el desarrollador confirme qué sugerencias aplicar **o** diga explícitamente
-"no hay cambios necesarios", actualizar el estado de los commits procesados:
+"no hay cambios necesarios", actualizar el estado en `pending-doc-updates.json`:
 
-**En `pending-doc-updates.json`:**
-- Para cada entrada cuyo hash aparezca en las secciones que acabamos de revisar:
-  - Cambiar `status` de `pending` o `prompt-generated` a `reviewed`
-
-**En `pending-doc-review-prompt.md`:**
-- Para cada sección procesada, cambiar el comentario de apertura de:
-  `<!-- COMMIT {hash} — {timestamp} — status: pending -->`
-  a:
-  `<!-- COMMIT {hash} — {timestamp} — status: reviewed -->`
-
-Esto garantiza que el guard del pre-commit no vuelva a avisar sobre commits ya revisados.
+```bash
+python3 -c "
+import json
+with open('.claude/pending-doc-updates.json') as f:
+    data = json.load(f)
+reviewed_hashes = {<lista de hashes procesados>}
+for c in data['pendingCommits']:
+    if c['hash'] in reviewed_hashes:
+        c['status'] = 'reviewed'
+with open('.claude/pending-doc-updates.json', 'w') as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+"
+```
 
 **Sub-paso opcional — Verificación final con validate-ssot:**
 

@@ -65,7 +65,7 @@ except Exception:
     echo ""
     echo "⚠️  DOC-DEBT: Tenés ${COUNT} commit(s) con revisión documental pendiente."
     echo "   Más antiguo: $OLDEST"
-    echo '   Ejecutá "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea" antes de continuar acumulando más deuda.'
+    echo '   Ejecutá "sync-docs" en Claude Code antes de continuar acumulando más deuda.'
     echo "   Podés continuar de todas formas. Este es un recordatorio, no un bloqueo."
     echo ""
   fi

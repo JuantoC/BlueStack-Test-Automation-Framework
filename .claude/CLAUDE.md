@@ -64,15 +64,16 @@ Cuando código y `.md` sean inconsistentes, **el código siempre prevalece**.
 
 ### Cuándo ejecutar
 
-Cuando el desarrollador diga "revisá la documentación pendiente" o pida leer `.claude/pending-doc-review-prompt.md`.
+Cuando el desarrollador diga "revisá la documentación pendiente", "sync-docs", o pida sincronizar la documentación.
 
 ### Procedimiento
 
-1. Leer `.claude/pending-doc-review-prompt.md`
-2. Ejecutar los pasos indicados en ese archivo
-3. Escribir resultados en `.claude/doc-update-suggestions.md`
-4. Reportar el resumen y preguntar qué actualizar
-5. **Solo aplicar cambios explícitamente confirmados por el desarrollador**
+1. Invocar la skill `sync-docs`
+2. La skill lee `.claude/pending-doc-updates.json` para obtener commits pendientes
+3. Obtiene los diffs bajo demanda con `git show <hash>`
+4. Escribe resultados en `.claude/doc-update-suggestions.md`
+5. Reporta el resumen y pregunta qué actualizar
+6. **Solo aplicar cambios explícitamente confirmados por el desarrollador**
 
 ### Nunca hacer esto automáticamente
 

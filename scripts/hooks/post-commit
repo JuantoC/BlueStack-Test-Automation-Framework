@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
 PENDING_PATH=".claude/pending-doc-updates.json"
-PROMPT_PATH=".claude/pending-doc-review-prompt.md"
 
-# Si no hay pendiente, salir
+# Filtrar commits de docs para evitar el loop circular (sync-docs genera commits docs(...))
+COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
+if echo "$COMMIT_MSG" | grep -qE "^docs\("; then
+  exit 0
+fi
+
+# Si no hay archivo de pendientes, salir
 if [ ! -f "$PENDING_PATH" ]; then
   exit 0
 fi
@@ -27,10 +32,9 @@ fi
 
 HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
 
-# Actualizar el primer __PENDING__ con el hash real y obtener sus archivos
-CHANGED_FILES=$(PENDING_PATH="$PENDING_PATH" HASH="$HASH" TIMESTAMP="$TIMESTAMP" python3 -c "
+# Actualizar el primer __PENDING__ con el hash real
+PENDING_PATH="$PENDING_PATH" HASH="$HASH" TIMESTAMP="$TIMESTAMP" python3 -c "
 import json, os
 
 pending_path = os.environ['PENDING_PATH']
@@ -40,90 +44,20 @@ timestamp = os.environ['TIMESTAMP']
 with open(pending_path) as f:
     data = json.load(f)
 
-changed = []
 for c in data.get('pendingCommits', []):
     if c.get('hash') == '__PENDING__':
         c['hash'] = hash_val
         c['timestamp'] = timestamp
-        c['status'] = 'prompt-generated'
-        changed = c.get('changedFiles', [])
+        c['status'] = 'pending'
         break  # solo el primero (el más reciente del pre-commit)
 
 with open(pending_path, 'w') as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
-
-print(' '.join(changed))
-" 2>/dev/null)
-
-# Obtener diff de esos archivos
-DIFF=$(git diff HEAD~1 HEAD -- $CHANGED_FILES 2>/dev/null || git show HEAD -- $CHANGED_FILES 2>/dev/null)
-DIFF=$(echo "$DIFF" | head -c 8000)
-
-FILES_LIST=$(echo "$CHANGED_FILES" | tr ' ' '\n' | sed '/^$/d' | sed 's/^/- /')
-
-# Inicializar el prompt si no existe (usa append para no sobreescribir nunca)
-if [ ! -f "$PROMPT_PATH" ]; then
-  printf '# Revisión documental pendiente\n\n' >> "$PROMPT_PATH"
-fi
-
-# Agregar nueva sección al final (modo append, delimitada por hash)
-{
-  echo "<!-- COMMIT $HASH — $TIMESTAMP — status: pending -->"
-  echo "## Commit $HASH — $COMMIT_MSG"
-  echo ""
-  echo "**Archivos:**"
-  echo "$FILES_LIST"
-  echo ""
-  echo "### Tarea"
-  echo ""
-  echo "Analizá el siguiente diff y ejecutá estos pasos:"
-  echo ""
-  echo "#### 1. Identificar cambios de contrato público"
-  echo "Del diff, identificá:"
-  echo "- Funciones o métodos con firma nueva o modificada"
-  echo "- Interfaces o tipos modificados en src/interfaces/"
-  echo "- Constructores de Page Objects modificados"
-  echo "- Exports nuevos o eliminados"
-  echo ""
-  echo "#### 2. Verificar JSDoc de los archivos afectados"
-  echo "Para cada cambio de contrato:"
-  echo "- Leé el JSDoc actual del archivo .ts en el repositorio"
-  echo "- Verificá si @param, @returns y @throws reflejan el estado nuevo"
-  echo ""
-  echo "#### 3. Verificar .md relacionados"
-  echo "Revisá si alguno de estos archivos referencia los módulos modificados:"
-  echo "- README.md"
-  echo "- src/pages/README.md (si aplica)"
-  echo "- .claude/CLAUDE.md"
-  echo "- .claude/skills/create-session/SKILL.md"
-  echo "- .claude/skills/sanitize-docs/SKILL.md"
-  echo ""
-  echo "#### 4. Escribir sugerencias"
-  echo "Escribí los resultados en .claude/doc-update-suggestions.md (modo append, no overwrite)"
-  echo "Usá el formato definido en .claude/skills/sync-docs/SKILL.md"
-  echo ""
-  echo "#### 5. Reportar"
-  echo "Mostrá el resumen y preguntá qué aplicar."
-  echo "No apliques ningún cambio sin confirmación explícita."
-  echo ""
-  echo "---"
-  echo ""
-  echo "**Diff:**"
-  echo ""
-  echo '```diff'
-  echo "$DIFF"
-  echo '```'
-  echo ""
-  echo "<!-- END $HASH -->"
-  echo ""
-} >> "$PROMPT_PATH"
+" 2>/dev/null
 
 echo ""
-echo "📝 Post-commit: Sección de revisión documental agregada."
-echo "   Commit: $HASH"
-echo "   Secciones pendientes en .claude/pending-doc-review-prompt.md"
-echo "   → En Claude Code escribí:"
-echo '     "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea"'
+echo "📝 Post-commit: Commit $HASH registrado en pending-doc-updates.json"
+echo "   → Ejecutá 'sync-docs' para sincronizar la documentación"
 echo ""
 
 exit 0

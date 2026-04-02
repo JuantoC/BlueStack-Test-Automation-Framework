@@ -190,10 +190,7 @@ Para cada commit en el orden determinado en el Paso 4:
 # 1. Stagear solo los archivos de este grupo
 git add <archivo1> <archivo2> ...
 
-# 2. Verificar que el staging es correcto
-git diff --cached --stat
-
-# 3. Ejecutar el commit con el mensaje completo
+# 2. Ejecutar el commit con el mensaje completo
 git commit -m "<tipo>(<módulo>): <título>" -m "Módulo: <...>
 Impacto: <...>
 Escenarios: <...>
@@ -252,11 +249,10 @@ Después de confirmar que todos los commits fueron exitosos (Paso 9), ejecutar a
 la skill `sync-docs` sobre los commits recién generados. Este paso se ejecuta **siempre**,
 independientemente del parámetro `--push`.
 
-1. Leer `.claude/pending-doc-review-prompt.md`
-2. Identificar las secciones correspondientes a los commits que acabás de generar:
-   buscar los bloques `<!-- COMMIT {hash} ... -->` cuyos hashes coincidan con los
-   capturados en el Paso 7
-3. Ejecutar el análisis de sync-docs sobre esas secciones (Pasos 2 a 5 de sync-docs)
+1. Leer `.claude/pending-doc-updates.json` y filtrar las entradas cuyos hashes coincidan
+   con los capturados en el Paso 7 (los commits recién generados)
+2. Para cada commit pendiente, obtener el diff con `git show <hash> -- <archivos>`
+3. Ejecutar el análisis de sync-docs (Pasos 2 a 5 de esa skill)
 4. Escribir las sugerencias en `.claude/doc-update-suggestions.md` en **modo append**
    (no sobreescribir — pueden existir sugerencias de commits anteriores)
 5. Mostrar el resumen de sugerencias al desarrollador
@@ -272,8 +268,8 @@ independientemente del parámetro `--push`.
 **Si el desarrollador pospone:**
 - Mostrar recordatorio:
   ```
-  📋 Tenés N sección(es) pendiente(s) en .claude/pending-doc-review-prompt.md
-     Podés revisarlas después con: "Leé .claude/pending-doc-review-prompt.md y ejecutá la tarea"
+  📋 Tenés N commit(s) pendiente(s) en .claude/pending-doc-updates.json
+     Podés revisarlos después con: "sync-docs"
   ```
 - No marcar como reviewed — el pre-commit guard avisará si supera las 4 horas
 

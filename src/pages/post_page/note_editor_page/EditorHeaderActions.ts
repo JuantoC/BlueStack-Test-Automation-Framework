@@ -84,12 +84,12 @@ export class EditorHeaderActions {
           break;
 
         case "SAVE_AND_EXIT":
-          await clickSafe(this.driver, EditorHeaderActions.SAVE_AND_EXIT_OPT, this.config);
+          await this.clickSaveAndExitOption();
           break;
 
         case "EXIT_WITHOUT_SAVING":
-          await clickSafe(this.driver, EditorHeaderActions.EXIT_WITHOUT_SAVING_OPT, this.config);
-          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+          await this.clickExitWithoutSavingOption();
+          await this.clickModalDiscardBtn();
           break;
 
         case "PUBLISH_ONLY":
@@ -97,21 +97,21 @@ export class EditorHeaderActions {
           break;
 
         case "PUBLISH_AND_EXIT":
-          await clickSafe(this.driver, EditorHeaderActions.PUBLISH_AND_EXIT_OPT, this.config);
+          await this.clickPublishAndExitOption();
           await this.publishModal.clickOnPublishBtn();
           break;
 
         case "SCHEDULE_AND_EXIT":
-          await clickSafe(this.driver, EditorHeaderActions.SCHEDULE_OPT, this.config);
+          await this.clickScheduleOption();
           await this.publishModal.clickOnPublishBtn();
           break;
 
         case "BACK_SAVE_AND_EXIT":
-          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_SAVE_AND_EXIT_BTN, this.config);
+          await this.clickModalBackSaveBtn();
           break;
 
         case "BACK_EXIT_DISCARD":
-          await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+          await this.clickModalBackDiscardBtn();
           break;
       }
 
@@ -119,6 +119,97 @@ export class EditorHeaderActions {
 
     } catch (error: unknown) {
       logger.error(`Error en clickExitAction: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en la opción "Save and Exit" del dropdown de guardado.
+   */
+  public async clickSaveAndExitOption(): Promise<void> {
+    try {
+      logger.debug("Clicking opción Save and Exit", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.SAVE_AND_EXIT_OPT, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickSaveAndExitOption: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en la opción "Exit without saving" del dropdown de guardado.
+   */
+  public async clickExitWithoutSavingOption(): Promise<void> {
+    try {
+      logger.debug("Clicking opción Exit without saving", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.EXIT_WITHOUT_SAVING_OPT, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickExitWithoutSavingOption: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón "Discard" del modal de confirmación (flujo EXIT_WITHOUT_SAVING).
+   */
+  public async clickModalDiscardBtn(): Promise<void> {
+    try {
+      logger.debug("Clicking botón Discard del modal", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickModalDiscardBtn: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en la opción "Publish and Exit" del dropdown de publicación.
+   */
+  public async clickPublishAndExitOption(): Promise<void> {
+    try {
+      logger.debug("Clicking opción Publish and Exit", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.PUBLISH_AND_EXIT_OPT, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickPublishAndExitOption: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en la opción "Schedule" del dropdown de publicación.
+   */
+  public async clickScheduleOption(): Promise<void> {
+    try {
+      logger.debug("Clicking opción Schedule", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.SCHEDULE_OPT, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickScheduleOption: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón "Save and Exit" del modal de back.
+   */
+  public async clickModalBackSaveBtn(): Promise<void> {
+    try {
+      logger.debug("Clicking botón Save and Exit del modal de back", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_SAVE_AND_EXIT_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickModalBackSaveBtn: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón "Discard" del modal de back.
+   */
+  public async clickModalBackDiscardBtn(): Promise<void> {
+    try {
+      logger.debug("Clicking botón Discard del modal de back", { label: this.config.label });
+      await clickSafe(this.driver, EditorHeaderActions.MODAL_BACK_DISCARD_EXIT_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickModalBackDiscardBtn: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

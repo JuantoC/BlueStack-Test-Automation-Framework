@@ -131,23 +131,26 @@ export class MainPostPage {
 
   /**
    * Obtiene un array de contenedores WebElement de los primeros N posts de la tabla.
-   * Itera por índice comenzando desde 0 y delega cada búsqueda en `PostTable.getVideoContainerByIndex`.
+   * Itera por índice comenzando desde 0 y delega cada búsqueda en `PostTable.getPostContainerByIndex`.
    *
    * @param numberOfPosts - Cantidad de posts a recuperar desde la parte superior de la tabla.
    * @returns {Promise<WebElement[]>} Array con los contenedores DOM de los posts solicitados.
    */
   async getPostContainers(numberOfPosts: number): Promise<WebElement[]> {
-    try {
-      let posts = []
-      for (let i = 0; i < numberOfPosts; i++) {
-        const post = await this.table.getPostContainerByIndex(i);
-        posts.push(post)
+    return await step("Obtener contenedores de posts", async (stepContext) => {
+      stepContext.parameter("Cantidad", numberOfPosts.toString());
+      try {
+        let posts = []
+        for (let i = 0; i < numberOfPosts; i++) {
+          const post = await this.table.getPostContainerByIndex(i);
+          posts.push(post)
+        }
+        return posts
+      } catch (error: unknown) {
+        logger.error(`Error al obtener los ultimos ${numberOfPosts} posts: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
       }
-      return posts
-    } catch (error: unknown) {
-      logger.error(`Error al obtener los ultimos ${numberOfPosts} posts: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-      throw error;
-    }
+    });
   }
 }
 

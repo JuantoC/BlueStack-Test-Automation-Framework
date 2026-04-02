@@ -71,7 +71,7 @@ export class AIPostModal {
   async clickOnGenerateBtn() {
     await step("Click en el boton generar", async () => {
       try {
-        await this.getCheckboxCheck();
+        await this.ensureCheckboxSelected();
         logger.debug("Haciendo click en el boton generar", { label: this.config.label });
         if (await this.isGenerateBtnEnabled()) {
           await clickSafe(this.driver, AIPostModal.GENERATE_BTN, this.config);
@@ -120,9 +120,26 @@ export class AIPostModal {
         await writeSafe(this.driver, locator, value as string, this.config);
         return
       }
-      await clickSafe(this.driver, locator, this.config);
+      await this.clickComboField(field);
       await this.selectOption(value as number);
     });
+  }
+
+  /**
+   * Hace click en el combo (ng-select) del campo indicado para abrirlo.
+   * Acción atómica independiente del paso de selección de opción.
+   *
+   * @param field - Campo cuyo combo debe abrirse, mapeado a un locator en `LOCATORS`.
+   */
+  async clickComboField(field: AIPostField): Promise<void> {
+    try {
+      const locator = AIPostModal.LOCATORS[field];
+      logger.debug(`Abriendo combo del campo: ${field}`, { label: this.config.label });
+      await clickSafe(this.driver, locator, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickComboField para ${field}: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   /**
@@ -150,7 +167,7 @@ export class AIPostModal {
    * @param index - Posición de la opción en la lista desplegada (base 0).
    * @returns {Promise<WebElement>} El WebElement de la opción a clickear.
    */
-  async matchOption(index: number): Promise<WebElement> {
+  private async matchOption(index: number): Promise<WebElement> {
     try {
       const elements = await this.driver.findElements(AIPostModal.COMBO_OPTION);
       if (elements.length === 0) {
@@ -165,10 +182,8 @@ export class AIPostModal {
   /**
    * Verifica si el checkbox de confirmación del modal IA está seleccionado y lo activa si no lo está.
    * Comprueba el atributo `class` del checkbox buscando `mdc-checkbox--selected`.
-   *
-   * @returns {Promise<any>} Resuelve cuando el checkbox está confirmado como seleccionado.
    */
-  async getCheckboxCheck(): Promise<any> {
+  async ensureCheckboxSelected(): Promise<void> {
     logger.debug("Verificando si el checkbox esta seleccionado", { label: this.config.label });
     const checkbox = await waitFind(this.driver, AIPostModal.CHECKBOX, this.config);
     const classAttribute = await checkbox.getAttribute('class');

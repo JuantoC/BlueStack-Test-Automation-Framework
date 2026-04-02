@@ -127,16 +127,6 @@ export class MainEditorPage {
     await this.banner.checkBanners(false);
   }
 
-  /**
-   * Expone la instancia de `EditorHeaderActions` para acceso controlado desde tests.
-   * Permite interactuar directamente con las acciones del header cuando se necesita granularidad.
-   *
-   * @returns {EditorHeaderActions} La instancia compartida del componente de acciones del header.
-   */
-  public get actions(): EditorHeaderActions {
-    return this.header;
-  }
-
 }
 
 import { WebDriver } from 'selenium-webdriver';

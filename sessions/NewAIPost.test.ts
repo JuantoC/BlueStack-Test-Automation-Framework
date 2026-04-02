@@ -55,7 +55,7 @@ import { description } from "allure-js-commons";
 
 // Imports de datos
 import { AINoteDataFactory } from "../src/data_test/factories/AINoteDataFactory.js";
-import { MainPostPage } from "../src/pages/post_page/MainPostPage";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage";
-import { MainAIPage } from "../src/pages/post_page/AIPost/MainAIPage";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage";
+import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
+import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
+import { MainAIPage } from "../src/pages/post_page/AIPost/MainAIPage.js";
+import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";

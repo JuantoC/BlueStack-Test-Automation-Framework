@@ -1,12 +1,12 @@
 ---
-name: week-report
-description: Generar automáticamente el correo semanal de reporte de avance QA, transformando commits técnicos de Git en lenguaje de impacto orientado a negocio. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code)  **Autor Git filtrado:** `jtcaldera-bluestack` **Output:** `/reports/Mail_Week_Report.txt`
+name: commit-report
+description: Generar automáticamente el correo de reporte de avance QA basado en commits de Git, transformando commits técnicos en lenguaje de impacto orientado a negocio. El rango de fechas es flexible: puede cubrir el día de hoy, los últimos N días, o cualquier período. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code)  **Autor Git filtrado:** `jtcaldera-bluestack` **Output:** `/reports/Mail_Commit_Report.txt`
 
 ---
 
 # ROL DEL AGENTE AL EJECUTAR ESTA SKILL
 
-Actuás como un **Consultor de Comunicación Técnica Senior**. Tu trabajo es traducir datos técnicos de control de versiones en un reporte ejecutivo claro, profesional y orientado al impacto de negocio. No sos un asistente genérico: sos el redactor del reporte semanal de Juan Caldera para el PM Fernando.
+Actuás como un **Consultor de Comunicación Técnica Senior**. Tu trabajo es traducir datos técnicos de control de versiones en un reporte ejecutivo claro, profesional y orientado al impacto de negocio. No sos un asistente genérico: sos el redactor del reporte de avance QA de Juan Caldera para el PM Fernando.
 
 ---
 
@@ -29,6 +29,11 @@ Verificar si el usuario proporcionó un número de días al invocar la skill.
 - Si lo proporcionó: usar ese valor como `DAYS`.  
 - Si no: usar `DAYS=7` por defecto.  
 - Informar al usuario: `"Analizando commits de los últimos {DAYS} días."`
+
+Ejemplos de invocación válidos:
+- `"generá el reporte de hoy"` → `DAYS=1`
+- `"generá el reporte de los últimos 3 días"` → `DAYS=3`
+- `"generá el reporte"` → `DAYS=7` (default)
 
 ---
 
@@ -109,7 +114,7 @@ Usar el template de abajo. Completar todos los placeholders. Respetar las reglas
 **TEMPLATE DEL CORREO:**
 
 ```
-Asunto: Reporte Semanal — [Titulo ejecutivo y sintactico de lo trabajado]
+Asunto: Reporte de Avance QA — [Titulo ejecutivo y sintactico de lo trabajado]
 
 Buen día Fer,
 
@@ -118,7 +123,7 @@ del framework en términos de madurez, cobertura y valor para el negocio.
 Mencionar el volumen de trabajo del período sin nombrar métricas de Git. 
 Sin tecnicismos crudos. Sin viñetas.]
 
-Logros de la Semana
+Logros del Período
 
 • **[LOGRO_1_TITULO]**: [descripción de impacto orientada a negocio — 1 oración]
 • **[LOGRO_2_TITULO]**: [descripción de impacto orientada a negocio — 1 oración]
@@ -147,7 +152,7 @@ QA — Bluestack
 
 1. Verificar si existe la carpeta `/reports/` en la raíz del repositorio.
    - Si no existe: crearla con `mkdir -p reports`.
-2. Escribir el correo redactado en `/reports/Mail_Week_Report.txt`.
+2. Escribir el correo redactado en `/reports/Mail_Commit_Report.txt`.
    - Sobrescribir si ya existe.
 
 ---
@@ -162,7 +167,7 @@ Mostrar en pantalla:
 Período cubierto: {FECHA_INICIO} al {FECHA_FIN}
 Commits procesados: {N}
 Logros identificados: {M}
-Archivo guardado en: /reports/Mail_Week_Report.txt
+Archivo guardado en: /reports/Mail_Commit_Report.txt
 
 --- PREVIEW ---
 {primeras 20 líneas del archivo generado}
@@ -177,7 +182,7 @@ Archivo guardado en: /reports/Mail_Week_Report.txt
 ```
 ⚠️  No se encontraron commits del autor 'jtcaldera-bluestack' en los últimos {DAYS} días.
 Acciones posibles:
-  1. Reinvocar la skill con un rango mayor: "generar reporte de los últimos 14 días"
+  1. Reinvocar la skill con un rango mayor: "generá el reporte de los últimos 14 días"
   2. Verificar que el repositorio tenga historial (git log --oneline)
 No se genera ningún archivo.
 ```

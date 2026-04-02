@@ -1,12 +1,12 @@
 ---
 name: smart-commit
-description: Analizar los cambios del working tree, agruparlos semánticamente, y ejecutar commits ricos en contexto orientados a negocio que sirvan como fuente de verdad para la generación de reportes semanales. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code) **Parámetro opcional:** `--push` para ejecutar git push al finalizar. **Output:** commits ejecutados en el repositorio local (y push opcional).
+description: Analizar los cambios del working tree, agruparlos semánticamente, y ejecutar commits ricos en contexto orientados a negocio que sirvan como fuente de verdad para la generación de reportes de avance QA. **Agente destino:** Claude Code (Pro empresarial, integrado en VS Code) **Parámetro opcional:** `--push` para ejecutar git push al finalizar. **Output:** commits ejecutados en el repositorio local (y push opcional).
 
 ---
 
 # ROL DEL AGENTE AL EJECUTAR ESTA SKILL
 
-Actuás como un **Arquitecto de Control de Versiones Senior**. Tu trabajo es analizar los cambios del working tree, comprender qué problema resuelve cada conjunto de modificaciones, y expresarlo en commits atómicos, semánticos y ricos en contexto. Cada commit que generás debe poder ser consumido directamente por la Skill `week-report` sin necesidad de inferencias ni marcas `[REVISAR]`.
+Actuás como un **Arquitecto de Control de Versiones Senior**. Tu trabajo es analizar los cambios del working tree, comprender qué problema resuelve cada conjunto de modificaciones, y expresarlo en commits atómicos, semánticos y ricos en contexto. Cada commit que generás debe poder ser consumido directamente por la Skill `commit-report` sin necesidad de inferencias ni marcas `[REVISAR]`.
 
 ---
 
@@ -137,7 +137,7 @@ Archivos clave: <lista de los archivos más relevantes del grupo>
 | `config` | Docker, CI/CD, grids, pipelines, dependencias |
 | `chore` | Archivos de configuración menores, limpieza, renombrados sin impacto funcional |
 
-#### TABLA DE TRADUCCIÓN MÓDULO → IMPACTO (alineada con week-report)
+#### TABLA DE TRADUCCIÓN MÓDULO → IMPACTO (alineada con commit-report)
 
 | Patrón en archivos/diff | Impacto a expresar en el commit |
 |---|---|
@@ -240,8 +240,8 @@ Push ejecutado: [Sí → origin/<rama> / No]
 {hash corto} docs(skills): agregar skill smart-commit para estandarización de commits
 ...
 
-💡 Tip: Estos commits están listos para ser procesados por la Skill week-report.
-    Ejecutá "generar reporte semanal" cuando quieras el correo de avance.
+💡 Tip: Estos commits están listos para ser procesados por la Skill commit-report.
+    Ejecutá "generá el reporte de avance" cuando quieras el correo de avance.
 ```
 
 ---
@@ -328,19 +328,19 @@ Resolvé el conflicto primero:
 
 ---
 
-# INTEGRACIÓN CON SKILL WEEK-REPORT
+# INTEGRACIÓN CON SKILL COMMIT-REPORT
 
-Esta skill está diseñada para que su output sea consumido directamente por `week-report`. Para garantizar la compatibilidad:
+Esta skill está diseñada para que su output sea consumido directamente por `commit-report`. Para garantizar la compatibilidad:
 
-- Los **tipos de commit** (`feat`, `fix`, `refactor`, etc.) mapean directamente a la tabla de traducción de `week-report`.
-- El campo **Módulo** en el cuerpo del commit permite a `week-report` inferir la sección del CMS afectada sin ambigüedad.
-- El campo **Escenarios** provee el contexto que `week-report` necesita para construir la descripción de impacto sin marcar `[REVISAR]`.
-- El campo **Impacto** puede ser tomado casi literalmente por `week-report` como base del logro de la semana.
+- Los **tipos de commit** (`feat`, `fix`, `refactor`, etc.) mapean directamente a la tabla de traducción de `commit-report`.
+- El campo **Módulo** en el cuerpo del commit permite a `commit-report` inferir la sección del CMS afectada sin ambigüedad.
+- El campo **Escenarios** provee el contexto que `commit-report` necesita para construir la descripción de impacto sin marcar `[REVISAR]`.
+- El campo **Impacto** puede ser tomado casi literalmente por `commit-report` como base del logro del período.
 
 **Ciclo completo recomendado:**
 1. Al terminar el trabajo del día: `"generar commits"` (sin push, para revisar)
 2. Al confirmar: `"generar commits con push"` (o push manual)
-3. Al final de la semana: `"generar reporte semanal"` → consume los commits de los últimos 7 días
+3. Cuando quieras reportar: `"generá el reporte de avance"` → consume los commits del período que indiques (hoy, últimos N días, etc.)
 
 ---
 
@@ -348,4 +348,4 @@ Esta skill está diseñada para que su output sea consumido directamente por `we
 
 - Para agregar nuevos patrones de módulo, editar la **TABLA DE TRADUCCIÓN** del Paso 5.
 - Para cambiar el comportamiento por defecto del push, modificar el valor de `PUSH` en el Paso 1.
-- Versionar este archivo en el repositorio junto con `week-report.md`. Ambas skills son parte del mismo tooling.
+- Versionar este archivo en el repositorio junto con `commit-report`. Ambas skills son parte del mismo tooling.

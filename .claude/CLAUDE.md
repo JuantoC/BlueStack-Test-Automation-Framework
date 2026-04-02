@@ -136,7 +136,7 @@ Capacidades automatizadas invocables por el agente:
 
 | Skill | Descripción |
 |---|---|
-| `.claude/skills/week-report/SKILL.md` | Genera el correo semanal de reporte de avance QA para el PM |
+| `.claude/skills/commit-report/SKILL.md` | Genera el correo de reporte de avance QA basado en commits, para cualquier rango de fechas |
 | `.claude/skills/create-session/SKILL.md` | Genera archivos `.test.ts` para nuevos casos de prueba en `/sessions` |
 | `.claude/skills/sanitize-docs/SKILL.md` | Revisa y documenta funciones/clases públicas con JSDoc completo e inline comments |
 | `.claude/skills/audit-docs/SKILL.md` | Audita todas las fuentes de verdad del repositorio y detecta inconsistencias código/documentación |

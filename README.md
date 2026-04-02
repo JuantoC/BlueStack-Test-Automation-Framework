@@ -278,7 +278,7 @@ Skills automatizadas invocables en Claude Code para tareas recurrentes del proye
 | `sync-docs` | `"Revisá la documentación pendiente"` | Sincroniza docs con el código tras commits recientes |
 | `audit-docs` | `"Auditá la documentación"` | Detecta inconsistencias entre código, JSDoc y archivos `.md` |
 | `validate-ssot` | `"Validá el SSoT"` | Verifica que ningún `.md` contenga lógica que debería estar en código |
-| `week-report` | `"Generá el reporte semanal"` | Genera el correo de reporte de avance QA para el PM |
+| `commit-report` | `"Generá el reporte de avance"` o `"Generá el reporte de hoy"` | Genera el correo de reporte de avance QA para el PM, para cualquier rango de commits |
 
 ---
 

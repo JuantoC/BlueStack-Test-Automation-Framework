@@ -120,9 +120,8 @@ export class PostTable {
 
   /**
    * Modifica el título inline de una nota reemplazando el sufijo `OLD_SUFFIX` por `NEW_SUFFIX`.
-   * Orquesta la lógica en tres pasos: extracción del título actual (`extractCurrentTitle`),
-   * activación del modo de edición si el input está oculto (`activateEditModeIfNeeded`)
-   * y escritura con validación del nuevo valor (`writeAndValidateTitle`).
+   * Orquesta la lógica en cinco pasos atómicos: leer título actual, calcular el nuevo,
+   * activar modo de edición inline, escribir y validar el nuevo valor, y confirmar con ENTER.
    *
    * @param postContainer - Contenedor WebElement de la fila del post a editar.
    */
@@ -132,8 +131,8 @@ export class PostTable {
 
     logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
-    // 1. Extraer texto actual y calcular el nuevo
-    const currentTitle = await this.extractCurrentTitle(postContainer);
+    // 1. Leer texto actual y calcular el nuevo
+    const currentTitle = await this.readCurrentTitle(postContainer);
     const newTitle = currentTitle.replace(this.OLD_SUFFIX, this.NEW_SUFFIX);
 
     if (currentTitle === newTitle) {
@@ -141,10 +140,13 @@ export class PostTable {
       return;
     }
     // 2. Garantizar estado del DOM (Activar input si hace falta)
-    await this.activateEditModeIfNeeded(postContainer);
+    await this.activateInlineTitleEdit(postContainer);
 
     // 3. Escribir y validar el nuevo valor
-    await this.writeAndValidateTitle(postContainer, newTitle);
+    await this.fillTitleInput(postContainer, newTitle);
+
+    // 4. Confirmar la edición con ENTER
+    await this.submitTitleWithEnter(postContainer);
   }
 
   /**
@@ -168,6 +170,132 @@ export class PostTable {
   }
 
   // =========================================================================
+  //      MÉTODOS ATÓMICOS PÚBLICOS
+  // =========================================================================
+
+  /**
+   * Lee el texto del título de un post desde el label visible o, si el modo edición está activo,
+   * desde el valor del input. Maneja la posibilidad de StaleElementReference de Angular.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @returns {Promise<string>} Texto actual del título.
+   */
+  async readCurrentTitle(postContainer: WebElement): Promise<string> {
+    try {
+      logger.debug("Intentando leer el texto del label...", { label: this.config.label });
+      const labels = await postContainer.findElements(PostTable.POST_TITLE_LABEL);
+      if (labels.length > 0 && await labels[0].isDisplayed()) {
+        return await labels[0].getText();
+      }
+
+      logger.debug("Label no visible, intentando leer del input...", { label: this.config.label });
+      const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
+      if (inputs.length > 0 && await inputs[0].isDisplayed()) {
+        return await inputs[0].getAttribute('value');
+      }
+
+      throw new Error("No hay Label ni Input visible para extraer el texto.");
+    } catch (error: unknown) {
+      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Activa el modo de edición inline del título haciendo click sobre el label del título.
+   * Si el input ya está visible, omite el click. Busca el label fresco para evitar StaleElements.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async activateInlineTitleEdit(postContainer: WebElement): Promise<void> {
+    let isInputVisible = false;
+    const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
+
+    if (inputs.length > 0) {
+      try {
+        isInputVisible = await inputs[0].isDisplayed();
+      } catch (e) {
+        isInputVisible = false;
+      }
+    }
+
+    if (!isInputVisible) {
+      logger.debug("Input oculto. Buscando label fresco para clickear...", { label: this.config.label });
+      const titleElement = await postContainer.findElement(PostTable.POST_TITLE_LABEL);
+      await clickSafe(this.driver, titleElement, { ...this.config, supressRetry: true });
+    } else {
+      logger.debug("Input ya visible. Skip click.", { label: this.config.label });
+    }
+  }
+
+  /**
+   * Espera que el input de título esté presente y visible dentro del contenedor, escribe
+   * el nuevo texto mediante `writeToStandard` y valida que el DOM haya registrado el valor.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @param newTitle - Nuevo título a escribir en el input.
+   */
+  async fillTitleInput(postContainer: WebElement, newTitle: string): Promise<void> {
+    let freshInput: WebElement;
+
+    logger.debug("Esperando presencia del input en el DOM...", { label: this.config.label });
+    await this.driver.wait(async () => {
+      try {
+        const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
+        if (inputs.length > 0 && await inputs[0].isDisplayed()) {
+          freshInput = inputs[0];
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    }, 5000, "El input nunca apareció dentro del postContainer");
+
+    logger.debug("Escribiendo texto...", { label: this.config.label });
+    await writeToStandard(freshInput!, newTitle, this.config.label);
+
+    logger.debug("Pre-validando mutación del DOM...", { label: this.config.label });
+    await this.driver.wait(async () => {
+      try {
+        const currentValue = await freshInput.getAttribute('value');
+        return currentValue === newTitle;
+      } catch (e) {
+        return false;
+      }
+    }, 3000, `El input nunca registró el texto: "${newTitle}"`);
+
+    logger.debug("Texto validado.", { label: this.config.label });
+  }
+
+  /**
+   * Localiza el input de título activo dentro del contenedor mediante polling y envía Key.ENTER
+   * para confirmar la edición inline.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async submitTitleWithEnter(postContainer: WebElement): Promise<void> {
+    let freshInput: WebElement;
+
+    logger.debug("Localizando input fresco para enviar ENTER...", { label: this.config.label });
+    await this.driver.wait(async () => {
+      try {
+        const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
+        if (inputs.length > 0 && await inputs[0].isDisplayed()) {
+          freshInput = inputs[0];
+          return true;
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    }, 5000, "El input nunca apareció para enviar ENTER");
+
+    logger.debug("Enviando ENTER.", { label: this.config.label });
+    await freshInput!.sendKeys(Key.ENTER);
+  }
+
+  // =========================================================================
   //      MÉTODOS HELPERS PRIVADOS
   // =========================================================================
 
@@ -185,94 +313,6 @@ export class PostTable {
     const rowLocator = By.css(`div[id = "container-table-body"] div[id = "post-management-${index}"]`);
     logger.debug(`Buscando contenedor de nota en índice ${index} con locator: ${rowLocator.value}`, { label: this.config.label });
     return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
-  }
-
-  /**
-   * HELPER 1: Lee el texto del Label o del Input intentando evadir StaleElements.
-   */
-  private async extractCurrentTitle(postContainer: WebElement): Promise<string> {
-    try {
-      logger.debug("Intentando leer el texto del label...", { label: this.config.label });
-      const labels = await postContainer.findElements(PostTable.POST_TITLE_LABEL);
-      if (labels.length > 0 && await labels[0].isDisplayed()) {
-        return await labels[0].getText();
-      }
-
-      logger.debug("Label no visible, intentando leer del input...", { label: this.config.label });
-      const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
-      if (inputs.length > 0 && await inputs[0].isDisplayed()) {
-        return await inputs[0].getAttribute('value');
-      }
-
-      throw new Error("No hay Label ni Input visible para extraer el texto.");
-    } catch (error: unknown) {
-      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-      throw error; // Delegamos al retry principal
-    }
-  }
-
-  /**
-   * HELPER 2: Revisa si el input está visible. Si no lo está, hace click en el label.
-   */
-  private async activateEditModeIfNeeded(postContainer: WebElement): Promise<void> {
-
-    let isInputVisible = false;
-    const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
-
-    if (inputs.length > 0) {
-      try {
-        isInputVisible = await inputs[0].isDisplayed();
-      } catch (e) {
-        isInputVisible = false; // El elemento mutó justo al consultarlo
-      }
-    }
-
-    if (!isInputVisible) {
-      logger.debug("Input oculto. Buscando label fresco para clickear...", { label: this.config.label });
-      // Buscamos fresco porque si usamos el de extractCurrentTitle podría estar stale
-      const titleElement = await postContainer.findElement(PostTable.POST_TITLE_LABEL);
-      await clickSafe(this.driver, titleElement, { ...this.config, supressRetry: true });
-    } else {
-      logger.debug("Input ya visible. Skip click.", { label: this.config.label });
-    }
-  }
-
-  /**
-   * HELPER 3: Busca el input activado, escribe, espera la renderización de Angular y confirma.
-   */
-  private async writeAndValidateTitle(postContainer: WebElement, newTitle: string): Promise<void> {
-    let freshInput: WebElement;
-
-    logger.debug("Esperando presencia del input en el DOM...", { label: this.config.label });
-    // Búsqueda segura con contexto local usando polling
-    await this.driver.wait(async () => {
-      try {
-        const inputs = await postContainer.findElements(PostTable.POST_TITLE_INPUT);
-        if (inputs.length > 0 && await inputs[0].isDisplayed()) {
-          freshInput = inputs[0];
-          return true;
-        }
-        return false;
-      } catch (e) {
-        return false; // Ignorar errores si el DOM muta mientras buscamos
-      }
-    }, 5000, "El input nunca apareció dentro del postContainer");
-
-    logger.debug("Escribiendo texto...", { label: this.config.label });
-    await writeToStandard(freshInput!, newTitle, this.config.label);
-
-    logger.debug("Pre-validando mutación del DOM...", { label: this.config.label });
-    await this.driver.wait(async () => {
-      try {
-        const currentValue = await freshInput.getAttribute('value');
-        return currentValue === newTitle;
-      } catch (e) {
-        return false; // Evitamos que un stale momentáneo rompa el wait
-      }
-    }, 3000, `El input nunca registró el texto: "${newTitle}"`);
-
-    logger.debug("Texto validado. Enviando ENTER.", { label: this.config.label });
-    await freshInput!.sendKeys(Key.ENTER);
   }
 
   /**

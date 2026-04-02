@@ -29,7 +29,8 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
   await editor.fillFullNote(listicleData);
   await editor.closeNoteEditor('SAVE_AND_EXIT');
 
-  await post.enterToEditorPage(listicleData.title!);
+  const listicleContainer = await post.table.getPostContainerByTitle(listicleData.title!);
+  await post.enterToEditorPage(listicleContainer);
   await editor.settings.selectSectionOption(1);
   await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 

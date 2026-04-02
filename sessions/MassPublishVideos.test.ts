@@ -38,9 +38,12 @@ runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
 
   await video.uploadNewVideo(embeddedVideoData);
 
-  await video.changeVideoTitle(nativeVideoData.title!);
-  await video.changeVideoTitle(youtubeVideoData.title!);
-  await video.changeVideoTitle(embeddedVideoData.title!);
+  const containerNative = await video.table.getVideoContainerByTitle(nativeVideoData.title!);
+  await video.changeVideoTitle(containerNative);
+  const containerYoutube = await video.table.getVideoContainerByTitle(youtubeVideoData.title!);
+  await video.changeVideoTitle(containerYoutube);
+  const containerEmbedded = await video.table.getVideoContainerByTitle(embeddedVideoData.title!);
+  await video.changeVideoTitle(containerEmbedded);
 
   //await video.selectAndPublishFooter(await video.getVideoContainers(3));
 

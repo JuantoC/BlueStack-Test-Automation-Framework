@@ -29,7 +29,8 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
   await editor.fillFullNote(postData);
   await editor.closeNoteEditor('SAVE_AND_EXIT');
 
-  await post.enterToEditorPage(postData.title!);
+  const postContainer = await post.table.getPostContainerByTitle(postData.title!);
+  await post.enterToEditorPage(postContainer);
   await editor.settings.selectSectionOption(1);
   await editor.closeNoteEditor('PUBLISH_AND_EXIT');
 

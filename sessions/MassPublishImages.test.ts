@@ -37,9 +37,11 @@ la mecánica de edición inline de títulos y la publicación masiva desde el fo
 
   await imagePage.uploadNewImage(imageDataB, 'Sidebar');
 
-  await imagePage.changeImageTitle(imageDataA.title!);
+  const containerA = await imagePage.table.getImageContainerByTitle(imageDataA.title!);
+  await imagePage.changeImageTitle(containerA);
 
-  await imagePage.changeImageTitle(imageDataB.title!);
+  const containerB = await imagePage.table.getImageContainerByTitle(imageDataB.title!);
+  await imagePage.changeImageTitle(containerB);
 
   await imagePage.selectAndPublishFooter(await imagePage.getImageContainers(2));
 

@@ -27,8 +27,10 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     await editor.fillFullNote(liveBlogData);
     await editor.closeNoteEditor('SAVE_ONLY');
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');
-    await post.changePostTitle(liveBlogData.title)
-    await post.enterToEditorPage(liveBlogData.title!)
+    const containerForTitle = await post.table.getPostContainerByTitle(liveBlogData.title);
+    await post.changePostTitle(containerForTitle);
+    const containerForEditor = await post.table.getPostContainerByTitle(liveBlogData.title);
+    await post.enterToEditorPage(containerForEditor);
     await editor.settings.selectSectionOption(1);
     await editor.closeNoteEditor('SAVE_AND_EXIT');
 

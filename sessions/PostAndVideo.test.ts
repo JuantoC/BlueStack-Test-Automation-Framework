@@ -56,7 +56,8 @@ runSession(
     // 6. Volver a la página de posts (noticias)
     await sidebar.goToComponent('NEWS');
 
-    await post.enterToEditorPage(newPostData.title!);
+    const postContainer = await post.table.getPostContainerByTitle(newPostData.title!);
+    await post.enterToEditorPage(postContainer);
 
     // 9. Publicarla y salir
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');

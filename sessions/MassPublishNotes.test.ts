@@ -52,9 +52,12 @@ runSession("Mass Publish Notes",
     await editorLiveBlog.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- INLINE EDIT TITLES ---
-    await postPage.changePostTitle(postData.title);
-    await postPage.changePostTitle(listicleData.title);
-    await postPage.changePostTitle(liveBlogData.title);
+    const containerPost = await postPage.table.getPostContainerByTitle(postData.title);
+    await postPage.changePostTitle(containerPost);
+    const containerListicle = await postPage.table.getPostContainerByTitle(listicleData.title);
+    await postPage.changePostTitle(containerListicle);
+    const containerLiveBlog = await postPage.table.getPostContainerByTitle(liveBlogData.title);
+    await postPage.changePostTitle(containerLiveBlog);
 
     // --- MASS PUBLICATION ---
     const postsContainers = await postPage.getPostContainers(3);

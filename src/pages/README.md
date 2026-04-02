@@ -66,6 +66,13 @@ src/pages/
 │   ├── UploadVideoBtn.ts          # VideoType type
 │   ├── UploadVideoModal.ts
 │   ├── VideoActions.ts            # ActionType type
+│   └── video_editor_page/
+│       ├── MainEditorPage.ts      # Maestro del editor de videos
+│       ├── EditorHeaderActions.ts # Acciones del header (guardar, publicar, salir)
+│       ├── EditorCategorySection.ts
+│       ├── EditorInfoSection.ts
+│       ├── EditorImageSection.ts
+│       └── EditorRelatesSection.ts
 ├── modals/
 │   ├── CKEditorImageModal.ts      # selectImage(index: number)
 │   ├── PublishModal.ts            # Lógica de publicación (notas y videos)
@@ -75,7 +82,10 @@ src/pages/
 │   ├── MainImagePage.ts           # Maestro — subida, edición, acciones, publicación masiva
 │   ├── ImageTable.ts
 │   ├── UploadImageBtn.ts
-│   └── ImageActions.ts            # ImageActionType type (EDIT, DELETE, UNPUBLISH)
+│   ├── ImageActions.ts            # ImageActionType type (EDIT, DELETE, UNPUBLISH)
+│   └── images_editor_page/
+│       ├── MainEditorPage.ts      # Maestro del editor de imágenes
+│       └── EditorHeaderActions.ts # Acciones del header (guardar, publicar, salir)
 └── user_profile_page/
 ```
 

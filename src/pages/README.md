@@ -205,6 +205,8 @@ await clickSafe(this.driver, EditorHeaderActions.SAVE_BTN, this.config);
 | `VideoType` | `src/pages/videos_page/UploadVideoBtn.ts` |
 | `ActionType` | `src/pages/videos_page/VideoActions.ts` |
 | `ImageActionType` | `src/pages/images_pages/ImageActions.ts` |
+| `ImageExitAction` | `src/pages/images_pages/images_editor_page/EditorHeaderActions.ts` |
+| `VideoExitAction` | `src/pages/videos_page/video_editor_page/EditorHeaderActions.ts` |
 | `ImageData` | `src/interfaces/data.ts` |
 | `FooterActionType` | `src/pages/FooterActions.ts` |
 | `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |

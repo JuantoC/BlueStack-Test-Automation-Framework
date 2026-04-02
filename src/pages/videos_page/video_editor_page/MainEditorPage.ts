@@ -1,8 +1,7 @@
 import { WebDriver } from "selenium-webdriver";
 import { RetryOptions } from "../../../interfaces/config.js";
-import { EditorHeaderActions } from "./EditorHeaderActions.js";
+import { EditorHeaderActions, VideoExitAction } from "./EditorHeaderActions.js";
 import { resolveRetryConfig } from "../../../core/config/defaultConfig.js";
-import { ImageExitAction } from "../../images_pages/images_editor_page/EditorHeaderActions.js";
 import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
 import { VideoType } from "../UploadVideoBtn.js";
@@ -33,7 +32,7 @@ export class MainEditorPage {
  *
  * @param exitAction - Tipo de acción de cierre del editor (SAVE_ONLY, PUBLISH_AND_EXIT, etc.).
  */
-    async closeNoteEditor(exitAction: ImageExitAction): Promise<void> {
+    async closeNoteEditor(exitAction: VideoExitAction): Promise<void> {
         await step(`Cerrar editor de nota con acción ${exitAction}`, async () => {
             try {
                 logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: this.config.label });

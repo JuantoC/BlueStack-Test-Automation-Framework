@@ -16,4 +16,4 @@ test/
 .claude/prompts/fix-doc-orchestration.md
 .claude/settings.local.json
 
-docs/audit/
+docs/

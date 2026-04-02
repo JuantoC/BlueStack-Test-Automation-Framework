@@ -53,7 +53,7 @@ export class EditorTagsSection {
    * @param type Tipo de tag (Visible u Oculto).
    * @param tags Array de strings con las etiquetas.
    */
-  private async addTags(type: NoteTagField, tags: string[]): Promise<void> {
+  public async addTags(type: NoteTagField, tags: string[]): Promise<void> {
     if (!tags?.length) return;
 
     const locator = EditorTagsSection.LOCATORS[type];

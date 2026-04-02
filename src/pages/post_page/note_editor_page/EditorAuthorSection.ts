@@ -85,19 +85,19 @@ export class EditorAuthorSection {
   }
   // ========== PIEZAS LEGO (Atómicas) ==========
 
-  private async selectAuthorType(type: AuthorType): Promise<void> {
+  public async selectAuthorType(type: AuthorType): Promise<void> {
     const locator = EditorAuthorSection.AUTHOR_BUTTON_MAP[type];
 
     logger.debug(`Seleccionando tipo de autor: ${type}`, { label: this.config.label });
     await clickSafe(this.driver, locator, this.config);
   }
 
-  private async fillAuthorName(name: string): Promise<void> {
+  public async fillAuthorName(name: string): Promise<void> {
     logger.debug(`Escribiendo nombre de autor`, { label: this.config.label });
     const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_NAME, name, this.config);
   }
 
-  private async fillAuthorDescription(description: string): Promise<void> {
+  public async fillAuthorDescription(description: string): Promise<void> {
     logger.debug(`Escribiendo descripción de autor`, { label: this.config.label });
     const element = await writeSafe(this.driver, EditorAuthorSection.AUTHOR_DESCRIPTION, description, this.config);
   }

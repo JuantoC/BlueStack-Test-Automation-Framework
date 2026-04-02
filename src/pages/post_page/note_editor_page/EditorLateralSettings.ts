@@ -54,7 +54,7 @@ export class EditorLateralSettings {
    * @param index - Posición de la opción en la lista desplegada (base 0).
    * @returns {Promise<WebElement>} El WebElement de la opción a clickear.
    */
-  async matchSectionOption(index: number): Promise<WebElement> {
+  private async matchSectionOption(index: number): Promise<WebElement> {
     try {
       const elements = await this.driver.findElements(EditorLateralSettings.SECTION_OPT);
       if (elements.length === 0) {
@@ -71,7 +71,7 @@ export class EditorLateralSettings {
    * Abre el combo de secciones si aún no está expandido.
    * Verifica el atributo `aria-expanded` del elemento antes de hacer click.
    */
-  async clickOnSectionOption(): Promise<void> {
+  private async clickOnSectionOption(): Promise<void> {
     const isVisible = await this.isDropdownVisible();
 
     if (!isVisible) {
@@ -87,7 +87,7 @@ export class EditorLateralSettings {
    *
    * @returns {Promise<boolean>} `true` si el dropdown está abierto, `false` si está cerrado.
    */
-  async isDropdownVisible(): Promise<boolean> {
+  private async isDropdownVisible(): Promise<boolean> {
     const element = await waitFind(this.driver, EditorLateralSettings.SECTION_COMBO, this.config);
 
     // Verificamos visualmente el atributo

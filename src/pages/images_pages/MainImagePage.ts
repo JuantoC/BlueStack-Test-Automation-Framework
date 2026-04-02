@@ -25,7 +25,7 @@ export class MainImagePage {
   private config: RetryOptions;
 
   private readonly uploadBtn: UploadImageBtn
-  private readonly table: ImageTable
+  public readonly table: ImageTable
   private readonly actions: ImageActions
   private readonly footer: FooterActions
   private readonly banner: Banners;
@@ -88,20 +88,17 @@ export class MainImagePage {
 
 
   /**
-   * Modifica el título de una imagen de forma inline directamente desde la tabla.
-   * Localiza el contenedor de la imagen por su título y delega en `ImageTable.changeImageTitle`
-   * para realizar la edición inline.
+   * Ejecuta el cambio de título inline de una imagen a partir de su contenedor ya localizado.
+   * Delega la edición en `ImageTable.changeImageTitle` y verifica el resultado con `Banners`.
    *
-   * @param TitleID - Fragmento o título completo de la imagen a modificar, usado para localizar su fila en la tabla.
+   * @param imageContainer - Contenedor WebElement de la imagen a modificar.
+   *   Obtenerlo previamente con `this.table.getImageContainerByTitle()` o `this.table.getImageContainerByIndex()`.
    * @returns {Promise<void>}
    */
-  async changeImageTitle(TitleID: string): Promise<void> {
-    await step(`Cambiando titulo de la imagen ${TitleID}`, async () => {
+  async changeImageTitle(imageContainer: WebElement): Promise<void> {
+    await step(`Cambiando título de la imagen`, async () => {
 
       try {
-        logger.debug("Ejecutando busqueda del contenedor para el titulo de la imagen...", { label: this.config.label })
-        const imageContainer = await this.table.getImageContainerByTitle(TitleID);
-
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeImageTitle(imageContainer);
 
@@ -111,7 +108,6 @@ export class MainImagePage {
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo de la imagen: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: TitleID,
           error: getErrorMessage(error)
         })
         throw error;
@@ -120,22 +116,20 @@ export class MainImagePage {
   }
 
   /**
-   * Localiza una imagen por su título en la tabla y ejecuta una acción del menú desplegable sobre ella.
-   * Delega la búsqueda del contenedor en `ImageTable.getImageContainerByTitle` y
-   * la interacción con el menú en `ImageActions.clickOnAction`.
+   * Ejecuta una acción del menú desplegable sobre una imagen a partir de su contenedor ya localizado.
+   * Delega la interacción con el menú en `ImageActions.clickOnAction`.
    *
-   * @param ImageTitle - Título de la imagen objetivo, usado para identificar su fila en la tabla.
+   * @param imageContainer - Contenedor WebElement de la imagen sobre la que se ejecuta la acción.
+   *   Obtenerlo previamente con `this.table.getImageContainerByTitle()` o `this.table.getImageContainerByIndex()`.
    * @param action - Tipo de acción a ejecutar sobre la imagen (EDIT, DELETE, UNPUBLISH).
    * @returns {Promise<void>}
    */
-  async clickOnActionImage(ImageTitle: string, action: ImageActionType): Promise<void> {
-    await step(`Clickeando en la accion: "${action}" de la imagen: "${ImageTitle}"`, async (stepContext) => {
-      stepContext.parameter("Titulo de la imagen", ImageTitle);
+  async clickOnActionImage(imageContainer: WebElement, action: ImageActionType): Promise<void> {
+    await step(`Clickeando en la acción: "${action}" sobre la imagen`, async (stepContext) => {
       stepContext.parameter("Acción", action);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        const imageContainer = await this.table.getImageContainerByTitle(ImageTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(imageContainer, action);
 
@@ -144,7 +138,6 @@ export class MainImagePage {
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en la imagen: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: ImageTitle,
           action,
           error: getErrorMessage(error)
         })

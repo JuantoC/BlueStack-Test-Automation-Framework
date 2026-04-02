@@ -28,7 +28,7 @@ export class MainVideoPage {
 
   private readonly uploadBtn: UploadVideoBtn
   private readonly uploadModal: UploadVideoModal
-  private readonly table: VideoTable
+  public readonly table: VideoTable
   private readonly actions: VideoActions
   private readonly footer: FooterActions
   private readonly image: CKEditorImageModal;
@@ -98,19 +98,16 @@ export class MainVideoPage {
 
 
   /**
-   * Modifica el título de un video de forma inline directamente desde la tabla.
-   * Localiza el contenedor del video por su título y delega en `VideoTable.changeVideoTitle`
-   * para realizar la edición inline.
+   * Ejecuta el cambio de título inline de un video a partir de su contenedor ya localizado.
+   * Delega la edición en `VideoTable.changeVideoTitle` y verifica el resultado con `Banners`.
    *
-   * @param titleID - Fragmento o título completo del video a modificar, usado para localizar su fila en la tabla.
+   * @param videoContainer - Contenedor WebElement del video a modificar.
+   *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
    */
-  async changeVideoTitle(titleID: string): Promise<any> {
-    await step(`Cambiando titulo del video ${titleID}`, async () => {
+  async changeVideoTitle(videoContainer: WebElement): Promise<any> {
+    await step(`Cambiando título del video`, async () => {
 
       try {
-        logger.debug("Ejecutando busqueda del contenedor para el titulo del video...", { label: this.config.label })
-        const videoContainer = await this.table.getVideoContainerByTitle(titleID);
-
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeVideoTitle(videoContainer);
 
@@ -120,7 +117,6 @@ export class MainVideoPage {
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo del video: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: titleID,
           error: getErrorMessage(error)
         })
         throw error;
@@ -129,21 +125,19 @@ export class MainVideoPage {
   }
 
   /**
-   * Localiza un video por su título en la tabla y ejecuta una acción del menú desplegable sobre él.
-   * Delega la búsqueda del contenedor en `VideoTable.getVideoContainerByTitle` y
-   * la interacción con el menú en `VideoActions.clickOnAction`.
+   * Ejecuta una acción del menú desplegable sobre un video a partir de su contenedor ya localizado.
+   * Delega la interacción con el menú en `VideoActions.clickOnAction`.
    *
-   * @param VideoTitle - Título del video objetivo, usado para identificar su fila en la tabla.
+   * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
+   *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
    * @param action - Tipo de acción a ejecutar sobre el video (EDIT, DELETE, UNPUBLISH).
    */
-  async clickOnActionVideo(VideoTitle: string, action: ActionType): Promise<any> {
-    await step(`Clickeando en la accion: "${action}" del video: "${VideoTitle}"`, async (stepContext) => {
-      stepContext.parameter("Titulo del video", VideoTitle);
+  async clickOnActionVideo(videoContainer: WebElement, action: ActionType): Promise<any> {
+    await step(`Clickeando en la acción: "${action}" sobre el video`, async (stepContext) => {
       stepContext.parameter("Acción", action);
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        const videoContainer = await this.table.getVideoContainerByTitle(VideoTitle);
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(videoContainer, action);
 
@@ -152,7 +146,6 @@ export class MainVideoPage {
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en el video: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: VideoTitle,
           action,
           error: getErrorMessage(error)
         })

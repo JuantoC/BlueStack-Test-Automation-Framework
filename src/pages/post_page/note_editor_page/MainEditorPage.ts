@@ -5,7 +5,7 @@
 export class MainEditorPage {
   private driver: WebDriver;
   private config: RetryOptions;
-  private readonly noteType: NoteType
+  public readonly noteType: NoteType
   public readonly tags: EditorTagsSection;
   public readonly listicle: ListicleSection;
   public readonly liveBlog: LiveBlogSection;

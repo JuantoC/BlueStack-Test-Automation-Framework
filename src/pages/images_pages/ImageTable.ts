@@ -26,7 +26,7 @@ export class ImageTable {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
-  private static readonly IMAGE_TABLE: Locator = By.css('div#container-table-body')
+  private static readonly IMAGE_TABLE: Locator = By.css('div#multimedia-table-body')
   private static readonly CHECK_BOX: Locator = By.css('mat-icon.icon-check')
 
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
@@ -199,7 +199,7 @@ export class ImageTable {
    * @param expectedTitle - Fragmento del título esperado para verificar que la imagen correcta está en index 0.
    * @param timeoutMs - Tiempo máximo de espera en milisegundos. Por defecto 30 segundos.
    */
-  async waitForNewImageAtIndex0(expectedTitle: string, timeoutMs = 30000): Promise<void> {
+  async waitForNewImageAtIndex0(expectedTitle: string, timeoutMs = 3000): Promise<void> {
     try {
       logger.debug(`Esperando que la nueva imagen aparezca en index 0. Título esperado: "${expectedTitle}"`, { label: this.config.label });
 
@@ -212,8 +212,8 @@ export class ImageTable {
           return currentTitle.includes(expectedTitle);
         } catch (error: unknown) {
           logger.debug(`El DOM todavía está actualizándose, reintentamos... ${getErrorMessage(error)}`, { label: this.config.label });
-          // Esperamos 500ms para que el DOM se actualice
-          await sleep(500)
+          // Esperamos 100ms para que el DOM se actualice
+          await sleep(100)
           return false;
         }
       }, timeoutMs, `Timeout: La nueva imagen "${expectedTitle}" nunca apareció en index 0 de la tabla.`);

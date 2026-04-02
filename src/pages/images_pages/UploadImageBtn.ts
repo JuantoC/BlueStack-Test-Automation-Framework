@@ -52,8 +52,10 @@ export class UploadImageBtn {
       const absolutePath = path.resolve(process.cwd(), cleanRelativePath);
       logger.debug(`Ruta final calculada: ${absolutePath}`, { label: this.config.label });
 
+      await this.waitUntilIsReady(UploadImageBtn.IMAGES_TABLE);
+
       const inputLocator = btn === 'Sidebar' ? UploadImageBtn.IMAGE_UPLOAD_INPUT_SIDEBAR : UploadImageBtn.IMAGE_UPLOAD_INPUT_TABLE;
-      const fileInput = await this.waitUntilIsReady(inputLocator);
+      const fileInput = await waitFind(this.driver, inputLocator, this.config);
 
       // Replica la lógica de FileDetector de UploadVideoModal.uploadFile.
       // Las imágenes usan el mismo mecanismo de sendKeys que los videos nativos.

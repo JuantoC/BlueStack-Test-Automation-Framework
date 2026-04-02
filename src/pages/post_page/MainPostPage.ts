@@ -7,7 +7,7 @@ export class MainPostPage {
   private config: RetryOptions;
 
   private readonly NoteType: NoteType
-  private readonly table: PostTable
+  public readonly table: PostTable
   private readonly createBtn: NewNoteBtn
   private readonly footer: FooterActions
   private readonly banner: Banners;
@@ -52,18 +52,17 @@ export class MainPostPage {
   }
 
   /**
-   * Localiza una nota en la tabla por su título y ejecuta el cambio de título inline.
-   * Busca el contenedor con `PostTable.getPostContainerByTitle`, delega la edición en
-   * `PostTable.changePostTitle`, verifica el resultado con `Banners` y espera que el
-   * indicador de carga desaparezca. El flujo completo está envuelto en un `retry`.
+   * Ejecuta el cambio de título inline de una nota a partir de su contenedor ya localizado.
+   * Delega la edición en `PostTable.changePostTitle`, verifica el resultado con `Banners`
+   * y espera que el indicador de carga desaparezca. El flujo completo está envuelto en un `retry`.
    *
-   * @param title - Fragmento del título actual de la nota a modificar.
+   * @param postContainer - Contenedor WebElement de la fila del post a modificar.
+   *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
    */
-  async changePostTitle(title: string) {
-    await step(`Cambiando titulo de la nota inline: "${title}"`, async () => {
+  async changePostTitle(postContainer: WebElement) {
+    await step(`Cambiando título de la nota inline`, async () => {
       try {
         await retry(async () => {
-          const postContainer = await this.table.getPostContainerByTitle(title);
           await this.table.changePostTitle(postContainer);
 
           await this.banner.checkBanners(true);
@@ -74,7 +73,6 @@ export class MainPostPage {
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: title,
           error: getErrorMessage(error)
         })
         throw error;
@@ -83,17 +81,15 @@ export class MainPostPage {
   }
 
   /**
-   * Navega hacia el editor de una nota específica identificada por su título.
-   * Busca el contenedor de la nota con `PostTable.getPostContainerByTitle` y hace click
-   * en el botón de edición. Monitorea banners post-navegación sin esperar éxito obligatorio.
+   * Navega hacia el editor de una nota a partir de su contenedor ya localizado.
+   * Hace click en el botón de edición del contenedor y monitorea banners post-navegación.
    *
-   * @param postTitle - Fragmento del título de la nota a abrir en el editor.
+   * @param postContainer - Contenedor WebElement de la fila del post a editar.
+   *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
    */
-  async enterToEditorPage(postTitle: string) {
-    await step(`Entrando a la edicion de la nota: "${postTitle}"`, async () => {
+  async enterToEditorPage(postContainer: WebElement) {
+    await step(`Entrando a la edición de la nota`, async () => {
       try {
-        const postContainer = await this.table.getPostContainerByTitle(postTitle);
-
         logger.debug("Ejecutando el click en el boton de edicion", { label: this.config.label })
         await this.table.clickEditorButton(postContainer);
 
@@ -101,9 +97,8 @@ export class MainPostPage {
 
         logger.info('Entrada a la edicion de la nota exitosa.', { label: this.config.label })
       } catch (error: unknown) {
-        logger.error(`Error al cambiar el titulo de la nota: ${getErrorMessage(error)}`, {
+        logger.error(`Error al entrar al editor de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
-          title: postTitle,
           error: getErrorMessage(error)
         })
         throw error;

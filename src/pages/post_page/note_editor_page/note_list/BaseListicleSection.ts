@@ -65,6 +65,7 @@ export abstract class BaseListicleSection {
   private getIconLocator(uiIndex: number): Locator {
     return By.xpath(`//div[@id="note-list-${uiIndex}"]//mat-icon[contains(@class, "icon-up") or contains(@class, "icon-down")]`);
   }
+
   private getFieldLocator(uiIndex: number, type: 'title' | 'body'): Locator {
     const base = `//div[@id="note-list-${uiIndex}"]`;
     return type === 'body'
@@ -138,7 +139,11 @@ export abstract class BaseListicleSection {
         await clickSafe(this.driver, BaseListicleSection.CREATE_MENU_BTN, this.config);
         await clickSafe(this.driver, BaseListicleSection.ADD_OPT, this.config);
         // Espera a que se abra el editor del nuevo item
-        await sleep(500)
+        const newItemLocator = this.getFieldLocator(i + 1, 'title');
+        const newItem = await waitFind(this.driver, newItemLocator, this.config);
+        const className = await newItem.getAttribute('class');
+        className.includes('icon-up');
+        logger.debug(`Slot para ítem #${i + 1} creado`, { label: this.config.label });
       }
 
       // 3. Poblar datos (orden DOM real)

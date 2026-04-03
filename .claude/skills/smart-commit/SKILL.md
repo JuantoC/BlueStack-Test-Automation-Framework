@@ -175,10 +175,7 @@ Tipo: docs(skills)
 Título: agregar skill smart-commit para estandarización de commits
 ...
 
-Ejecutando en 3 segundos... (Ctrl+C para cancelar)
 ```
-
-Esperar 3 segundos o hasta que el usuario cancele. Si cancela, detener sin ejecutar nada.
 
 ---
 

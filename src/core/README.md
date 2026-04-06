@@ -38,8 +38,9 @@ src/core/
 ├── config/
 │   ├── envConfig.ts          # ENV_CONFIG, credenciales, URLs base
 │   ├── defaultConfig.ts      # DefaultConfig, RetryOptions, DriverOptions
-│   ├── driverSetup.ts        # initializeDriver, quitDriver, setChromeOptions
-│   └── networkMonitor.ts     # startNetworkMonitoring, NetworkMonitorHandle
+│   ├── driverManager.ts      # initializeDriver, quitDriver, DriverSession
+│   ├── networkMonitor.ts     # startNetworkMonitoring, NetworkMonitorHandle
+│   └── toastMonitor.ts       # startToastMonitoring, ToastMonitorHandle, ToastEvent
 ├── errors/
 │   ├── errorClassifier.ts    # classifyError, ErrorCategory, diccionarios FATAL/RETRIABLE
 │   └── BusinessLogicError.ts # Excepción para errores de negocio (siempre FATAL)
@@ -101,7 +102,7 @@ runSession(
 ): void
 ```
 
-Envuelve `test()` de Jest. Inicializa el driver, ejecuta la lógica del test, captura screenshot en fallo, verifica errores de red (CDP) y cierra la sesión.
+Envuelve `test()` de Jest. Inicializa el driver, ejecuta la lógica del test, captura screenshot en fallo, verifica errores de red y toasts via CDP, y cierra la sesión.
 
 ### `retry` — resiliencia
 

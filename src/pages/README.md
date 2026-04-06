@@ -75,8 +75,7 @@ src/pages/
 │       └── EditorRelatesSection.ts
 ├── modals/
 │   ├── CKEditorImageModal.ts      # selectImage(index: number)
-│   ├── PublishModal.ts            # Lógica de publicación (notas y videos)
-│   └── Banners.ts
+│   └── PublishModal.ts            # Lógica de publicación (notas y videos)
 ├── comment_page/
 ├── images_pages/
 │   ├── MainImagePage.ts           # Maestro — subida, edición, acciones, publicación masiva

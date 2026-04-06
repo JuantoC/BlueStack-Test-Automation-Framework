@@ -42,7 +42,7 @@ export interface TestContext {
  * verificación de errores de red via CDP y cierre limpio de la sesión.
  *
  * @param sessionLabel - Nombre descriptivo de la sesión, usado como etiqueta en logs y reporte Allure.
- * @param testLogic - Función asíncrona con la lógica del test. Recibe `driver`, `session`, `opts` y `log`.
+ * @param testLogic - Función asíncrona con la lógica del test. Recibe `driver`, `session`, `opts`, `log` y `toastMonitor`.
  * @param metadata - Metadata de clasificación para Allure (epic, feature, story, severity, etc.). Opcional.
  *
  * @example

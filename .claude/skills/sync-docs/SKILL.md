@@ -1,12 +1,12 @@
 ---
 name: sync-docs
-description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con el estado actual del código TypeScript tras uno o más commits. Genera sugerencias concretas de actualización sin aplicar ningún cambio automáticamente.
+description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con el estado actual del código TypeScript tras uno o más commits. Aplica los cambios automáticamente sin pedir confirmación.
 ---
 
 # CUANDO INVOCAR
 - Cuando el desarrollador diga "sincronizá la documentación", "revisá qué docs quedaron desactualizados"
 - Después de un refactor o cambio de firma en `src/pages/`, `src/core/` o `src/interfaces/`
-- Automáticamente desde el Paso 10 de la skill `smart-commit`
+- Automáticamente desde el Paso 9 de la skill `smart-commit`
 
 ---
 
@@ -85,16 +85,23 @@ Por cada caso: archivo afectado, sección, descripción del problema, cambio sug
 **Sección Sin cambios necesarios:**
 Lista de archivos revisados que están OK.
 
-## Paso 6 — Reportar y ejecutar
-Mostrar el resumen de sugerencias y proceder con la ejecución de los cambios sugeridos.
+## Paso 6 — Aplicar cambios automáticamente
+
+Aplicar todas las sugerencias identificadas sin pedir confirmación:
+- Editar JSDoc/TSDoc en los archivos `.ts` correspondientes
+- Editar referencias desactualizadas en los `.md` contextuales
 
 > **Optimización:** Si hay múltiples ediciones JSDoc en el mismo archivo, agruparlas en una
 > sola operación `Edit` en lugar de múltiples llamadas separadas.
 
+Si la skill fue invocada desde smart-commit (Paso 9): generar un commit `docs(...)` con los cambios,
+usando el mismo formato de mensaje del Paso 5 de smart-commit.
+
+Si no hay cambios que aplicar: informar brevemente y continuar al Paso 7.
+
 ## Paso 7 — Marcar commits como revisados
 
-Una vez que el desarrollador confirme qué sugerencias aplicar **o** diga explícitamente
-"no hay cambios necesarios", actualizar el estado en `pending-doc-updates.json`:
+Actualizar el estado en `pending-doc-updates.json` inmediatamente, sin esperar confirmación:
 
 ```bash
 python3 -c "
@@ -110,18 +117,15 @@ with open('.claude/pending-doc-updates.json', 'w') as f:
 "
 ```
 
-## Verificación final con validate-ssot
+## Paso 8 — Validación SSoT automática
 
-Después de marcar los commits como reviewed, preguntar al desarrollador:
-*"¿Querés ejecutar validate-ssot para verificar que el modelo SSoT está íntegro?"*
+Después de marcar los commits como reviewed, ejecutar **automáticamente** la skill `validate-ssot`
+(Pasos 1 a 5 de esa skill). No pedir confirmación.
 
-Si confirma:
-- Ejecutar la skill `validate-ssot` (Pasos 1 a 5 de esa skill)
 - Si no hay violaciones: reportar `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
-- Si hay violaciones: presentarlas con el formato `[TIPO] archivo → Problema → Acción recomendada`
-  y preguntar cuáles corregir
-
-Si omite: continuar sin ejecutar validate-ssot (no es un paso bloqueante).
+- Si hay violaciones: reportar cada una con el formato `[TIPO] archivo → Problema → Acción recomendada`
+  y aplicar las correcciones que no impliquen cambios en lógica funcional de `.ts`
+- Si alguna violación requiere cambio en código TypeScript funcional: reportarla y preguntar
 
 ---
 
@@ -129,6 +133,9 @@ Si omite: continuar sin ejecutar validate-ssot (no es un paso bloqueante).
 - Si código y `.md` son inconsistentes, el código prevalece siempre
 - No modificar archivos en `@sessions/` — los tests son fuente de verdad de comportamiento
 - No tocar `@src/interfaces/data.ts` o `src/interfaces/auth.ts` sin que el desarrollador lo pida explícitamente
+- Los cambios automáticos están limitados a JSDoc/TSDoc y `.md` contextuales; nunca lógica funcional
 
 # Output esperado
-- `@docs/doc-update-suggestions.md` — solo sugerencias, sin cambios aplicados
+- `@docs/doc-update-suggestions.md` — registro de sugerencias generadas y aplicadas
+- Cambios JSDoc/`.md` ya aplicados en el repositorio
+- Commit `docs(...)` si fue invocada desde smart-commit

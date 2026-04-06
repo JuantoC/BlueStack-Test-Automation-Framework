@@ -218,11 +218,11 @@ Push ejecutado: [Sí → origin/<rama> / No]
 
 ---
 
-### Paso 9 — Auditoría documental automática post-commit
+### Paso 9 — Auditoría documental automática post-commit (sync-docs)
 
 Después de confirmar que todos los commits fueron exitosos (Paso 8), ejecutar automáticamente
 la skill `sync-docs` sobre los commits recién generados. Este paso se ejecuta **siempre**,
-independientemente del parámetro `--push`.
+independientemente del parámetro `--push`. No pedir confirmación al desarrollador.
 
 1. Leer `.claude/pending-doc-updates.json` y filtrar las entradas cuyos hashes coincidan
    con los capturados en el Paso 6 (los commits recién generados)
@@ -230,11 +230,27 @@ independientemente del parámetro `--push`.
 3. Ejecutar el análisis de sync-docs (Pasos 2 a 5 de esa skill)
 4. Si hay sugerencias, escribirlas en `@docs/doc-update-suggestions.md` en **modo append**
    (no sobreescribir — pueden existir sugerencias de commits anteriores)
-5. Aplicarlo inmediatamente el documento generado (Paso 6 de sync-docs)
+5. Aplicar inmediatamente los cambios documentados (Paso 6 de sync-docs) — sin pedir confirmación
 6. Generar un commit adicional de tipo `docs(...)` con esos cambios usando el mismo
-  formato de mensaje que el Paso 5 de esta skill
+   formato de mensaje que el Paso 5 de esta skill
 7. Marcar las entradas correspondientes como `reviewed` en `pending-doc-updates.json`
-  (Paso 7 de sync-docs)
+   (Paso 7 de sync-docs)
+
+Si no hay sugerencias de sync-docs, omitir el commit `docs(...)` e informar brevemente.
+
+---
+
+### Paso 10 — Validación SSoT automática post-commit (validate-ssot)
+
+Inmediatamente después de completar el Paso 9, ejecutar la skill `validate-ssot` completa.
+Este paso es **automático y no requiere confirmación**. Se ejecuta siempre.
+
+1. Ejecutar todos los pasos de la skill `validate-ssot` (Pasos 1 a 5)
+2. Si no hay violaciones: reportar `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
+3. Si hay violaciones: reportar cada una con el formato
+   `[TIPO] archivo → Problema → Acción recomendada`
+   y aplicar las correcciones que no impliquen cambios en lógica funcional de `.ts`
+4. Si alguna violación requiere cambio en código TypeScript funcional: reportarla y preguntar
 
 ---
 

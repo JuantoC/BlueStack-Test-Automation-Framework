@@ -60,26 +60,25 @@ Cuando código y `.md` sean inconsistentes, **el código siempre prevalece**.
 
 ---
 
-## Automatización Documental — Git Hooks
+## Automatización Documental — Flujo Post-Commit
 
-### Cuándo ejecutar
+### Flujo automático tras smart-commit
 
-Cuando el desarrollador diga "revisá la documentación pendiente", "sync-docs", o pida sincronizar la documentación.
+Después de generar commits con la skill `smart-commit`, el agente ejecuta **automáticamente y sin pedir confirmación**:
 
-### Procedimiento
+1. **sync-docs** — analiza los commits recién generados, actualiza JSDoc/TSDoc y `.md` desactualizados, genera un commit `docs(...)` con los cambios y marca las entradas como `reviewed` en `pending-doc-updates.json`
+2. **validate-ssot** — valida que el modelo SSoT siga íntegro: detecta lógica en `.md`, JSDoc desincronizado y skills con dependencia inversa
 
-1. Invocar la skill `sync-docs`
-2. La skill lee `.claude/pending-doc-updates.json` para obtener commits pendientes
-3. Obtiene los diffs bajo demanda con `git show <hash>`
-4. Escribe resultados en `.claude/doc-update-suggestions.md`
-5. Reporta el resumen y pregunta qué actualizar
-6. **Solo aplicar cambios explícitamente confirmados por el desarrollador**
+Si validate-ssot detecta violaciones, las reporta con el formato `[TIPO] archivo → Problema → Acción recomendada` y aplica las correcciones posibles automáticamente.
 
-### Nunca hacer esto automáticamente
+### Cuándo invocar manualmente
 
-- Modificar archivos `.ts` o `.md` sin confirmación
-- Marcar pendientes como "resolved" sin aprobación explícita
-- Asumir que actualizar el `.md` es suficiente sin verificar el código primero
+Si el desarrollador dice "sync-docs", "revisá la documentación pendiente" o "validate-ssot": invocar la skill correspondiente directamente (puede haber commits pendientes de sesiones anteriores).
+
+### Restricción que sigue vigente
+
+- Nunca modificar archivos `.ts` de lógica funcional sin confirmación explícita del desarrollador
+- Los cambios automáticos de sync-docs están limitados a JSDoc/TSDoc y `.md` contextuales
 
 ---
 

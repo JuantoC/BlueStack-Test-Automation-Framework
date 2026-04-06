@@ -25,13 +25,13 @@ export interface DriverSession {
 }
 
 /**
- * Inicializa una sesión de WebDriver para Chrome con el monitor de red CDP activo.
+ * Inicializa una sesión de WebDriver para Chrome con los monitores CDP activos (red y toast).
  * Construye el driver según las opciones (headless/grid), configura los timeouts globales
- * e inicia el monitoreo de red por CDP a través de `startNetworkMonitoring`.
+ * e inicia el monitoreo de red y de toasts por CDP a través de `startNetworkMonitoring` y `startToastMonitoring`.
  *
  * @param options - Opciones de configuración del browser: modo headless y uso de Selenium Grid.
  * @param opts - Opciones de trazabilidad y configuración del framework.
- * @returns {Promise<DriverSession>} La sesión activa con el driver y el monitor de red listos.
+ * @returns {Promise<DriverSession>} La sesión activa con el driver y los monitores CDP listos.
  */
 export async function initializeDriver(options: DriverOptions, opts: RetryOptions = {}): Promise<DriverSession> {
     const config = resolveRetryConfig(opts, "initializeDriver");

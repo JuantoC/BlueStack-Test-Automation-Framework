@@ -10,7 +10,6 @@ export class MainPostPage {
   public readonly table: PostTable
   private readonly createBtn: NewNoteBtn
   private readonly footer: FooterActions
-  private readonly banner: Banners;
 
   constructor(driver: WebDriver, NoteType: NoteType, opts: RetryOptions) {
     this.driver = driver;
@@ -20,7 +19,6 @@ export class MainPostPage {
     this.table = new PostTable(driver, this.config);
     this.createBtn = new NewNoteBtn(driver, this.config)
     this.footer = new FooterActions(this.driver, this.config)
-    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -53,7 +51,7 @@ export class MainPostPage {
 
   /**
    * Ejecuta el cambio de título inline de una nota a partir de su contenedor ya localizado.
-   * Delega la edición en `PostTable.changePostTitle`, verifica el resultado con `Banners`
+   * Delega la edición en `PostTable.changePostTitle`, verifica el resultado con el toast monitor CDP
    * y espera que el indicador de carga desaparezca. El flujo completo está envuelto en un `retry`.
    *
    * @param postContainer - Contenedor WebElement de la fila del post a modificar.
@@ -65,7 +63,7 @@ export class MainPostPage {
         await retry(async () => {
           await this.table.changePostTitle(postContainer);
 
-          await this.banner.checkBanners(true);
+          await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
           await this.table.waitForLoadingContainerDisappear();
 
           logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label })
@@ -93,8 +91,6 @@ export class MainPostPage {
         logger.debug("Ejecutando el click en el boton de edicion", { label: this.config.label })
         await this.table.clickEditorButton(postContainer);
 
-        await this.banner.checkBanners(false);
-
         logger.info('Entrada a la edicion de la nota exitosa.', { label: this.config.label })
       } catch (error: unknown) {
         logger.error(`Error al entrar al editor de la nota: ${getErrorMessage(error)}`, {
@@ -118,8 +114,6 @@ export class MainPostPage {
       try {
         logger.info(`Abriendo modal para nueva nota: ${newNoteType}`, { label: this.config.label });
         await this.createBtn.selectNoteType(newNoteType);
-
-        await this.banner.checkBanners(false);
 
         logger.info(`Nueva nota tipo: ${newNoteType} creada exitosamente`, { label: this.config.label });
       } catch (error: unknown) {
@@ -162,6 +156,5 @@ import { PostTable } from './PostTable.js';
 import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 import { FooterActions } from '../FooterActions.js';
 import { retry } from '../../core/wrappers/retry.js';
-import { Banners } from '../modals/Banners.js';
 import { getErrorMessage } from '../../core/utils/errorUtils.js';
 

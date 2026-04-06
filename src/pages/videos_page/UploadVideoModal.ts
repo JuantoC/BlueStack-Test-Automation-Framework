@@ -14,7 +14,6 @@ import { sleep } from "../../core/utils/backOff.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
-import { Banners } from "../modals/Banners.js";
 
 const require = createRequire(import.meta.url);
 const remote = require('selenium-webdriver/remote');
@@ -37,7 +36,6 @@ export class UploadVideoModal {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly image: CKEditorImageModal
-  private readonly banner: Banners;
 
 
   public static readonly LOCATORS = {
@@ -56,8 +54,6 @@ export class UploadVideoModal {
     this.driver = driver;
     this.config = resolveRetryConfig(opts, "UploadVideoModal")
     this.image = new CKEditorImageModal(this.driver, this.config)
-    this.banner = new Banners(this.driver, this.config);
-
   }
 
   /**
@@ -171,7 +167,7 @@ export class UploadVideoModal {
       const progress = await progressBar.getAttribute('aria-valuenow');
       logger.debug(`Progreso actual: ${progress}`, { label: this.config.label });
       if (progress === '100') {
-        await this.banner.checkBanners(true);
+        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
         return true;
       }
       return false;

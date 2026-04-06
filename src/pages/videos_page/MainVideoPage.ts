@@ -9,7 +9,6 @@ import { VideoData } from "../../interfaces/data.js";
 import { ActionType, VideoActions } from "./VideoActions.js";
 import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
-import { Banners } from "../modals/Banners.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
@@ -32,7 +31,6 @@ export class MainVideoPage {
   private readonly actions: VideoActions
   private readonly footer: FooterActions
   private readonly image: CKEditorImageModal;
-  private readonly banner: Banners;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -44,7 +42,6 @@ export class MainVideoPage {
     this.actions = new VideoActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
     this.image = new CKEditorImageModal(this.driver, this.config)
-    this.banner = new Banners(this.driver, this.config);
   }
 
   /**
@@ -71,11 +68,6 @@ export class MainVideoPage {
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 
-        const isError = await this.banner.checkBanners(false);
-        if (isError) {
-          return
-        }
-
         if (videoData.video_type === 'NATIVO') {
           await this.uploadModal.checkProgressBar()
         }
@@ -99,7 +91,7 @@ export class MainVideoPage {
 
   /**
    * Ejecuta el cambio de título inline de un video a partir de su contenedor ya localizado.
-   * Delega la edición en `VideoTable.changeVideoTitle` y verifica el resultado con `Banners`.
+   * Delega la edición en `VideoTable.changeVideoTitle` y verifica el resultado con el toast monitor CDP.
    *
    * @param videoContainer - Contenedor WebElement del video a modificar.
    *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
@@ -111,7 +103,7 @@ export class MainVideoPage {
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeVideoTitle(videoContainer);
 
-        await this.banner.checkBanners(true);
+        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
 
         logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
       } catch (error: unknown) {
@@ -141,7 +133,6 @@ export class MainVideoPage {
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(videoContainer, action);
 
-        await this.banner.checkBanners(false)
         logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en el video: ${getErrorMessage(error)}`, {

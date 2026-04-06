@@ -7,7 +7,6 @@ import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { ImageActionType, ImageActions } from "./ImageActions.js";
 import { FooterActions } from "../FooterActions.js";
-import { Banners } from "../modals/Banners.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
@@ -28,7 +27,6 @@ export class MainImagePage {
   public readonly table: ImageTable
   private readonly actions: ImageActions
   private readonly footer: FooterActions
-  private readonly banner: Banners;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -38,7 +36,6 @@ export class MainImagePage {
     this.table = new ImageTable(this.driver, this.config);
     this.actions = new ImageActions(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
-    this.banner = new Banners(this.driver, this.config);
   }
 
   /**
@@ -89,7 +86,7 @@ export class MainImagePage {
 
   /**
    * Ejecuta el cambio de título inline de una imagen a partir de su contenedor ya localizado.
-   * Delega la edición en `ImageTable.changeImageTitle` y verifica el resultado con `Banners`.
+   * Delega la edición en `ImageTable.changeImageTitle` y verifica el resultado con el toast monitor CDP.
    *
    * @param imageContainer - Contenedor WebElement de la imagen a modificar.
    *   Obtenerlo previamente con `this.table.getImageContainerByTitle()` o `this.table.getImageContainerByIndex()`.
@@ -102,7 +99,7 @@ export class MainImagePage {
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeImageTitle(imageContainer);
 
-        await this.banner.checkBanners(true);
+        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
 
         logger.info('Cambio de titulo de la imagen ejecutado correctamente', { label: this.config.label })
       } catch (error: unknown) {
@@ -133,7 +130,6 @@ export class MainImagePage {
         logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
         await this.actions.clickOnAction(imageContainer, action);
 
-        await this.banner.checkBanners(false)
         logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
       } catch (error: unknown) {
         logger.error(`Error al clickear la accion: "${action}" en la imagen: ${getErrorMessage(error)}`, {

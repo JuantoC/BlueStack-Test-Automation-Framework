@@ -5,14 +5,11 @@ import { resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
 import { VideoType } from "../UploadVideoBtn.js";
-import { Banners } from "../../modals/Banners.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export class MainEditorPage {
     private driver: WebDriver;
     private config: RetryOptions
-
-    public readonly banner: Banners;
 
     private readonly videoType: VideoType;
     public readonly header: EditorHeaderActions;
@@ -22,7 +19,6 @@ export class MainEditorPage {
         this.config = resolveRetryConfig(opts, "MainEditorPage");
         this.videoType = videoType || 'YOUTUBE';
         this.header = new EditorHeaderActions(this.driver, this.config);
-        this.banner = new Banners(this.driver, this.config);
     }
 
     /**
@@ -39,7 +35,7 @@ export class MainEditorPage {
                 await this.header.clickExitAction(exitAction);
 
                 if (exitAction === "PUBLISH_ONLY" || exitAction === "SAVE_ONLY") {
-                    await this.banner.checkBanners(true);
+                    await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
                 }
                 logger.info(`Editor ejecuto accion del header correctamente.`, { label: this.config.label });
 

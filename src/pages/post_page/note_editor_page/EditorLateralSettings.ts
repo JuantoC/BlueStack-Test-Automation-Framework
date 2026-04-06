@@ -33,7 +33,7 @@ export class EditorLateralSettings {
    *
    * @param index - Índice de la opción de sección a seleccionar (base 0). Por defecto 0.
    */
-  async selectSectionOption(index: number = 0): Promise<void> {
+  public async selectSectionOption(index: number = 0): Promise<void> {
     await step(`Seleccionando opción de sección en index ${index}`, async () => {
       try {
         await this.clickOnSectionOption();
@@ -98,7 +98,7 @@ export class EditorLateralSettings {
   /**
    * Abre o cierra el panel lateral de configuraciones.
    */
-  async toggleSettingsPanel(): Promise<void> {
+  public async toggleSettingsPanel(): Promise<void> {
     await step("Cambiando estado del panel lateral de configuración", async (stepContext) => {
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
       try {

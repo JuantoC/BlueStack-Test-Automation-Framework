@@ -4,7 +4,6 @@ import logger from "../core/utils/logger.js";
 import { waitFind } from "../core/actions/waitFind.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { PublishModal } from "./modals/PublishModal.js";
-import { Banners } from "./modals/Banners.js";
 import { getErrorMessage } from "../core/utils/errorUtils.js";
 
 export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
@@ -12,7 +11,7 @@ export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
 /**
  * Sub-componente compartido que representa el área de acciones del footer en las tablas del CMS.
  * Expone acciones de publicación masiva (publicar inmediato y programar) disponibles al seleccionar
- * uno o más ítems en la tabla. Orquesta la interacción con `PublishModal` y `Banners` internamente.
+ * uno o más ítems en la tabla. Orquesta la interacción con `PublishModal` y el toast monitor CDP.
  * Utilizado como dependencia de todos los Maestros que gestionan contenido publicable.
  *
  * @example
@@ -23,7 +22,6 @@ export class FooterActions {
   private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly publishModal: PublishModal;
-  private readonly banner: Banners;
 
   private static readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-action"]');
   private static readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-actions"]');
@@ -41,14 +39,13 @@ export class FooterActions {
     this.config = resolveRetryConfig(opts, "FooterActions")
 
     this.publishModal = new PublishModal(this.driver, this.config)
-    this.banner = new Banners(this.driver, { ...this.config, timeoutMs: 10000 })
   }
 
   /**
    * Ejecuta la acción del footer indicada sobre los ítems previamente seleccionados en la tabla.
    * Valida primero que el botón de publicar esté habilitado y que la acción esté mapeada.
    * Luego orquesta la secuencia específica según el tipo: publicación inmediata o programación.
-   * Delega la confirmación en `PublishModal` y la validación de resultado en `Banners.checkBanners`.
+   * Delega la confirmación en `PublishModal` y la validación de resultado en el toast monitor CDP.
    *
    * @param action - Tipo de acción del footer a ejecutar (PUBLISH_ONLY o SCHEDULE).
    */
@@ -72,12 +69,12 @@ export class FooterActions {
       switch (action) {
         case 'PUBLISH_ONLY':
           await this.publishModal.clickOnPublishBtn();
-          await this.banner.checkBanners(true);
+          await global.activeToastMonitor?.waitForSuccess(10000);
           break;
         case 'SCHEDULE':
           await clickSafe(this.driver, FooterActions.FOOTER_DROPDOWN_SCHEDULE, this.config);
           await this.publishModal.clickOnPublishBtn();
-          await this.banner.checkBanners(true);
+          await global.activeToastMonitor?.waitForSuccess(10000);
           break
 
       }

@@ -138,15 +138,16 @@ export abstract class BaseListicleSection {
       for (let i = 1; i < normalizedItems.length; i++) {
         await clickSafe(this.driver, BaseListicleSection.CREATE_MENU_BTN, this.config);
         await clickSafe(this.driver, BaseListicleSection.ADD_OPT, this.config);
-        // Espera a que se abra el editor del nuevo item
-        const newItemLocator = this.getFieldLocator(i + 1, 'title');
-        const newItem = await waitFind(this.driver, newItemLocator, this.config);
-        const className = await newItem.getAttribute('class');
-        className.includes('icon-up');
+        
+        // Espera a que el nuevo slot exista en el DOM con cualquier estado (icon-up o icon-down).
+        // A partir del slot #11 Angular reconstruye el DOM al colapsar todos los slots previos,
+        // lo que hace stale a los elementos existentes y hace que icon-up no sea confiable aquí.
+        // toggleExpansion en el paso 3 lee el estado real del elemento y expande si hace falta.
+        await waitFind(this.driver, this.getIconLocator(i + 1), this.config);
         logger.debug(`Slot para ítem #${i + 1} creado`, { label: this.config.label });
       }
 
-      // 3. Poblar datos (orden DOM real)
+      // 3. Poblar datos (orden DOM real) 
       for (let i = 0; i < normalizedItems.length; i++) {
         const uiIndex = i + 1;
         const item = normalizedItems[i];

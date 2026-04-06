@@ -16,7 +16,7 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_CONFIG.auth.basic.pass);
     await driver.get(authUrl);
 
-    const liveBlogData = LiveBlogDataFactory.create();
+    const liveBlogData = LiveBlogDataFactory.create({ entryCount: 12 });
 
     const login = new MainLoginPage(driver, opts);
     const post = new MainPostPage(driver, 'LIVEBLOG', opts);

@@ -3,7 +3,7 @@
 @scope: module
 @audience: both
 @related: README.md, src/core/wrappers/testWrapper.ts, src/pages/README.md, src/core/README.md
-@last-reviewed: 2026-03-29
+@last-reviewed: 2026-04-06
 @summary: Catálogo y convenciones de los archivos de test end-to-end del CMS Bluestack; uno por flujo editorial, descubiertos automáticamente por Jest.
 -->
 
@@ -66,6 +66,7 @@ sessions/
 ├── NewEmbeddedVideo.test.ts     # Video — creación de Embedded + edición inline
 ├── NewYoutubeVideo.test.ts      # Video — subida YouTube + edición inline
 ├── MassPublishNotes.test.ts     # Mass Actions — Post + Listicle + Liveblog masivos
+├── MassPublishImages.test.ts    # Mass Actions — subida nativa, edición inline y publicación de imágenes
 ├── MassPublishVideos.test.ts    # Mass Actions — publicación masiva de videos
 ├── PostAndVideo.test.ts         # Cross-component — Post + YouTube (critical)
 └── StressMassActions.test.ts    # Stress — notas + videos + AI + publicación masiva
@@ -119,6 +120,7 @@ runSession(
 | `NewEmbeddedVideo` | Video Component | Embedded Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
 | `NewYoutubeVideo` | Video Component | Youtube Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
 | `MassPublishNotes` | Post Management | Mass Publication | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
+| `MassPublishImages` | Multimedia | Imágenes | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
 | `MassPublishVideos` | Video Management | Mass Publication | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
 | `PostAndVideo` | Post & Video Component | Cross-Component Workflow | **critical** | `MainLoginPage`, `MainPostPage`, `MainEditorPage`, `MainVideoPage`, `SidebarAndHeader` |
 | `StressMassActions` | Stress Test | Mass Actions | **critical** | todos los anteriores + `MainAIPage` |

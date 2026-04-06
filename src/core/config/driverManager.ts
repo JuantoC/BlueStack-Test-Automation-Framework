@@ -3,6 +3,7 @@ import { ServiceBuilder } from 'selenium-webdriver/chrome.js';
 import { setChromeOptions, DriverOptions } from "./chromeOptions.js";
 import { resolveRetryConfig, RetryOptions } from "./defaultConfig.js";
 import { startNetworkMonitoring, NetworkMonitorHandle } from './networkMonitor.js';
+import { startToastMonitoring, ToastMonitorHandle } from './toastMonitor.js';
 import logger from "../utils/logger.js";
 import { sleep } from '../utils/backOff.js';
 import { getErrorMessage } from '../utils/errorUtils.js';
@@ -10,15 +11,17 @@ import { getErrorMessage } from '../utils/errorUtils.js';
 declare global {
     // var es necesario aquí para que se fusione con el scope global
     var activeMonitor: NetworkMonitorHandle | undefined;
+    var activeToastMonitor: ToastMonitorHandle | undefined;
 }
 
 /**
- * Representa una sesión activa del WebDriver con su monitor de red CDP asociado.
+ * Representa una sesión activa del WebDriver con sus monitores CDP asociados.
  * Devuelta por `initializeDriver` y consumida por `runSession` y `quitDriver`.
  */
 export interface DriverSession {
     driver: WebDriver;
     networkMonitor: NetworkMonitorHandle | null;
+    toastMonitor: ToastMonitorHandle | null;
 }
 
 /**
@@ -52,9 +55,14 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
         if (networkMonitor) {
             global.activeMonitor = networkMonitor;
         }
+
+        const toastMonitor = await startToastMonitoring(driver, config.label);
+        if (toastMonitor) {
+            global.activeToastMonitor = toastMonitor;
+        }
         logger.info('🚀 WebDriver y CDP listos', { label: config.label });
 
-        return { driver, networkMonitor };
+        return { driver, networkMonitor, toastMonitor };
     } catch (error: unknown) {
         logger.error(`Fallo en inicialización: ${getErrorMessage(error)}`, { label: config.label });
         throw error;
@@ -77,6 +85,7 @@ export async function quitDriver(session: DriverSession | null, opts: RetryOptio
         if (opts.timeoutMs) await sleep(opts.timeoutMs);
         await session.driver.quit();
         global.activeMonitor = undefined;
+        global.activeToastMonitor = undefined;
         logger.info('🏁 Sesión cerrada', { label: config.label });
     } catch (error: unknown) {
         if (!getErrorMessage(error).includes('NoSuchSession')) {

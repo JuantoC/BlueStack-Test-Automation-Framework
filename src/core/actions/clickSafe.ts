@@ -5,13 +5,12 @@ import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { waitFind } from "../actions/waitFind.js";
 import { waitClickable } from "../helpers/waitClickable.js";
-import { Banners } from "../../pages/modals/Banners.js";
 
 /**
  * Realiza un clic resistente a la inestabilidad del DOM (flakiness).
  * Orquesta la búsqueda (si es necesario), validación de estado y el clic físico en un único bloque de reintento.
  * Punto de entrada recomendado para cualquier interacción que requiera un clic en el framework.
- * Delega en `waitFind`, `waitClickable` y `Banners.checkBanners` para gestionar intercepciones de toast.
+ * Delega en `waitFind`, `waitClickable` y el monitor CDP para gestionar intercepciones de toast.
  *
  * @param driver - Instancia activa de WebDriver para la sesión actual.
  * @param ID - Locator o WebElement del elemento objetivo. Si es WebElement, omite la búsqueda en el DOM.
@@ -48,12 +47,8 @@ export async function clickSafe<T extends WebElement = WebElement>(
 
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'ElementClickInterceptedError') {
-        logger.debug(`Intercepción detectada. Verificando si es un toast...`, { label: config.label });
-        const banner = new Banners(driver, config)
-        const isToast = await banner.checkBanners(false)
-        if (isToast) {
-          throw error
-        }
+        logger.debug(`Intercepción detectada. Posible toast bloqueante capturado por CDP monitor.`, { label: config.label });
+        throw error;
       }
       /* // 4. Contingencia Reactiva para el Modal de Angular
       if (error.name === 'ElementClickInterceptedError') {

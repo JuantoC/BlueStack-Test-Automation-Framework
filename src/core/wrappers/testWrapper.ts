@@ -3,6 +3,7 @@ import { WebDriver } from "selenium-webdriver";
 import { ENV_CONFIG } from "../config/envConfig.js";
 import { DefaultConfig, RetryOptions } from "../config/defaultConfig.js";
 import { initializeDriver, quitDriver, DriverSession } from "../config/driverManager.js";
+import { ToastMonitorHandle } from "../config/toastMonitor.js";
 import { checkConsoleErrors } from "../utils/browserLogs.js";
 import logger, { addSessionTransport } from "../utils/logger.js";
 import { getErrorMessage } from "../utils/errorUtils.js";
@@ -23,7 +24,7 @@ export interface TestMetadata {
 
 /**
  * Contexto inyectado en cada función de test por `runSession`.
- * Provee acceso al driver WebDriver activo, al monitor de red y a la configuración de reintentos.
+ * Provee acceso al driver WebDriver activo, a los monitores CDP y a la configuración de reintentos.
  * Usar este contexto para interactuar con el navegador y acceder a los metadatos de ejecución.
  */
 export interface TestContext {
@@ -31,6 +32,7 @@ export interface TestContext {
   session: DriverSession; // Por si necesitas acceso al monitor u otros internals
   opts: RetryOptions;
   log: typeof logger;
+  toastMonitor: ToastMonitorHandle | null;
 }
 
 /**
@@ -59,6 +61,7 @@ export function runSession(
     const sessionTransport = addSessionTransport(sessionLabel);
     const opts: RetryOptions = { ...DefaultConfig, label: sessionLabel };
     let session: DriverSession | null = null;
+    let testError: unknown = null;
 
     // --- SECCIÓN A: INYECCIÓN DE METADATA EN ALLURE ---
 
@@ -97,7 +100,8 @@ export function runSession(
         driver: session.driver,
         session: session,
         opts,
-        log: logger
+        log: logger,
+        toastMonitor: session.toastMonitor
       });
 
     } catch (error: unknown) {
@@ -115,7 +119,7 @@ export function runSession(
       const msg = (error as any).diff ? `${getErrorMessage(error)}\n>>> DIFF <<< ${(error as any).diff}` : getErrorMessage(error);
       logger.error(`❌ FALLO CRÍTICO en ${opts.label}`, { label: opts.label, details: msg });
 
-      throw error; // Re-lanzamos para que Jest falle
+      testError = error; // Guardamos para relanzar en finally, sin perderlo
 
     } finally {
       // --- 4. CIERRE Y VERIFICACIÓN DE RED ---
@@ -123,20 +127,37 @@ export function runSession(
         // A. Logs de consola del browser
         await checkConsoleErrors(session.driver);
 
-        // B. Verificación de Network Monitor (Tu requisito principal)
-        let networkError = null;
+        // B. Verificación de Network Monitor
+        let networkError: Error | null = null;
         if (session.networkMonitor) {
-          const summary = await session.networkMonitor.stop(); // Esto ya adjunta el .txt a Allure
+          const summary = await session.networkMonitor.stop();
           if (summary.errorCount > 0) {
-            networkError = new Error(`[Network Error] Test pasó, pero tuvo ${summary.errorCount} errores de red (4xx/5xx).`);
+            networkError = new Error(`[Network Error] ${summary.errorCount} error(s) de red (4xx/5xx) detectados. Ver adjunto Allure.`);
           }
+        }
+
+        // B2. Verificación Toast Monitor (soft: reporta en Allure, no lanza error propio)
+        if (session.toastMonitor) {
+          await session.toastMonitor.stop();
+          // Los logs warn y attachments ya se emiten dentro de stop() y en tiempo real por evento
         }
 
         // C. Apagar Driver
         logger.info("Cerrando sesión...", { label: opts.label });
         await quitDriver(session, opts);
 
-        // D. Si hubo error de red, fallamos el test AHORA (después de cerrar todo)
+        // D. Composición final de errores: el error del test tiene prioridad.
+        //    Si el test pasó pero hubo error de red, lanzamos ese.
+        //    Si el test falló Y además hubo error de red, los combinamos para no perder ninguno.
+        if (testError && networkError) {
+          const combined = new Error(
+            `${getErrorMessage(testError)}\n\nAdemás: ${networkError.message}`
+          );
+          throw combined;
+        }
+        if (testError) {
+          throw testError;
+        }
         if (networkError) {
           throw networkError;
         }

@@ -9,7 +9,7 @@ Sos un arquitecto de test automation especializado en Page Object Model con Sele
 
 No sos un asistente genérico. No explicás tu proceso. Ejecutás la generación y entregás los archivos.
 
-Antes de generar cualquier código, leé el archivo `references/conventions.md` de esta skill para internalizar las convenciones obligatorias del repositorio. Si necesitás ver ejemplos concretos de clases ya existentes, leé `references/examples.md`.
+Antes de generar cualquier código, inspeccioná archivos POM existentes en `src/pages/` del módulo más cercano al solicitado — esa es la fuente de verdad de las convenciones del repositorio. El archivo `references/conventions.md` es una referencia curada secundaria; `references/examples.md` es contexto ilustrativo adicional.
 
 ---
 
@@ -57,20 +57,26 @@ Combinaciones válidas: El usuario puede proveer texto + imagen, texto + DOM, o 
 
 # PASOS DE EJECUCIÓN
 
-## Paso 0 — Cargar convenciones
+## Paso 0 — Cargar contexto del repositorio
 
-Antes de cualquier otra cosa, leé el archivo de referencia de convenciones:
-
-```
-Leer: [ruta-de-esta-skill]/references/conventions.md
-```
-
-Este archivo contiene las reglas de naming, imports, estructura de clases, patrones de error handling, y el catálogo de utilidades `core/` disponibles. Es obligatorio leerlo antes de generar código.
-
-Si necesitás ver cómo se implementan estas convenciones en clases reales, leé también:
+Antes de cualquier otra cosa, leé código TypeScript existente en `src/pages/` del módulo más cercano al que se va a generar. Este es el input primario — la fuente de verdad de las convenciones reales del proyecto:
 
 ```
-Leer: [ruta-de-esta-skill]/references/examples.md
+Leer: src/pages/<módulo-más-cercano>/*.ts   ← INPUT PRIMARIO (código real)
+```
+
+Una vez leído el código, usá el archivo de convenciones curadas como referencia complementaria:
+
+```
+Leer: [ruta-de-esta-skill]/references/conventions.md   ← INPUT SECUNDARIO (contexto curado)
+```
+
+`conventions.md` resume patrones de naming, imports, estructura de clases, error handling y el catálogo de utilidades `core/`. Si hay conflicto entre lo que dice el código y lo que dice `conventions.md`, el código prevalece.
+
+Si necesitás ver ejemplos adicionales más allá del código que ya leíste:
+
+```
+Leer: [ruta-de-esta-skill]/references/examples.md   ← INPUT TERCIARIO (ejemplos ilustrativos)
 ```
 
 ## Paso 1 — Analizar el input y planificar la estructura
@@ -136,7 +142,7 @@ Generá cada subcomponente individual **antes** que la clase main. Esto es porqu
 Para cada subcomponente:
 
 1. Creá el archivo en la ubicación correcta dentro de `src/pages/`.
-2. Seguí estrictamente las convenciones de `references/conventions.md`.
+2. Seguí los patrones del código TypeScript leído en el Paso 0. Si algo no quedó claro, consultá `references/conventions.md` como referencia secundaria.
 3. Los locators que no tengan selector real se definen como:
    ```typescript
    private static readonly ELEMENT_NAME: Locator = By.css('[data-testid="TODO_element_name"]');

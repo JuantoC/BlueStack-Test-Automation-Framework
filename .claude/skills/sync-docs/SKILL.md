@@ -3,14 +3,14 @@ name: sync-docs
 description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con el estado actual del código TypeScript tras uno o más commits. Genera sugerencias concretas de actualización sin aplicar ningún cambio automáticamente.
 ---
 
-# Cuándo invocar
+# CUANDO INVOCAR
 - Cuando el desarrollador diga "sincronizá la documentación", "revisá qué docs quedaron desactualizados"
 - Después de un refactor o cambio de firma en `src/pages/`, `src/core/` o `src/interfaces/`
 - Automáticamente desde el Paso 10 de la skill `smart-commit`
 
 ---
 
-# Instrucción de ejecución
+# PASOS DE EJECUCIÓN
 
 ## Paso 1 — Obtener commits pendientes de revisión
 
@@ -64,12 +64,12 @@ Para cada archivo con cambio estructural:
 
 ## Paso 4 — Verificar `.md` relacionados
 Revisar si alguno de estos archivos referencia el módulo modificado:
-- `README.md` (sección "How to Write a New Test" o "Contributing & Guidelines")
-- `.claude/CLAUDE.md`
-- Cualquier archivo en `docs/` si existe
+- `@README.md` (sección "How to Write a New Test" o "Contributing & Guidelines")
+- `@.claude/CLAUDE.md`
+- `@src/pages/README.md`
 
 ## Paso 5 — Escribir sugerencias
-Agregar al final de `.claude/doc-update-suggestions.md` (modo **append**, no sobreescribir —
+Tal como se indica en el Paso 9 de **smart-commit**, agregar las sugerencias al final de `@docs/doc-update-suggestions.md` (modo **append**, no sobreescribir —
 pueden existir sugerencias de commits anteriores aún no revisados). Si el archivo no existe,
 crearlo. Usar este formato:
 
@@ -85,10 +85,8 @@ Por cada caso: archivo afectado, sección, descripción del problema, cambio sug
 **Sección Sin cambios necesarios:**
 Lista de archivos revisados que están OK.
 
-## Paso 6 — Reportar y preguntar
-Mostrar el resumen de sugerencias y preguntar: *"¿Aplicamos alguna de estas actualizaciones?"*
-
-Aplicar **solo los cambios que el desarrollador confirme explícitamente**, uno por uno.
+## Paso 6 — Reportar y ejecutar
+Mostrar el resumen de sugerencias y proceder con la ejecución de los cambios sugeridos.
 
 > **Optimización:** Si hay múltiples ediciones JSDoc en el mismo archivo, agruparlas en una
 > sola operación `Edit` en lugar de múltiples llamadas separadas.
@@ -112,7 +110,7 @@ with open('.claude/pending-doc-updates.json', 'w') as f:
 "
 ```
 
-**Sub-paso opcional — Verificación final con validate-ssot:**
+## Verificación final con validate-ssot
 
 Después de marcar los commits como reviewed, preguntar al desarrollador:
 *"¿Querés ejecutar validate-ssot para verificar que el modelo SSoT está íntegro?"*
@@ -128,10 +126,9 @@ Si omite: continuar sin ejecutar validate-ssot (no es un paso bloqueante).
 ---
 
 # Restricciones
-- **Nunca aplicar cambios sin confirmación explícita**
 - Si código y `.md` son inconsistentes, el código prevalece siempre
-- No modificar archivos en `sessions/` — los tests son fuente de verdad de comportamiento
-- No tocar `src/interfaces/data.ts` o `src/interfaces/auth.ts` sin que el desarrollador lo pida explícitamente
+- No modificar archivos en `@sessions/` — los tests son fuente de verdad de comportamiento
+- No tocar `@src/interfaces/data.ts` o `src/interfaces/auth.ts` sin que el desarrollador lo pida explícitamente
 
 # Output esperado
-- `.claude/doc-update-suggestions.md` — solo sugerencias, sin cambios aplicados
+- `@docs/doc-update-suggestions.md` — solo sugerencias, sin cambios aplicados

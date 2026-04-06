@@ -85,11 +85,11 @@ Capturar todo el output como contexto de análisis.
 ### Paso 3 — Leer contexto del proyecto
 
 Leer los siguientes archivos si existen en la raíz del repositorio:
-- `README.md` — propósito del proyecto, módulos, flujos críticos
-- `CLAUDE.md` — convenciones del proyecto, naming, arquitectura
-- `package.json` o equivalente — nombre del proyecto, scripts
+- `@README.md` — propósito del proyecto, módulos, flujos críticos
+- `@.claude/CLAUDE.md` — convenciones del proyecto, nomenclatura, arquitectura
+- `@package.json` o equivalente — nombre del proyecto, scripts
 
-Usar este contexto para enriquecer los cuerpos de commit con vocabulario específico del proyecto y referencias a módulos reales.
+Usar este contexto para enriquecer los cuerpos del commit con vocabulario específico del proyecto y referencias a módulos reales.
 
 ---
 
@@ -107,12 +107,13 @@ Agrupar los archivos en **conjuntos temáticamente cohesivos**. Criterios de agr
 - Archivos de tests → pueden ir con el feature que testean, o separados si son múltiples suites
 
 **Regla de atomicidad:** cada commit debe poder revertirse sin romper otro commit del mismo batch. Si dos grupos de cambios son interdependientes, van en el mismo commit.
+Si tenemos cambios que pueden ir juntos, deben de ir juntos. **NO** generar muchos commits para cosas que pueden organizarse en uno solo. 
 
 Determinar el orden lógico de los commits (dependencias primero).
 
 ---
 
-### Paso 5 — Redactar los mensajes de commit
+### Paso 5 — Redactar los mensajes de los commits
 
 Para cada grupo, redactar un mensaje con la siguiente estructura:
 
@@ -156,30 +157,7 @@ Archivos clave: <lista de los archivos más relevantes del grupo>
 
 ---
 
-### Paso 6 — Mostrar el plan completo
-
-Antes de ejecutar, mostrar al usuario el plan completo:
-
-```
-📋 Plan de commits ({N} commits identificados):
-
-COMMIT 1/{N}
-Tipo: feat(posts)
-Título: implementar handler de publicación masiva
-Módulo: Posts / Bulk Operations
-Impacto: Cobertura de flujos de publicación masiva desde tabla principal
-Archivos a stagear: src/pages/MainPostPage.ts, src/handlers/BulkPublishHandler.ts
-
-COMMIT 2/{N}
-Tipo: docs(skills)
-Título: agregar skill smart-commit para estandarización de commits
-...
-
-```
-
----
-
-### Paso 7 — Ejecutar el staging y los commits
+### Paso 6 — Ejecutar el staging y los commits
 
 Para cada commit en el orden determinado en el Paso 4:
 
@@ -200,7 +178,7 @@ Capturar el output de cada `git commit` para verificar que se ejecutó correctam
 
 ---
 
-### Paso 8 — Push opcional
+### Paso 7 — Push opcional
 
 **Solo si `PUSH=true`:**
 
@@ -218,7 +196,7 @@ Capturar el output completo.
 
 ---
 
-### Paso 9 — Confirmar al usuario
+### Paso 8 — Confirmar al usuario
 
 Mostrar resumen final:
 
@@ -234,41 +212,29 @@ Push ejecutado: [Sí → origin/<rama> / No]
 {hash corto} docs(skills): agregar skill smart-commit para estandarización de commits
 ...
 
-💡 Tip: Estos commits están listos para ser procesados por la Skill commit-report.
+	Estos commits están listos para ser procesados por la Skill commit-report.
     Ejecutá "generá el reporte de avance" cuando quieras el correo de avance.
 ```
 
 ---
 
-### Paso 10 — Auditoría documental automática post-commit
+### Paso 9 — Auditoría documental automática post-commit
 
-Después de confirmar que todos los commits fueron exitosos (Paso 9), ejecutar automáticamente
+Después de confirmar que todos los commits fueron exitosos (Paso 8), ejecutar automáticamente
 la skill `sync-docs` sobre los commits recién generados. Este paso se ejecuta **siempre**,
 independientemente del parámetro `--push`.
 
 1. Leer `.claude/pending-doc-updates.json` y filtrar las entradas cuyos hashes coincidan
-   con los capturados en el Paso 7 (los commits recién generados)
+   con los capturados en el Paso 6 (los commits recién generados)
 2. Para cada commit pendiente, obtener el diff con `git show <hash> -- <archivos>`
 3. Ejecutar el análisis de sync-docs (Pasos 2 a 5 de esa skill)
-4. Escribir las sugerencias en `.claude/doc-update-suggestions.md` en **modo append**
+4. Si hay sugerencias, escribirlas en `@docs/doc-update-suggestions.md` en **modo append**
    (no sobreescribir — pueden existir sugerencias de commits anteriores)
-5. Mostrar el resumen de sugerencias al desarrollador
-6. Preguntar: *"¿Aplicamos alguna de estas actualizaciones ahora?"*
-
-**Si el desarrollador confirma cambios:**
-- Aplicarlos inmediatamente (Paso 6 de sync-docs)
-- Generar un commit adicional de tipo `docs(...)` con esos cambios usando el mismo
+5. Aplicarlo inmediatamente el documento generado (Paso 6 de sync-docs)
+6. Generar un commit adicional de tipo `docs(...)` con esos cambios usando el mismo
   formato de mensaje que el Paso 5 de esta skill
-- Marcar las entradas correspondientes como `reviewed` en `pending-doc-updates.json`
+7. Marcar las entradas correspondientes como `reviewed` en `pending-doc-updates.json`
   (Paso 7 de sync-docs)
-
-**Si el desarrollador pospone:**
-- Mostrar recordatorio:
-  ```
-  📋 Tenés N commit(s) pendiente(s) en .claude/pending-doc-updates.json
-     Podés revisarlos después con: "sync-docs"
-  ```
-- No marcar como reviewed — el pre-commit guard avisará si supera las 4 horas
 
 ---
 
@@ -334,11 +300,3 @@ Esta skill está diseñada para que su output sea consumido directamente por `co
 1. Al terminar el trabajo del día: `"generar commits"` (sin push, para revisar)
 2. Al confirmar: `"generar commits con push"` (o push manual)
 3. Cuando quieras reportar: `"generá el reporte de avance"` → consume los commits del período que indiques (hoy, últimos N días, etc.)
-
----
-
-# NOTAS DE MANTENIMIENTO
-
-- Para agregar nuevos patrones de módulo, editar la **TABLA DE TRADUCCIÓN** del Paso 5.
-- Para cambiar el comportamiento por defecto del push, modificar el valor de `PUSH` en el Paso 1.
-- Versionar este archivo en el repositorio junto con `commit-report`. Ambas skills son parte del mismo tooling.

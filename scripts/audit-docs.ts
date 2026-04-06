@@ -1,6 +1,5 @@
 import { Project } from "ts-morph";
 import * as fs from "fs";
-import * as path from "path";
 import { glob } from "glob";
 
 interface AuditEntry {

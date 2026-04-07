@@ -58,21 +58,27 @@ Antes de leer archivos, determinar el modo de procesamiento del commit usando el
 - **Archivo en `.claude/skills/`**: clasificar como **visibility-only**. Sin lectura de `.ts` ni revisión profunda. Registrar como "skill-doc revisado, sin acción requerida."
 - **Cambio de visibilidad únicamente** (`private` → `public`): el diff es suficiente, no leer el `.ts`
 
-## Paso 2b — Identificar cambios de contrato público (solo MODO COMPLETO)
+## Paso 2b — Identificar cambios de contrato público y dead imports (solo MODO COMPLETO)
 Del diff de cada commit, identificar específicamente:
 - Funciones o métodos con firma modificada en `src/pages/` o `src/core/`
 - Interfaces o tipos modificados en `src/interfaces/`
 - Exports nuevos o eliminados
 - Cambios en constructores de Page Objects (especialmente la firma `driver, opts`)
+- **Imports potencialmente muertos:** cuando el diff muestra líneas eliminadas que contenían llamadas
+  a funciones importadas, verificar si esa importación sigue siendo usada en algún otro lugar del archivo.
+  Señal concreta: si el diff elimina la única llamada a `foo(...)` y `foo` está en los imports, es dead import.
 
 Clasificar cada cambio:
 - **Cambio estructural** (nueva firma, rename, nuevo método, tipo modificado): leer el `.ts`
+- **Dead import candidato**: anotar para verificar en Paso 3
 
-## Paso 3 — Verificar JSDoc de los archivos afectados (solo MODO COMPLETO)
-Para cada archivo con cambio estructural:
-1. Leer el JSDoc actual del archivo `.ts` afectado
+## Paso 3 — Verificar JSDoc y dead imports de los archivos afectados (solo MODO COMPLETO)
+Para cada archivo con cambio estructural o dead import candidato:
+1. Leer el archivo `.ts` afectado completo
 2. Verificar si el JSDoc refleja el estado nuevo de la firma
 3. Verificar si los `@param`, `@returns` y `@throws` son consistentes con el código actual
+4. **Para dead import candidatos:** verificar que el símbolo importado NO aparece en ningún uso
+   en el resto del archivo (búsqueda visual en el código leído). Si no aparece → confirmar como dead import.
 
 > **Optimización:** lanzar todas las lecturas de archivos `.ts` independientes entre sí en paralelo
 > (múltiples `Read` en un solo mensaje). No esperar el resultado de uno para leer el siguiente.
@@ -97,6 +103,9 @@ Por cada caso: archivo afectado, nombre de función/clase, descripción del prob
 **Sección PRIORIDAD MEDIA — .md con referencia desactualizada:**
 Por cada caso: archivo afectado, sección, descripción del problema, cambio sugerido.
 
+**Sección PRIORIDAD ALTA — Imports muertos post-refactor:**
+Por cada caso: archivo afectado, símbolo importado, motivo por el que es dead import, línea de import a eliminar.
+
 **Sección Sin cambios necesarios:**
 Lista de archivos revisados que están OK.
 
@@ -111,6 +120,11 @@ Aplicar todas las sugerencias identificadas sin pedir confirmación:
 
 Si la skill fue invocada desde smart-commit (Paso 9): generar un commit `docs(...)` con los cambios,
 usando el mismo formato de mensaje del Paso 5 de smart-commit.
+Usar `--no-verify` en este commit para evitar que el hook pre-commit registre los archivos del docs-commit
+como pendientes de revisión documental (el docs-commit ES el resultado de la revisión — no necesita revisión):
+```bash
+git commit --no-verify -m "docs(...): ..."
+```
 
 Si no hay cambios que aplicar: informar brevemente y continuar al Paso 7.
 

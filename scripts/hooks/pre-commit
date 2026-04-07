@@ -71,6 +71,39 @@ except Exception:
   fi
 fi
 
+# --- Purgar entradas __PENDING__ huérfanas (> 10 min sin resolver) ---
+# Si pre-commit corrió pero el commit fue abortado, post-commit nunca resolvió el __PENDING__.
+# Estas entradas son ruido y se purgan antes de agregar la nueva.
+if [ -f "$PENDING_PATH" ]; then
+  python3 -c "
+import json, os
+from datetime import datetime, timezone, timedelta
+
+pending_path = '$PENDING_PATH'
+try:
+    with open(pending_path) as f:
+        data = json.load(f)
+    commits = data.get('pendingCommits', [])
+    now = datetime.now(timezone.utc)
+    threshold = timedelta(minutes=10)
+    cleaned = []
+    for c in commits:
+        if c.get('hash') == '__PENDING__':
+            try:
+                ts = datetime.fromisoformat(c['timestamp'].replace('Z', '+00:00'))
+                if now - ts > threshold:
+                    continue  # purgar entrada huérfana
+            except Exception:
+                continue
+        cleaned.append(c)
+    data['pendingCommits'] = cleaned
+    with open(pending_path, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+except Exception:
+    pass
+" 2>/dev/null
+fi
+
 # --- Acumular nueva entrada en pending-doc-updates.json ---
 # Convertir array bash a JSON usando python
 FILES_JSON_ARRAY=$(python3 -c "import json, sys; print(json.dumps(sys.argv[1:]))" "${CHANGED_FILES[@]}")

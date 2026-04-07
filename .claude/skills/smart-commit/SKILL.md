@@ -107,7 +107,14 @@ Agrupar los archivos en **conjuntos temáticamente cohesivos**. Criterios de agr
 - Archivos de tests → pueden ir con el feature que testean, o separados si son múltiples suites
 
 **Regla de atomicidad:** cada commit debe poder revertirse sin romper otro commit del mismo batch. Si dos grupos de cambios son interdependientes, van en el mismo commit.
-Si tenemos cambios que pueden ir juntos, deben de ir juntos. **NO** generar muchos commits para cosas que pueden organizarse en uno solo. 
+Si tenemos cambios que pueden ir juntos, deben de ir juntos. **NO** generar muchos commits para cosas que pueden organizarse en uno solo.
+
+**Filtro whitespace-only — obligatorio antes de agrupar:**
+Antes de asignar cualquier archivo a un grupo, verificar si su diff contiene únicamente cambios de
+whitespace (líneas en blanco agregadas/eliminadas, espacios/tabs sin cambio de contenido).
+- Si el diff de un archivo consiste **exclusivamente** en líneas vacías o espacios: **excluir** ese archivo de todos los grupos y no incluirlo en ningún commit.
+- Si el diff mezcla whitespace con cambios reales: incluirlo normalmente.
+- Informar al usuario si algún archivo fue excluido por este motivo.
 
 Determinar el orden lógico de los commits (dependencias primero).
 
@@ -235,6 +242,8 @@ independientemente del parámetro `--push`. No pedir confirmación al desarrolla
    formato de mensaje que el Paso 5 de esta skill
 7. Marcar las entradas correspondientes como `reviewed` en `pending-doc-updates.json`
    (Paso 7 de sync-docs)
+8. **Si `PUSH=true`:** ejecutar push del commit `docs(...)` a los mismos remotos del Paso 7.
+   No pedir confirmación — el usuario ya autorizó el push al invocar con `--push`.
 
 Si no hay sugerencias de sync-docs, omitir el commit `docs(...)` e informar brevemente.
 

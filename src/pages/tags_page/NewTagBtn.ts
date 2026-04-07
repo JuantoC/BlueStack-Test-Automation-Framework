@@ -33,13 +33,8 @@ export class NewTagBtn {
    */
   async clickNewTag(): Promise<void> {
     try {
-      logger.debug('Esperando que el botón "Nuevo Tag" esté disponible...', { label: this.config.label });
-      const btn = await waitFind(this.driver, NewTagBtn.NEW_TAG_BTN, this.config);
-      await waitEnabled(this.driver, btn, this.config);
-      await waitVisible(this.driver, btn, this.config);
-
       logger.debug('Clickeando en "Nuevo Tag"...', { label: this.config.label });
-      await clickSafe(this.driver, btn, this.config);
+      await clickSafe(this.driver, NewTagBtn.NEW_TAG_BTN, this.config);
       logger.debug('Click en "Nuevo Tag" ejecutado.', { label: this.config.label });
     } catch (error: unknown) {
       logger.error(`Error al clickear "Nuevo Tag": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });

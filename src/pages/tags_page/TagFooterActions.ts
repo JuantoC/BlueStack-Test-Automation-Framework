@@ -93,7 +93,7 @@ export class TagFooterActions {
       const disabled = await approveBtn.getAttribute('disabled');
       return disabled === null;
     } catch (error: unknown) {
-      logger.error(`Error al verificar el footer: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      logger.error(`El footer se encuentra deshabilitado: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

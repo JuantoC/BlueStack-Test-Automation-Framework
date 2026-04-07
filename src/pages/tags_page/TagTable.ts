@@ -24,12 +24,8 @@ export class TagTable {
   private readonly config: RetryOptions;
 
   private static readonly TAG_TABLE: Locator = By.css('div#tags-table-body');
-  private static readonly CHECKBOXES_IN_TABLE: Locator = By.css('div#tags-table-body mat-checkbox.checkbox');
-  /**
-   * FRAGILE: el elemento con el texto del tag no tiene un identificador estable en el DOM capturado.
-   * Verificar y reemplazar este selector en runtime inspeccionando el DOM de la fila.
-   */
-  private static readonly TAG_TITLE_IN_ROW: Locator = By.css('[data-testid="TODO_tag_title_text"]');
+  private static readonly CHECKBOXES: Locator = By.css('mat-checkbox.checkbox');
+  private static readonly TAG_TITLE_IN_ROW: Locator = By.css('div.cmsmedios-table-content-item');
 
   constructor(driver: WebDriver, opts: RetryOptions) {
     this.driver = driver;
@@ -45,7 +41,7 @@ export class TagTable {
    */
   async getTagContainerByIndex(index: number): Promise<WebElement> {
     try {
-      const rowLocator = By.css(`div[id="${index}-dropMenu"]`);
+      const rowLocator = By.xpath(`//div[@id="${index}-dropMenu"]/ancestor::div[@class='cmsmedios-table-body-item']`);
       logger.debug(`Buscando contenedor de tag en índice ${index}`, { label: this.config.label });
       return await waitFind(this.driver, rowLocator, { ...this.config, supressRetry: true });
     } catch (error: unknown) {
@@ -57,7 +53,6 @@ export class TagTable {
   /**
    * Busca en los primeros 10 tags hasta encontrar el que contiene el texto indicado.
    * Retorna el WebElement del contenedor de acciones (`div#N-dropMenu`) del tag encontrado.
-   * ⚠️ Requiere que `TAG_TITLE_IN_ROW` esté correctamente configurado con el selector real.
    *
    * @param title - Fragmento de texto del nombre del tag a buscar.
    * @returns {Promise<WebElement>} El contenedor de acciones del tag encontrado.
@@ -101,54 +96,24 @@ export class TagTable {
   async selectTagByIndex(index: number): Promise<void> {
     try {
       await this.waitUntilTableIsReady();
-      const checkboxes = await this.driver.findElements(TagTable.CHECKBOXES_IN_TABLE);
+      const tag = await this.getTagContainerByIndex(index);
+      const checkbox = await tag.findElements(TagTable.CHECKBOXES);
 
-      if (index >= checkboxes.length) {
-        throw new Error(`No existe checkbox en el índice ${index}. Total encontrados: ${checkboxes.length}`);
+      if (checkbox.length === 0) {
+        throw new Error(`No se encontró el checkbox para el tag en índice ${index}.`);
       }
 
-      const checkbox = checkboxes[index];
-      const classes = await checkbox.getAttribute('class');
-
+      const classes = await checkbox[0].getAttribute('class');
       if (classes && classes.includes('mat-mdc-checkbox-checked')) {
         logger.debug(`El tag en índice ${index} ya está seleccionado.`, { label: this.config.label });
         return;
       }
 
       logger.debug(`Seleccionando tag en índice ${index}...`, { label: this.config.label });
-      await clickSafe(this.driver, checkbox, this.config);
+      await clickSafe(this.driver, checkbox[0], this.config);
+
     } catch (error: unknown) {
       logger.error(`Error al seleccionar el tag en índice ${index}: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-      throw error;
-    }
-  }
-
-  /**
-   * Espera a que un nuevo tag recién creado aparezca en la primera posición de la tabla.
-   * ⚠️ Requiere que `TAG_TITLE_IN_ROW` esté correctamente configurado con el selector real.
-   *
-   * @param expectedTitle - Fragmento del nombre del tag que debe aparecer en la primera fila.
-   * @param timeoutMs - Tiempo máximo de espera en milisegundos. Por defecto 15000ms.
-   */
-  async waitForNewTagAtIndex0(expectedTitle: string, timeoutMs = 15000): Promise<void> {
-    try {
-      logger.debug(`Esperando que el nuevo tag "${expectedTitle}" aparezca en índice 0.`, { label: this.config.label });
-
-      await this.driver.wait(async () => {
-        try {
-          const container = await this.getTagContainerByIndex(0);
-          const titleElements = await container.findElements(TagTable.TAG_TITLE_IN_ROW);
-          if (titleElements.length === 0) return false;
-          const text = await titleElements[0].getText();
-          return text.includes(expectedTitle);
-        } catch {
-          return false;
-        }
-      }, timeoutMs, `Timeout: el tag "${expectedTitle}" no apareció en índice 0.`);
-
-      logger.debug(`Tag "${expectedTitle}" detectado en índice 0.`, { label: this.config.label });
-    } catch (error: unknown) {
-      logger.error(`Error en waitForNewTagAtIndex0: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

@@ -5,6 +5,7 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { writeToStandard } from "../../core/helpers/write.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
+import { writeSafe } from "../../core/actions/writeSafe.js";
 
 /**
  * Page Object que encapsula el filtro alfabético y el campo de búsqueda de la tabla de tags.
@@ -64,8 +65,7 @@ export class TagAlphaFilter {
   async searchByText(text: string): Promise<void> {
     try {
       logger.debug(`Buscando tag por texto: "${text}"`, { label: this.config.label });
-      const input = await waitFind(this.driver, TagAlphaFilter.SEARCH_INPUT, this.config);
-      await writeToStandard(input, text, this.config.label);
+      await writeSafe(this.driver, TagAlphaFilter.SEARCH_INPUT, text, this.config);
       logger.debug(`Búsqueda "${text}" ejecutada.`, { label: this.config.label });
     } catch (error: unknown) {
       logger.error(`Error al buscar por texto "${text}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });

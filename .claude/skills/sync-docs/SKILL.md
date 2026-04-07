@@ -50,6 +50,7 @@ Del diff de cada commit, identificar específicamente:
 - Cambios en constructores de Page Objects (especialmente la firma `driver, opts`)
 
 Clasificar cada cambio antes de leer archivos:
+- **Archivo en `.claude/skills/`** (cualquier SKILL.md u otro `.md` de skill): clasificar siempre como **visibility-only**. Son instrucciones al agente, no contratos de código. No leer el `.ts` asociado ni hacer lectura profunda. Registrar en el output como "skill-doc revisado, sin acción requerida."
 - **Cambio de visibilidad únicamente** (`private` → `public` o viceversa): el diff es suficiente, no leer el `.ts`
 - **Cambio estructural** (nueva firma, rename, nuevo método, tipo modificado): leer el `.ts`
 

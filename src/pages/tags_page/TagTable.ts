@@ -11,7 +11,7 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
 /**
  * Page Object que representa la tabla de tags del CMS.
  * Centraliza las operaciones sobre las filas de la tabla: búsqueda por índice,
- * selección de tags y espera de nuevos registros post-creación.
+ * selección de tags por checkbox y búsqueda por título.
  * Usado por `MainTagsPage` como capa de acceso a los datos tabulares.
  *
  * @example

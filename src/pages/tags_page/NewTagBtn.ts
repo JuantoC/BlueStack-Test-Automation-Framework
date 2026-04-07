@@ -28,8 +28,8 @@ export class NewTagBtn {
   }
 
   /**
-   * Espera a que el botón "Nuevo Tag" del sidebar esté listo e interactuable,
-   * y hace click sobre él para abrir el modal de creación.
+   * Hace click sobre el botón "Nuevo Tag" del sidebar para abrir el modal de creación.
+   * La espera e interacción son gestionadas internamente por `clickSafe`.
    */
   async clickNewTag(): Promise<void> {
     try {

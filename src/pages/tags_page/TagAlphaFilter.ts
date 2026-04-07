@@ -2,10 +2,8 @@ import { By, Locator, WebDriver } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import logger from "../../core/utils/logger.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
-import { waitFind } from "../../core/actions/waitFind.js";
-import { writeToStandard } from "../../core/helpers/write.js";
-import { getErrorMessage } from "../../core/utils/errorUtils.js";
 import { writeSafe } from "../../core/actions/writeSafe.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Page Object que encapsula el filtro alfabético y el campo de búsqueda de la tabla de tags.
@@ -58,7 +56,7 @@ export class TagAlphaFilter {
 
   /**
    * Escribe el texto indicado en el campo de búsqueda de la tabla de tags.
-   * Espera a que el input esté disponible antes de escribir.
+   * La espera, limpieza e interacción son gestionadas internamente por `writeSafe`.
    *
    * @param text - Texto a buscar en la tabla de tags.
    */

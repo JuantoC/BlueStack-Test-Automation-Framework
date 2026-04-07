@@ -42,19 +42,33 @@ git show <hash> -- <archivo1> <archivo2> ...
 git diff HEAD~1 HEAD -- '*.ts' '*.tsx'
 ```
 
-## Paso 2 — Identificar cambios de contrato público
+## Paso 2 — Clasificar el tipo de commit antes de leer cualquier archivo
+
+Antes de leer archivos, determinar el modo de procesamiento del commit usando el título:
+
+**MODO FAST-TRACK** — activar cuando el título empiece con `feat(` o `fix(` **y** el diff muestre exclusivamente archivos nuevos (solo líneas `+`, sin `@@` de modificación en archivos existentes):
+- **No leer** los archivos `.ts` nuevos para verificar JSDoc (fue escrito al momento de crear el código)
+- **Sí verificar** únicamente: `src/pages/README.md` (árbol de directorios y tabla de tipos) y `README.md` raíz si el módulo es nuevo
+- Registrar todos los archivos nuevos como "creado con JSDoc, sin verificación profunda requerida"
+
+**MODO COMPLETO** — activar para todo lo demás (modificaciones, refactors, renames):
+- Continuar con los pasos 2b y 3 normalmente
+
+**Clasificaciones siempre aplicables (independiente del modo):**
+- **Archivo en `.claude/skills/`**: clasificar como **visibility-only**. Sin lectura de `.ts` ni revisión profunda. Registrar como "skill-doc revisado, sin acción requerida."
+- **Cambio de visibilidad únicamente** (`private` → `public`): el diff es suficiente, no leer el `.ts`
+
+## Paso 2b — Identificar cambios de contrato público (solo MODO COMPLETO)
 Del diff de cada commit, identificar específicamente:
 - Funciones o métodos con firma modificada en `src/pages/` o `src/core/`
 - Interfaces o tipos modificados en `src/interfaces/`
 - Exports nuevos o eliminados
 - Cambios en constructores de Page Objects (especialmente la firma `driver, opts`)
 
-Clasificar cada cambio antes de leer archivos:
-- **Archivo en `.claude/skills/`** (cualquier SKILL.md u otro `.md` de skill): clasificar siempre como **visibility-only**. Son instrucciones al agente, no contratos de código. No leer el `.ts` asociado ni hacer lectura profunda. Registrar en el output como "skill-doc revisado, sin acción requerida."
-- **Cambio de visibilidad únicamente** (`private` → `public` o viceversa): el diff es suficiente, no leer el `.ts`
+Clasificar cada cambio:
 - **Cambio estructural** (nueva firma, rename, nuevo método, tipo modificado): leer el `.ts`
 
-## Paso 3 — Verificar JSDoc de los archivos afectados
+## Paso 3 — Verificar JSDoc de los archivos afectados (solo MODO COMPLETO)
 Para cada archivo con cambio estructural:
 1. Leer el JSDoc actual del archivo `.ts` afectado
 2. Verificar si el JSDoc refleja el estado nuevo de la firma

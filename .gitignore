@@ -17,3 +17,6 @@ test/
 .claude/settings.local.json
 
 docs/
+
+# Windows/WSL2 alternate data streams
+*:Zone.Identifier

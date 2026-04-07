@@ -2,12 +2,6 @@
 
 PENDING_PATH=".claude/pending-doc-updates.json"
 
-# Filtrar commits de docs para evitar el loop circular (sync-docs genera commits docs(...))
-COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
-if echo "$COMMIT_MSG" | grep -qE "^docs\("; then
-  exit 0
-fi
-
 # Si no hay archivo de pendientes, salir
 if [ ! -f "$PENDING_PATH" ]; then
   exit 0
@@ -32,28 +26,46 @@ fi
 
 HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
 
-# Actualizar el primer __PENDING__ con el hash real
-PENDING_PATH="$PENDING_PATH" HASH="$HASH" TIMESTAMP="$TIMESTAMP" python3 -c "
+# Commits de documentación o mantenimiento no tienen cambios funcionales que revisar.
+# Se registran como 'reviewed' directamente para no acumular deuda documental falsa.
+IS_DOC_COMMIT="no"
+if echo "$COMMIT_MSG" | grep -qE "^(docs|chore)\("; then
+  IS_DOC_COMMIT="yes"
+fi
+
+# Actualizar el ÚLTIMO __PENDING__ con el hash real.
+# pre-commit siempre hace append al final, entonces el __PENDING__ más reciente
+# está al final del array. Iterar en reverso evita pisar entradas huérfanas
+# de sesiones anteriores que quedaron sin resolver.
+PENDING_PATH="$PENDING_PATH" HASH="$HASH" TIMESTAMP="$TIMESTAMP" IS_DOC_COMMIT="$IS_DOC_COMMIT" python3 -c "
 import json, os
 
 pending_path = os.environ['PENDING_PATH']
 hash_val = os.environ['HASH']
 timestamp = os.environ['TIMESTAMP']
+is_doc = os.environ['IS_DOC_COMMIT'] == 'yes'
 
 with open(pending_path) as f:
     data = json.load(f)
 
-for c in data.get('pendingCommits', []):
+commits = data.get('pendingCommits', [])
+for c in reversed(commits):
     if c.get('hash') == '__PENDING__':
         c['hash'] = hash_val
         c['timestamp'] = timestamp
-        c['status'] = 'pending'
-        break  # solo el primero (el más reciente del pre-commit)
+        c['status'] = 'reviewed' if is_doc else 'pending'
+        break  # solo el más reciente (el último en el array)
 
 with open(pending_path, 'w') as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 " 2>/dev/null
+
+# No mostrar notificación para commits de docs/chore (sin deuda documental generada)
+if [ "$IS_DOC_COMMIT" = "yes" ]; then
+  exit 0
+fi
 
 echo ""
 echo "📝 Post-commit: Commit $HASH registrado en pending-doc-updates.json"

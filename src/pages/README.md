@@ -3,7 +3,7 @@
 @scope: module
 @audience: both
 @related: ../../README.md, ../../src/interfaces/data.ts
-@last-reviewed: 2026-03-29
+@last-reviewed: 2026-04-07
 @summary: Especificación autoritativa de la capa Page Object (POM) del framework: arquitectura two-layer facade, contratos de constructor/método, naming, tipos y utilidades compartidas.
 -->
 
@@ -85,6 +85,14 @@ src/pages/
 │   └── images_editor_page/
 │       ├── MainEditorPage.ts      # Maestro del editor de imágenes
 │       └── EditorHeaderActions.ts # Acciones del header (guardar, publicar, salir)
+├── tags_page/
+│   ├── MainTagsPage.ts            # Maestro — creación, acciones, selección masiva, filtrado
+│   ├── NewTagBtn.ts
+│   ├── NewTagModal.ts             # fillAndCreate + campos opcionales (descripción, sinónimos, tipo, estado)
+│   ├── TagActions.ts              # TagActionType type (PREVIEW, DELETE, EDIT, DISAPPROVE, APPROVE)
+│   ├── TagAlphaFilter.ts          # Filtro A-Z y búsqueda por texto libre
+│   ├── TagFooterActions.ts        # TagFooterActionType type (APPROVE, DISAPPROVE, DELETE)
+│   └── TagTable.ts                # Acceso a filas por índice, selección por checkbox, búsqueda por título
 └── user_profile_page/
 ```
 
@@ -211,6 +219,9 @@ await clickSafe(this.driver, EditorHeaderActions.SAVE_BTN, this.config);
 | `SidebarOption` | `src/pages/SidebarAndHeaderSection.ts` |
 | `LiveBlogData` | `src/pages/post_page/note_editor_page/note_list/BaseListicleSection.ts` |
 | `NoteData`, `VideoData`, `AINoteData` | `src/interfaces/data.ts` |
+| `TagData` | `src/interfaces/data.ts` |
+| `TagActionType` | `src/pages/tags_page/TagActions.ts` |
+| `TagFooterActionType` | `src/pages/tags_page/TagFooterActions.ts` |
 | `AuthCredentials`, `LoginAttemptResult` | `src/pages/login_page/login.types.ts` |
 
 New symbols → most specific file that owns the concept. Cross-cutting → `src/interfaces/data.ts`.

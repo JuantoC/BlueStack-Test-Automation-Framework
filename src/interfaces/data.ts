@@ -161,6 +161,24 @@ export interface AIDataNote {
 }
 
 /**
+ * Datos para la creación de un nuevo tag en el Gestor de Tags del CMS.
+ * El campo `title` es obligatorio. Los demás son opcionales y solo se interactúan
+ * si están presentes en el objeto de datos.
+ */
+export interface TagData {
+  /** Nombre del tag (campo obligatorio). */
+  title: string;
+  /** Descripción corta del tag (CKEditor). */
+  description?: string;
+  /** Lista de sinónimos del tag; cada uno se confirma con Enter en el chip input. */
+  synonyms?: string[];
+  /** Tipo del tag (mat-select "Tipo" en el panel de Configuración). Ej: 'tags_gammers'. */
+  tipo?: string;
+  /** Estado del tag (mat-select "Estado"). Ej: 'Aprobados', 'Desaprobados'. */
+  estado?: string;
+}
+
+/**
  * Datos para la subida de una imagen nativa al CMS.
  * No existe distinción de tipos de imagen equivalente a `VideoType`:
  * el único flujo soportado es la subida de archivo local vía `input[type="file"]`.

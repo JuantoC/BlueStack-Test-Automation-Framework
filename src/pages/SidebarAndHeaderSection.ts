@@ -5,6 +5,9 @@ import logger from "../core/utils/logger.js";
 import { clickSafe } from "../core/actions/clickSafe.js";
 import { retry } from "../core/wrappers/retry.js";
 import { getErrorMessage } from "../core/utils/errorUtils.js";
+import { waitClickable } from "../core/helpers/waitClickable.js";
+import { waitFind } from "../core/actions/waitFind.js";
+import { waitVisible } from "../core/actions/waitVisible.js";
 
 export type SidebarOption = keyof typeof SidebarAndHeader.SIDEBAR_MAP;
 
@@ -24,6 +27,7 @@ export class SidebarAndHeader {
   private config: RetryOptions;
 
   private static readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
+  private static readonly SUBMENU_MULTIMEDIA_LOCATOR: Locator = By.css('a[title="Multimedia"] ul.sidebar-subnav');
 
   public static readonly SIDEBAR_MAP = {
     COMMENTS: By.css('a[title="Comentarios"]'),
@@ -81,6 +85,8 @@ export class SidebarAndHeader {
       try {
         logger.debug(`Ejecutando click en el botón de multimedia para ir a ${action}...`, { label: newConfig.label })
         await clickSafe(this.driver, SidebarAndHeader.MULTIMEDIA_FILE_BTN, newConfig)
+        const menu = await waitFind(this.driver, SidebarAndHeader.SUBMENU_MULTIMEDIA_LOCATOR, newConfig)
+        await waitVisible(this.driver, menu, newConfig)
         await clickSafe(this.driver, SidebarAndHeader.SIDEBAR_MAP[action], newConfig)
       } catch (error: unknown) {
         throw error;

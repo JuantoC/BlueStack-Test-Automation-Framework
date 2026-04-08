@@ -147,7 +147,7 @@ export abstract class BaseListicleSection {
         logger.debug(`Slot para ítem #${i + 1} creado`, { label: this.config.label });
       }
 
-      // 3. Poblar datos (orden DOM real) 
+      // 3. Poblar datos (orden DOM real)
       for (let i = 0; i < normalizedItems.length; i++) {
         const uiIndex = i + 1;
         const item = normalizedItems[i];
@@ -156,6 +156,10 @@ export abstract class BaseListicleSection {
 
         if (item.title) {
           const titleLoc = this.getFieldLocator(uiIndex, 'title');
+          // Guardia de expansión: esperar que el textarea sea accesible antes de escribir.
+          // toggleExpansion solo dispara el click; el render de Angular puede tardar más que
+          // el timeout estándar de writeSafe (5s), causando un timeout prematuro.
+          await waitFind(this.driver, titleLoc, { ...this.config, timeoutMs: 10000, supressRetry: true });
           await writeSafe(this.driver, titleLoc, item.title, this.config);
         }
 

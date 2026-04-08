@@ -163,12 +163,58 @@ export async function startToastMonitoring(
                 res();
                 return;
               }
+
+              let settled = false;
+
+              // Fallback: polling DOM cada 300ms para capturar toasts que el CDP binding
+              // perdió por la race condition en Page.loadEventFired (ventana sin Observer activo).
+              const pollInterval = setInterval(async () => {
+                if (settled) return;
+                try {
+                  const found = await driver.executeScript(
+                    "return !!document.querySelector('.toast-success');"
+                  ) as boolean;
+                  if (found && !settled) {
+                    settled = true;
+                    clearInterval(pollInterval);
+                    clearTimeout(timer);
+                    logger.debug('[ToastMonitor] waitForSuccess: toast detectado via DOM polling fallback', { label });
+                    res();
+                  }
+                } catch {
+                  // ignorar: stale context, DOM no disponible, etc.
+                }
+              }, 300);
+
               const timer = setTimeout(() => {
-                rej(new Error(
-                  `[ToastMonitor] waitForSuccess: No se detectó toast de éxito en ${timeoutMs}ms.`
-                ));
+                if (!settled) {
+                  settled = true;
+                  clearInterval(pollInterval);
+                  rej(new Error(
+                    `[ToastMonitor] waitForSuccess: No se detectó toast de éxito en ${timeoutMs}ms.`
+                  ));
+                }
               }, timeoutMs);
-              successWaiters.push({ resolve: res, reject: rej, timer });
+
+              successWaiters.push({
+                resolve: () => {
+                  if (!settled) {
+                    settled = true;
+                    clearInterval(pollInterval);
+                    clearTimeout(timer);
+                    res();
+                  }
+                },
+                reject: (e: Error) => {
+                  if (!settled) {
+                    settled = true;
+                    clearInterval(pollInterval);
+                    clearTimeout(timer);
+                    rej(e);
+                  }
+                },
+                timer
+              });
             }),
 
             stop: async (): Promise<ToastSummary> => {
@@ -246,16 +292,11 @@ export async function startToastMonitoring(
             }
           }
 
-          // b) Navegación: resetear flag y re-inyectar el Observer en el nuevo DOM
+          // b) Navegación: re-inyectar el Observer en el nuevo DOM.
+          // OBSERVER_SCRIPT ya resetea __bsToastObserverActive__ internamente → un solo mensaje CDP
+          // para minimizar la ventana de race condition entre loadEventFired y la aparición del toast.
           if (msg.method === 'Page.loadEventFired') {
-            const resetId = reinjectionCounter++;
             const injectId = reinjectionCounter++;
-            ws.send(JSON.stringify({
-              id: resetId,
-              method: "Runtime.evaluate",
-              params: { expression: "window.__bsToastObserverActive__ = false;" },
-              sessionId: attachedSessionId
-            }));
             ws.send(JSON.stringify({
               id: injectId,
               method: "Runtime.evaluate",

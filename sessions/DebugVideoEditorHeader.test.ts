@@ -1,7 +1,3 @@
-// ⚠️ DEBUG SESSION — Reemplazar el valor de DEBUG_VIDEO_TITLE con el título
-// (o fragmento de título) de un video real existente en la tabla antes de ejecutar.
-const DEBUG_VIDEO_TITLE = 'DEBUG — reemplazar con título real';
-
 runSession("Debug — Video Editor Header Actions", async ({ driver, opts, log }) => {
 
   description(`
@@ -37,7 +33,7 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
 
   await sidebar.goToComponent('VIDEOS');
 
-  const videoContainer = await videoPage.table.getVideoContainerByTitle(DEBUG_VIDEO_TITLE);
+  const videoContainer = await videoPage.table.getVideoContainerByIndex(0);
 
   await step('Entrar al editor — acción inicial', async () => {
     await videoPage.clickOnActionVideo(videoContainer, 'EDIT');
@@ -51,7 +47,7 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
     await videoEditor.closeNoteEditor('SAVE_AND_EXIT');
   });
 
-  const videoContainerFresh = await videoPage.table.getVideoContainerByTitle(DEBUG_VIDEO_TITLE);
+  const videoContainerFresh = await videoPage.table.getVideoContainerByIndex(0);
 
   await step('Re-entrar al editor tras SAVE_AND_EXIT', async () => {
     await videoPage.clickOnActionVideo(videoContainerFresh, 'EDIT');

@@ -91,7 +91,7 @@ Obtenido (frag): "...${actualSnippet}..."`
       }
 
     } catch (error: unknown) {
-      logger.debug('Error en la validacion del texto.')
+      logger.error(`Error en la validacion del texto: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
       throw error;
     }
   }, config);
@@ -135,3 +135,4 @@ import { stackLabel } from "../utils/stackLabel.js";
 import { RetryOptions } from "../config/defaultConfig.js";
 import { retry } from "../wrappers/retry.js";
 import logger from "../utils/logger.js";
+import { getErrorMessage } from "../utils/errorUtils.js";

@@ -23,7 +23,7 @@ export async function handleUpdateModal(driver: WebDriver, opts: RetryOptions = 
 
         // 2. Comprobamos si el overlay es realmente visible para el usuario
         if (await overlay.isDisplayed()) {
-            logger.warn(`[${label}] Overlay detectado y visible. Buscando botón de recarga...`);
+            logger.warn(`[${label}] Overlay detectado y visible. Buscando botón de recarga...`, { label });
 
             // 3. Buscamos el botón ESPECÍFICAMENTE dentro del overlay para evitar falsos positivos
             const updateButton = await overlay.findElement(updateBtnLocator);
@@ -33,12 +33,13 @@ export async function handleUpdateModal(driver: WebDriver, opts: RetryOptions = 
 
                 // 4. Esperamos a que el overlay desaparezca (staleness)
                 await driver.wait(until.stalenessOf(overlay), 10000);
-                logger.info(`[${label}] Modal procesado y removido con éxito.`);
+                logger.debug(`[${label}] Modal procesado y removido con éxito.`, { label });
                 return true;
             }
         }
     } catch (e) {
         // Si no encuentra el overlay o el botón, asumimos que no hay modal (flujo normal)
+        logger.debug(`Sin overlay activo (flujo normal).`, { label });
     }
 
     return false;

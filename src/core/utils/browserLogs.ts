@@ -1,6 +1,7 @@
 import { WebDriver, logging } from "selenium-webdriver";
 import logger from "./logger.js";
 import * as allure from "allure-js-commons";
+import { getErrorMessage } from "./errorUtils.js";
 
 /**
  * Extrae y reporta los errores de consola del navegador al finalizar un test.
@@ -32,6 +33,6 @@ export async function checkConsoleErrors(driver: WebDriver) {
             );
         }
     } catch (e) {
-        logger.warn(`No se pudieron extraer los logs de consola para ${label}.`, { label: label });
+        logger.error(`No se pudieron extraer los logs de consola para ${label}.`, { label: label, error: getErrorMessage(e) });
     }
 }

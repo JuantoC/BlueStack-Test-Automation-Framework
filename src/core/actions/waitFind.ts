@@ -2,6 +2,7 @@ import { WebDriver, until, WebElement, Locator, error } from "selenium-webdriver
 import { RetryOptions, resolveRetryConfig } from "../config/defaultConfig.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Localiza un elemento en el DOM esperando a que esté presente, con reintentos automáticos.
@@ -29,6 +30,7 @@ export async function waitFind<T extends WebElement = WebElement>(
       );
       return element as T;
     } catch (err) {
+      logger.error(`Error en waitFind: ${getErrorMessage(err)}`, { label: config.label, error: getErrorMessage(err) });
       throw err;
     }
   }, config);

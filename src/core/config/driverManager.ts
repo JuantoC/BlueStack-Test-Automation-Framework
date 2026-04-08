@@ -64,7 +64,7 @@ export async function initializeDriver(options: DriverOptions, opts: RetryOption
 
         return { driver, networkMonitor, toastMonitor };
     } catch (error: unknown) {
-        logger.error(`Fallo en inicialización: ${getErrorMessage(error)}`, { label: config.label });
+        logger.error(`Fallo en inicialización: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
         throw error;
     }
 }
@@ -89,7 +89,7 @@ export async function quitDriver(session: DriverSession | null, opts: RetryOptio
         logger.info('🏁 Sesión cerrada', { label: config.label });
     } catch (error: unknown) {
         if (!getErrorMessage(error).includes('NoSuchSession')) {
-            logger.warn(`Cierre parcial: ${getErrorMessage(error)}`, { label: config.label });
+            logger.error(`Cierre parcial: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
         }
     }
 }

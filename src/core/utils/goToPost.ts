@@ -32,13 +32,14 @@ export async function goToPost(
 
       await driver.navigate().to(url);
 
-      logger.info(`Navegación completada al post [ID: ${id}]`, {
+      logger.debug(`Navegación completada al post [ID: ${id}]`, {
         label: config.label
       });
 
     } catch (error: unknown) {
       logger.error(`Fallo en la navegación al post ${id}: ${getErrorMessage(error)}`, {
         label: config.label,
+        error: getErrorMessage(error),
         metadata: { url, id }
       });
 

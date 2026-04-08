@@ -5,6 +5,7 @@ import { stackLabel } from "../utils/stackLabel.js";
 import logger from "../utils/logger.js";
 import { waitFind } from "../actions/waitFind.js";
 import { waitClickable } from "../helpers/waitClickable.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Realiza un clic resistente a la inestabilidad del DOM (flakiness).
@@ -47,7 +48,7 @@ export async function clickSafe<T extends WebElement = WebElement>(
 
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'ElementClickInterceptedError') {
-        logger.debug(`Intercepción detectada. Posible toast bloqueante capturado por CDP monitor.`, { label: config.label });
+        logger.error(`Intercepción detectada. Posible toast bloqueante capturado por CDP monitor.`, { label: config.label, error: getErrorMessage(error) });
         throw error;
       }
       /* // 4. Contingencia Reactiva para el Modal de Angular
@@ -63,6 +64,7 @@ export async function clickSafe<T extends WebElement = WebElement>(
           throw staleError;
         }
       } */
+      logger.error(`Error en clickSafe: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
       throw error;
     }
   }, config);

@@ -4,6 +4,7 @@ import { waitVisible } from "../actions/waitVisible.js";
 import { waitEnabled } from "../actions/waitEnabled.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Valida que un elemento sea apto para recibir clics (Visible + Habilitado).
@@ -39,6 +40,7 @@ export async function waitClickable(
       if (err instanceof error.TimeoutError) {
         err.message = `El elemento no fue interactuable tras ${fullOpts.timeoutMs / 1000}s. ${err.message}`;
       }
+      logger.error(`Error en waitClickable: ${getErrorMessage(err)}`, { label: fullOpts.label, error: getErrorMessage(err) });
       throw err;
     }
   }, fullOpts);

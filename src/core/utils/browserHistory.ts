@@ -33,13 +33,14 @@ export async function browserHistory(
       await driver.navigate().forward();
     }
 
-    logger.info(`Navegación '${direction}' completada con éxito`, {
+    logger.debug(`Navegación '${direction}' completada con éxito`, {
       label: config.label
     });
 
   } catch (error: unknown) {
     logger.error(`Error al intentar navegar hacia ${direction}: ${getErrorMessage(error)}`, {
-      label: config.label
+      label: config.label,
+      error: getErrorMessage(error)
     });
     throw error;
   }

@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import { WebDriver } from "selenium-webdriver";
 import logger from "../utils/logger.js";
 import * as allure from "allure-js-commons";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 enum NetworkErrorCategory {
   SERVER_ERROR = "[SERVER 5xx]",
@@ -140,6 +141,7 @@ export async function startNetworkMonitoring(
       });
     });
   } catch (e) {
+    logger.debug(`CDP Network Monitor no disponible o error de inicialización: ${getErrorMessage(e)}`, { label });
     return null;
   }
 }

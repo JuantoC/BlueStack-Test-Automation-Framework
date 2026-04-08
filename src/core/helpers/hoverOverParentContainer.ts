@@ -62,7 +62,7 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
 
             } catch (innerErr: any) {
                 // Normal que falle en niveles bajos (ej. <li> ocultos)
-                logger.debug(`Fallo hover en nivel ${depth + 1} (probablemente no interactuable)`, { label: config.label });
+                logger.error(`Fallo hover en nivel ${depth + 1} (probablemente no interactuable): ${getErrorMessage(innerErr)}`, { label: config.label, error: getErrorMessage(innerErr) });
             }
 
             depth++;
@@ -72,7 +72,7 @@ export async function hoverOverParentContainer(driver: WebDriver, element: WebEl
         return false;
 
     } catch (err: unknown) {
-        logger.debug(`Error crítico durante hover recovery: ${getErrorMessage(err)}`, { label: config.label });
+        logger.error(`Error crítico durante hover recovery: ${getErrorMessage(err)}`, { label: config.label, error: getErrorMessage(err) });
         return false;
     }
 }

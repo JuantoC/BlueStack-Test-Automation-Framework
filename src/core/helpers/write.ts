@@ -31,7 +31,8 @@ export async function writeToEditable(
     const message = error instanceof Error ? error.message : String(error);
 
     logger.error(`Error en escritura editable: ${message}`, {
-      label: configLabel
+      label: configLabel,
+      error: getErrorMessage(error)
     });
 
     throw error;

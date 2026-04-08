@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 import { WebDriver } from "selenium-webdriver";
 import logger from "../utils/logger.js";
 import * as allure from "allure-js-commons";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Evento de toast capturado por el monitor CDP.
@@ -230,7 +231,7 @@ export async function startToastMonitoring(
                     'image/png'
                   );
                 } catch (screenshotErr) {
-                  logger.warn(`[ToastMonitor] No se pudo capturar screenshot del toast: ${screenshotErr}`, { label });
+                  logger.error(`[ToastMonitor] No se pudo capturar screenshot del toast: ${getErrorMessage(screenshotErr)}`, { label, error: getErrorMessage(screenshotErr) });
                 }
               } else {
                 logger.debug(`[ToastMonitor] Toast capturado: ${event.type} | ${event.title}`, { label });
@@ -241,7 +242,7 @@ export async function startToastMonitoring(
                 successWaiters = [];
               }
             } catch (e) {
-              logger.error(`[ToastMonitor] Error parseando payload del binding: ${e}`, { label });
+              logger.error(`[ToastMonitor] Error parseando payload del binding: ${getErrorMessage(e)}`, { label, error: getErrorMessage(e) });
             }
           }
 
@@ -271,6 +272,7 @@ export async function startToastMonitoring(
       });
     });
   } catch (e) {
+    logger.debug(`CDP Toast Monitor no disponible o error de inicialización: ${getErrorMessage(e)}`, { label });
     return null;
   }
 }

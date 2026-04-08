@@ -57,12 +57,13 @@ export async function retry<T>(
 
       // 2. Caso: Error Fatal (Configuración, sintaxis, etc.)
       if (category === ErrorCategory.FATAL) {
-        logger.error(`Fallo Crítico: No es posible reintentar. Motivo: ${errorMsg}`, { label });
+        logger.error(`Fallo Crítico: No es posible reintentar. Motivo: ${errorMsg}`, { label, error: errorMsg });
         throw err;
       }
 
       // 3. Caso: Límite de intentos alcanzado
       if (attempt >= retries) {
+        logger.error(`Reintentos agotados (${retries}): ${errorMsg}`, { label, error: errorMsg });
         throw err;
       }
 

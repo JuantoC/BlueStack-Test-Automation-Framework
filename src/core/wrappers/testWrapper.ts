@@ -112,12 +112,12 @@ export function runSession(
           const screenshot = await session.driver.takeScreenshot();
           await allure.attachment(`Fallo_Visual_${sessionLabel}`, Buffer.from(screenshot, 'base64'), 'image/png');
         } catch (scrErr) {
-          logger.error("No se pudo tomar screenshot del fallo.", { label: opts.label });
+          logger.error("No se pudo tomar screenshot del fallo.", { label: opts.label, error: getErrorMessage(scrErr) });
         }
       }
 
       const msg = (error as any).diff ? `${getErrorMessage(error)}\n>>> DIFF <<< ${(error as any).diff}` : getErrorMessage(error);
-      logger.error(`❌ FALLO CRÍTICO en ${opts.label}`, { label: opts.label, details: msg });
+      logger.error(`❌ FALLO CRÍTICO en ${opts.label}`, { label: opts.label, details: msg, error: getErrorMessage(error) });
 
       testError = error; // Guardamos para relanzar en finally, sin perderlo
 

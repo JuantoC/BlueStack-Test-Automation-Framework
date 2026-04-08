@@ -2,6 +2,7 @@ import { WebDriver, until, WebElement, error } from "selenium-webdriver";
 import { RetryOptions, resolveRetryConfig } from "../config/defaultConfig.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Verifica que el elemento no esté en estado `disabled` en el DOM.
@@ -33,7 +34,8 @@ export async function waitEnabled(
     } catch (err) {
       if (err instanceof error.TimeoutError) {
         logger.error(`Timeout: El elemento permaneció deshabilitado tras ${config.timeoutMs / 1000}s`, {
-          label: config.label
+          label: config.label,
+          error: getErrorMessage(err)
         });
       }
       throw err;

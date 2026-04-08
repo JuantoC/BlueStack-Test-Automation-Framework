@@ -4,6 +4,7 @@ import { scrollIntoView } from "../helpers/scrollIntoView.js";
 import logger from "../utils/logger.js";
 import { retry } from "../wrappers/retry.js";
 import { hoverOverParentContainer } from "../helpers/hoverOverParentContainer.js";
+import { getErrorMessage } from "../utils/errorUtils.js";
 
 /**
  * Valida la visibilidad de un elemento en el DOM.
@@ -39,7 +40,9 @@ export async function waitVisible(
                 // 1. Intento de Scroll
                 try {
                     await scrollIntoView(element, config);
-                } catch (e) { /* ignore scroll errors to reach hover */ }
+                } catch (e) {
+                    logger.debug(`Scroll recovery fallido, continuando con hover: ${getErrorMessage(e)}`, { label: config.label });
+                }
 
                 // 2. Intento de Hover sobre el contenedor (Estrategia para Angular Material/Menus)
                 try {
@@ -51,9 +54,10 @@ export async function waitVisible(
                     return element;
 
                 } catch (hoverErr: any) {
-                    logger.debug(`La recuperación por hover falló o no fue necesaria: ${hoverErr.message}`, { label: config.label });
+                    logger.error(`La recuperación por hover falló o no fue necesaria: ${getErrorMessage(hoverErr)}`, { label: config.label, error: getErrorMessage(hoverErr) });
                 }
             }
+            logger.error(`waitVisible: elemento no visible tras recovery: ${getErrorMessage(err)}`, { label: config.label, error: getErrorMessage(err) });
             throw err;
         }
     }, config);

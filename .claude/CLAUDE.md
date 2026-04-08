@@ -12,6 +12,32 @@ Cubre flujos editoriales críticos: creación de contenido, gestión de video, g
 
 ---
 
+## Comandos de Ejecución
+
+Los tres modos de ejecución para tests individuales (`TestName` es el nombre del archivo sin extensión):
+
+| Modo | Comando | Cuándo usar |
+|---|---|---|
+| **Dev** | `npm run test:dev -- TestName` | Desarrollo local, navegador visible |
+| **Grid** | `npm run test:grid -- TestName` | Headless contra Docker Selenium Grid |
+| **CI** | `npm run test:ci -- TestName` | Flujo completo (clean → infra:up → exec → infra:down) |
+
+### Forma directa (sin npm scripts)
+
+Cuando los scripts de npm no funcionan por el reenvío de args en WSL2, usar directamente:
+
+```bash
+# Dev (local, navegador visible)
+cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false npx jest TestName
+
+# Grid (headless, Docker)
+cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true npx jest TestName
+```
+
+**Crítico:** `NODE_OPTIONS='--experimental-vm-modules'` es **siempre** obligatorio en este entorno (WSL2 + ESM). Los npm scripts ya lo incluyen vía `cross-env`. Nunca proponer `npx jest` desnudo.
+
+---
+
 ## Reglas de Código
 
 Aplican a toda interacción con el repositorio:

@@ -386,3 +386,43 @@ Ejemplo del repositorio: `public readonly table: VideoTable` es público porque 
 | `core/utils/errorUtils` | `getErrorMessage(error)` | Extrae mensaje de error de unknown |
 
 Si el agente necesita una utilidad que no existe en esta tabla, debe marcar el código con `// TODO: requiere nueva utilidad core/[nombre]` y no intentar implementarla.
+
+---
+
+## 13. Modo Extensión — Formatos de Output
+
+### Bloque de inserción (para adiciones en archivos existentes)
+
+Nunca reproducir el archivo completo. Usar este formato por zona de inserción:
+
+```typescript
+// ═══════════════════════════════════════════════════════════
+// AGREGAR EN [NombreArchivo].ts
+// Ubicación: [descripción exacta — "después del último `private static readonly`", "al final de la clase antes de `}`", etc.]
+// ═══════════════════════════════════════════════════════════
+[código nuevo aquí]
+```
+
+Reglas:
+- Un bloque por zona de inserción contigua (varios locators juntos = un solo bloque).
+- Indicar ubicación con precisión en cada encabezado de bloque.
+- Nunca reproducir código existente dentro del bloque.
+- El código del bloque debe compilar con los imports que el archivo ya tiene.
+- Si la adición requiere un import nuevo, indicarlo en un bloque separado al inicio:
+
+```typescript
+// ═══════════════════════════════════════════════════════════
+// AGREGAR EN [NombreArchivo].ts — imports nuevos requeridos
+// ═══════════════════════════════════════════════════════════
+import { nuevaUtilidad } from "../../core/actions/nuevaUtilidad.js";
+```
+
+### Tabla de Gap Analysis (Paso 1E)
+
+| Elemento de UI | ¿Locator existe? | ¿Método existe? | Acción |
+|---|---|---|---|
+| [nombre] | Sí (`NOMBRE_LOCATOR`) | Sí (`metodo()`) | — (no tocar) |
+| [nombre] | No | No | Locator + método |
+| [nombre] | No (TODO placeholder) | Parcial | Reemplazar TODO por selector real |
+| [nombre] | No | — (solo lectura/display) | Solo locator |
+| [nombre] | — | No (flujo orquestado) | Método en Maestro |

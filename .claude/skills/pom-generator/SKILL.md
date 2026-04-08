@@ -1,6 +1,6 @@
 ---
 name: pom-generator
-description: Genera clases Page Object Model (main pages y subcomponentes) para el repositorio de test automation Selenium/TypeScript. Usá esta skill siempre que el usuario quiera crear, generar, scaffoldear o armar una nueva página, un nuevo componente, un nuevo subcomponente, un nuevo modal, o cualquier clase POM nueva para automatización de UI. También se activa cuando el usuario menciona "nueva página", "nuevo page object", "armar el POM de", "generar la clase de", "crear el componente de", "scaffoldear", o cualquier variación que implique generar archivos TypeScript que sigan la arquitectura Page Object Model del repositorio. Incluso si el usuario solo describe una UI o pega un DOM HTML y pide que se arme algo con eso, esta skill aplica.
+description: Genera clases Page Object Model (main pages y subcomponentes) para el repositorio de test automation Selenium/TypeScript. Usá esta skill siempre que el usuario quiera crear, generar, scaffoldear o armar una nueva página, un nuevo componente, un nuevo subcomponente, un nuevo modal, o cualquier clase POM nueva para automatización de UI. También se activa cuando el usuario menciona "nueva página", "nuevo page object", "armar el POM de", "generar la clase de", "crear el componente de", "scaffoldear", o cualquier variación que implique generar archivos TypeScript que sigan la arquitectura Page Object Model del repositorio. Incluso si el usuario solo describe una UI o pega un DOM HTML y pide que se arme algo con eso, esta skill aplica. También se activa cuando el usuario quiere extender un POM ya existente sin romper lo que funciona: "agregá métodos al POM de", "extendé el componente de", "le faltan métodos/locators a", "completá la cobertura de", "hay interacciones sin cubrir en", "sumá lo que falta al POM de", "[NombreClase] ya existe, quiero agregar", "qué le falta al componente", o cuando el usuario pega un screenshot o DOM sobre una clase que ya existe en src/pages/.
 ---
 
 # ROL DEL AGENTE AL EJECUTAR ESTA SKILL
@@ -55,7 +55,23 @@ Combinaciones válidas: El usuario puede proveer texto + imagen, texto + DOM, o 
 
 ---
 
-# PASOS DE EJECUCIÓN
+# DETECCIÓN DE MODO: CREAR vs. EXTENDER
+
+Antes del Paso 0, determiná qué modo operar:
+
+| Señal en el input del usuario | Modo |
+|---|---|
+| Nombra una clase o archivo que ya existe en `src/pages/` | **Extensión** |
+| Usa: "agregá", "extendé", "completá", "le faltan", "sumá lo que falta" | **Extensión** |
+| Pega input sobre una UI cuya clase ya fue generada | **Extensión** |
+| Ninguna de las anteriores | **Creación** |
+
+- Modo **Creación** → ejecutar los Pasos 0–5 del bloque siguiente.
+- Modo **Extensión** → saltar los Pasos 0–5 y ejecutar los Pasos 0E–4E.
+
+---
+
+# MODO CREACIÓN — Pasos de Ejecución
 
 ## Paso 0 — Cargar contexto del repositorio
 
@@ -200,6 +216,89 @@ Al finalizar, presentá:
 | La página requiere una utilidad `core/` que no existe | Marcar con `// TODO: requiere nueva utilidad core/[nombre]` y documentar en el resumen de TODOs. No crear utilidades core. |
 | El usuario pide modificar una clase existente además de crear nuevas | Aceptar, pero listar explícitamente los cambios a clases existentes como sección separada en el resumen. |
 | El usuario provee DOM HTML muy extenso (>500 líneas) | Procesar en bloques. Primero identificar las secciones principales del DOM, presentar la estructura detectada, y generar subcomponentes por sección. |
+
+---
+
+# MODO EXTENSIÓN — Agregar a un POM Existente
+
+## Restricción Fundamental
+
+> **NUNCA modificar código existente.**
+> No cambiar firmas de métodos, no renombrar locators, no alterar lógica.
+> Si un método existente podría cubrir el caso con un parámetro opcional → crear un método nuevo en lugar de modificar el existente.
+> Si hay duda sobre si algo ya existe → considerarlo existente y no tocarlo.
+
+---
+
+## Paso 0E — Inventario del POM Existente
+
+Leer TODOS los archivos `.ts` del módulo target. Construir y presentar el inventario congelado:
+
+```
+📦 Inventario de [módulo]:
+  Archivos: [lista]
+  Locators definidos: [clase → locators]
+  Métodos definidos: [clase → métodos]
+  Componentes compartidos importados: [lista]
+```
+
+Este inventario es la línea base inmutable. Nada de lo listado se toca.
+
+---
+
+## Paso 1E — Gap Analysis
+
+Comparar el inventario contra el input del usuario (screenshot, DOM, texto).
+Formato de la tabla de brechas → ver `conventions.md § 13`.
+
+Presentar la tabla. No generar código antes de recibir confirmación.
+
+---
+
+## Paso 2E — Plan de Extensión
+
+```
+📋 Plan de extensión para [módulo]:
+  Adiciones en archivos existentes:
+    - [Archivo].ts: +N locators, +M métodos
+  Archivos nuevos a generar: [lista o "ninguno"]
+```
+
+Esperá confirmación antes de proceder.
+
+---
+
+## Paso 3E — Generación Aditiva
+
+Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `conventions.md § 13`. Ejemplo concreto → `examples.md § 4`.
+
+Para **archivos nuevos**: usar el mismo flujo de los Pasos 2–3 del Modo Creación.
+
+---
+
+## Paso 4E — Resumen de Extensión
+
+```
+✅ Adiciones generadas:
+  [Archivo].ts: + locators: [lista] | + métodos: [lista]
+  [NuevoArchivo].ts: [NUEVO ARCHIVO]
+
+🔧 TODOs pendientes:
+  - [ ] [descripción] (línea ~XX)
+
+📎 Código existente no modificado: [lista de clases y métodos preexistentes]
+```
+
+---
+
+## Manejo de Casos Especiales — Modo Extensión
+
+| Escenario | Comportamiento |
+|---|---|
+| Input revela un bug en código existente | Reportar `⚠️ OBSERVACIÓN` pero no corregirlo — fuera del scope. Indicar al usuario que lo trabaje por separado. |
+| DOM muestra que un locator existente es incorrecto | Reportar `⚠️ INCONSISTENCIA`, preguntar. No cambiar sin confirmación. |
+| La funcionalidad pedida ya está cubierta por un método existente | Informar: "El método `[nombre]()` ya cubre este caso. ¿Querés una variante o es suficiente?" |
+| DOM corresponde a UI diferente al módulo target | Detener y preguntar: "El DOM parece ser de [otra página]. ¿Confirmás que querés extender [módulo]?" |
 
 ---
 

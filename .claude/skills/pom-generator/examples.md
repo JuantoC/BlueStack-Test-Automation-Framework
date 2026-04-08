@@ -358,3 +358,108 @@ Métodos que retornan WebElements para que los tests operen sobre ellos:
 async getContainerByIndex(index: number): Promise<WebElement> { ... }
 async getContainerByTitle(title: string): Promise<WebElement> { ... }
 ```
+
+---
+
+## 4. Extend Mode — Adición a `post_page`
+
+Ejemplo de output de Modo Extensión sobre el módulo `post_page` (ya existente y funcional).
+
+El usuario provee DOM con un botón de eliminar y un dropdown de filtro de estado que no están cubiertos.
+
+### Inventario congelado (Paso 0E)
+
+```
+📦 Inventario de post_page:
+  Archivos: MainPostPage.ts, PostTable.ts, NewNoteBtn.ts
+  Locators definidos:
+    PostTable: POST_TABLE_BODY, POST_TITLE_LABEL, POST_TITLE_INPUT,
+               POST_EDIT_BTN, CHECKBOX, LOADING_CONTAINER
+    NewNoteBtn: NEW_NOTE_DROPDOWN_BTN, DROPDOWN_COMBO_MODAL, LABELS_OF_NOTE_TYPES
+  Métodos definidos:
+    PostTable: selectPost(), getPostContainerByTitle(), changePostTitle(),
+               clickEditorButton(), readCurrentTitle(), activateInlineTitleEdit(),
+               fillTitleInput(), submitTitleWithEnter(), getPostContainerByIndex(),
+               waitForLoadingContainerDisappear(), waitForNewPostAtIndex0()
+    NewNoteBtn: openNoteTypeDropdown(), selectNoteType(), findNoteTypeOption(),
+                clickNoteTypeOption(), isDropdownOpen()
+    MainPostPage: selectAndPublishFooter(), changePostTitle(), enterToEditorPage(),
+                  createNewNote(), getPostContainers()
+  Componentes compartidos: FooterActions
+```
+
+### Gap Analysis (Paso 1E)
+
+| Elemento de UI | ¿Locator existe? | ¿Método existe? | Acción |
+|---|---|---|---|
+| btn-edit-post | Sí (`POST_EDIT_BTN`) | Sí (`clickEditorButton()`) | — (no tocar) |
+| btn-delete-post | No | No | Locator + método en PostTable |
+| dropdown-status-filter | No | No | Locator + método en PostTable |
+| deletePost() orquestador | — | No | Método en MainPostPage |
+
+### Output generado (Paso 3E)
+
+```typescript
+// ═══════════════════════════════════════════════════════════
+// AGREGAR EN PostTable.ts
+// Ubicación: después de LOADING_CONTAINER (último `private static readonly`)
+// ═══════════════════════════════════════════════════════════
+
+private static readonly DELETE_BTN: Locator = By.css('button[data-testid="btn-delete-post"]');
+private static readonly STATUS_FILTER_DROPDOWN: Locator = By.css('[data-testid="TODO_status_filter_dropdown"]');
+
+// ═══════════════════════════════════════════════════════════
+// AGREGAR EN PostTable.ts
+// Ubicación: después de clickEditorButton()
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Hace click en el botón de eliminar de un post.
+ * El hover previo es necesario para revelar el botón, oculto por default en CSS.
+ *
+ * @param postContainer - Contenedor WebElement de la fila del post a eliminar.
+ */
+async clickDeleteButton(postContainer: WebElement): Promise<void> {
+  try {
+    logger.debug("Buscando botón de eliminar en el contenedor...", { label: this.config.label });
+    const btnElement = await postContainer.findElement(PostTable.DELETE_BTN);
+    await hoverOverParentContainer(this.driver, postContainer, this.config);
+    await clickSafe(this.driver, btnElement, { ...this.config, timeoutMs: 8000 });
+    logger.info("Click en botón eliminar ejecutado.", { label: this.config.label });
+  } catch (error: unknown) {
+    logger.error(`Fallo al clickear botón eliminar: ${getErrorMessage(error)}`, {
+      label: this.config.label,
+      error: getErrorMessage(error)
+    });
+    throw error;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// AGREGAR EN MainPostPage.ts
+// Ubicación: después de enterToEditorPage()
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Orquesta el flujo de eliminación de una nota.
+ * Delega el click en `PostTable.clickDeleteButton`.
+ *
+ * @param postContainer - Contenedor WebElement de la fila del post a eliminar.
+ *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
+ */
+async deletePost(postContainer: WebElement): Promise<void> {
+  await step(`Eliminando nota`, async () => {
+    try {
+      logger.debug("Ejecutando el click en el botón de eliminar", { label: this.config.label });
+      await this.table.clickDeleteButton(postContainer);
+      logger.info("Nota eliminada exitosamente.", { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al eliminar la nota: ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error)
+      });
+      throw error;
+    }
+  });
+}
+```

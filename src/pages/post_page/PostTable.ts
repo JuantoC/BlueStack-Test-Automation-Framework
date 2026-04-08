@@ -1,4 +1,4 @@
-import { By, Key, Locator, WebDriver, WebElement } from "selenium-webdriver";
+import { By, Key, Locator, until, WebDriver, WebElement } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import logger from "../../core/utils/logger.js";
@@ -32,6 +32,51 @@ export class PostTable {
   private static readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
   private static readonly CHECKBOX: Locator = By.css('mat-checkbox[data-testid="checkbox-notice"]');
   private static readonly LOADING_CONTAINER: Locator = By.css('div.process-fields');
+
+  // ── Nivel fila — elementos de acción no cubiertos ────────────────────────
+  private static readonly PREVIEW_BTN: Locator = By.css('button[data-testid="btn-preview-post"]');
+  private static readonly PIN_BTN_ADD: Locator = By.css('button[data-testid="addPinned"]');
+  private static readonly PIN_BTN_REMOVE: Locator = By.css('button[data-testid="removePinned"]');
+  private static readonly CALENDAR_INPUT: Locator = By.css('input[data-testid="input-calendar"]');
+  private static readonly MORE_ACTIONS_BTN: Locator = By.css('button[id$="-drop"]');
+  private static readonly SLIDE_TOGGLE: Locator = By.css('mat-slide-toggle button');
+  // ── Nivel tabla — búsqueda y vistas ─────────────────────────────────────────
+  private static readonly SEARCH_INPUT: Locator = By.css('input[data-testid="input-search-simple"]');
+  private static readonly ADVANCED_SEARCH_BTN: Locator = By.css('button[data-testid="btn-search-modal-news"]');
+  private static readonly VIEWS_DROPDOWN_BTN: Locator = By.css('button[data-testid="btn-dropdown-views"]');
+  // TODO: sin testid en el DOM — inspeccionar y reemplazar este selector
+  private static readonly VIEW_MODE_BTN: Locator = By.css('[data-testid="TODO_view_mode_toggle"]');
+  // FRAGILE: clase interna de Angular Material — inspeccionar si cambia con actualizaciones del framework
+  private static readonly ROW_DROPDOWN_ITEMS: Locator = By.css('div.mat-mdc-menu-panel button');
+
+  /**
+   * Mapa de acciones disponibles en el dropdown de cada fila de la tabla.
+   * Los valores son el texto visible exacto del botón, incluyendo el prefijo del ícono Material.
+   * Usar con `PostRowActionType` para tipado en métodos públicos.
+   */
+  public static readonly ROW_ACTION_MAP = {
+    TRANSLATE_AI:      'translate Traducir con IA',
+    PREVIEW:           'phonelink Previsualizar',
+    REWRITE_AI:        'insights Reescribir con IA',
+    EDIT:              'create Editar',
+    COPY:              'file_copy Copiar',
+    PUSH_NOTIFICATION: 'notifications_active Notificaciones push',
+    UNPUBLISH:         'remove_circle_outline Despublicar',
+    VERSIONS:          'layers Versiones',
+    SCHEDULE:          'access_alarm Programar',
+    UNLOCK:            'no_encryption_gmailerrorred Desbloquear',
+    REVIEW:            'visibility Revisar',
+  } as const;
+
+  /**
+   * Mapa de modos de visualización de la tabla.
+   * Los valores son el texto visible exacto del botón de opción.
+   * Usar con `ViewModeType` para tipado en métodos públicos.
+   */
+  public static readonly VIEW_MODE_MAP = {
+    COMFORTABLE: 'grid_viewVista confortable',
+    COMPACT:     'view_compact_altVista compacta',
+  } as const;
 
   // Constantes para el manejo del string requerido
   public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation_Framework";
@@ -196,7 +241,12 @@ export class PostTable {
 
       throw new Error("No hay Label ni Input visible para extraer el texto.");
     } catch (error: unknown) {
-      logger.error(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      const isStale = error instanceof Error && error.name === 'StaleElementReferenceError';
+      if (isStale) {
+        logger.warn(`Container stale en readCurrentTitle — el DOM se refrescó tras la última interacción. El caller debe re-fetchear el contenedor.`, { label: this.config.label });
+      } else {
+        logger.error(`Interrupción al leer texto (posible reflow de Angular): ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      }
       throw error;
     }
   }
@@ -296,6 +346,287 @@ export class PostTable {
   }
 
   // =========================================================================
+  //      ACCIONES DE FILA — elementos nuevos por postContainer
+  // =========================================================================
+
+  /**
+   * Hace hover sobre el contenedor y click en el botón de previsualización de la nota.
+   * El hover es necesario para revelar los botones de acción ocultos por CSS.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async clickPreviewButton(postContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Buscando botón de previsualización en el contenedor...', { label: this.config.label });
+      const btn = await postContainer.findElement(PostTable.PREVIEW_BTN);
+      await hoverOverParentContainer(this.driver, postContainer, this.config);
+      await clickSafe(this.driver, btn, this.config);
+      logger.debug('Click en botón de previsualización ejecutado.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al clickear botón de previsualización: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Detecta si el post está pineado verificando la presencia del botón `removePinned`.
+   * Si ese botón existe, el post está pineado; si existe `addPinned`, no lo está.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @returns {Promise<boolean>} `true` si el post está pineado.
+   */
+  async isPostPinned(postContainer: WebElement): Promise<boolean> {
+    try {
+      const unpinBtns = await postContainer.findElements(PostTable.PIN_BTN_REMOVE);
+      return unpinBtns.length > 0;
+    } catch (error: unknown) {
+      logger.error(`Error al verificar estado de pin: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Alterna el estado de pin del post. Si está pineado, hace click en `removePinned`;
+   * si no lo está, hace click en `addPinned`. Detecta el estado antes de actuar
+   * mediante `isPostPinned` para evitar clicks dobles sobre el mismo botón.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async clickPinButton(postContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Determinando estado de pin del post...', { label: this.config.label });
+      const isPinned = await this.isPostPinned(postContainer);
+      const locator = isPinned ? PostTable.PIN_BTN_REMOVE : PostTable.PIN_BTN_ADD;
+      const btn = await postContainer.findElement(locator);
+      await hoverOverParentContainer(this.driver, postContainer, this.config);
+      await clickSafe(this.driver, btn, this.config);
+      logger.debug(`Click en botón ${isPinned ? 'removePinned' : 'addPinned'} ejecutado.`, { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al clickear botón de pin: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el valor actual del input de calendario de programación de una fila.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @returns {Promise<string>} Texto actual del input de fecha.
+   */
+  async getScheduleDate(postContainer: WebElement): Promise<string> {
+    try {
+      const input = await postContainer.findElement(PostTable.CALENDAR_INPUT);
+      return await input.getAttribute('value');
+    } catch (error: unknown) {
+      logger.error(`Error al leer fecha del calendario: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Escribe una fecha en el input de calendario de programación de una fila.
+   * Usa `writeToStandard` para garantizar que el valor quede registrado en el DOM de Angular.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @param date - Fecha a escribir en formato aceptado por el input (ej: "dd/mm/yyyy HH:mm").
+   */
+  async setScheduleDate(postContainer: WebElement, date: string): Promise<void> {
+    try {
+      logger.debug(`Escribiendo fecha "${date}" en el input de calendario...`, { label: this.config.label });
+      const input = await postContainer.findElement(PostTable.CALENDAR_INPUT);
+      await writeToStandard(input, date, this.config.label);
+      logger.debug('Fecha de calendario escrita correctamente.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al escribir fecha en el calendario: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el slide toggle de estado de una fila (publicado/borrador).
+   * El slide toggle es un botón interno del componente `mat-slide-toggle` de Angular Material.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async clickSlideToggle(postContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Buscando slide toggle en el contenedor...', { label: this.config.label });
+      const toggle = await postContainer.findElement(PostTable.SLIDE_TOGGLE);
+      await clickSafe(this.driver, toggle, this.config);
+      logger.debug('Slide toggle clickeado.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al clickear slide toggle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace hover y click en el botón de más acciones (`more_vert`) de una fila para abrir su dropdown.
+   * El botón tiene id dinámico `{index}-drop`; se localiza dentro del contenedor con selector `[id$="-drop"]`.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   */
+  async openMoreActionsDropdown(postContainer: WebElement): Promise<void> {
+    try {
+      logger.debug('Buscando botón de más acciones en el contenedor...', { label: this.config.label });
+      const btn = await postContainer.findElement(PostTable.MORE_ACTIONS_BTN);
+      await hoverOverParentContainer(this.driver, postContainer, this.config);
+      await clickSafe(this.driver, btn, this.config);
+      logger.debug('Dropdown de acciones de fila abierto.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al abrir dropdown de acciones: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Abre el dropdown de más acciones de una fila y hace click en la opción indicada.
+   * Espera a que el panel Angular Material sea visible en el overlay antes de buscar items.
+   * Localiza la opción correcta comparando el texto visible contra `ROW_ACTION_MAP[action]`.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   * @param action - Acción a ejecutar del menú. Tipado via `PostRowActionType`.
+   */
+  async clickRowAction(postContainer: WebElement, action: PostRowActionType): Promise<void> {
+    try {
+      await this.openMoreActionsDropdown(postContainer);
+
+      const expectedText = PostTable.ROW_ACTION_MAP[action];
+
+      await this.driver.wait(
+        until.elementLocated(PostTable.ROW_DROPDOWN_ITEMS),
+        this.config.timeoutMs,
+        'El panel de acciones no apareció en el DOM'
+      );
+
+      const items = await this.driver.findElements(PostTable.ROW_DROPDOWN_ITEMS);
+
+      if (items.length === 0) {
+        throw new Error(`El dropdown se abrió pero no se encontraron items. Selector: ${PostTable.ROW_DROPDOWN_ITEMS}`);
+      }
+
+      logger.debug(`Analizando ${items.length} opciones del dropdown de fila...`, { label: this.config.label });
+
+      for (const item of items) {
+        const text = (await item.getText()).trim();
+        if (text === expectedText) {
+          logger.debug(`Match encontrado: "${text}"`, { label: this.config.label });
+          await clickSafe(this.driver, item, this.config);
+          return;
+        }
+      }
+
+      throw new Error(`No se encontró la acción "${action}" (texto esperado: "${expectedText}") en el dropdown.`);
+    } catch (error: unknown) {
+      logger.error(`Error al ejecutar acción de fila "${action}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  // =========================================================================
+  //      ACCIONES DE TABLA — búsqueda y vistas
+  // =========================================================================
+
+  /**
+   * Escribe texto en el input de búsqueda simple de la tabla.
+   * La búsqueda se aplica en tiempo real (no requiere ENTER).
+   *
+   * @param text - Texto a buscar. Se escribe tal cual usando `writeToStandard`.
+   */
+  async searchByTitle(text: string): Promise<void> {
+    try {
+      logger.debug(`Buscando nota por título: "${text}"`, { label: this.config.label });
+      const input = await waitFind(this.driver, PostTable.SEARCH_INPUT, this.config);
+      await writeToStandard(input, text, this.config.label);
+      logger.debug('Texto de búsqueda escrito.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al buscar por título: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Limpia el input de búsqueda simple de la tabla usando `element.clear()`.
+   */
+  async clearSearch(): Promise<void> {
+    try {
+      logger.debug('Limpiando campo de búsqueda...', { label: this.config.label });
+      const input = await waitFind(this.driver, PostTable.SEARCH_INPUT, this.config);
+      await input.clear();
+      logger.debug('Campo de búsqueda limpiado.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al limpiar búsqueda: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón de búsqueda avanzada (`more_vert` global de la tabla).
+   * Abre el modal de búsqueda avanzada. El contenido del modal no es responsabilidad de esta clase.
+   */
+  async openAdvancedSearch(): Promise<void> {
+    try {
+      logger.debug('Abriendo modal de búsqueda avanzada...', { label: this.config.label });
+      await clickSafe(this.driver, PostTable.ADVANCED_SEARCH_BTN, this.config);
+      logger.debug('Click en botón de búsqueda avanzada ejecutado.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al abrir búsqueda avanzada: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón de dropdown de vistas ("Ultimas noticias modificadas").
+   * Abre el selector de vista/filtro global de la tabla.
+   */
+  async openViewsDropdown(): Promise<void> {
+    try {
+      logger.debug('Abriendo dropdown de vistas...', { label: this.config.label });
+      await clickSafe(this.driver, PostTable.VIEWS_DROPDOWN_BTN, this.config);
+      logger.debug('Dropdown de vistas abierto.', { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al abrir dropdown de vistas: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Abre el selector de modo de visualización y hace click en la opción indicada.
+   * Espera al panel Angular Material antes de buscar el ítem por texto.
+   *
+   * @param mode - Modo de vista a seleccionar. Tipado via `ViewModeType`.
+   * @see VIEW_MODE_BTN — selector pendiente de TODO: inspeccionar el DOM para asignar testid real.
+   */
+  async selectViewMode(mode: ViewModeType): Promise<void> {
+    try {
+      logger.debug(`Seleccionando modo de vista: "${mode}"`, { label: this.config.label });
+      await clickSafe(this.driver, PostTable.VIEW_MODE_BTN, this.config);
+
+      const expectedText = PostTable.VIEW_MODE_MAP[mode];
+      await this.driver.wait(
+        until.elementLocated(PostTable.ROW_DROPDOWN_ITEMS),
+        this.config.timeoutMs,
+        'El panel de modo de vista no apareció en el DOM'
+      );
+
+      const items = await this.driver.findElements(PostTable.ROW_DROPDOWN_ITEMS);
+      for (const item of items) {
+        const text = (await item.getText()).trim();
+        if (text === expectedText) {
+          logger.debug(`Modo de vista encontrado: "${text}"`, { label: this.config.label });
+          await clickSafe(this.driver, item, this.config);
+          return;
+        }
+      }
+
+      throw new Error(`No se encontró el modo de vista "${mode}" (texto esperado: "${expectedText}").`);
+    } catch (error: unknown) {
+      logger.error(`Error al seleccionar modo de vista: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  // =========================================================================
   //      HELPERS INTERNOS Y ACCESOS PÚBLICOS DE SOPORTE
   // =========================================================================
 
@@ -374,3 +705,6 @@ export class PostTable {
     }
   }
 }
+
+export type PostRowActionType = keyof typeof PostTable.ROW_ACTION_MAP;
+export type ViewModeType = keyof typeof PostTable.VIEW_MODE_MAP;

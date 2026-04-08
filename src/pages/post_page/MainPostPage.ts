@@ -59,20 +59,43 @@ export class MainPostPage {
    */
   async changePostTitle(postContainer: WebElement) {
     await step(`Cambiando título de la nota inline`, async () => {
+      let containerId: string | null = null;
+
       try {
         await retry(async () => {
-          await this.table.changePostTitle(postContainer);
+          // En el primer intento, guardar el ID del contenedor para poder re-fetchearlo si queda stale
+          if (!containerId) {
+            try {
+              containerId = await postContainer.getAttribute('id');
+              logger.debug(`ID del contenedor guardado: "${containerId}"`, { label: this.config.label });
+            } catch {
+              logger.warn(`No se pudo leer el ID del contenedor`, { label: this.config.label });
+            }
+          }
+
+          // Si el contenedor quedó stale (DOM refrescado tras el ENTER), re-fetchearlo por ID
+          let freshContainer = postContainer;
+          if (containerId) {
+            try {
+              await postContainer.getAttribute('id'); // prueba de staleness
+            } catch {
+              logger.warn(`Container stale detectado. Re-fetching por ID: "${containerId}"`, { label: this.config.label });
+              freshContainer = await this.driver.findElement(By.id(containerId));
+            }
+          }
+
+          await this.table.changePostTitle(freshContainer);
 
           await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
           await this.table.waitForLoadingContainerDisappear();
 
-          logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label })
+          logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label });
         }, this.config);
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo de la nota: ${getErrorMessage(error)}`, {
           label: this.config.label,
           error: getErrorMessage(error)
-        })
+        });
         throw error;
       }
     });
@@ -124,6 +147,90 @@ export class MainPostPage {
   }
 
   /**
+   * Previsualiza una nota haciendo click en el botón de preview de su fila.
+   * Delega en `PostTable.clickPreviewButton`. La apertura del preview (tab o modal)
+   * queda fuera del scope de esta clase.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
+   */
+  async previewPost(postContainer: WebElement): Promise<void> {
+    await step('Previsualizar post', async () => {
+      try {
+        logger.debug('Ejecutando click en botón de previsualización...', { label: this.config.label });
+        await this.table.clickPreviewButton(postContainer);
+        logger.info('Previsualización del post iniciada.', { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al previsualizar post: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Alterna el estado de pin de una nota. Delega en `PostTable.isPostPinned` para
+   * leer el estado actual y en `PostTable.clickPinButton` para ejecutar el cambio.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
+   */
+  async togglePostPin(postContainer: WebElement): Promise<void> {
+    await step('Alternar pin del post', async () => {
+      try {
+        const isPinned = await this.table.isPostPinned(postContainer);
+        logger.debug(`Estado actual del pin: ${isPinned ? 'pineado' : 'sin pin'}`, { label: this.config.label });
+        await this.table.clickPinButton(postContainer);
+        logger.info(`Pin ${isPinned ? 'removido' : 'agregado'} exitosamente.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al alternar pin del post: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Ejecuta una acción del dropdown de más acciones de una fila.
+   * Delega en `PostTable.clickRowAction`, que abre el dropdown y localiza la opción por texto.
+   *
+   * @param postContainer - Contenedor WebElement de la fila del post.
+   *   Obtenerlo previamente con `this.table.getPostContainerByTitle()` o `this.table.getPostContainerByIndex()`.
+   * @param action - Acción a ejecutar. Valores disponibles en `PostTable.ROW_ACTION_MAP`.
+   */
+  async executeRowAction(postContainer: WebElement, action: PostRowActionType): Promise<void> {
+    await step(`Ejecutar acción de fila: ${action}`, async (stepContext) => {
+      stepContext.parameter('Acción', action);
+      try {
+        logger.debug(`Ejecutando acción "${action}" en el dropdown de fila...`, { label: this.config.label });
+        await this.table.clickRowAction(postContainer, action);
+        logger.info(`Acción "${action}" ejecutada exitosamente.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al ejecutar acción de fila "${action}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Escribe texto en el input de búsqueda simple de la tabla.
+   * Delega en `PostTable.searchByTitle`. Para limpiar el campo usar `PostTable.clearSearch` directamente.
+   *
+   * @param title - Texto a escribir en el buscador.
+   */
+  async searchPost(title: string): Promise<void> {
+    await step(`Buscar post: "${title}"`, async (stepContext) => {
+      stepContext.parameter('Título', title);
+      try {
+        logger.debug(`Ejecutando búsqueda por título: "${title}"`, { label: this.config.label });
+        await this.table.searchByTitle(title);
+        logger.info(`Búsqueda "${title}" ejecutada.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al buscar post: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
+  }
+
+  /**
    * Obtiene un array de contenedores WebElement de los primeros N posts de la tabla.
    * Itera por índice comenzando desde 0 y delega cada búsqueda en `PostTable.getPostContainerByIndex`.
    *
@@ -148,11 +255,11 @@ export class MainPostPage {
   }
 }
 
-import { WebDriver, WebElement } from 'selenium-webdriver';
+import { By, WebDriver, WebElement } from 'selenium-webdriver';
 import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from '../../core/utils/logger.js';
-import { PostTable } from './PostTable.js';
+import { PostTable, PostRowActionType, ViewModeType } from './PostTable.js';
 import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 import { FooterActions } from '../FooterActions.js';
 import { retry } from '../../core/wrappers/retry.js';

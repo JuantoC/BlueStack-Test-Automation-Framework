@@ -6,7 +6,8 @@ import { VideoTable } from "./VideoTable.js";
 import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
 import { VideoData } from "../../interfaces/data.js";
-import { ActionType, VideoActions } from "./VideoActions.js";
+import { ActionType, VideoInlineActions, InlineActionType } from "./VideoInlineActions.js";
+import { VideoTypeFilter, VideoFilterType } from "./VideoTypeFilter.js";
 import { FooterActions } from "../FooterActions.js";
 import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
@@ -28,7 +29,8 @@ export class MainVideoPage {
   private readonly uploadBtn: UploadVideoBtn
   private readonly uploadModal: UploadVideoModal
   public readonly table: VideoTable
-  private readonly actions: VideoActions
+  private readonly actions: VideoInlineActions
+  private readonly typeFilter: VideoTypeFilter
   private readonly footer: FooterActions
   private readonly image: CKEditorImageModal;
 
@@ -39,7 +41,8 @@ export class MainVideoPage {
     this.uploadBtn = new UploadVideoBtn(this.driver, this.config);
     this.uploadModal = new UploadVideoModal(this.driver, this.config);
     this.table = new VideoTable(this.driver, this.config);
-    this.actions = new VideoActions(this.driver, this.config);
+    this.actions = new VideoInlineActions(this.driver, this.config);
+    this.typeFilter = new VideoTypeFilter(this.driver, this.config);
     this.footer = new FooterActions(this.driver, this.config)
     this.image = new CKEditorImageModal(this.driver, this.config)
   }
@@ -118,7 +121,7 @@ export class MainVideoPage {
 
   /**
    * Ejecuta una acción del menú desplegable sobre un video a partir de su contenedor ya localizado.
-   * Delega la interacción con el menú en `VideoActions.clickOnAction`.
+   * Delega la interacción con el menú en `VideoInlineActions.clickOnAction`.
    *
    * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
    *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
@@ -168,6 +171,63 @@ export class MainVideoPage {
 
       } catch (error: unknown) {
         logger.error(`Error al seleccionar y publicar Videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Cambia la vista de la tabla al tipo de video indicado activando la pestaña correspondiente.
+   * Delega la interacción en `VideoTypeFilter.clickTab`.
+   *
+   * @param type - Tipo de video a seleccionar como filtro activo (NATIVO, EMBEDDED, YOUTUBE, SHORT).
+   */
+  async switchVideoTypeTab(type: VideoFilterType): Promise<void> {
+    await step(`Cambiando vista a tipo de video: "${type}"`, async (stepContext) => {
+      stepContext.parameter("Tipo", type);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
+      try {
+        logger.debug(`Activando pestaña de tipo "${type}"`, { label: this.config.label });
+        await this.typeFilter.clickTab(type);
+        logger.info(`Vista cambiada a "${type}" correctamente.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al cambiar la pestaña a "${type}": ${getErrorMessage(error)}`, {
+          label: this.config.label,
+          error: getErrorMessage(error),
+        });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Ejecuta una acción del menú kebab (3 puntos) sobre un video a partir de su contenedor ya localizado.
+   * Delega la interacción en `VideoInlineActions.clickOnKebabAction`.
+   *
+   * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
+   *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
+   * @param action - Acción a ejecutar: EDIT, DELETE, UNPUBLISH, SCHEDULE o PREVIEW.
+   *
+   * @remarks
+   * DELETE y UNPUBLISH son mutuamente excluyentes según el estado del video:
+   * DELETE está disponible para videos no publicados; UNPUBLISH para videos publicados.
+   */
+  async clickOnVideoKebabAction(videoContainer: WebElement, action: InlineActionType): Promise<void> {
+    await step(`Ejecutando acción kebab: "${action}" sobre el video`, async (stepContext) => {
+      stepContext.parameter("Acción", action);
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
+      try {
+        logger.debug(`Ejecutando acción kebab: "${action}"`, { label: this.config.label });
+        await this.actions.clickOnKebabAction(videoContainer, action);
+        logger.info(`Acción kebab "${action}" ejecutada correctamente.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al ejecutar acción kebab "${action}": ${getErrorMessage(error)}`, {
+          label: this.config.label,
+          action,
+          error: getErrorMessage(error),
+        });
         throw error;
       }
     });

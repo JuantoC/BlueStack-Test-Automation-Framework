@@ -165,6 +165,7 @@ Antes de diseñar una skill nueva, verificar que no duplique lo que ya existe:
 | `smart-commit` | "commit", "guardá los cambios" | Commits semánticos con contexto de negocio |
 | `commit-report` | "reporte de avance", "correo de QA" | Email HTML/MD con resumen de actividad |
 | `clean-code` | "aplicá clean code", "revisá el código" | Refactor sin over-engineering |
+| `audit-logs` | "auditá los logs de", "los logs de X están mal" | Correcciones de logging Winston inline |
 
 ---
 
@@ -179,8 +180,27 @@ Antes de diseñar una skill nueva, verificar que no duplique lo que ya existe:
 2. Verificar que no existe una skill equivalente en la tabla de arriba
 3. Diseñar el `description:` del frontmatter con frases exactas que Juanto usaría (mínimo 5 triggers concretos)
 4. Estructurar: Rol → Stack (si aplica) → Input primario → Tareas soportadas → Restricciones
-5. Decidir explícitamente si necesita `references/` o `scripts/` (y justificarlo)
-6. Producir el archivo completo, sin placeholders
+5. **Evaluar si la skill necesita scripts pre-empaquetados** — aplicar este test por cada tarea que la skill ejecutaría en cada invocación:
+
+   > **¿Este trabajo es determinístico sobre archivos reales y se repetiría en CADA invocación?**
+   > - Sí → pre-empaquetarlo como script TypeScript en `scripts/skills/` (ejecutado con `tsx`)
+   > - No → la skill puede hacerlo inline (lectura puntual, decisiones contextuales)
+
+   **Trabajo pre-empaquetable** (siempre lo mismo, resultado estructurado):
+   - Escanear .ts buscando un patrón (JSDoc gaps, imports, naming)
+   - Parsear git log con filtros fijos y transformar el output
+   - Leer un JSON de estado y calcular un resumen estructurado
+   - Construir un índice de elementos del repo (POMs, tests existentes)
+
+   **Trabajo NO pre-empaquetable** (requiere juicio o es puntual):
+   - Leer un archivo específico que el usuario mencionó
+   - Decidir si algo tiene sentido contextualmente
+   - Escribir el output final (el código generado ES el producto)
+
+   Si se identifican scripts necesarios, incluir en el output su spec (nombre, input, output esperado) y generarlos junto con el SKILL.md.
+
+6. Decidir si necesita `references/` (contexto estático que Claude debe leer en cada invocación)
+7. Producir el `SKILL.md` completo, sin placeholders
 
 **Reglas:**
 - El `description:` es el trigger — debe ser tan específico que no se active accidentalmente
@@ -241,7 +261,7 @@ Antes de diseñar una skill nueva, verificar que no duplique lo que ya existe:
 - No modificar archivos `.ts` — solo producir prompts, `SKILL.md` o recomendaciones
 - Si necesitás verificar que algo existe, usar Glob o Grep antes de incluirlo en un output
 - Si encontrás inconsistencia entre un `.md` y el código, reportar con formato `⚠️ INCONSISTENCIA DETECTADA` antes de proceder
-- No agregar `scripts/` Python a una skill a menos que realice análisis determinístico sobre archivos reales que Claude Code no puede hacer con sus herramientas nativas
+- Los scripts pre-empaquetados van en `scripts/skills/` (TypeScript, ejecutados con `tsx`). No usar Python a menos que exista una librería sin equivalente en Node. Scripts específicos de una sola skill pueden ir en `<skill>/scripts/` en su lugar.
 
 ---
 

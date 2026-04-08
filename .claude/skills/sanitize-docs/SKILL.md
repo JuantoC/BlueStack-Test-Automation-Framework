@@ -136,12 +136,21 @@ The `@example` is optional but highly recommended for Page Objects and frequentl
 
 When the user indicates a folder (e.g.: `src/core/actions/`):
 
-1. **List** all `.ts` files in that folder (non-recursive unless the user requests it)
-2. **Announce** the file being processed: `"Processing: src/core/actions/writeActions.ts"`
-3. **Review** the file and identify which entities need documentation
-4. **Show the changes** as a diff or before/after block for each modified entity
-5. **Wait for confirmation** from the user before moving to the next file
-6. **Repeat** for each file in the folder
+**Paso 0 — Inventario automático de gaps JSDoc**
+
+Ejecutar `jsdoc-scanner.ts` sobre el path indicado **antes de leer ningún archivo**:
+
+```bash
+./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path <ruta-indicada>
+```
+
+- Si retorna `[]`: informar al usuario que el módulo ya tiene JSDoc completo y detener.
+- Si retorna gaps: usar el JSON como lista de trabajo. Los pasos de identificación manual de exports y verificación de JSDoc **quedan reemplazados** por este output.
+
+1. **Announce** the file being processed using the files present in el JSON del scanner
+2. **Show the changes** as a diff or before/after block for each entity listed in the scanner output
+3. **Wait for confirmation** from the user before moving to the next file
+4. **Repeat** for each file con gaps en el output del scanner
 
 If the user says "continue" or "apply all" without reviewing, process the rest without interruptions.
 
@@ -151,11 +160,12 @@ If the user says "continue" or "apply all" without reviewing, process the rest w
 
 For each `.ts` file:
 
-1. Read the full file
-2. Identify all exported public functions and classes
-3. For each one, verify:
-   - Does it have JSDoc? → If complete, skip. If missing required fields, complete it.
-   - Does it have no JSDoc? → Generate a complete one
+1. Usar el JSON del scanner (Paso 0) para conocer qué entidades tienen gaps — **no releer el archivo para identificarlas**
+2. Leer el archivo `.ts` completo solo para escribir el JSDoc (es necesario ver el cuerpo de los métodos)
+3. Escribir/completar los gaps según el output del scanner:
+   - `hasJsDoc: false` → generar JSDoc completo desde cero
+   - `hasJsDoc: true` con `missingParams` o `missingDescription` → completar solo los campos faltantes listados
+   - `missingReturns: true` → agregar `@returns` faltante
 4. Identify if the body has complex steps without inline comments → add if applicable
 5. Present the changes grouped by file
 

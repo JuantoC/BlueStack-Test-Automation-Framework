@@ -28,44 +28,27 @@ Traducir commits técnicos en bullets claros orientados a negocio. Sin introducc
 - `"últimos N días"` → `DAYS=N`
 - Sin parámetro → `DAYS=7`
 
-### Paso 2 — Ejecutar el comando Git
+### Paso 2 — Ejecutar commit-parser
 
 ```bash
-git log \
-  --author="jtcaldera-bluestack" \
-  --since="${DAYS} days ago" \
-  --format="--- COMMIT ---%nDate: %ad%nTitle: %s%nBody:%n%b%n" \
-  --date=format:"%d de %B de %Y"
+./node_modules/.bin/tsx scripts/skills/commit-parser.ts --author jtcaldera-bluestack --days ${DAYS}
 ```
 
-> Si falla → ver MANEJO DE EXCEPCIONES.
+El JSON resultante incluye un array de objetos con `hash`, `date`, `type`, `module`, `title`, `body` y `businessBullet` ya generado. Si el array está vacío → ver MANEJO DE EXCEPCIONES.
 
-### Paso 3 — Parsear commits
+> Si el comando falla (git no disponible, no es un repo) → ver MANEJO DE EXCEPCIONES.
 
-Extraer `Title` y `Body` de cada bloque `--- COMMIT ---`.
+### Paso 3 — Revisar y ajustar bullets
 
-> Si vacío → ver MANEJO DE EXCEPCIONES.
+Recorrer el array del parser. Para cada commit:
 
-### Paso 4 — Traducir a bullets
+- Si `businessBullet` empieza con `[REVISAR]:` → el parser no pudo clasificarlo. Generar el bullet manualmente usando el `title` y `module` disponibles en el objeto.
+- Commits del mismo `module` con el mismo `type` e impacto idéntico → consolidar en un solo bullet.
+- Ajustar el idioma si el usuario pidió un tono específico (formal, conversacional).
 
-Por cada commit (o grupo de commits del mismo módulo), generar un bullet usando la tabla de traducción. Un commit = un bullet. Commits del mismo módulo con el mismo impacto se consolidan en uno.
+### Paso 4 — Mostrar en el chat
 
-#### TABLA DE TRADUCCIÓN
-
-| Patrón en commit | Bullet orientado a negocio |
-|---|---|
-| `feat:` / new Page Object / session | Ampliación de cobertura automatizada hacia [sección del CMS] |
-| `fix:` | Corrección de estabilidad en [flujo afectado] |
-| `refactor:` / restructure / clean | Reducción de deuda técnica en [módulo]: [impacto concreto] |
-| `Add [X] handler / class` | Implementación de [capacidad funcional]: [impacto] |
-| `Add factory / faker / dynamic data` | Generación de datos dinámicos en [módulo], eliminando dependencias estáticas |
-| `Add/update docs / JSDoc` | Actualización de documentación técnica en [módulo] |
-| `Add skill / rules / CLAUDE.md` | Mejora de configuración del agente IA de desarrollo |
-| `Docker / grid / CI` | Mejora de infraestructura de ejecución y CI/CD |
-| `Add toast / banner / modal` | Implementación del sistema de validación de resultados en [flujo] |
-| `chore:` / config / deps | Mantenimiento de entorno: [descripción breve] |
-
-### Paso 5 — Mostrar en el chat
+Agrupar los bullets por `date` (campo ISO del JSON, convertir a formato español: `2026-04-07` → `07 de abril de 2026`).
 
 Formato exacto:
 

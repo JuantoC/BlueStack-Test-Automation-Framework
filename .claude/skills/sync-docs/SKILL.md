@@ -14,20 +14,15 @@ description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con
 
 ## Paso 1 — Obtener commits pendientes de revisión
 
-Leer `.claude/pending-doc-updates.json` y filtrar entradas con `status` en `["pending", "prompt-generated"]`:
+Ejecutar `pending-docs-reader.ts` para obtener el inventario estructurado de commits pendientes:
 
 ```bash
-python3 -c "
-import json
-with open('.claude/pending-doc-updates.json') as f:
-    data = json.load(f)
-pending = [c for c in data['pendingCommits'] if c['status'] in ('pending', 'prompt-generated')]
-for c in pending:
-    print(c['hash'], '|', ' '.join(c['changedFiles']))
-"
+./node_modules/.bin/tsx scripts/skills/pending-docs-reader.ts --status pending
 ```
 
-Para cada commit pendiente, obtener su diff sobre los archivos afectados:
+El JSON resultante incluye `entries` (commits con `changedFiles` y `commitMessage`) y `filesByPriority` (archivos deduplicados ordenados por frecuencia). Usar `filesByPriority` para priorizar qué archivos revisar primero cuando hay múltiples commits pendientes.
+
+Para cada commit en `entries`, obtener su diff sobre los archivos afectados:
 ```bash
 git show <hash> -- <archivo1> <archivo2> ...
 ```
@@ -74,14 +69,20 @@ Clasificar cada cambio:
 
 ## Paso 3 — Verificar JSDoc y dead imports de los archivos afectados (solo MODO COMPLETO)
 Para cada archivo con cambio estructural o dead import candidato:
-1. Leer el archivo `.ts` afectado completo
-2. Verificar si el JSDoc refleja el estado nuevo de la firma
-3. Verificar si los `@param`, `@returns` y `@throws` son consistentes con el código actual
+
+1. Ejecutar `jsdoc-scanner.ts` sobre el archivo antes de leerlo:
+   ```bash
+   ./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path <archivo>
+   ```
+   Usar el JSON resultante para saber exactamente qué gaps de JSDoc existen — **no inferir manualmente**.
+
+2. Leer el archivo `.ts` afectado completo
+3. Corregir los gaps reportados por el scanner (`missingParams`, `missingDescription`, `missingReturns`) y verificar que reflejan el estado nuevo de la firma
 4. **Para dead import candidatos:** verificar que el símbolo importado NO aparece en ningún uso
    en el resto del archivo (búsqueda visual en el código leído). Si no aparece → confirmar como dead import.
 
-> **Optimización:** lanzar todas las lecturas de archivos `.ts` independientes entre sí en paralelo
-> (múltiples `Read` en un solo mensaje). No esperar el resultado de uno para leer el siguiente.
+> **Optimización:** lanzar todos los llamados a `jsdoc-scanner.ts` y las lecturas de archivos `.ts`
+> independientes entre sí en paralelo (múltiples tool calls en un solo mensaje).
 
 ## Paso 4 — Verificar `.md` relacionados
 Revisar si alguno de estos archivos referencia el módulo modificado:

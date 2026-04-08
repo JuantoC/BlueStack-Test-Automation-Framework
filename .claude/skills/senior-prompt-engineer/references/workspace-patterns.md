@@ -77,6 +77,10 @@ BlueStack-Test-Automation-Framework/
 - **Hace:** revisa código cambiado por calidad y lo refactoriza
 - **No hace:** genera POMs desde cero, crea sessions
 
+### audit-logs
+- **Hace:** audita y corrige el uso de `logger.debug/info/warn/error` en archivos/carpetas `.ts` según convenciones Winston del proyecto
+- **No hace:** modifica lógica funcional, agrega logs nuevos salvo en catch sin logger
+
 ### senior-prompt-engineer (esta skill)
 - **Hace:** diseña/optimiza `SKILL.md`, prompts del sistema, frontmatter de skills
 - **No hace:** genera POMs ni sessions directamente (los delega a pom-generator/create-session)

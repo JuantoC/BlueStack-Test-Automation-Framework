@@ -19,7 +19,12 @@ module.exports = {
     roots: ['<rootDir>'],
 
     // PATRÓN DE DESCUBRIMIENTO
-    // Solo ejecutamos archivos que terminen en .test.ts dentro de sessions/
+    // Descubre archivos .test.ts en cualquier subdirectorio de sessions/
+    // Ejecutar una suite por dominio: jest <nombre-carpeta>
+    //   Ejemplos: jest video | jest post | jest stress
+    // Ejecutar un test puntual:      jest <NombreArchivo>
+    //   Ejemplo:  jest NewPost
+    // Ejecutar múltiples dominios:   jest "post|video"
     testMatch: [
         "**/sessions/**/*.test.ts"
     ],

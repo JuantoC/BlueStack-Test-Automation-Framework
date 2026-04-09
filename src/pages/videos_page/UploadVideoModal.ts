@@ -1,6 +1,5 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 import { VideoData } from "../../interfaces/data.js";
 import logger from "../../core/utils/logger.js";
@@ -63,29 +62,39 @@ export class UploadVideoModal {
    *
    * @param data - Objeto parcial de `VideoData` con los valores a escribir en el formulario.
    */
+  /**
+   * Hace click sobre el elemento de preview de imagen para abrir el selector de imagen.
+   * Acción atómica — solo ejecuta el click sobre `IMAGE_PREVIEW`.
+   */
+  async clickImagePreview(): Promise<void> {
+    try {
+      await clickSafe(this.driver, UploadVideoModal.IMAGE_PREVIEW, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error al hacer click en image preview: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
   async fillAll(data: Partial<VideoData>): Promise<void> {
-    await step("Rellenar campos del modal de subida de video", async () => {
-      const textMapping: Array<{ key: keyof VideoData; type: UploadVideoModalFields }> = [
-        { key: 'url', type: 'URL_YOUTUBE' },
-        { key: 'title', type: 'TITLE_INPUT' },
-        { key: 'description', type: 'DESCRIPTION_INPUT' },
-        { key: 'path', type: 'FILE_UPLOAD_INPUT' },
-        { key: 'iframe', type: 'IFRAME_URL' },
-      ];
+    const textMapping: Array<{ key: keyof VideoData; type: UploadVideoModalFields }> = [
+      { key: 'url', type: 'URL_YOUTUBE' },
+      { key: 'title', type: 'TITLE_INPUT' },
+      { key: 'description', type: 'DESCRIPTION_INPUT' },
+      { key: 'path', type: 'FILE_UPLOAD_INPUT' },
+      { key: 'iframe', type: 'IFRAME_URL' },
+    ];
 
-      for (const { key, type } of textMapping) {
-        const value = data[key];
-        if (typeof value === 'string' && value.trim()) {
-          await this.fillField(type, value as string);
-        }
+    for (const { key, type } of textMapping) {
+      const value = data[key];
+      if (typeof value === 'string' && value.trim()) {
+        await this.fillField(type, value as string);
       }
+    }
 
-      if (data.video_type === 'EMBEDDED') {
-        await clickSafe(this.driver, UploadVideoModal.IMAGE_PREVIEW, this.config)
-        await this.image.selectImage(0)
-      }
-
-    });
+    if (data.video_type === 'EMBEDDED') {
+      await this.clickImagePreview();
+      await this.image.selectImage(0)
+    }
   }
 
   /**
@@ -129,22 +138,20 @@ export class UploadVideoModal {
    * @param timeoutMs - Tiempo máximo de espera en milisegundos. Por defecto 3 minutos.
    */
   async checkProgressBar(timeoutMs = 1000 * 60 * 3) { // 3 minutos por defecto
-    await step("Verificar barra de progreso de subida", async () => {
-      const startTime = Date.now();
-      const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
-      try {
-        logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
-        while (!(await this.isProgressBarFull(progressBar))) {
-          if (Date.now() - startTime > timeoutMs) {
-            throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
-          }
-          await sleep(200);
+    const startTime = Date.now();
+    const progressBar = await waitFind(this.driver, UploadVideoModal.PROGRESS_BAR, this.config);
+    try {
+      logger.debug('Esperando a que la barra de progreso aparezca...', { label: this.config.label })
+      while (!(await this.isProgressBarFull(progressBar))) {
+        if (Date.now() - startTime > timeoutMs) {
+          throw new Error(`Timeout: La barra de progreso no se completó en ${timeoutMs}ms`);
         }
-      } catch (error: unknown) {
-        logger.error(`Error verificando barra de progreso: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
+        await sleep(200);
       }
-    });
+    } catch (error: unknown) {
+      logger.error(`Error verificando barra de progreso: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   /**
@@ -152,14 +159,12 @@ export class UploadVideoModal {
    * Punto de invocación final del formulario; desencadena el proceso de subida en el backend.
    */
   async clickOnUploadBtn() {
-    await step("Click en botón de subida", async () => {
-      try {
-        await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
-      } catch (error: unknown) {
-        logger.error(`Error al clickear subir: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
-      }
-    });
+    try {
+      await clickSafe(this.driver, UploadVideoModal.UPLOAD_BTN, this.config)
+    } catch (error: unknown) {
+      logger.error(`Error al clickear subir: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   private async isProgressBarFull(progressBar: WebElement): Promise<boolean> {

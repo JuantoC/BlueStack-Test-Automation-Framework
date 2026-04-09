@@ -39,14 +39,14 @@ export class ImageTable {
 
 
   /**
-   * Busca en las primeras 10 imágenes hasta encontrar la que coincida con el título deseado.
+   * Busca en las primeras `limit` imágenes hasta encontrar la que coincida con el título deseado.
    * Retorna el WebElement contenedor de la imagen (no del título), permitiendo operaciones posteriores.
    *
    * @param title - Fragmento o título completo a buscar dentro de los títulos de las imágenes.
+   * @param limit - Cantidad máxima de contenedores a recorrer. Por defecto 10.
    * @returns {Promise<WebElement>} El contenedor DOM de la imagen que contiene el título.
    */
-  async getImageContainerByTitle(title: string): Promise<WebElement> {
-    const limit = 10;
+  async getImageContainerByTitle(title: string, limit = 10): Promise<WebElement> {
     if (!title || title.trim() === "") {
       throw new Error("El título no puede estar vacío para buscar el contenedor de la imagen.");
     }

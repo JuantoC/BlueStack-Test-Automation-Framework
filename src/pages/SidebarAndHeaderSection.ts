@@ -27,7 +27,7 @@ export class SidebarAndHeader {
   private config: RetryOptions;
 
   private static readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
-  private static readonly SUBMENU_MULTIMEDIA_LOCATOR: Locator = By.css('a[title="Multimedia"] ul.sidebar-subnav');
+  private static readonly SUBMENU_MULTIMEDIA_LOCATOR: Locator = By.css('li.itemMenu ul.sidebar-subnav');
 
   public static readonly SIDEBAR_MAP = {
     COMMENTS: By.css('a[title="Comentarios"]'),

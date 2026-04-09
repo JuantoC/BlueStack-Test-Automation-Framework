@@ -113,16 +113,16 @@ export class PostTable {
   }
 
   /**
-   * Busca en las primeras 10 filas hasta encontrar el título deseado.
+   * Busca en las primeras `limit` filas hasta encontrar el título deseado.
    * Retorna el WebElement de la FILA (Container), no del título, para que puedas seguir operando con ella.
    * Utiliza búsqueda escalonada (contenedor padre → título interno) para evitar IDs duplicados en el DOM.
    * El flujo completo está envuelto en un `retry` con 2 reintentos ante cambios de DOM de Angular.
    *
    * @param title - Fragmento del título de la nota a buscar (comparación por `includes`).
+   * @param limit - Cantidad máxima de filas a recorrer. Por defecto 10.
    * @returns {Promise<WebElement>} Contenedor WebElement de la fila que contiene la nota buscada.
    */
-  async getPostContainerByTitle(title: string): Promise<WebElement> {
-    const limit = 10;
+  async getPostContainerByTitle(title: string, limit = 10): Promise<WebElement> {
     if (!title || title.trim() === "") {
       throw new Error("El título no puede estar vacío para buscar el contenedor de la nota.");
     }

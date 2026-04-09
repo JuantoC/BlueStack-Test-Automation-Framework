@@ -1,6 +1,6 @@
 import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../../core/config/defaultConfig.js";
-import { attachment, step } from "allure-js-commons";
+import { attachment } from "allure-js-commons";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { waitFind } from "../../../core/actions/waitFind.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
@@ -53,14 +53,25 @@ export class AIPostModal {
    * Punto final del flujo de generación; delega en `clickSafe`.
    */
   async clickOnDoneBtn() {
-    await step("Click en el boton done", async () => {
-      try {
-        await clickSafe(this.driver, AIPostModal.DONE_BTN, this.config);
-      } catch (error: unknown) {
-        logger.error(`Error al hacer click en el boton done`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
-      }
-    });
+    try {
+      await clickSafe(this.driver, AIPostModal.DONE_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error al hacer click en el boton done`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click directamente sobre el botón de generar sin verificar precondiciones.
+   * Acción atómica — no verifica el estado del checkbox ni si el botón está habilitado.
+   */
+  async clickGenerateBtn(): Promise<void> {
+    try {
+      await clickSafe(this.driver, AIPostModal.GENERATE_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   /**
@@ -69,20 +80,18 @@ export class AIPostModal {
    * verifica que el botón esté habilitado antes de ejecutar el click.
    */
   async clickOnGenerateBtn() {
-    await step("Click en el boton generar", async () => {
-      try {
-        await this.ensureCheckboxSelected();
-        logger.debug("Haciendo click en el boton generar", { label: this.config.label });
-        if (await this.isGenerateBtnEnabled()) {
-          await clickSafe(this.driver, AIPostModal.GENERATE_BTN, this.config);
-        } else {
-          throw new Error("El boton generar esta deshabilitado");
-        }
-      } catch (error: unknown) {
-        logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
+    try {
+      await this.ensureCheckboxSelected();
+      logger.debug("Haciendo click en el boton generar", { label: this.config.label });
+      if (await this.isGenerateBtnEnabled()) {
+        await this.clickGenerateBtn();
+      } else {
+        throw new Error("El boton generar esta deshabilitado");
       }
-    });
+    } catch (error: unknown) {
+      logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   /**
@@ -93,15 +102,13 @@ export class AIPostModal {
    * @param data - Objeto parcial de `AIDataNote` con los valores a completar en el formulario.
    */
   async fillAll(data: Partial<AIDataNote>) {
-    await step("Rellenar campos de promtps, contexto y opciones", async () => {
-      const fields = Object.keys(AIPostModal.LOCATORS) as AIPostField[];
+    const fields = Object.keys(AIPostModal.LOCATORS) as AIPostField[];
 
-      for (const field of fields) {
-        const value = data[field];
-        if (value === null || value === undefined) continue;
-        await this.fillField(field, value);
-      }
-    });
+    for (const field of fields) {
+      const value = data[field];
+      if (value === null || value === undefined) continue;
+      await this.fillField(field, value);
+    }
   }
 
   /**

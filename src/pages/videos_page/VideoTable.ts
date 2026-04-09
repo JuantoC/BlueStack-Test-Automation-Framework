@@ -8,7 +8,6 @@ import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
-import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
@@ -41,11 +40,13 @@ export class VideoTable {
 
 
   /**
-   * Busca en los primeros 10 videos hasta encontrar el título deseado.
+   * Busca en los primeros `limit` videos hasta encontrar el título deseado.
    * Retorna el WebElement del video (Container), no del título, para que puedas seguir operando con él.
+   *
+   * @param title - Título exacto o fragmento a buscar.
+   * @param limit - Cantidad máxima de contenedores a recorrer. Por defecto 10.
   */
-  async getVideoContainerByTitle(title: string): Promise<WebElement> {
-    const limit = 10;
+  async getVideoContainerByTitle(title: string, limit = 10): Promise<WebElement> {
     if (!title || title.trim() === "") {
       throw new Error("El título no puede estar vacío para buscar el contenedor del video.");
     }
@@ -144,25 +145,23 @@ export class VideoTable {
    * ESCAPE para salir del modo de edición sin modificar el título.
    */
   async skipInlineTitleEdit() {
-    await step('Sacando la edicion inline automatica al subir un nuevo video', async (stepContext) => {
-      try {
-        logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
-        const actualVideo = await this.getVideoContainerByIndex(0);
+    try {
+      logger.debug('Esperando y sacando la edicion inline automatica al subir un nuevo video...', { label: this.config.label })
+      const actualVideo = await this.getVideoContainerByIndex(0);
 
-        await this.driver.wait(async () => {
-          const textarea = await actualVideo.findElements(By.css(`textarea.cdk-textarea-autosize`));
-          return textarea.length > 0
-        }, this.config.timeoutMs)
+      await this.driver.wait(async () => {
+        const textarea = await actualVideo.findElements(By.css(`textarea.cdk-textarea-autosize`));
+        return textarea.length > 0
+      }, this.config.timeoutMs)
 
-        const textarea = await actualVideo.findElement(By.css(`textarea.cdk-textarea-autosize`))
-        await textarea.sendKeys(Key.ESCAPE);
-        logger.debug('Key de escape enviada. Edicion inline sacada', { label: this.config.label })
+      const textarea = await actualVideo.findElement(By.css(`textarea.cdk-textarea-autosize`))
+      await textarea.sendKeys(Key.ESCAPE);
+      logger.debug('Key de escape enviada. Edicion inline sacada', { label: this.config.label })
 
-      } catch (error: unknown) {
-        logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
-        throw error;
-      }
-    })
+    } catch (error: unknown) {
+      logger.error(`Ocurrio un error intentando quitar la edicion inline del video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
+      throw error;
+    }
   }
 
   /**

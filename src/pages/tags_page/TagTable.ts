@@ -51,14 +51,14 @@ export class TagTable {
   }
 
   /**
-   * Busca en los primeros 10 tags hasta encontrar el que contiene el texto indicado.
+   * Busca en los primeros `limit` tags hasta encontrar el que contiene el texto indicado.
    * Retorna el WebElement del contenedor de acciones (`div#N-dropMenu`) del tag encontrado.
    *
    * @param title - Fragmento de texto del nombre del tag a buscar.
+   * @param limit - Cantidad máxima de contenedores a recorrer. Por defecto 10.
    * @returns {Promise<WebElement>} El contenedor de acciones del tag encontrado.
    */
-  async getTagContainerByTitle(title: string): Promise<WebElement> {
-    const limit = 10;
+  async getTagContainerByTitle(title: string, limit = 10): Promise<WebElement> {
     if (!title || title.trim() === "") {
       throw new Error("El título no puede estar vacío para buscar el contenedor del tag.");
     }

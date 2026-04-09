@@ -5,7 +5,6 @@ import { clickSafe } from "../../core/actions/clickSafe.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 import { waitEnabled } from "../../core/actions/waitEnabled.js";
-import { step } from "allure-js-commons";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 import type { VideoType } from '../../interfaces/data.js';

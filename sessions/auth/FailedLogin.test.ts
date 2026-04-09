@@ -36,8 +36,8 @@ runSession('Login Fallido Reiterado y Exitoso', async ({ driver, opts, log }) =>
     severity: "normal",
   });
 
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";

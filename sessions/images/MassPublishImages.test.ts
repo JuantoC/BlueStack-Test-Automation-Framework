@@ -54,11 +54,11 @@ la mecánica de edición inline de títulos y la publicación masiva desde el fo
     severity: "normal",
   });
 
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { ImageDataFactory, IMAGE_PATHS } from "../src/data_test/factories/index.js";
-import { MainImagePage } from "../src/pages/images_pages/MainImagePage.js";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { ImageDataFactory, IMAGE_PATHS } from "../../src/data_test/factories/index.js";
+import { MainImagePage } from "../../src/pages/images_pages/MainImagePage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
 import { description } from "allure-js-commons";

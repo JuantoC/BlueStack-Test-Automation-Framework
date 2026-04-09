@@ -1,7 +1,3 @@
-// ⚠️ DEBUG SESSION — Reemplazar el valor de DEBUG_IMAGE_TITLE con el título
-// (o fragmento de título) de una imagen real existente en la tabla antes de ejecutar.
-const DEBUG_IMAGE_TITLE = 'DEBUG — reemplazar con título real';
-
 runSession("Debug — Image Editor Header Actions", async ({ driver, opts, log }) => {
 
   description(`
@@ -37,7 +33,7 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
 
   await sidebar.goToComponent('IMAGES');
 
-  const imageContainer = await imagePage.table.getImageContainerByTitle(DEBUG_IMAGE_TITLE);
+  const imageContainer = await imagePage.table.getImageContainerByIndex(0);
 
   await step('Entrar al editor — acción inicial', async () => {
     await imagePage.clickOnActionImage(imageContainer, 'EDIT');
@@ -51,7 +47,7 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
     await imageEditor.closeNoteEditor('SAVE_AND_EXIT');
   });
 
-  const imageContainerFresh = await imagePage.table.getImageContainerByTitle(DEBUG_IMAGE_TITLE);
+  const imageContainerFresh = await imagePage.table.getImageContainerByIndex(0);
 
   await step('Re-entrar al editor tras SAVE_AND_EXIT', async () => {
     await imagePage.clickOnActionImage(imageContainerFresh, 'EDIT');
@@ -74,11 +70,11 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
     severity: "normal",
   });
 
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description, step } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
-import { MainImagePage } from "../src/pages/images_pages/MainImagePage.js";
-import { MainEditorPage as MainImageEditorPage } from "../src/pages/images_pages/images_editor_page/MainEditorPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
+import { MainImagePage } from "../../src/pages/images_pages/MainImagePage.js";
+import { MainEditorPage as MainImageEditorPage } from "../../src/pages/images_pages/images_editor_page/MainEditorPage.js";

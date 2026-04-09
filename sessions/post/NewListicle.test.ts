@@ -42,11 +42,11 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
     severity: "normal",
   });
 
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { ListicleDataFactory } from "../src/data_test/factories/index.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { ListicleDataFactory } from "../../src/data_test/factories/index.js";
 import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { MainPostPage } from "../../src/pages/post_page/MainPostPage.js";
+import { MainEditorPage } from "../../src/pages/post_page/note_editor_page/MainEditorPage.js";

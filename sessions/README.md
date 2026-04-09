@@ -22,7 +22,7 @@
 | Imports | Siempre al final del archivo, extensión `.js` |
 | Datos de prueba | Solo fábricas faker-js — cero fixtures estáticos |
 | Naming de archivo | `PascalCase.test.ts` |
-| Descubrimiento | Jest glob `**/sessions/**/*.test.ts` |
+| Descubrimiento | Jest glob `**/sessions/**/*.test.ts` — recursivo por subcarpeta |
 | Timeout por test | 20 minutos (`jest.config.cjs`) |
 | Paralelismo | Controlado por `MAX_INSTANCES` en `.env` |
 
@@ -58,18 +58,27 @@ Test file (sessions/*.test.ts)
 
 ```
 sessions/
-├── FailedLogin.test.ts          # Auth — login fallido reiterado + exitoso
-├── NewPost.test.ts              # Post — creación, guardado y publicación
-├── NewListicle.test.ts          # Listicle — creación con BACK_SAVE y publicación
-├── NewLiveBlog.test.ts          # LiveBlog — creación y publicación
-├── NewAIPost.test.ts            # AI Post — generación asistida por IA + guardado
-├── NewEmbeddedVideo.test.ts     # Video — creación de Embedded + edición inline
-├── NewYoutubeVideo.test.ts      # Video — subida YouTube + edición inline
-├── MassPublishNotes.test.ts     # Mass Actions — Post + Listicle + Liveblog masivos
-├── MassPublishImages.test.ts    # Mass Actions — subida nativa, edición inline y publicación de imágenes
-├── MassPublishVideos.test.ts    # Mass Actions — publicación masiva de videos
-├── PostAndVideo.test.ts         # Cross-component — Post + YouTube (critical)
-└── StressMassActions.test.ts    # Stress — notas + videos + AI + publicación masiva
+├── auth/
+│   └── FailedLogin.test.ts          # Auth — login fallido reiterado + exitoso
+├── post/
+│   ├── NewPost.test.ts              # Post — creación, guardado y publicación
+│   ├── NewListicle.test.ts          # Listicle — creación con BACK_SAVE y publicación
+│   ├── NewLiveBlog.test.ts          # LiveBlog — creación y publicación
+│   ├── NewAIPost.test.ts            # AI Post — generación asistida por IA + guardado
+│   └── MassPublishNotes.test.ts     # Mass Actions — Post + Listicle + Liveblog masivos
+├── video/
+│   ├── NewEmbeddedVideo.test.ts     # Video — creación de Embedded + edición inline
+│   ├── NewYoutubeVideo.test.ts      # Video — subida YouTube + edición inline
+│   └── MassPublishVideos.test.ts    # Mass Actions — publicación masiva de videos
+├── images/
+│   └── MassPublishImages.test.ts    # Mass Actions — subida nativa, edición inline y publicación de imágenes
+├── cross/
+│   └── PostAndVideo.test.ts         # Cross-component — Post + YouTube (critical)
+├── stress/
+│   └── StressMassActions.test.ts    # Stress — notas + videos + AI + publicación masiva
+└── debug/
+    ├── DebugImageEditorHeader.test.ts   # Debug — acciones del header del editor de imágenes
+    └── DebugVideoEditorHeader.test.ts   # Debug — acciones del header del editor de videos
 ```
 
 ---
@@ -110,20 +119,22 @@ runSession(
 
 # Catálogo de Sessions
 
-| Archivo | Epic | Feature | Severity | Page Objects usados |
-|---|---|---|---|---|
-| `FailedLogin` | Login | Failed Login | normal | `MainLoginPage` |
-| `NewPost` | Post Component | Post | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewListicle` | Post Component | Listicle | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewLiveBlog` | Post Component | LiveBlog | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewAIPost` | AI Post Component | AI Post | normal | `MainLoginPage`, `MainPostPage`, `MainAIPage`, `MainEditorPage` |
-| `NewEmbeddedVideo` | Video Component | Embedded Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `NewYoutubeVideo` | Video Component | Youtube Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `MassPublishNotes` | Post Management | Mass Publication | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `MassPublishImages` | Multimedia | Imágenes | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
-| `MassPublishVideos` | Video Management | Mass Publication | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `PostAndVideo` | Post & Video Component | Cross-Component Workflow | **critical** | `MainLoginPage`, `MainPostPage`, `MainEditorPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `StressMassActions` | Stress Test | Mass Actions | **critical** | todos los anteriores + `MainAIPage` |
+| Archivo | Carpeta | Epic | Feature | Severity | Page Objects usados |
+|---|---|---|---|---|---|
+| `FailedLogin` | `auth` | Login | Failed Login | normal | `MainLoginPage` |
+| `NewPost` | `post` | Post Component | Post | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
+| `NewListicle` | `post` | Post Component | Listicle | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
+| `NewLiveBlog` | `post` | Post Component | LiveBlog | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
+| `NewAIPost` | `post` | AI Post Component | AI Post | normal | `MainLoginPage`, `MainPostPage`, `MainAIPage`, `MainEditorPage` |
+| `MassPublishNotes` | `post` | Post Management | Mass Publication | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
+| `NewEmbeddedVideo` | `video` | Video Component | Embedded Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
+| `NewYoutubeVideo` | `video` | Video Component | Youtube Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
+| `MassPublishVideos` | `video` | Video Management | Mass Publication | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
+| `MassPublishImages` | `images` | Multimedia | Imágenes | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
+| `PostAndVideo` | `cross` | Post & Video Component | Cross-Component Workflow | **critical** | `MainLoginPage`, `MainPostPage`, `MainEditorPage`, `MainVideoPage`, `SidebarAndHeader` |
+| `StressMassActions` | `stress` | Stress Test | Mass Actions | **critical** | todos los anteriores + `MainAIPage` |
+| `DebugImageEditorHeader` | `debug` | Debug | Image Editor | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
+| `DebugVideoEditorHeader` | `debug` | Debug | Video Editor | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
 
 ---
 
@@ -248,11 +259,19 @@ import { ENV_CONFIG } from "../src/core/config/envConfig.js";
 # Ejecución
 
 ```bash
-# Un test específico (local, browser visible)
+# Suite por dominio (todos los tests de una carpeta)
+npm run test:dev -- video         # sessions/video/*.test.ts
+npm run test:dev -- post          # sessions/post/*.test.ts
+npm run test:dev -- stress        # sessions/stress/*.test.ts
+
+# Test específico (igual que antes)
 npm run test:dev -- NewPost
 
-# Contra el Docker Grid
-npm run test:grid -- NewPost
+# Regex multi-dominio
+npm run test:dev -- "post|video"
+
+# Contra el Docker Grid (mismo filtrado)
+npm run test:grid -- video
 
 # CI completo (clean → infra:up → exec → infra:down)
 npm run test:ci -- NewPost

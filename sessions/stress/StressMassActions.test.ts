@@ -98,14 +98,14 @@ runSession("Stress Mass Actions",
   { epic: "Stress Test", feature: "Mass Actions", severity: "critical" }
 );
 
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { MainPostPage } from "../src/pages/post_page/MainPostPage.js";
-import { MainAIPage } from "../src/pages/post_page/AIPost/MainAIPage.js";
-import { MainEditorPage } from "../src/pages/post_page/note_editor_page/MainEditorPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { MainPostPage } from "../../src/pages/post_page/MainPostPage.js";
+import { MainAIPage } from "../../src/pages/post_page/AIPost/MainAIPage.js";
+import { MainEditorPage } from "../../src/pages/post_page/note_editor_page/MainEditorPage.js";
 import {
   PostDataFactory,
   ListicleDataFactory,
@@ -114,7 +114,7 @@ import {
   YoutubeVideoDataFactory,
   EmbeddedVideoDataFactory,
   AINoteDataFactory
-} from "../src/data_test/factories/index.js";
-import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
+} from "../../src/data_test/factories/index.js";
+import { MainVideoPage } from "../../src/pages/videos_page/MainVideoPage.js";
+import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
 

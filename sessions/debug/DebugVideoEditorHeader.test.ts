@@ -70,11 +70,11 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
     severity: "normal",
   });
 
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description, step } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
-import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { MainEditorPage as MainVideoEditorPage } from "../src/pages/videos_page/video_editor_page/MainEditorPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
+import { MainVideoPage } from "../../src/pages/videos_page/MainVideoPage.js";
+import { MainEditorPage as MainVideoEditorPage } from "../../src/pages/videos_page/video_editor_page/MainEditorPage.js";

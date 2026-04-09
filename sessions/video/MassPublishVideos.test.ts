@@ -55,11 +55,11 @@ runSession("Mass Publish Videos", async ({ driver, opts, log }) => {
     severity: "normal",
   });
 
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { NativeVideoDataFactory, YoutubeVideoDataFactory, EmbeddedVideoDataFactory } from "../src/data_test/factories/index.js";
-import { MainVideoPage } from "../src/pages/videos_page/MainVideoPage.js";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
-import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { NativeVideoDataFactory, YoutubeVideoDataFactory, EmbeddedVideoDataFactory } from "../../src/data_test/factories/index.js";
+import { MainVideoPage } from "../../src/pages/videos_page/MainVideoPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
+import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
 import { description } from "allure-js-commons"; 

@@ -56,13 +56,6 @@ export class UploadVideoModal {
   }
 
   /**
-   * Rellena automáticamente todos los campos del modal que tengan un valor presente en `data`.
-   * Itera sobre un mapa de campos predefinido (título, descripción, URL, ruta de archivo)
-   * y delega en `fillField` para cada campo que contenga un valor válido.
-   *
-   * @param data - Objeto parcial de `VideoData` con los valores a escribir en el formulario.
-   */
-  /**
    * Hace click sobre el elemento de preview de imagen para abrir el selector de imagen.
    * Acción atómica — solo ejecuta el click sobre `IMAGE_PREVIEW`.
    */
@@ -75,6 +68,14 @@ export class UploadVideoModal {
     }
   }
 
+  /**
+   * Rellena automáticamente todos los campos del modal que tengan un valor presente en `data`.
+   * Itera sobre un mapa de campos predefinido (título, descripción, URL, ruta de archivo, iframe)
+   * y delega en `fillField` para cada campo con valor válido.
+   * Para videos `EMBEDDED`, abre el selector de imagen vía `clickImagePreview` y selecciona la primera disponible.
+   *
+   * @param data - Objeto parcial de `VideoData` con los valores a escribir en el formulario.
+   */
   async fillAll(data: Partial<VideoData>): Promise<void> {
     const textMapping: Array<{ key: keyof VideoData; type: UploadVideoModalFields }> = [
       { key: 'url', type: 'URL_YOUTUBE' },
@@ -100,6 +101,9 @@ export class UploadVideoModal {
   /**
    * Rellena un campo de texto específico y verifica que el contenido sea correcto.
    * Maneja automáticamente la diferencia entre inputs estándar y editores enriquecidos.
+   *
+   * @param field - Identificador del campo a rellenar (ej: TITLE_INPUT, URL_YOUTUBE).
+   * @param value - Valor a escribir en el campo.
    */
   async fillField(field: UploadVideoModalFields, value: string): Promise<void> {
     await step(`Llenar campo ${field}`, async () => {

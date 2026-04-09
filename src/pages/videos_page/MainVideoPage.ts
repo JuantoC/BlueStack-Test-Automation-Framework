@@ -54,6 +54,7 @@ export class MainVideoPage {
    * Para videos de tipo `NATIVO`, también verifica la barra de progreso de carga.
    *
    * @param videoData - Datos completos del video a subir, incluyendo tipo, título, URL o ruta de archivo.
+   * @returns {Promise<void>}
    */
   async uploadNewVideo(videoData: VideoData): Promise<any> {
     await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
@@ -98,6 +99,7 @@ export class MainVideoPage {
    *
    * @param videoContainer - Contenedor WebElement del video a modificar.
    *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
+   * @returns {Promise<void>}
    */
   async changeVideoTitle(videoContainer: WebElement): Promise<any> {
     await step(`Cambiando título del video`, async () => {
@@ -126,6 +128,7 @@ export class MainVideoPage {
    * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
    *   Obtenerlo previamente con `this.table.getVideoContainerByTitle()` o `this.table.getVideoContainerByIndex()`.
    * @param action - Tipo de acción a ejecutar sobre el video (EDIT, DELETE, UNPUBLISH).
+   * @returns {Promise<void>}
    */
   async clickOnActionVideo(videoContainer: WebElement, action: ActionType): Promise<any> {
     await step(`Clickeando en la acción: "${action}" sobre el video`, async (stepContext) => {
@@ -154,6 +157,7 @@ export class MainVideoPage {
    * Finaliza con una acción de publicación mediante `FooterActions.clickFooterAction`.
    *
    * @param Videos - Array de contenedores WebElement de los videos que se desean seleccionar y publicar.
+   * @returns {Promise<void>}
    */
   async selectAndPublishFooter(Videos: WebElement[]): Promise<any> {
     await step("Seleccionar y publicar Videos", async (stepContext) => {

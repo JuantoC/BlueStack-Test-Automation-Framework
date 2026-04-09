@@ -27,6 +27,7 @@ export class MainPostPage {
    * Finaliza con una acción de publicación mediante `FooterActions.clickFooterAction`.
    *
    * @param posts - Array de contenedores WebElement de los posts que se desean seleccionar y publicar.
+   * @returns {Promise<void>}
    */
   async selectAndPublishFooter(posts: WebElement[]): Promise<any> {
     await step("Seleccionar y publicar posts", async (stepContext) => {
@@ -259,7 +260,7 @@ import { By, WebDriver, WebElement } from 'selenium-webdriver';
 import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from '../../core/utils/logger.js';
-import { PostTable, PostRowActionType, ViewModeType } from './PostTable.js';
+import { PostTable, PostRowActionType } from './PostTable.js';
 import { NewNoteBtn, NoteType } from './NewNoteBtn.js';
 import { FooterActions } from '../FooterActions.js';
 import { retry } from '../../core/wrappers/retry.js';

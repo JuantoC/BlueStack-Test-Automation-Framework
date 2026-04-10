@@ -51,8 +51,8 @@ await driver.get(authUrl);
 **6. Sidebar** (si el flujo no empieza en posts):
 
 ```typescript
-await sidebar.goToComponent(SidebarOption.VIDEOS);
-// import { SidebarAndHeader, SidebarOption } from "../src/pages/SidebarAndHeaderSection.js";
+await sidebar.goToComponent('VIDEOS');
+// import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
 ```
 
 **7. Log de cierre** (obligatorio): `log.info("✅ <resultado>");`

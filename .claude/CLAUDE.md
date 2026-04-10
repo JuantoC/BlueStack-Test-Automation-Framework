@@ -68,26 +68,9 @@ Acción recomendada: [tu recomendación]
 
 ---
 
-## Flujo Post-Commit
-
-Tras `smart-commit`, ejecutar automáticamente y sin pedir confirmación:
-
-1. **sync-docs** — actualiza JSDoc/TSDoc y `.md` desactualizados; genera commit `docs(...)`. Limitado a JSDoc/TSDoc y `.md`; nunca modifica `.ts` de lógica funcional sin confirmación explícita.
-2. **validate-ssot** — valida el modelo SSoT; reporta violaciones con `[TIPO] archivo → Problema → Acción recomendada` y aplica correcciones posibles automáticamente.
-
-Si el desarrollador dice "sync-docs", "revisá la documentación pendiente" o "validate-ssot": invocar la skill directamente.
-
----
-
 ## Triggers de Comportamiento
 
 - **Desarrollador modifica tipos TypeScript o firmas de funciones:** preguntar proactivamente *"¿Querés que actualice el JSDoc correspondiente y revise si hay `.md` relacionados que necesiten ajuste?"*
 - **Nuevo test en `/sessions`:** activar skill `create-session`. El `.test.ts` generado es fuente de verdad del flujo cubierto; ningún `.md` puede contradecir lo que el test valida.
 
 ---
-
-## Reglas Contextuales Activas
-
-| Contexto | Archivo de referencia |
-|---|---|
-| Crear o modificar cualquier archivo en `src/pages/` | `.claude/rules/pages.md` |

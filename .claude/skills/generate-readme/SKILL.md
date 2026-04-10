@@ -1,7 +1,6 @@
 ---
 name: generate-readme
-description: Generar o actualizar un archivo `README.md` para una carpeta o módulo del proyecto,
-siguiendo las convenciones documentadas en este repositorio.
+description: Generar o actualizar un archivo `README.md` para una carpeta o módulo del proyecto, siguiendo las convenciones documentadas en este repositorio.
 ---
 
 # Cuándo usar esta skill
@@ -12,14 +11,13 @@ siguiendo las convenciones documentadas en este repositorio.
 # Instrucciones para el agente
 
 1. Lee el README raíz `./README.md` para entender el contexto general del proyecto.
-2. Lee `src/pages/README.md` si la carpeta objetivo pertenece a la capa de páginas.
-3. Lee todos los archivos `.ts` de la carpeta objetivo:
+2. Lee todos los archivos `.ts` de la carpeta objetivo:
    - Exportaciones y tipos definidos
    - Firmas de constructores y métodos públicos
    - JSDoc/TSDoc inline existente
    - Dependencias importadas desde otros módulos internos
-4. Si la carpeta tiene sub-carpetas, lista sus archivos para entender la jerarquía.
-5. Genera el README usando la estructura canónica del proyecto:
+3. Si la carpeta tiene sub-carpetas, lista sus archivos para entender la jerarquía.
+4. Genera el README usando la estructura canónica del proyecto:
 
 ```
 <!--

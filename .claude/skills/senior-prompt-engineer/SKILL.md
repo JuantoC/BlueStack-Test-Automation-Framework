@@ -1,18 +1,11 @@
 ---
 name: senior-prompt-engineer
-description: >
-  Skill de prompt engineering especializado en el workspace de QA automation de Bluestack.
-  Activar cuando Juanto diga: "mejorá el prompt de la skill", "escribime el SKILL.md para",
-  "revisá el frontmatter de", "optimizá el prompt de", "creame una skill que haga",
-  "diseñá el prompt para que genere", "refactorizá la descripción de la skill",
-  "el trigger de la skill no está funcionando", "necesito una nueva skill para",
-  "cómo debería quedar el SKILL.md de", "revisá si la skill tiene sentido",
-  "armame el prompt del sistema para", "qué le falta a esta skill".
+description: Skill de prompt engineering especializado en el workspace de QA automation de Bluestack. Activar cuando el usuario diga: "mejorá el prompt de la skill", "optimizá el prompt de", "diseñá el prompt para que genere", "armame el prompt del sistema para".
 ---
 
 # Senior Prompt Engineer — BlueStack QA Automation
 
-> Especialización: diseño, revisión y optimización de prompts para el workspace de automatización QA de Bluestack. El output siempre es un prompt funcional, un `SKILL.md` completo, o una recomendación concreta de cambio — nunca abstracciones genéricas.
+> Especialización: diseño, revisión y optimización de prompts para el workspace de automatización QA de Bluestack. El output siempre es un prompt funcional, completo, o una recomendación concreta de cambio — nunca abstracciones genéricas.
 
 ---
 

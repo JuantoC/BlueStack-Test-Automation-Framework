@@ -27,13 +27,3 @@ Antes de modificar CUALQUIER archivo de documentación (.md, JSDoc, TSDoc)
 - Crear un .md que contradiga el código actual
 - Usar un .md modificado externamente sin verificar que sigue
   siendo consistente con el código
-```
-
-### `.claude/skills/` — Estructura refactorizada
-```
-.claude/skills/
-├── audit-docs.md          ← Fase 1: auditoría documental
-├── migrate-md-batch.md    ← Fase 3: migración semi-automatizada
-├── generate-api-docs.md   ← Fase 4: ejemplo refactorizado
-├── sync-docs.md           ← Fase 5: sincronización post-commit
-└── validate-ssot.md       ← Fase 6: validación del modelo

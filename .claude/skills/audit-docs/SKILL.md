@@ -1,13 +1,7 @@
 ---
 name: audit-docs
-description: Audita todas las fuentes de verdad del repositorio BlueStack y produce un inventario clasificado de inconsistencias entre código TypeScript, JSDoc/TSDoc y archivos .md.
+description: Audita todas las fuentes de verdad del repositorio BlueStack y produce un inventario clasificado de inconsistencias entre código TypeScript, JSDoc/TSDoc y archivos .md. Invocar cuando el usuario diga "auditá la documentación", "revisá el estado documental", "qué está desincronizado", o como primer paso antes de cualquier tarea de limpieza o migración documental, o cuando se sospeche que hay .md con contenido que debería estar en el código
 ---
-
-# Cuándo invocar
-
-- Cuando el usuario diga "auditá la documentación", "revisá el estado documental", "qué está desincronizado"
-- Como primer paso antes de cualquier tarea de limpieza o migración documental
-- Cuando se sospeche que hay .md con contenido que debería estar en el código
 
 # Instrucción al agente
 
@@ -22,10 +16,6 @@ Ejecutá la auditoría documental del proyecto con estos pasos en orden:
    - **Acción recomendada por ítem**: migrar al código / eliminar / conservar como contextual
 4. NO modifiques ningún archivo fuera de `docs/audit/` en esta fase
 5. Reportá el conteo de ítems por categoría al finalizar
-
-# Output esperado
-- `docs/audit/doc-audit.json` — inventario completo en JSON
-- `docs/audit/AUDIT-SUMMARY.md` — resumen legible con acciones recomendadas
 
 ## Artefactos de salida
 

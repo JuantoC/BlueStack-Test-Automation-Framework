@@ -1,0 +1,70 @@
+{
+  "schema_version": "2.0",
+  "skill": "jira-writer",
+  "status": "success",
+  "operation": "add_observation",
+  "ticket_key": "NAA-4416",
+  "actions_taken": [
+    {
+      "action": "comment_posted",
+      "ticket": "NAA-4416",
+      "comment_id": "39482",
+      "link": "https://bluestack-cms.atlassian.net/browse/NAA-4416"
+    }
+  ],
+  "transition_applied": false,
+  "adf_comment_built": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          { "type": "text", "text": "Observación automatizada — suite " },
+          { "type": "text", "text": "BenchmarkEval", "marks": [{ "type": "strong" }] },
+          { "type": "text", "text": " ejecutada sobre " },
+          { "type": "text", "text": "Master", "marks": [{ "type": "strong" }] },
+          { "type": "text", "text": " (" },
+          { "type": "text", "text": "https://master.d1c5iid93veq15.amplifyapp.com", "marks": [{ "type": "link", "attrs": { "href": "https://master.d1c5iid93veq15.amplifyapp.com" } }] },
+          { "type": "text", "text": "). Componente: " },
+          { "type": "text", "text": "Videos", "marks": [{ "type": "strong" }] },
+          { "type": "text", "text": "." }
+        ]
+      },
+      {
+        "type": "bulletList",
+        "content": [
+          {
+            "type": "listItem",
+            "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "El video se sube correctamente al sistema ✔" }] }]
+          },
+          {
+            "type": "listItem",
+            "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "El sistema valida correctamente el formato del archivo antes de la subida ✔" }] }]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [{ "type": "text", "text": "Resultado: 2/2 tests pasaron. Sin errores.", "marks": [{ "type": "em" }] }]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          { "type": "text", "text": "Suite: ", "marks": [{ "type": "em" }] },
+          { "type": "text", "text": "BenchmarkEval", "marks": [{ "type": "code" }] },
+          { "type": "text", "text": " — Archivo: ", "marks": [{ "type": "em" }] },
+          { "type": "text", "text": "sessions/BenchmarkEval.test.ts", "marks": [{ "type": "code" }] }
+        ]
+      }
+    ]
+  },
+  "checks_passed": {
+    "contentFormat_adf": true,
+    "no_markdown_string": true,
+    "no_literal_newlines": true,
+    "bullets_with_check_mark_at_end": true,
+    "traceability_footer": true
+  },
+  "errors": []
+}

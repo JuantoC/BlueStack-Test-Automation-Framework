@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "source_skill": "jira-reader",
+  "timestamp": "2026-04-13T19:01:00Z",
+  "project": "NAA",
+  "operations_executed": ["op1", "op3"],
+  "op1": {
+    "ticket_key": "NAA-4416",
+    "summary": "para usar",
+    "status": "To Do",
+    "issuetype": "Task",
+    "priority": "Lowest",
+    "assignee": {
+      "displayName": "Verónica Tarletta",
+      "accountId": "5c51d02898c1ac41b4329be3"
+    }
+  },
+  "op3": null,
+  "op3_note": "Sin comentarios en el ticket",
+  "op6": {
+    "available": false,
+    "reason": "OP-6 no existe en esta versión de la skill — no hay extracción de criterios de aceptación para uso automatizado"
+  }
+}

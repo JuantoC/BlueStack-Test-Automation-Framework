@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "skill": "jira-writer",
+  "status": "partial",
+  "operation": "add_observation",
+  "ticket_key": "NAA-4416",
+  "analysis": {
+    "operation_recognized": false,
+    "reason": "La operación 'add_observation' no existe en la versión v1.0 del skill. Solo soporta: create_ticket, post_validation_comment, post_devsaas_comment, create_devsaas_error_ticket",
+    "schema_version_mismatch": "Payload es v2.0 pero el skill solo define v1.0",
+    "fields_lost": ["test_name", "duration_ms", "suite_summary", "environment_url", "test_suite", "test_file"],
+    "fields_recognized": ["ticket_key", "environment", "test_results[].description", "test_results[].result"],
+    "fallback_mode": "MODO B — comentario de validación en Master (más cercano disponible)",
+    "information_retained_pct": 45
+  },
+  "degraded_output": {
+    "would_have_built": "Comentario MODO B con solo description y result de cada test. Sin header de suite, sin trazabilidad, sin duración, sin URL del ambiente.",
+    "missing_traceability_footer": true,
+    "no_add_observation_concept": true
+  },
+  "transition_applied": false,
+  "errors": [
+    {
+      "error": "operation 'add_observation' no mapeado — fallback a MODO B sin garantías",
+      "severity": "warning"
+    },
+    {
+      "error": "payload schema_version 2.0 no reconocido — procesado con schema 1.0",
+      "severity": "warning"
+    }
+  ]
+}

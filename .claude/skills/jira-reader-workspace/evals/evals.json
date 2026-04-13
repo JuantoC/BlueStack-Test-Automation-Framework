@@ -1,0 +1,73 @@
+{
+  "skill_name": "jira-reader",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Leé el ticket NAA-4416 completo usando jira-reader. Ejecutá OP-1 (lectura completa), OP-3 (extraer casos de prueba del comentario master si existe), y OP-6 (extraer criterios de aceptación de la descripción). Guardá el output estructurado completo en output.json.",
+      "expected_output": "JSON con resultados de OP-1 (summary, status, assignee, component), OP-3 (test_cases del comentario master o null si no existe), y OP-6 (criteria list de la descripción). Debe incluir schema_version: 2.0.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "output_is_valid_json",
+          "description": "El output.json es JSON válido"
+        },
+        {
+          "name": "ticket_key_naa4416",
+          "description": "El output referencia el ticket NAA-4416"
+        },
+        {
+          "name": "op1_returns_status",
+          "description": "OP-1 retorna el campo status del ticket"
+        },
+        {
+          "name": "op1_returns_assignee",
+          "description": "OP-1 retorna assignee con displayName"
+        },
+        {
+          "name": "op6_present_in_output",
+          "description": "El output incluye resultado de OP-6 (con criteria array, incluso vacío)"
+        },
+        {
+          "name": "schema_version_2_0",
+          "description": "El output incluye schema_version: 2.0 (indica que usa la nueva versión de la skill)"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Buscá en el proyecto NAA todos los tickets en estado 'A Versionar' que tengan componente 'Videos'. Retorná los primeros 5 resultados con key, summary, assignee y status.",
+      "expected_output": "Lista de hasta 5 tickets NAA con status='A Versionar' y componente Videos. Puede ser vacía si no hay.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "jql_executed",
+          "description": "Se ejecutó una búsqueda JQL sobre el proyecto NAA"
+        },
+        {
+          "name": "results_include_key_and_summary",
+          "description": "Cada resultado tiene al menos key y summary"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "El pipeline de automatización Selenium necesita los criterios de aceptación del ticket NAA-4416 antes de ejecutar los tests. Ejecutá OP-6 y retorná el output estructurado listo para ser consumido por el orquestador.",
+      "expected_output": "JSON con criteria array, ticket_key, component, assignee. Es el caso de uso automatizado de OP-6.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "output_follows_op6_schema",
+          "description": "El output tiene la estructura de OP-6: ticket_key, criteria[], source, assignee"
+        },
+        {
+          "name": "criteria_is_array",
+          "description": "El campo criteria es un array (puede ser vacío si el ticket no tiene sección de criterios)"
+        },
+        {
+          "name": "usable_by_orchestrator",
+          "description": "El output está en formato que el orquestador puede consumir directamente"
+        }
+      ]
+    }
+  ]
+}

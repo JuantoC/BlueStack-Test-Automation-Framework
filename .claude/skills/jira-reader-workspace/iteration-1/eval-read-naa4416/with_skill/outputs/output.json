@@ -1,0 +1,43 @@
+{
+  "schema_version": "2.0",
+  "source_skill": "jira-reader",
+  "timestamp": "2026-04-13T19:01:00Z",
+  "project": "NAA",
+  "operations_executed": ["op1", "op3", "op6"],
+  "op1": {
+    "ticket_key": "NAA-4416",
+    "summary": "para usar",
+    "status": "To Do",
+    "issuetype": "Task",
+    "priority": "Lowest",
+    "assignee": {
+      "displayName": "Verónica Tarletta",
+      "accountId": "5c51d02898c1ac41b4329be3"
+    },
+    "reporter": {
+      "displayName": "Verónica Tarletta",
+      "accountId": "5c51d02898c1ac41b4329be3"
+    },
+    "component": null,
+    "parent": null,
+    "labels": [],
+    "issuelinks": [],
+    "comments_total": 0,
+    "description_empty": true
+  },
+  "op3": null,
+  "op3_note": "Sin comentarios en el ticket — no existe comentario de validación master previo",
+  "op6": {
+    "ticket_key": "NAA-4416",
+    "ticket_summary": "para usar",
+    "criteria": [],
+    "source": "description_criteria",
+    "component": null,
+    "assignee": {
+      "displayName": "Verónica Tarletta",
+      "accountId": "5c51d02898c1ac41b4329be3"
+    },
+    "epic_key": null,
+    "note": "Descripción vacía — sin criterios de aceptación definidos"
+  }
+}

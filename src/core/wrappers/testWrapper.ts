@@ -11,15 +11,54 @@ import { getErrorMessage } from "../utils/errorUtils.js";
 /**
  * Metadata de negocio y clasificación para el reporte Allure del test.
  * Todos los campos son opcionales para permitir adopción incremental sin romper tests existentes.
- * Los campos se inyectan como labels y links en el reporte Allure vía `runSession`.
+ * Los campos se inyectan como labels, parameters y links en el reporte Allure vía `runSession`.
+ *
+ * --- Clasificación Allure (campos clásicos) ---
+ * @property epic      - Agrupación de nivel alto (módulo o área de negocio).
+ * @property feature   - Funcionalidad dentro del epic.
+ * @property story     - Caso de uso específico dentro de la feature.
+ * @property severity  - Criticidad del test para Allure (blocker/critical/normal/minor/trivial).
+ * @property issueId   - Key del ticket Jira vinculado (ej. "NAA-4037"). Genera link clickeable.
+ * @property tags      - Etiquetas genéricas de clasificación en Allure.
+ *
+ * --- Metadata Jira (correspondencia directa con campos del ticket) ---
+ * @property jiraSummary      - summary: título del ticket Jira vinculado.
+ * @property ticketType       - issuetype.name: tipo de issue ("Story - Back", "QA Bug - Front", etc.).
+ * @property ticketStatus     - status.name: estado actual del ticket en Jira.
+ * @property assignee         - assignee.displayName: nombre del responsable del ticket.
+ * @property component        - customfield_10061: componente técnico del ticket (ej. "Videos", "AI").
+ * @property sprint           - customfield_10021: nombre del sprint activo.
+ * @property executiveSummary - customfield_10062: resumen ejecutivo del ticket.
+ * @property parentKey        - parent.key: key del ticket padre o épica (ej. "NAA-1751").
+ * @property linkedIssues     - issuelinks: keys de tickets relacionados (ej. ["NAA-4417", "NAA-4188"]).
+ * @property fixVersion       - fixVersions[0].name: versión objetivo del fix (ej. "8.6.16.2.2").
+ * @property priority         - priority.name: prioridad Jira ("High", "Medium", "Low", etc.).
+ * @property jiraLabels       - labels: etiquetas nativas de Jira (ej. ["Ecuavisa"]). Distinto de `tags`.
+ * @property jiraAttachments  - attachment[].filename: nombres de archivos adjuntos en el ticket.
  */
 export interface TestMetadata {
+  // --- Clasificación Allure ---
   epic?: string;
   feature?: string;
   story?: string;
   severity?: "blocker" | "critical" | "normal" | "minor" | "trivial";
-  issueId?: string; // Para el ticket de Jira/Bug
+  issueId?: string;
   tags?: string[];
+
+  // --- Metadata Jira ---
+  jiraSummary?: string;
+  ticketType?: string;
+  ticketStatus?: string;
+  assignee?: string;
+  component?: string;
+  sprint?: string;
+  executiveSummary?: string;
+  parentKey?: string;
+  linkedIssues?: string[];
+  fixVersion?: string;
+  priority?: string;
+  jiraLabels?: string[];
+  jiraAttachments?: string[];
 }
 
 /**
@@ -78,6 +117,36 @@ export function runSession(
 
     // Links a Jira / Test Management (Allure los hace clickeables en el reporte)
     if (metadata.issueId) await allure.issue("Jira", `https://bluestack-cms.atlassian.net/browse/${metadata.issueId}`);
+
+    // A.1.b Inyectar Metadata Jira (campos del ticket vinculado)
+    if (metadata.jiraSummary)      await allure.label("jira_summary", metadata.jiraSummary);
+    if (metadata.ticketType)       await allure.label("ticket_type", metadata.ticketType);
+    if (metadata.ticketStatus)     await allure.label("ticket_status", metadata.ticketStatus);
+    if (metadata.assignee)         await allure.label("jira_assignee", metadata.assignee);
+    if (metadata.component)        await allure.label("component", metadata.component);
+    if (metadata.sprint)           await allure.parameter("Sprint", metadata.sprint);
+    if (metadata.executiveSummary) await allure.label("executive_summary", metadata.executiveSummary);
+    if (metadata.fixVersion)       await allure.label("fix_version", metadata.fixVersion);
+    if (metadata.priority)         await allure.label("priority", metadata.priority);
+    if (metadata.parentKey) {
+      await allure.label("parent_key", metadata.parentKey);
+      await allure.link(`https://bluestack-cms.atlassian.net/browse/${metadata.parentKey}`, `Parent: ${metadata.parentKey}`, "issue");
+    }
+    if (metadata.linkedIssues) {
+      for (const linked of metadata.linkedIssues) {
+        await allure.link(`https://bluestack-cms.atlassian.net/browse/${linked}`, linked, "issue");
+      }
+    }
+    if (metadata.jiraLabels) {
+      for (const jiraLabel of metadata.jiraLabels) {
+        await allure.label("jira_label", jiraLabel);
+      }
+    }
+    if (metadata.jiraAttachments) {
+      for (const att of metadata.jiraAttachments) {
+        await allure.label("jira_attachment", att);
+      }
+    }
 
     // A.2 Inyectar Metadata de Entorno (Automático desde el .env)
     // Esto es clave para que Allure sepa en qué entorno corrió esta ejecución

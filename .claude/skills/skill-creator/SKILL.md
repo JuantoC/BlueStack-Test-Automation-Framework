@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy. Activar cuando Juanto diga: "creá una skill", "armá una skill para", "necesito una skill que", "modificá la skill", "mejorá la skill", "evaluá la skill", "auditá la skill", "optimizá el description de la skill", "crearme un pipeline", "creá un pipeline para".
 ---
 
 # Skill Creator
@@ -23,22 +23,11 @@ Your job when using this skill is to figure out where the user is in this proces
 
 On the other hand, maybe they already have a draft of the skill. In this case you can go straight to the eval/iterate part of the loop.
 
-Of course, you should always be flexible and if the user is like "I don't need to run a bunch of evaluations, just vibe with me", you can do that instead.
+Then after the skill is done, you can also run the skill description improver to optimize the triggering of the skill.
 
-Then after the skill is done (but again, the order is flexible), you can also run the skill description improver, which we have a whole separate script for, to optimize the triggering of the skill.
+## Contexto de invocación — BlueStack
 
-Cool? Cool.
-
-## Communicating with the user
-
-The skill creator is liable to be used by people across a wide range of familiarity with coding jargon. If you haven't heard (and how could you, it's only very recently that it started), there's a trend now where the power of Claude is inspiring plumbers to open up their terminals, parents and grandparents to google "how to install npm". On the other hand, the bulk of users are probably fairly computer-literate.
-
-So please pay attention to context cues to understand how to phrase your communication! In the default case, just to give you some idea:
-
-- "evaluation" and "benchmark" are borderline, but OK
-- for "JSON" and "assertion" you want to see serious cues from the user that they know what those things are before using them without explaining them
-
-It's OK to briefly explain terms if you're in doubt, and feel free to clarify terms with a short definition if you're unsure if the user will get it.
+> Convenciones del repositorio (tipos de skills, plantillas de frontmatter, idioma, archivos modulares, entorno WSL2): leer `references/bluestack-conventions.md`.
 
 ---
 
@@ -52,6 +41,9 @@ Start by understanding the user's intent. The current conversation might already
 2. When should this skill trigger? (what user phrases/contexts)
 3. What's the expected output format?
 4. Should we set up test cases to verify the skill works? Skills with objectively verifiable outputs (file transforms, data extraction, code generation, fixed workflow steps) benefit from test cases. Skills with subjective outputs (writing style, art) often don't need them. Suggest the appropriate default based on the skill type, but let the user decide.
+5. **[BlueStack] ¿Quién invoca esta skill — un humano en conversación, u otro agente/pipeline/hook?**
+   - Si es **solo agentes/pipeline**: ubicar en `.claude/pipelines/`, frontmatter con `type: pipeline` + `called-by:` + `invocation: explicit-only`. Los test prompts deben modelar la invocación estructurada del agente llamador.
+   - Si es **conversacional** (humano o trigger automático de Claude): ubicar en `.claude/skills/`, description con trigger phrases en español. Ver `references/bluestack-conventions.md`.
 
 ### Interview and Research
 
@@ -67,6 +59,10 @@ Based on the user interview, fill in these components:
 - **description**: When to trigger, what it does. This is the primary triggering mechanism - include both what the skill does AND specific contexts for when to use it. All "when to use" info goes here, not in the body. Note: currently Claude has a tendency to "undertrigger" skills -- to not use them when they'd be useful. To combat this, please make the skill descriptions a little bit "pushy". So for instance, instead of "How to build a simple fast dashboard to display internal Anthropic data.", you might write "How to build a simple fast dashboard to display internal Anthropic data. Make sure to use this skill whenever the user mentions dashboards, data visualization, internal metrics, or wants to display any kind of company data, even if they don't explicitly ask for a 'dashboard.'"
 - **compatibility**: Required tools, dependencies (optional, rarely needed)
 - **the rest of the skill :)**
+
+> Plantillas canónicas BlueStack (conversacional y pipeline): ver `references/bluestack-conventions.md`.
+
+---
 
 ### Skill Writing Guide
 
@@ -94,6 +90,7 @@ These word counts are approximate and you can feel free to go longer if needed.
 
 **Key patterns:**
 - Keep SKILL.md under 500 lines; if you're approaching this limit, add an additional layer of hierarchy along with clear pointers about where the model using the skill should go next to follow up.
+- Prefer `references/` files over inline content for lookup tables, exception templates, and integration docs — the SKILL.md should be a lean procedural flow with pointers, not a monolith.
 - Reference files clearly from SKILL.md with guidance on when to read them
 - For large reference files (>300 lines), include a table of contents
 
@@ -245,6 +242,8 @@ Put each with_skill version before its baseline counterpart.
    For iteration 2+, also pass `--previous-workspace <workspace>/iteration-<N-1>`.
 
    **Cowork / headless environments:** If `webbrowser.open()` is not available or the environment has no display, use `--static <output_path>` to write a standalone HTML file instead of starting a server. Feedback will be downloaded as a `feedback.json` file when the user clicks "Submit All Reviews". After download, copy `feedback.json` into the workspace directory for the next iteration to pick up.
+
+   **WSL2 (BlueStack):** ver `references/bluestack-conventions.md` → Entorno WSL2.
 
 Note: please use generate_review.py to create the viewer; there's no need to write custom HTML.
 
@@ -466,6 +465,7 @@ The agents/ directory contains instructions for specialized subagents. Read them
 
 The references/ directory has additional documentation:
 - `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
+- `references/bluestack-conventions.md` — convenciones BlueStack: tipos de skills, plantillas de frontmatter, archivos modulares, entorno WSL2
 
 ---
 

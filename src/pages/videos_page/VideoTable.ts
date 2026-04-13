@@ -225,6 +225,13 @@ export class VideoTable {
     }
   }
 
+  /**
+   * Lee el título visible de un video en la tabla.
+   * Intenta primero el label CSS `.title-video` y, si no está visible, el textarea inline.
+   *
+   * @param videoContainer - WebElement contenedor del video (fila de la tabla).
+   * @returns {Promise<string>} Texto del título del video.
+   */
   async readVideoTitle(videoContainer: WebElement): Promise<string> {
     try {
       logger.debug("Intentando leer el texto del label...", { label: this.config.label });
@@ -254,6 +261,12 @@ export class VideoTable {
     }
   }
 
+  /**
+   * Activa el modo de edición inline del título de un video.
+   * Si el textarea ya está visible lo deja activo; si no, hace click en el label para disparar la transición.
+   *
+   * @param videoContainer - WebElement contenedor del video (fila de la tabla).
+   */
   async activateInlineEditMode(videoContainer: WebElement): Promise<void> {
 
     let isTextareaVisible = false;
@@ -278,6 +291,12 @@ export class VideoTable {
     }
   }
 
+  /**
+   * Escribe un nuevo título en el textarea de edición inline activo.
+   * Requiere que `activateInlineEditMode` haya sido llamado previamente.
+   *
+   * @param newTitle - Nuevo título a ingresar en el campo inline.
+   */
   async writeInlineTitle(newTitle: string): Promise<void> {
 
     logger.debug("Esperando presencia del Textarea en el DOM...", { label: this.config.label });

@@ -58,6 +58,9 @@ export class EditorTextSection {
   /**
    * Rellena un campo de texto específico y verifica que el contenido sea correcto.
    * Maneja automáticamente la diferencia entre inputs estándar y editores enriquecidos.
+   *
+   * @param field - Campo del formulario a rellenar (ej. "title", "summary").
+   * @param value - Texto a ingresar en el campo.
    */
   async fillField(field: NoteTextField, value: string): Promise<void> {
     if (!value) return;

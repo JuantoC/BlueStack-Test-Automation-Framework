@@ -17,14 +17,36 @@ Las instrucciones operativas de las skills están en español. El código (TypeS
 
 Si la skill genera o edita archivos TypeScript, incluir explícitamente: _"El código es fuente de verdad. No embedar lógica funcional en `.md`."_
 
+## Wiki-first protocol
+
+El proyecto tiene una wiki compilada en `wiki/`. **Toda skill que necesite consultar información sobre el codebase debe seguir este orden:**
+
+1. Leer `wiki/index.md` — entry point de toda la wiki.
+2. Navegar a la página relevante si existe.
+3. Solo abrir el `.ts` fuente si la wiki no cubre lo que se necesita — y en ese caso, registrar el gap en `wiki/log.md`.
+
+**Al escribir una skill:** si el proceso de la skill incluye "leer archivos TypeScript para obtener firmas/tipos", agregar el paso wiki-first **antes** de ese paso. El modelo no debe saltear la wiki.
+
+**Qué cubre la wiki:**
+- `wiki/pages/<sección>.md` → firmas públicas de Maestros, constructores, métodos relevantes
+- `wiki/patterns/factory-api.md` → API completa de factories de datos
+- `wiki/interfaces/data-types.md` → todas las interfaces de datos
+- `wiki/core/` → runSession, acciones, driver setup, errors, utils
+
 ## Archivos modulares
 
 El SKILL.md debe ser un documento de flujo/procedimiento, no un monolito. Extraer a `references/`:
-- Tablas de lookup (tipos, mapeos, traducciones)
+- Tablas de lookup (tipos, mapeos, traducciones) que vienen del código y pueden cambiar
+- Catálogos de elementos del proyecto (POs disponibles, factories, paths de imports)
 - Plantillas de output / templates de excepciones
 - Documentación de integración con otras skills
 
-Si el SKILL.md supera ~150 líneas, evaluar qué secciones pueden vivir en `references/`.
+**Regla de corte:** si el SKILL.md supera ~150 líneas, o si contiene tablas que duplican información del código (ej: lista de Maestros con paths), esas secciones deben vivir en `references/` con un puntero desde el SKILL.md.
+
+**Patrón de puntero:**
+```markdown
+Si necesitás el catálogo de X → leer [`references/x.md`](references/x.md) (bundled con esta skill).
+```
 
 ## Plantillas canónicas
 

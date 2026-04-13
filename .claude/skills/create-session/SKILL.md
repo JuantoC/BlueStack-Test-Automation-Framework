@@ -9,32 +9,33 @@ Genera un `.test.ts` dentro de `sessions/` siguiendo las convenciones Bluestack.
 
 ## Proceso
 
-1. Entender el flujo (sección CMS, pasos, rol). Preguntar si no está claro.
-2. Leer `sessions/README.md` para obtener contexto adicional: convenciones, catálogo existente, estructura canónica. Es input suplementario, no primario.
-3. Identificar los Maestros necesarios → leer sus archivos `.ts` directamente en `src/pages/...`. La fuente de verdad son los tipos, firmas y JSDoc del código — no el README.
-4. Si un método necesita más contexto, leer sub-components del mismo subdirectorio.
-5. Generar el archivo con todas las reglas. Indicar nombre PascalCase.
+1. Entender el flujo (sección CMS, pasos, rol de usuario). Preguntar si no está claro.
+2. **Wiki-first:** Leer `wiki/index.md` → navegar a la página relevante para los POs que necesitás. Si la wiki no cubre lo que necesitás, abrir el `.ts` fuente y registrar el gap en `wiki/log.md`.
+3. Si necesitás el catálogo de Maestros disponibles con sus imports → leer [`references/maestros.md`](references/maestros.md) (bundled con esta skill).
+4. Generar el archivo con todas las reglas de abajo. Indicar nombre `PascalCase.test.ts` al usuario.
 
 ---
 
 ## Reglas (todas obligatorias)
 
-**1. Imports al final** — convención del proyecto:
+**1. Imports al final** — convención del proyecto (romper el orden rompe la legibilidad del flujo):
 
 ```typescript
 runSession("...", async ({ driver, opts, log }) => { ... });
-import { runSession } from "../src/core/wrappers/testWrapper.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
 ```
 
-**2. Imports base** (siempre presentes):
+**2. Imports base** (siempre presentes, paths desde `sessions/<subfolder>/`):
 
 ```typescript
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { getAuthUrl } from "../src/core/utils/getAuthURL.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
+import { runSession } from "../../src/core/wrappers/testWrapper.js";
+import { getAuthUrl } from "../../src/core/utils/getAuthURL.js";
+import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
-import { MainLoginPage } from "../src/pages/login_page/MainLoginPage.js";
+import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
 ```
+
+> Si el archivo es `sessions/<subfolder>/` usar `../../src/...`. Si fuera raíz directo, usar `../src/...`.
 
 **3. Navegación inicial** (siempre presente):
 
@@ -52,22 +53,21 @@ await driver.get(authUrl);
 
 ```typescript
 await sidebar.goToComponent('VIDEOS');
-// import { SidebarAndHeader } from "../src/pages/SidebarAndHeaderSection.js";
+// import { SidebarAndHeader } from "../../src/pages/SidebarAndHeaderSection.js";
 ```
 
 **7. Log de cierre** (obligatorio): `log.info("✅ <resultado>");`
 
-**8. description() Markdown:**
+**8. description() Allure** (obligatorio, de `allure-js-commons`):
 
 ```typescript
 description(`
 ### Test: <título>
 ---
 **Objetivo:** <qué valida>
-**Flujo:** 
+**Flujo:**
 1. paso
 2. paso
-...
 > **Resultado esperado:** <qué ocurre al final>
 `);
 ```
@@ -76,61 +76,19 @@ description(`
 
 ---
 
-## Data: Factories con faker-js
+## Data factories
 
-> **Siempre importar desde `../src/data_test/factories/index.js`** — solo las factories que se usan en el test.
-> Para las firmas completas (`create`, `createMany`, overrides disponibles, y el caso especial de `AINoteData`), ver **[sessions/README.md — Data Factories](../../../sessions/README.md)**.
+> Importar desde `../../src/data_test/factories/index.js`. Declarar data antes de instanciar POs.
+> API completa: [`wiki/patterns/factory-api.md`](../../../wiki/patterns/factory-api.md).
 
-Reglas operativas:
-- Declarar la data antes de instanciar los POs.
-- `create()` para un objeto único; `createMany(n)` solo si el test necesita múltiples ítems distintos.
-- Los valores de tipo son strings literales (`'BYLINE'`, `'POST'`) — ya no se usan enums.
+Caso especial AI Post: usar `AINoteDataFactory` — ver wiki para el contrato de `AIDataNote`.
 
 ---
 
-## Maestros — paths para lectura dinámica
+## Referencias
 
-> Solo importar Maestros (`Main*`) en tests. Nunca sub-components directamente.
-
-| Maestro | Leer en |
-|---|---|
-| `MainLoginPage` | `@src/pages/login_page/MainLoginPage.ts` |
-| `MainPostPage` | `@src/pages/post_page/MainPostPage.ts` |
-| `MainEditorPage` | `@src/pages/post_page/note_editor_page/MainEditorPage.ts` |
-| `MainVideoPage` | `@src/pages/videos_page/MainVideoPage.ts` |
-| `MainAIPage` | `@src/pages/post_page/AIPost/MainAIPage.ts` |
-| `SidebarAndHeader` | `@src/pages/SidebarAndHeaderSection.ts` |
-
-Sub-components por sección (bajar solo si se necesita más contexto):
-
-- `login_page/` → `LoginSection.ts`, `TwoFASection.ts`
-- `post_page/` → `PostTable.ts`, `NewNoteBtn.ts`
-- `post_page/note_editor_page/` → `EditorHeaderActions.ts`, `EditorTextSection.ts`, `EditorTagsSection.ts`, `EditorAuthorSection.ts` `EditorLateralSettings.ts`, `EditorImagesSection.ts`, `noteList/BaseListicleSection.ts`, `noteList/ListicleItemSection.ts`
-- `videos_page/` → `VideoTable.ts`, `UploadVideoBtn.ts`, `UploadVideoModal.ts`, `VideoActions.ts`, `FooterActions.ts`
-- `modals/` → `CKEditorImageModal.ts`, `PublishModal.ts`
-- `AIPost/` → `MainAIPage.ts`
-
----
-
-## Types
-
-> Todo parámetro con valor predeterminado es ahora un string literal inferido desde un `type` basado en `keyof typeof ClassName.STATIC_OBJECT`.
-
-| Símbolo | Fuente canónica | Ejemplo de uso |
-|---|---|---|
-| `NoteType` | `@src/pages/post_page/NewNoteBtn.ts` | `'POST'`, `'LISTICLE'`, `'LIVEBLOG'` |
-| `NoteExitAction` | `@src/pages/post_page/note_editor_page/EditorHeaderActions.ts` | `'SAVE_AND_EXIT'`, `'PUBLISH_AND_EXIT'` |
-| `VideoType` | `@src/pages/videos_page/UploadVideoBtn.ts` | `'YOUTUBE'`, `'NATIVO'` |
-| `ActionType` | `@src/pages/videos_page/VideoActions.ts` | string según acciones disponibles |
-| `FooterActionType` | `@src/pages/FooterActions.ts` | `'PUBLISH_ONLY'`, etc. |
-| `SidebarOption` | `@src/pages/SidebarAndHeaderSection.ts` | string según sección |
-| `NoteData`, `VideoData`, `AINoteData` | `@src/interfaces/data.ts` | interfaces de datos |
-
-> Los tipos `PostData`, `ListicleData`, `LiveBlogData`, `YoutubeVideoData`, `NativeVideoData`
-> se exportan desde `../src/data_test/factories/index.js` — no hace falta importarlos por separado.
-
----
-
-## Ejemplo de referencia
-
-Ver **[sessions/README.md — Convenciones de Escritura](../../../sessions/README.md)** para la estructura canónica completa con ejemplo funcional. Los tests existentes en `sessions/` son también fuente de referencia directa.
+- **Maestros + imports:** [`references/maestros.md`](references/maestros.md)
+- **Tipos de datos e interfaces:** [`wiki/interfaces/data-types.md`](../../../wiki/interfaces/data-types.md)
+- **Factories API:** [`wiki/patterns/factory-api.md`](../../../wiki/patterns/factory-api.md)
+- **Estructura canónica + ejemplo:** [`sessions/README.md`](../../../sessions/README.md) (sección "Convenciones de Escritura")
+- **Catálogo de sessions existentes:** [`wiki/sessions/catalog.md`](../../../wiki/sessions/catalog.md)

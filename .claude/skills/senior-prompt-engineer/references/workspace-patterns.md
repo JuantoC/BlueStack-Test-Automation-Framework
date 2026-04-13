@@ -1,6 +1,6 @@
 # Workspace Patterns — BlueStack QA Automation
 
-> Patrones arquitecturales y landscape de skills. Referencia para evaluar si una skill nueva es necesaria o ya está cubierta.
+> Patrones arquitecturales y landscape de skills. Referencia para optimizar skills existentes y detectar anti-patrones.
 
 ---
 
@@ -30,10 +30,12 @@ BlueStack-Test-Automation-Framework/
 │   └── data_test/
 │       └── factories/     ← faker-js factories: index.js exporta todas
 ├── scripts/               ← audit-docs.ts, validate-ssot.ts (tsx)
+├── wiki/                  ← Knowledge base compilada del framework (entry point: wiki/index.md)
 ├── .claude/
 │   ├── CLAUDE.md          ← Reglas globales del agente
 │   ├── rules/             ← Reglas contextuales (pages, ssot, doc-change, etc.)
-│   └── skills/            ← Skills invocables (ver tabla abajo)
+│   ├── skills/            ← Skills invocables por conversación
+│   └── pipelines/         ← Skills invocadas solo por agentes/hooks
 └── docs/audit/            ← Output de scripts de auditoría
 ```
 
@@ -53,37 +55,33 @@ BlueStack-Test-Automation-Framework/
 - **Hace:** agrega/actualiza JSDoc/TSDoc en archivos `.ts` existentes
 - **No hace:** genera código nuevo, crea sessions
 
-### sync-docs
-- **Hace:** lee commits pendientes y sugiere actualizaciones de documentación
-- **No hace:** aplica cambios automáticamente, genera código
-
 ### audit-docs
-- **Hace:** ejecuta `scripts/audit-docs.ts` y resume inconsistencias
+- **Hace:** ejecuta `scripts/audit-docs.ts` y resume inconsistencias entre código y docs
 - **No hace:** corrige inconsistencias, genera código
 
-### validate-ssot
-- **Hace:** detecta lógica en `.md`, JSDoc desincronizado, skills con dependencia inversa
-- **No hace:** corrige violaciones, genera código
+### audit-logs
+- **Hace:** audita y corrige el uso de `logger.debug/info/warn/error` en archivos/carpetas `.ts` según convenciones Winston del proyecto
+- **No hace:** modifica lógica funcional, agrega logs nuevos salvo en catch sin logger
+
+### generate-readme
+- **Hace:** genera o actualiza `README.md` para carpetas o módulos del proyecto
+- **No hace:** modifica código TypeScript, genera POMs
 
 ### smart-commit
 - **Hace:** analiza el working tree y ejecuta commits semánticos con contexto de negocio
 - **No hace:** genera código, crea tests
 
 ### commit-report
-- **Hace:** genera email/markdown de reporte QA desde git log
+- **Hace:** genera reporte de actividad QA desde git log
 - **No hace:** genera código, ejecuta tests
 
-### clean-code
-- **Hace:** revisa código cambiado por calidad y lo refactoriza
-- **No hace:** genera POMs desde cero, crea sessions
-
-### audit-logs
-- **Hace:** audita y corrige el uso de `logger.debug/info/warn/error` en archivos/carpetas `.ts` según convenciones Winston del proyecto
-- **No hace:** modifica lógica funcional, agrega logs nuevos salvo en catch sin logger
+### skill-creator
+- **Hace:** crea skills nuevas, mejora skills existentes con ciclo eval/iterate, optimiza descripción de trigger
+- **No hace:** genera POMs ni sessions, ejecuta tests de QA
 
 ### senior-prompt-engineer (esta skill)
-- **Hace:** diseña/optimiza `SKILL.md`, prompts del sistema, frontmatter de skills
-- **No hace:** genera POMs ni sessions directamente (los delega a pom-generator/create-session)
+- **Hace:** optimiza `SKILL.md` existentes, revisa frontmatter/triggers, diseña prompts para generación de código, revisa JSDoc
+- **No hace:** crea skills nuevas (eso es `/skill-creator`), genera POMs ni sessions directamente
 
 ---
 
@@ -117,6 +115,7 @@ Ver `.claude/CLAUDE.md` para el texto completo. Puntos críticos:
 2. **No lógica en `.md`:** las skills no deben contener tipos, interfaces, ni contratos — van en código.
 3. **`skill-code-first`:** el input primario de cualquier skill es siempre código TypeScript.
 4. **`no-logic-in-md`:** los bloques de código en `.md` son solo ilustrativos, no normativos.
+5. **Wiki-first:** antes de abrir un `.ts`, verificar si la wiki ya cubre ese conocimiento.
 
 ---
 
@@ -129,9 +128,11 @@ Cuando revisés una skill existente, buscá estos problemas:
 | Frontmatter genérico | Se activa con cualquier pregunta sobre el tema | Reescribir con frases exactas de Juanto |
 | Referencias a paths inexistentes | Leer los paths mencionados y verificar con Glob | Corregir paths o eliminar la referencia |
 | Lógica de negocio en `.md` | Condicionales, tipos, enumeraciones de valores | Mover al código o eliminar |
-| Scripts Python que no corren | Importan deps externas, rutas hardcodeadas incorrectas | Eliminar o reescribir con stdlib |
 | Skill que duplica otra | Mismo dominio, diferente nombre | Consolidar o distinguir scope claramente |
 | Instrucciones que contradicen CLAUDE.md | Verificar contra `.claude/CLAUDE.md` | Eliminar la contradicción |
+| SKILL.md monolítico | Más de 150 líneas, tablas con datos del código | Modularizar en `references/` |
+| Wiki-first ausente | La skill abre `.ts` sin mencionar consultar la wiki | Agregar paso wiki-first antes de abrir fuentes |
+| Skills muertos referenciados | Tabla de skills con entradas que no existen en `.claude/skills/` | Verificar con Glob y eliminar entradas muertas |
 
 ---
 
@@ -141,17 +142,17 @@ Cuando revisés una skill existente, buscá estos problemas:
 ---
 name: nombre-de-la-skill
 description: >
-  Descripción con frases trigger exactas. Mínimo 5 frases concretas
-  que Juanto usaría. Terminar con frases alternativas.
+  Descripción con frases trigger exactas. Mínimo 4-5 frases concretas
+  que Juanto usaría. Terminar con el dominio de aplicación.
 ---
 
 # Título — Contexto del workspace
 
 ## Rol (quién sos, qué conocés del proyecto)
 
-## Stack (si la skill genera código que debe compilar)
+## Wiki-first (si la skill consulta el codebase)
 
-## Convenciones críticas (las que el output debe respetar)
+## Stack (si la skill genera código que debe compilar)
 
 ## Tareas soportadas
 ### 1. Nombre de la tarea

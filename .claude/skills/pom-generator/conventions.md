@@ -65,7 +65,7 @@ import { waitEnabled } from "../../core/actions/waitEnabled.js";
 import { waitVisible } from "../../core/actions/waitVisible.js";
 
 // Si la clase necesita escribir en inputs
-import { clearAndType } from "../../core/actions/clearAndType.js";
+import { writeSafe } from "../../core/actions/writeSafe.js";
 
 // Si la clase maneja datos estructurados
 import { [InterfaceName] } from "../../interfaces/data.js";
@@ -222,7 +222,7 @@ await waitVisible(this.driver, element, this.config);
 
 ### Escribir en un input
 ```typescript
-await clearAndType(this.driver, NombreClase.INPUT_LOCATOR, "texto", this.config);
+await writeSafe(this.driver, NombreClase.INPUT_LOCATOR, "texto", this.config);
 ```
 
 ### Polling / esperar condición custom
@@ -264,7 +264,42 @@ private static readonly SUBMIT_BTN: Locator = By.css('[data-testid="TODO_submit_
 
 ---
 
-## 7. Types y enumerados
+## 7. Cobertura atómica de locators
+
+**Regla:** cada `private static readonly LOCATOR: Locator` definido en un subcomponente debe tener al menos un método `public async` que lo use directamente.
+
+Un locator está cubierto si su nombre aparece en al menos uno de estos contextos dentro de un método público (o en un helper privado invocado desde un método público):
+
+```typescript
+clickSafe(this.driver, Clase.LOCATOR, this.config)
+waitFind(this.driver, Clase.LOCATOR, this.config)
+waitVisible(this.driver, Clase.LOCATOR, this.config)
+waitEnabled(this.driver, Clase.LOCATOR, this.config)
+writeSafe(this.driver, Clase.LOCATOR, value, this.config)
+this.driver.findElements(Clase.LOCATOR)
+container.findElement(Clase.LOCATOR)
+container.findElements(Clase.LOCATOR)
+```
+
+**Excepción — locator en mapa público:** si un locator privado aparece como valor en un `public static readonly` mapa/objeto (ej: `LOCATORS`, `ACTION_MAP`), está cubierto por diseño — es accesible desde fuera de la clase a través del mapa.
+
+**Regla de naming para métodos atómicos** (aplicar cuando el método no está ya descrito por el usuario):
+
+| Sufijo del locator | Método generado |
+|---|---|
+| `*_BTN`, `*_LINK`, `*_ICON`, `*_TOGGLE` | `async click<Name>(): Promise<void>` |
+| `*_INPUT`, `*_TEXTAREA`, `*_FIELD` | `async fill<Name>(value: string): Promise<void>` |
+| `*_CONTAINER`, `*_TABLE`, `*_SECTION`, `*_MODAL` | `async get<Name>(): Promise<WebElement>` |
+| `*_OPT`, `*_ITEM`, `*_OPTION` | `async get<Name>s(): Promise<WebElement[]>` |
+| `*_ITEMS`, `*_LIST`, `*_OPTIONS` (plural) | `async get<Name>(): Promise<WebElement[]>` |
+| `*_LABEL`, `*_TEXT`, `*_TITLE`, `*_BADGE` | `async get<Name>Text(): Promise<string>` |
+| No encaja en ninguna categoría | `async get<Name>(): Promise<WebElement>` (fallback) |
+
+**Aplicación al generar:** al definir cada locator, generar inmediatamente su método atómico correspondiente. No dejar locators sin método público.
+
+---
+
+## 8. Types y enumerados
 
 Cuando una clase tiene un conjunto finito de opciones (tipos de acción, tipos de contenido, opciones de menú), definir un type literal:
 
@@ -288,7 +323,7 @@ async metodo(): Promise<ReturnType> {
   try {
     logger.debug('Mensaje pre-ejecución', { label: this.config.label });
     // ... lógica ...
-    logger.info('Mensaje post-ejecución', { label: this.config.label });
+    logger.debug('Acción completada', { label: this.config.label });
   } catch (error: unknown) {
     logger.error(`Mensaje de error: ${getErrorMessage(error)}`, {
       label: this.config.label,

@@ -98,14 +98,16 @@ async function checkSkillDependencies() {
   // Skills cuyo propósito ES operar sobre .md — no es violación
   const mdOperatorSkills = [
     "validate-ssot",
-    "audit-docs",
     "generate-readme",
     "sync-docs",
     "sanitize-docs",
   ];
 
-  // Archivos .md de contexto cuya lectura es válida como input contextual
-  const contextMdPattern = /\b(README|CLAUDE|SKILL|pending-doc)\b.*?\.md/i;
+  // Archivos .md de contexto cuya lectura es válida como input contextual.
+  // También excluye referencias a recursos bundled dentro del propio directorio
+  // de la skill: agents/, references/, assets/, scripts/.
+  const contextMdPattern =
+    /\b(README|CLAUDE|SKILL|pending-doc)\b.*?\.md|(agents|references|assets|scripts)\/[\w.\-/]+\.md/i;
 
   // Patrón de violación real: referencia a un .md de lógica como fuente primaria
   // antes de leer código TypeScript, excluyendo contexto y skills operadores

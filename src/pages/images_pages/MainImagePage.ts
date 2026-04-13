@@ -99,8 +99,6 @@ export class MainImagePage {
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeImageTitle(imageContainer);
 
-        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
-
         logger.info('Cambio de titulo de la imagen ejecutado correctamente', { label: this.config.label })
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo de la imagen: ${getErrorMessage(error)}`, {

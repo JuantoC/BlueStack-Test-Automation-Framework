@@ -108,8 +108,6 @@ export class MainVideoPage {
         logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
         await this.table.changeVideoTitle(videoContainer);
 
-        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
-
         logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
       } catch (error: unknown) {
         logger.error(`Error al cambiar el titulo del video: ${getErrorMessage(error)}`, {
@@ -245,16 +243,21 @@ export class MainVideoPage {
    * @returns {Promise<WebElement[]>} Array con los contenedores DOM de los videos solicitados.
    */
   async getVideoContainers(NumberOfVideos: number): Promise<WebElement[]> {
-    try {
-      let videos = []
-      for (let i = 0; i < NumberOfVideos; i++) {
-        const video = await this.table.getVideoContainerByIndex(i);
-        videos.push(video)
+    return await step(`Obteniendo ${NumberOfVideos} contenedores de video`, async (stepContext) => {
+      stepContext.parameter("Cantidad", NumberOfVideos.toString());
+      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
+
+      try {
+        let videos = []
+        for (let i = 0; i < NumberOfVideos; i++) {
+          const video = await this.table.getVideoContainerByIndex(i);
+          videos.push(video)
+        }
+        return videos
+      } catch (error: unknown) {
+        logger.error(`Error al obtener los ultimos ${NumberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
       }
-      return videos
-    } catch (error: unknown) {
-      logger.error(`Error al obtener los ultimos ${NumberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-      throw error;
-    }
+    });
   }
 }

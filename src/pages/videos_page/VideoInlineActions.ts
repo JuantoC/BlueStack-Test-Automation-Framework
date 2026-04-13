@@ -89,21 +89,117 @@ export class VideoInlineActions {
    * @param action - Acción a ejecutar: EDIT, DELETE o UNPUBLISH.
    * @throws Error si el dropdown no se abre o la acción no se encuentra en el menú.
    */
-  async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
+  /**
+   * Hace hover sobre el botón toggle del dropdown de acciones del video para activar su visibilidad.
+   * Acción atómica — solo ejecuta el hover, no abre el dropdown.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   */
+  async hoverActionDropdownToggle(videoContainer: WebElement): Promise<void> {
     try {
-      logger.debug(`Buscando el botón de "${action}" en el dropdown del video...`, { label: this.config.label });
       const dropdownBtn = await videoContainer.findElement(VideoInlineActions.DROPDOWN_BTN);
-
       await hoverOverParentContainer(this.driver, dropdownBtn, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en hoverActionDropdownToggle: ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error),
+      });
+      throw error;
+    }
+  }
 
+  /**
+   * Abre el dropdown de acciones del video si no está ya expandido.
+   * Acción atómica — solo ejecuta el click de apertura, no hace hover previo.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   */
+  async openActionDropdown(videoContainer: WebElement): Promise<void> {
+    try {
+      const dropdownBtn = await videoContainer.findElement(VideoInlineActions.DROPDOWN_BTN);
       if (!await this.isDropdownOpen(dropdownBtn)) {
-        logger.debug(`Dropdown cerrado. Abriendo para acción "${action}"...`, { label: this.config.label });
+        logger.debug(`Dropdown cerrado. Abriendo...`, { label: this.config.label });
         await clickSafe(this.driver, dropdownBtn, this.config);
       }
+    } catch (error: unknown) {
+      logger.error(`Error en openActionDropdown: ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error),
+      });
+      throw error;
+    }
+  }
 
+  /**
+   * Hace click sobre el ítem de acción dentro del dropdown ya abierto.
+   * Acción atómica — asume que el dropdown está abierto; no lo abre ni hace hover.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   * @param action - Acción a ejecutar: EDIT, DELETE o UNPUBLISH.
+   */
+  async clickDropdownAction(videoContainer: WebElement, action: ActionType): Promise<void> {
+    try {
       const actionBtn = await this.findDropdownAction(videoContainer, action);
       logger.debug(`Botón "${action}" encontrado. Clickeando...`, { label: this.config.label });
       await clickSafe(this.driver, actionBtn, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickDropdownAction para "${action}": ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Abre el menú kebab (3 puntos) del video si no está ya visible.
+   * Acción atómica — solo ejecuta el click de apertura.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   */
+  async openKebabMenu(videoContainer: WebElement): Promise<void> {
+    try {
+      const kebabBtn = await videoContainer.findElement(VideoInlineActions.KEBAB_BTN);
+      if (!await this.isKebabMenuOpen(videoContainer)) {
+        await clickSafe(this.driver, kebabBtn, this.config);
+        logger.debug('Menú kebab abierto.', { label: this.config.label });
+      }
+    } catch (error: unknown) {
+      logger.error(`Error en openKebabMenu: ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click sobre un ítem específico dentro del menú kebab ya abierto.
+   * Acción atómica — asume que el menú está abierto; no lo abre.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   * @param action - Acción a ejecutar: EDIT, DELETE, UNPUBLISH, SCHEDULE o PREVIEW.
+   */
+  async clickKebabMenuItem(videoContainer: WebElement, action: InlineActionType): Promise<void> {
+    try {
+      const actionBtn = await this.findKebabAction(videoContainer, action);
+      logger.debug(`Opción "${action}" encontrada en el menú kebab. Clickeando...`, { label: this.config.label });
+      await clickSafe(this.driver, actionBtn, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickKebabMenuItem para "${action}": ${getErrorMessage(error)}`, {
+        label: this.config.label,
+        error: getErrorMessage(error),
+      });
+      throw error;
+    }
+  }
+
+  async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
+    try {
+      logger.debug(`Buscando el botón de "${action}" en el dropdown del video...`, { label: this.config.label });
+      await this.hoverActionDropdownToggle(videoContainer);
+      await this.openActionDropdown(videoContainer);
+      await this.clickDropdownAction(videoContainer, action);
     } catch (error: unknown) {
       logger.error(`Fallo al clickear "${action}" en el dropdown: ${getErrorMessage(error)}`, {
         label: this.config.label,
@@ -130,16 +226,8 @@ export class VideoInlineActions {
   async clickOnKebabAction(videoContainer: WebElement, action: InlineActionType): Promise<void> {
     try {
       logger.debug(`Abriendo menú kebab para acción "${action}"...`, { label: this.config.label });
-      const kebabBtn = await videoContainer.findElement(VideoInlineActions.KEBAB_BTN);
-
-      if (!await this.isKebabMenuOpen(videoContainer)) {
-        await clickSafe(this.driver, kebabBtn, this.config);
-        logger.debug('Menú kebab abierto.', { label: this.config.label });
-      }
-
-      const actionBtn = await this.findKebabAction(videoContainer, action);
-      logger.debug(`Opción "${action}" encontrada en el menú kebab. Clickeando...`, { label: this.config.label });
-      await clickSafe(this.driver, actionBtn, this.config);
+      await this.openKebabMenu(videoContainer);
+      await this.clickKebabMenuItem(videoContainer, action);
     } catch (error: unknown) {
       logger.error(`Fallo al clickear "${action}" en el menú kebab: ${getErrorMessage(error)}`, {
         label: this.config.label,

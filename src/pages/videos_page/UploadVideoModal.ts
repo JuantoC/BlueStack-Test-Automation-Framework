@@ -106,31 +106,29 @@ export class UploadVideoModal {
    * @param value - Valor a escribir en el campo.
    */
   async fillField(field: UploadVideoModalFields, value: string): Promise<void> {
-    await step(`Llenar campo ${field}`, async () => {
-      if (!value) return;
+    if (!value) return;
 
-      const locator = UploadVideoModal.LOCATORS[field];
+    const locator = UploadVideoModal.LOCATORS[field];
 
-      try {
-        logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
+    try {
+      logger.debug(`Escribiendo contenido en el campo: ${field}`, { label: this.config.label });
 
-        if (field === 'FILE_UPLOAD_INPUT') {
-          await this.uploadFile(value);
-          return;
-        }
-
-        if (field === 'TITLE_INPUT') {
-          value = value + " | Subido por BlueStack_Test_Automation_Framework";
-        }
-
-        await writeSafe(this.driver, locator, value, this.config);
-
-        logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
-      } catch (error: unknown) {
-        logger.error(`Error en fillField: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
+      if (field === 'FILE_UPLOAD_INPUT') {
+        await this.uploadFile(value);
+        return;
       }
-    });
+
+      if (field === 'TITLE_INPUT') {
+        value = value + " | Subido por BlueStack_Test_Automation_Framework";
+      }
+
+      await writeSafe(this.driver, locator, value, this.config);
+
+      logger.debug(`Campo "${field}" completado y verificado.`, { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error en fillField: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
   /**
@@ -186,7 +184,7 @@ export class UploadVideoModal {
     }
   }
 
-  private async uploadFile(relativePath: string): Promise<void> {
+  async uploadFile(relativePath: string): Promise<void> {
     const cleanRelativePath = relativePath.startsWith('/')
       ? relativePath.substring(1)
       : relativePath;

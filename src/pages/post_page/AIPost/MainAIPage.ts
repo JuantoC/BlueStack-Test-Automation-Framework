@@ -41,7 +41,6 @@ export class MainAIPage {
       try {
         await this.ai_post.fillAll(data);
         await this.ai_post.clickOnGenerateBtn();
-        await this.ai_post.waitForLoadingPreview();
         await this.ai_post.isAIFailed();
         await this.ai_post.clickOnDoneBtn();
       } catch (error: unknown) {

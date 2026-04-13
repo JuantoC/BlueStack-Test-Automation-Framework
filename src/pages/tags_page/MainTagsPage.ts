@@ -65,7 +65,6 @@ export class MainTagsPage {
         logger.debug('Modal abierto. Llenando campos...', { label: this.config.label });
         await this.newTagModal.fillAndCreate(tagData);
 
-        await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
         logger.info(`Tag "${tagData.title}" creado exitosamente.`, { label: this.config.label });
       } catch (error: unknown) {
         logger.error(`Error al crear el tag "${tagData.title}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });

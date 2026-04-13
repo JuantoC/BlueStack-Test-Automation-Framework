@@ -88,6 +88,7 @@ export class AIPostModal {
       } else {
         throw new Error("El boton generar esta deshabilitado");
       }
+      await this.waitForLoadingPreview();
     } catch (error: unknown) {
       logger.error(`Error al hacer click en el boton generar`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
@@ -120,16 +121,14 @@ export class AIPostModal {
    * @param value - Valor a escribir (string) o índice de opción a seleccionar (number).
    */
   async fillField(field: AIPostField, value: string | number) {
-    await step(`Llenar campo ${field}`, async () => {
-      const locator = AIPostModal.LOCATORS[field];
+    const locator = AIPostModal.LOCATORS[field];
 
-      if (field === 'task' || field === 'context') {
-        await writeSafe(this.driver, locator, value as string, this.config);
-        return
-      }
-      await this.clickComboField(field);
-      await this.selectOption(value as number);
-    });
+    if (field === 'task' || field === 'context') {
+      await writeSafe(this.driver, locator, value as string, this.config);
+      return
+    }
+    await this.clickComboField(field);
+    await this.selectOption(value as number);
   }
 
   /**

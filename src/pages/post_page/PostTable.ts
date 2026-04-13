@@ -192,6 +192,8 @@ export class PostTable {
 
     // 4. Confirmar la edición con ENTER
     await this.submitTitleWithEnter(postContainer);
+    await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
+    await this.waitForLoadingContainerDisappear();
   }
 
   /**

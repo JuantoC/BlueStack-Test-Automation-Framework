@@ -71,6 +71,7 @@ export class NewTagModal {
 
       logger.debug('Campos llenados. Confirmando creación...', { label: this.config.label });
       await this.clickCreate();
+      await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
     } catch (error: unknown) {
       logger.error(`Error en fillAndCreate: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;

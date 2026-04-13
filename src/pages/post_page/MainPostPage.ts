@@ -87,9 +87,6 @@ export class MainPostPage {
 
           await this.table.changePostTitle(freshContainer);
 
-          await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
-          await this.table.waitForLoadingContainerDisappear();
-
           logger.info('Cambio de titulo ejecutado correctamente', { label: this.config.label });
         }, this.config);
       } catch (error: unknown) {

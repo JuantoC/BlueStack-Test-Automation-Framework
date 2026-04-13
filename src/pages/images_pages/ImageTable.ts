@@ -94,7 +94,7 @@ export class ImageTable {
    */
   async changeImageTitle(imageContainer: WebElement): Promise<void> {
     try {
-      return await retry(async () => {
+      await retry(async () => {
 
         await this.waitUntilIsReady(ImageTable.IMAGE_TABLE);
         logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
@@ -114,6 +114,7 @@ export class ImageTable {
         await this.writeAndValidateTitle(newTitle);
 
       }, this.config);
+      await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
     } catch (error: unknown) {
       logger.error(`Error al cambiar titulo de imagen: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;

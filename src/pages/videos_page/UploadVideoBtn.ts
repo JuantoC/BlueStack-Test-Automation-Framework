@@ -50,35 +50,42 @@ export class UploadVideoBtn {
    * @param videoType - Tipo de video a seleccionar del menú (NATIVO, EMBEDDED, YOUTUBE o SHORT).
    */
   async selectVideoType(videoType: VideoType): Promise<void> {
-    await step(`Seleccionar tipo de video ${videoType}`, async () => {
-      try {
-        // Espera explicita para clickar en el boton mientras carga la pagina.
-        await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);
+    try {
+      // Espera explicita para clickar en el boton mientras carga la pagina.
+      await this.waitUntilIsReady(UploadVideoBtn.VIDEOS_TABLE);
 
-        // Click en el boton de subir
-        await this.clickOnUploadVideoButton();
+      // Click en el boton de subir
+      await this.openVideoTypeDropdown();
 
-        // Busqueda del tipo de video
-        const elementToClick = await this.matchVideoType(videoType);
+      // Busqueda del tipo de video
+      const elementToClick = await this.matchVideoType(videoType);
 
-        logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
-        await clickSafe(this.driver, elementToClick, this.config);
+      logger.debug(`Intentando hacer click en la opción "${videoType}"...`, { label: this.config.label });
+      await clickSafe(this.driver, elementToClick, this.config);
 
-      } catch (error: unknown) {
-        logger.error(`Error en selectVideoType: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
-      }
-    });
+    } catch (error: unknown) {
+      logger.error(`Error en selectVideoType: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
   }
 
-  private async clickOnUploadVideoButton(): Promise<void> {
-    const isVisible = await this.isDropdownVisible();
+  /**
+   * Hace click sobre el botón de subida para abrir el dropdown de tipos de video.
+   * Acción atómica — omite el click si el dropdown ya está expandido.
+   */
+  async openVideoTypeDropdown(): Promise<void> {
+    try {
+      const isVisible = await this.isDropdownVisible();
 
-    if (!isVisible) {
-      logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
-      await clickSafe(this.driver, UploadVideoBtn.UPLOAD_VIDEO_BTN, this.config);
-    } else {
-      logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
+      if (!isVisible) {
+        logger.debug("Abriendo el dropdown de opciones...", { label: this.config.label });
+        await clickSafe(this.driver, UploadVideoBtn.UPLOAD_VIDEO_BTN, this.config);
+      } else {
+        logger.debug("El dropdown ya estaba abierto.", { label: this.config.label });
+      }
+    } catch (error: unknown) {
+      logger.error(`Error en openVideoTypeDropdown: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
     }
   }
 

@@ -32,9 +32,6 @@ export class MainEditorPage {
                 logger.info(`Ejecutando salida del editor: ${exitAction}`, { label: this.config.label });
                 await this.header.clickExitAction(exitAction);
 
-                if (exitAction === "PUBLISH_ONLY" || exitAction === "SAVE_ONLY") {
-                    await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
-                }
                 logger.info(`Editor ejecuto accion del header correctamente.`, { label: this.config.label });
 
             } catch (error: unknown) {

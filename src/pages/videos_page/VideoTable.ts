@@ -91,13 +91,13 @@ export class VideoTable {
   */
   async changeVideoTitle(videoContainer: WebElement): Promise<void> {
     try {
-      return await retry(async () => {
+      await retry(async () => {
 
         await this.waitUntilIsReady(VideoTable.VIDEO_TABLE);
         logger.debug("Iniciando orquestación de cambio de título...", { label: this.config.label });
 
         // 1. Extraer texto actual y calcular el nuevo
-        const currentTitle = await this.extractCurrentTitle(videoContainer);
+        const currentTitle = await this.readVideoTitle(videoContainer);
         const newTitle = currentTitle.replace(this.OLD_SUFFIX, this.NEW_SUFFIX);
 
         if (currentTitle === newTitle) {
@@ -105,12 +105,13 @@ export class VideoTable {
         }
 
         // 2. Garantizar estado del DOM (Activar Textarea si hace falta)
-        await this.activateEditModeIfNeeded(videoContainer);
+        await this.activateInlineEditMode(videoContainer);
 
         // 3. Escribir y validar el nuevo valor
-        await this.writeAndValidateTitle(newTitle);
+        await this.writeInlineTitle(newTitle);
 
       }, this.config);
+      await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
     } catch (error: unknown) {
       logger.error(`Error al cambiar titulo de video: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
@@ -218,7 +219,7 @@ export class VideoTable {
     }
   }
 
-  private async extractCurrentTitle(videoContainer: WebElement): Promise<string> {
+  async readVideoTitle(videoContainer: WebElement): Promise<string> {
     try {
       logger.debug("Intentando leer el texto del label...", { label: this.config.label });
       try {
@@ -247,7 +248,7 @@ export class VideoTable {
     }
   }
 
-  private async activateEditModeIfNeeded(videoContainer: WebElement): Promise<void> {
+  async activateInlineEditMode(videoContainer: WebElement): Promise<void> {
 
     let isTextareaVisible = false;
     logger.debug('Buscando textarea en el DOM...', { label: this.config.label })
@@ -271,7 +272,7 @@ export class VideoTable {
     }
   }
 
-  private async writeAndValidateTitle(newTitle: string): Promise<void> {
+  async writeInlineTitle(newTitle: string): Promise<void> {
 
     logger.debug("Esperando presencia del Textarea en el DOM...", { label: this.config.label });
     // fresh lookup es obligatorio aquí porque el DOM acaba de transicionar de Label a Textarea

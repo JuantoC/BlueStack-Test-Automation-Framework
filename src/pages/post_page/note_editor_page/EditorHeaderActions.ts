@@ -81,6 +81,7 @@ export class EditorHeaderActions {
       // 2. Manejo de sub-pasos (Máquina de estados)
       switch (action) {
         case "SAVE_ONLY":
+          await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
           break;
 
         case "SAVE_AND_EXIT":
@@ -94,6 +95,7 @@ export class EditorHeaderActions {
 
         case "PUBLISH_ONLY":
           await this.publishModal.clickOnPublishBtn();
+          await global.activeToastMonitor?.waitForSuccess(this.config.timeoutMs);
           break;
 
         case "PUBLISH_AND_EXIT":

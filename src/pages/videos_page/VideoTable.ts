@@ -303,6 +303,34 @@ export class VideoTable {
     await freshTextarea.sendKeys(Key.ENTER);
   }
 
+  /**
+   * Retorna el WebElement del input de archivo de video de la tabla.
+   *
+   * @returns {Promise<WebElement>} El elemento localizado.
+   */
+  public async getVideoInputFile(): Promise<WebElement> {
+    try {
+      logger.debug("Locating video input file", { label: this.config.label });
+      return await waitFind(this.driver, VideoTable.VIDEO_INPUT_FILE, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en getVideoInputFile: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Hace click en el botón de actualización de fondo de la tabla de videos.
+   */
+  public async clickBackgroundUpdateBtn(): Promise<void> {
+    try {
+      logger.debug("Clicking background update button", { label: this.config.label });
+      await clickSafe(this.driver, VideoTable.BACKGROUND_UPDATE_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickBackgroundUpdateBtn: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
   private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
     logger.debug(`Esperando a que el elemento ${JSON.stringify(locator)} este listo`, { label: this.config.label })
 

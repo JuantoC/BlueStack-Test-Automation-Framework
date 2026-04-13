@@ -1,5 +1,6 @@
-import { WebDriver, By, Locator } from "selenium-webdriver";
+import { WebDriver, By, Locator, WebElement } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
+import { clickSafe } from "../../../core/actions/clickSafe.js";
 import { RetryOptions, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
@@ -107,4 +108,32 @@ export class EditorTextSection {
       await clickSafe(this.driver, this.ADD_NEW_TITLE_ITEM, this.config);
     }
     */
-} 
+
+  /**
+   * Hace click en el botón para agregar un nuevo título.
+   */
+  public async clickAddNewTitleBtn(): Promise<void> {
+    try {
+      logger.debug("Clicking botón agregar nuevo título", { label: this.config.label });
+      await clickSafe(this.driver, EditorTextSection.ADD_NEW_TITLE_BTN, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en clickAddNewTitleBtn: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Retorna todos los WebElements de los ítems del dropdown de nuevo título.
+   *
+   * @returns {Promise<WebElement[]>} Array de elementos encontrados.
+   */
+  public async getAddNewTitleItems(): Promise<WebElement[]> {
+    try {
+      logger.debug("Fetching add new title item elements", { label: this.config.label });
+      return await this.driver.findElements(EditorTextSection.ADD_NEW_TITLE_ITEM);
+    } catch (error: unknown) {
+      logger.error(`Error en getAddNewTitleItems: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+}

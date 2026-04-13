@@ -237,6 +237,21 @@ export class UploadVideoModal {
     }
   }
 
+  /**
+   * Retorna el WebElement del fondo de la barra de progreso de subida.
+   *
+   * @returns {Promise<WebElement>} El elemento localizado.
+   */
+  public async getBackgroundProgressBar(): Promise<WebElement> {
+    try {
+      logger.debug("Locating background progress bar", { label: this.config.label });
+      return await waitFind(this.driver, UploadVideoModal.BACKGROUND_PROGRESS_BAR, this.config);
+    } catch (error: unknown) {
+      logger.error(`Error en getBackgroundProgressBar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
   private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
     const element = await waitFind(this.driver, locator, this.config)
     await waitEnabled(this.driver, element, this.config)

@@ -8,6 +8,7 @@ allure-history.jsonl
 reports/
 .vscode/
 test/
+.mcp.json
 
 # SSoT - archivos generados en runtime
 .claude/pending-doc-updates.json

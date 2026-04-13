@@ -2,9 +2,9 @@
 @doc-type: readme
 @scope: module
 @audience: both
-@related: README.md, src/core/wrappers/testWrapper.ts, src/pages/README.md, src/core/README.md
-@last-reviewed: 2026-04-06
-@summary: Catálogo y convenciones de los archivos de test end-to-end del CMS Bluestack; uno por flujo editorial, descubiertos automáticamente por Jest.
+@related: wiki/sessions/catalog.md, wiki/core/run-session.md, wiki/patterns/factory-api.md
+@last-reviewed: 2026-04-13
+@summary: Colección de tests E2E ejecutables del CMS Bluestack — uno por flujo editorial, descubiertos automáticamente por Jest.
 -->
 
 # `@sessions/` — Test Sessions
@@ -13,7 +13,7 @@
 
 ---
 
-# Quick Reference
+## Quick Reference
 
 | Concepto | Regla |
 |---|---|
@@ -21,272 +21,72 @@
 | Un archivo = un flujo | Un solo `runSession()` por archivo |
 | Imports | Siempre al final del archivo, extensión `.js` |
 | Datos de prueba | Solo fábricas faker-js — cero fixtures estáticos |
-| Naming de archivo | `PascalCase.test.ts` |
+| Naming de archivo | `PascalCase.test.ts` dentro de su subcarpeta de dominio |
 | Descubrimiento | Jest glob `**/sessions/**/*.test.ts` — recursivo por subcarpeta |
 | Timeout por test | 20 minutos (`jest.config.cjs`) |
 | Paralelismo | Controlado por `MAX_INSTANCES` en `.env` |
 
 ---
 
-# Arquitectura
-
-Los archivos en `sessions/` son el nivel más alto del framework. No contienen lógica de UI — solo orquestación:
-
-```
-Test file (sessions/*.test.ts)
-    └── runSession()           ← testWrapper.ts — ciclo de vida completo
-          ├── initializeDriver()
-          ├── testLogic({ driver, opts, log })
-          │     ├── Factory.create()        ← datos dinámicos
-          │     ├── new MainXxxPage(...)    ← Page Objects
-          │     └── await page.method()
-          ├── screenshot on failure
-          ├── checkConsoleErrors()
-          ├── networkMonitor.stop()
-          └── quitDriver()
-```
-
-`runSession` envuelve internamente `test()` de Jest e inyecta automáticamente:
-- Metadata de Allure (`epic`, `feature`, `severity`, `issueId`, etc.)
-- Parámetros de entorno (`Execution: Grid/Local`, `Headless: true/false`)
-- Screenshot adjunto al reporte en caso de fallo
-- Verificación de errores de red 4xx/5xx via `NetworkMonitor`
-
----
-
-# Directorio
+## Directorio
 
 ```
 sessions/
 ├── auth/
-│   └── FailedLogin.test.ts          # Auth — login fallido reiterado + exitoso
+│   └── FailedLogin.test.ts              # Auth — login fallido reiterado + exitoso
 ├── post/
-│   ├── NewPost.test.ts              # Post — creación, guardado y publicación
-│   ├── NewListicle.test.ts          # Listicle — creación con BACK_SAVE y publicación
-│   ├── NewLiveBlog.test.ts          # LiveBlog — creación y publicación
-│   ├── NewAIPost.test.ts            # AI Post — generación asistida por IA + guardado
-│   └── MassPublishNotes.test.ts     # Mass Actions — Post + Listicle + Liveblog masivos
+│   ├── NewPost.test.ts                  # Post — creación, guardado y publicación
+│   ├── NewListicle.test.ts              # Listicle — creación con BACK_SAVE y publicación
+│   ├── NewLiveBlog.test.ts              # LiveBlog — creación y publicación
+│   ├── NewAIPost.test.ts                # AI Post — generación asistida por IA + guardado
+│   └── MassPublishNotes.test.ts         # Mass Actions — Post + Listicle + Liveblog masivos
 ├── video/
-│   ├── NewEmbeddedVideo.test.ts     # Video — creación de Embedded + edición inline
-│   ├── NewYoutubeVideo.test.ts      # Video — subida YouTube + edición inline
-│   └── MassPublishVideos.test.ts    # Mass Actions — publicación masiva de videos
+│   ├── NewEmbeddedVideo.test.ts         # Video — creación de Embedded + edición inline
+│   ├── NewYoutubeVideo.test.ts          # Video — subida YouTube + edición inline
+│   └── MassPublishVideos.test.ts        # Mass Actions — publicación masiva de videos
 ├── images/
-│   └── MassPublishImages.test.ts    # Mass Actions — subida nativa, edición inline y publicación de imágenes
+│   └── MassPublishImages.test.ts        # Mass Actions — subida nativa, edición inline y publicación
 ├── cross/
-│   └── PostAndVideo.test.ts         # Cross-component — Post + YouTube (critical)
+│   └── PostAndVideo.test.ts             # Cross-component — Post + YouTube (critical)
 ├── stress/
-│   └── StressMassActions.test.ts    # Stress — notas + videos + AI + publicación masiva
+│   └── StressMassActions.test.ts        # Stress — notas + videos + AI + publicación masiva
 └── debug/
-    ├── DebugImageEditorHeader.test.ts   # Debug — acciones del header del editor de imágenes
-    └── DebugVideoEditorHeader.test.ts   # Debug — acciones del header del editor de videos
+    ├── DebugImageEditorHeader.test.ts   # Debug — header del editor de imágenes
+    └── DebugVideoEditorHeader.test.ts   # Debug — header del editor de videos
 ```
 
 ---
 
-# API — `runSession`
+## Arquitectura
 
-Firma extraída de [src/core/wrappers/testWrapper.ts](../src/core/wrappers/testWrapper.ts):
+Los archivos en `sessions/` son el nivel más alto del framework. No contienen lógica de UI — solo orquestación: `runSession()` envuelve `test()` de Jest e inyecta automáticamente driver, logger, metadata de Allure, screenshot en fallo y verificación de errores de red via `NetworkMonitor`.
 
-```typescript
-runSession(
-  sessionLabel: string,                              // Etiqueta del test en logs y Allure
-  testLogic: (context: TestContext) => Promise<void>,
-  metadata?: TestMetadata                            // Opcional — clasificación Allure
-): void
-```
-
-**`TestContext`** — objeto inyectado en `testLogic`:
-
-| Propiedad | Tipo | Descripción |
-|---|---|---|
-| `driver` | `WebDriver` | Instancia Selenium lista para usar |
-| `session` | `DriverSession` | Sesión completa (incluye `networkMonitor`) |
-| `opts` | `RetryOptions` | Config de reintentos; pasar a cada Page Object |
-| `log` | `Logger` | Logger estructurado con transport de sesión |
-
-**`TestMetadata`** — tercer argumento opcional:
-
-| Campo | Tipo | Uso en Allure |
-|---|---|---|
-| `epic` | `string` | Agrupa tests por dominio de negocio |
-| `feature` | `string` | Sub-agrupación dentro del epic |
-| `story` | `string` | Historia de usuario específica |
-| `severity` | `"blocker" \| "critical" \| "normal" \| "minor" \| "trivial"` | Criticidad del test |
-| `issueId` | `string` | Ticket Jira — genera link clickeable en el reporte |
-| `tags` | `string[]` | Etiquetas libres |
+Firma completa de `runSession`, `TestContext` y `TestMetadata`: [wiki/core/run-session.md](../wiki/core/run-session.md).
 
 ---
 
-# Catálogo de Sessions
+## Convenciones
 
-| Archivo | Carpeta | Epic | Feature | Severity | Page Objects usados |
-|---|---|---|---|---|---|
-| `FailedLogin` | `auth` | Login | Failed Login | normal | `MainLoginPage` |
-| `NewPost` | `post` | Post Component | Post | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewListicle` | `post` | Post Component | Listicle | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewLiveBlog` | `post` | Post Component | LiveBlog | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewAIPost` | `post` | AI Post Component | AI Post | normal | `MainLoginPage`, `MainPostPage`, `MainAIPage`, `MainEditorPage` |
-| `MassPublishNotes` | `post` | Post Management | Mass Publication | normal | `MainLoginPage`, `MainPostPage`, `MainEditorPage` |
-| `NewEmbeddedVideo` | `video` | Video Component | Embedded Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `NewYoutubeVideo` | `video` | Video Component | Youtube Video | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `MassPublishVideos` | `video` | Video Management | Mass Publication | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `MassPublishImages` | `images` | Multimedia | Imágenes | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
-| `PostAndVideo` | `cross` | Post & Video Component | Cross-Component Workflow | **critical** | `MainLoginPage`, `MainPostPage`, `MainEditorPage`, `MainVideoPage`, `SidebarAndHeader` |
-| `StressMassActions` | `stress` | Stress Test | Mass Actions | **critical** | todos los anteriores + `MainAIPage` |
-| `DebugImageEditorHeader` | `debug` | Debug | Image Editor | normal | `MainLoginPage`, `MainImagePage`, `SidebarAndHeader` |
-| `DebugVideoEditorHeader` | `debug` | Debug | Video Editor | normal | `MainLoginPage`, `MainVideoPage`, `SidebarAndHeader` |
+| Artefacto | Patrón |
+|---|---|
+| Archivo de test | `PascalCase.test.ts` dentro de su subcarpeta de dominio |
+| Imports | Al final del archivo — extensión `.js` obligatoria |
+| Datos de prueba | Instanciar factory antes de instanciar Page Objects |
+| `opts` | Pasar a cada constructor de Page Object — habilita reintentos end-to-end |
+| Cierre exitoso | `log.info("✅ ...")` como última línea del flujo |
+
+Estructura canónica de un `.test.ts`: [sessions/post/NewPost.test.ts](post/NewPost.test.ts).
+
+Las categorías `debug/` son para diagnóstico rápido — no integran la suite de regresión principal.
 
 ---
 
-# Data Factories
+## 🔗 Referencias
 
-Todos los datos de prueba son generados dinámicamente via **faker-js**. Importar siempre desde `../src/data_test/factories/index.js`. Declarar la data antes de instanciar los Page Objects.
-
-### `PostDataFactory`
-
-```typescript
-PostDataFactory.create()                              // datos aleatorios
-PostDataFactory.create({ authorType: 'BYLINE' })     // con override
-PostDataFactory.createMany(5)                         // múltiples únicos
-PostDataFactory.createMany(3, { authorType: 'BYLINE' })
-```
-
-### `ListicleDataFactory`
-
-```typescript
-ListicleDataFactory.create()                          // items aleatorios (3–20)
-ListicleDataFactory.create({ itemCount: 7 })          // forzar cantidad
-ListicleDataFactory.createMany(3, { itemCount: 5 })
-```
-
-`itemCount`: parámetro de creación, no campo de la interfaz. Mínimo 3, máximo 20.
-
-### `LiveBlogDataFactory`
-
-```typescript
-LiveBlogDataFactory.create()                          // entradas aleatorias (5–20)
-LiveBlogDataFactory.create({ entryCount: 10 })
-LiveBlogDataFactory.create({ eventLiveBlog: { eventTitle: 'Conferencia Tech 2025' } })
-LiveBlogDataFactory.createMany(2, { entryCount: 8 })
-```
-
-`entryCount`: parámetro de creación. Mínimo recomendado: 5.
-
-### `YoutubeVideoDataFactory`
-
-```typescript
-YoutubeVideoDataFactory.create()                      // URL aleatoria del pool interno
-YoutubeVideoDataFactory.create({ url: 'https://www.youtube.com/watch?v=ABC123' })
-YoutubeVideoDataFactory.createMany(3)
-```
-
-### `NativeVideoDataFactory`
-
-```typescript
-NativeVideoDataFactory.create()                       // path rotado del pool disponible
-NativeVideoDataFactory.create({ path: 'src/data_test/videos/mi_video.mp4' })
-NativeVideoDataFactory.createMany(2)
-```
-
-El archivo en `path` debe existir vía Git LFS o paso AWS en CI.
-
-### AI Post (caso especial)
-
-Para `MainAIPage` la data no viene de faker-js sino de la interfaz `AINoteData` en `src/interfaces/data.ts`:
-
-```typescript
-import { AINoteData } from "../src/interfaces/data.js";
-const aiData: Partial<AINoteData> = { /* campos de prompts */ };
-await aiPage.generateNewAINote(aiData);
-```
-
----
-
-# Convenciones de Escritura
-
-### Estructura canónica de un archivo `.test.ts`
-
-```typescript
-// 1. runSession() — único punto de entrada, siempre primero
-runSession(
-  "Descripción legible del flujo",
-  async ({ driver, opts, log }) => {
-
-    // 2. description() — bloque Allure con objetivo y flujo
-    description(`### Test: ...\n---\n**Objetivo:** ...\n**Flujo:** ...`);
-
-    // 3. Credenciales y navegación
-    const { user, pass } = ENV_CONFIG.getCredentials('editor');
-    const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ...);
-    await driver.get(authUrl);
-
-    // 4. Datos dinámicos desde fábricas
-    const data = XxxDataFactory.create();
-
-    // 5. Instanciación de Page Objects (siempre con opts)
-    const login = new MainLoginPage(driver, opts);
-    const page  = new MainXxxPage(driver, 'TYPE', opts);
-
-    // 6. Ejecución del flujo
-    await login.passLoginAndTwoFA({ username: user, password: pass });
-    await page.someMethod(data);
-
-    log.info("✅ Descripción del resultado exitoso.");
-  },
-  {
-    epic: "...",
-    feature: "...",
-    severity: "normal",  // o "critical" para flujos críticos
-  }
-);
-
-// 7. Imports — SIEMPRE AL FINAL, extensión .js obligatoria
-import { runSession } from "../src/core/wrappers/testWrapper.js";
-import { ENV_CONFIG } from "../src/core/config/envConfig.js";
-// ...resto de imports
-```
-
-### Reglas clave
-
-- **Imports al final:** convención del proyecto — invertir el orden rompe la legibilidad del flujo.
-- **`opts` en cada Page Object:** permite que el sistema de reintentos funcione end-to-end.
-- **Un flujo por archivo:** nunca anidar múltiples `runSession()`.
-- **`log.info("✅ ...")` al cierre:** señal de éxito legible en la consola y en el log estructurado.
-- **`description()`** es de `allure-js-commons` — siempre incluir para trazabilidad en el reporte.
-
----
-
-# Ejecución
-
-```bash
-# Suite por dominio (todos los tests de una carpeta)
-npm run test:dev -- video         # sessions/video/*.test.ts
-npm run test:dev -- post          # sessions/post/*.test.ts
-npm run test:dev -- stress        # sessions/stress/*.test.ts
-
-# Test específico (igual que antes)
-npm run test:dev -- NewPost
-
-# Regex multi-dominio
-npm run test:dev -- "post|video"
-
-# Contra el Docker Grid (mismo filtrado)
-npm run test:grid -- video
-
-# CI completo (clean → infra:up → exec → infra:down)
-npm run test:ci -- NewPost
-
-# Generar y abrir reporte Allure
-npm run report:show
-```
-
----
-
-# 🔗 Documentación relacionada
-
-- [README.md](../README.md) — setup completo, ejecución, Docker Grid y naming conventions del proyecto
-- [src/core/wrappers/testWrapper.ts](../src/core/wrappers/testWrapper.ts) — implementación de `runSession`, `TestContext` y `TestMetadata`
-- [src/core/wrappers/retry.ts](../src/core/wrappers/retry.ts) — política de reintentos con exponential backoff que consumen los Page Objects via `opts`
-- [src/pages/README.md](../src/pages/README.md) — especificación autoritativa de la capa Page Object: constructores, locators y naming
-- [src/data_test/factories/](../src/data_test/factories/) — fábricas faker-js para datos de prueba dinámicos
-- [jest.config.cjs](../jest.config.cjs) — configuración de Jest: timeout, workers, testMatch y entorno Allure
+- [wiki/sessions/catalog.md](../wiki/sessions/catalog.md) — inventario de los 14 tests con POs y factories de cada uno
+- [wiki/core/run-session.md](../wiki/core/run-session.md) — API completa de `runSession`, `TestContext` y `TestMetadata`
+- [wiki/patterns/factory-api.md](../wiki/patterns/factory-api.md) — catálogo de factories faker-js y sus firmas
+- [sessions/post/NewPost.test.ts](post/NewPost.test.ts) — estructura canónica de referencia
+- [src/pages/README.md](../src/pages/README.md) — especificación autoritativa de la capa Page Object
+- [.claude/references/COMMANDS.md](../.claude/references/COMMANDS.md) — comandos de ejecución y filtrado por dominio
+- [jest.config.cjs](../jest.config.cjs) — timeout, workers, testMatch y entorno Allure

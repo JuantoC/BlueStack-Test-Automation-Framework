@@ -41,17 +41,37 @@ interface TestContext {
 
 ### `TestMetadata`
 Metadata de clasificación para Allure. Todos los campos opcionales.
+Incluye campos de clasificación Allure clásicos y metadata directa del ticket Jira vinculado.
 
 ```typescript
 interface TestMetadata {
-  epic?: string;
-  feature?: string;
-  story?: string;
+  // --- Clasificación Allure ---
+  epic?: string;       // Agrupación de nivel alto (módulo/área de negocio)
+  feature?: string;    // Funcionalidad dentro del epic
+  story?: string;      // Caso de uso específico
   severity?: "blocker" | "critical" | "normal" | "minor" | "trivial";
-  issueId?: string;   // ID de Jira (genera link clickeable en Allure)
-  tags?: string[];
+  issueId?: string;    // Key del ticket Jira (ej. "NAA-4037"). Genera link clickeable.
+  tags?: string[];     // Etiquetas genéricas de clasificación
+
+  // --- Metadata Jira (correspondencia 1:1 con campos del ticket) ---
+  jiraSummary?: string;       // summary: título del ticket
+  ticketType?: string;        // issuetype.name ("Story - Back", "QA Bug - Front", etc.)
+  ticketStatus?: string;      // status.name: estado actual del ticket
+  assignee?: string;          // assignee.displayName
+  component?: string;         // customfield_10061: componente técnico ("Videos", "AI", etc.)
+  sprint?: string;            // customfield_10021: nombre del sprint activo
+  executiveSummary?: string;  // customfield_10062: resumen ejecutivo
+  parentKey?: string;         // parent.key: key del ticket padre (ej. "NAA-1751")
+  linkedIssues?: string[];    // issuelinks: keys de tickets relacionados
+  fixVersion?: string;        // fixVersions[0].name: versión objetivo del fix
+  priority?: string;          // priority.name ("High", "Medium", "Low", etc.)
+  jiraLabels?: string[];      // labels nativas de Jira (ej. ["Ecuavisa"]). Distinto de `tags`.
+  jiraAttachments?: string[]; // attachment[].filename: archivos adjuntos del ticket
 }
 ```
+
+> `jira_metadata` retornado por `jira-reader OP-6` sigue este schema exacto y puede
+> pasarse directamente a `runSession` para poblar Allure sin transformación.
 
 ---
 

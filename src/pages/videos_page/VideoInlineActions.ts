@@ -81,15 +81,6 @@ export class VideoInlineActions {
   // =========================================================================
 
   /**
-   * Abre el dropdown de acciones del video mediante hover y ejecuta la acción indicada.
-   * Realiza hover sobre el botón toggle para activar su visibilidad, abre el menú si no
-   * está expandido, y localiza la opción correcta mediante `ACTION_TYPE_MAP`.
-   *
-   * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
-   * @param action - Acción a ejecutar: EDIT, DELETE o UNPUBLISH.
-   * @throws Error si el dropdown no se abre o la acción no se encuentra en el menú.
-   */
-  /**
    * Hace hover sobre el botón toggle del dropdown de acciones del video para activar su visibilidad.
    * Acción atómica — solo ejecuta el hover, no abre el dropdown.
    *

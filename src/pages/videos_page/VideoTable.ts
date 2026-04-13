@@ -45,6 +45,7 @@ export class VideoTable {
    *
    * @param title - Título exacto o fragmento a buscar.
    * @param limit - Cantidad máxima de contenedores a recorrer. Por defecto 10.
+   * @returns WebElement del contenedor del video que coincide con el título.
   */
   async getVideoContainerByTitle(title: string, limit = 10): Promise<WebElement> {
     if (!title || title.trim() === "") {
@@ -88,6 +89,8 @@ export class VideoTable {
   /**
    * Modifica el título dinámicamente. Levanta el texto actual y reemplaza el sufijo del framework.
    * Orquesta la lógica llamando a los helpers específicos.
+   *
+   * @param videoContainer - Contenedor WebElement del video cuyo título se va a modificar.
   */
   async changeVideoTitle(videoContainer: WebElement): Promise<void> {
     try {
@@ -204,8 +207,11 @@ export class VideoTable {
   // =========================================================================
 
   /**
-   * Encuentra el WebElement del contenedor de la nota basado en su índice.
+   * Encuentra el WebElement del contenedor del video basado en su índice.
    * NO devuelve un Locator, devuelve el Elemento listo para usarse.
+   *
+   * @param index - Índice (base 0) del video en la tabla.
+   * @returns WebElement del contenedor del video en la posición indicada.
    */
   async getVideoContainerByIndex(index: number): Promise<WebElement> {
     try {

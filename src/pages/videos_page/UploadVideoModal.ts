@@ -184,6 +184,12 @@ export class UploadVideoModal {
     }
   }
 
+  /**
+   * Sube un archivo al input de tipo file del modal resolviendo la ruta relativa a absoluta.
+   * Acción atómica — no interactúa con ningún otro campo del modal.
+   *
+   * @param relativePath - Ruta relativa al archivo desde la raíz del proyecto (con o sin `/` inicial).
+   */
   async uploadFile(relativePath: string): Promise<void> {
     const cleanRelativePath = relativePath.startsWith('/')
       ? relativePath.substring(1)

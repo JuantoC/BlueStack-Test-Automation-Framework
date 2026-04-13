@@ -194,6 +194,13 @@ export class VideoInlineActions {
     }
   }
 
+  /**
+   * Orquesta la apertura del dropdown de acciones y la ejecución del ítem indicado.
+   * Facade sobre `hoverActionDropdownToggle`, `openActionDropdown` y `clickDropdownAction`.
+   *
+   * @param videoContainer - Contenedor WebElement del video.
+   * @param action - Acción a ejecutar: EDIT, DELETE o UNPUBLISH.
+   */
   async clickOnAction(videoContainer: WebElement, action: ActionType): Promise<void> {
     try {
       logger.debug(`Buscando el botón de "${action}" en el dropdown del video...`, { label: this.config.label });

@@ -1,10 +1,15 @@
 ---
 name: sync-docs
+type: pipeline
+invocation: explicit-only
+called-by:
+  - smart-commit (Paso 9)
+  - usuario directo vía instrucción explícita
 description: Sincroniza la documentación (JSDoc/TSDoc y `.md` contextuales) con el estado actual del código TypeScript tras uno o más commits. Aplica los cambios automáticamente sin pedir confirmación.
 ---
 
 # CUANDO INVOCAR
-- Cuando el desarrollador diga "sincronizá la documentación", "revisá qué docs quedaron desactualizados"
+- Cuando el desarrollador lo indique explícitamente
 - Después de un refactor o cambio de firma en `src/pages/`, `src/core/` o `src/interfaces/`
 - Automáticamente desde el Paso 9 de la skill `smart-commit`
 
@@ -119,7 +124,7 @@ Aplicar todas las sugerencias identificadas sin pedir confirmación:
 > **Optimización:** Si hay múltiples ediciones JSDoc en el mismo archivo, agruparlas en una
 > sola operación `Edit` en lugar de múltiples llamadas separadas.
 
-Si la skill fue invocada desde smart-commit (Paso 9): generar un commit `docs(...)` con los cambios,
+Si la pipeline fue invocada desde smart-commit (Paso 9): generar un commit `docs(...)` con los cambios,
 usando el mismo formato de mensaje del Paso 5 de smart-commit.
 Usar `--no-verify` en este commit para evitar que el hook pre-commit registre los archivos del docs-commit
 como pendientes de revisión documental (el docs-commit ES el resultado de la revisión — no necesita revisión):
@@ -149,8 +154,8 @@ with open('.claude/pending-doc-updates.json', 'w') as f:
 
 ## Paso 8 — Validación SSoT automática
 
-Después de marcar los commits como reviewed, ejecutar **automáticamente** la skill `validate-ssot`
-(Pasos 1 a 5 de esa skill). No pedir confirmación.
+Después de marcar los commits como reviewed, leer `.claude/pipelines/validate-ssot/PIPELINE.md`
+y ejecutar sus Pasos 1 a 5. No pedir confirmación.
 
 - Si no hay violaciones: reportar `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
 - Si hay violaciones: reportar cada una con el formato `[TIPO] archivo → Problema → Acción recomendada`

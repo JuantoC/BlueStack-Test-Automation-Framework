@@ -1,13 +1,21 @@
 ---
 name: validate-ssot
+type: pipeline
+invocation: explicit-only
+called-by:
+  - sync-docs (Paso 8)
+  - smart-commit (Paso 10)
+  - usuario directo vía instrucción explícita
 description: Valida que el modelo SSoT se respete en todo el repositorio BlueStack. Detecta tres tipos de violaciones: lógica funcional embebida en `.md`, JSDoc/TSDoc desincronizado con firmas reales, y skills que referencian `.md` como input lógico primario.
 ---
 
 # Cuándo invocar
-- Cuando el desarrollador diga "validá el SSoT", "chequeá inconsistencias", "hay algo roto en la documentación"
+- Cuando el desarrollador lo indique explícitamente
 - Antes de un PR o un release importante
 - Como paso de verificación después de ejecutar `sync-docs`
 - Cuando el pre-commit hook reporte violaciones en `docs/audit/ssot-violations.json`
+- Automáticamente desde el Paso 8 de la pipeline `sync-docs`
+- Automáticamente desde el Paso 10 de la skill `smart-commit`
 
 ---
 

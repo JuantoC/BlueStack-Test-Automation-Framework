@@ -22,5 +22,10 @@ test/
 # docs/generated/ — auto-generado por pipelines, nunca editar manualmente
 docs/generated/
 
+# Python bytecode — generado por skill-creator scripts
+**/__pycache__/
+*.pyc
+*.pyo
+
 # Windows/WSL2 alternate data streams
 *:Zone.Identifier

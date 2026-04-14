@@ -13,7 +13,6 @@ export type VideoExitAction = keyof typeof EditorHeaderActions.LOCATORS;
  * Gestiona secuencias complejas de clics (Dropdown -> Opción -> Modal).
  */
 export class EditorHeaderActions {
-    private driver: WebDriver;
     private config: RetryOptions;
 
     private readonly publishModal: PublishModal
@@ -46,8 +45,7 @@ export class EditorHeaderActions {
         BACK_EXIT_DISCARD: EditorHeaderActions.BACK_BTN,
     } as const;
 
-    constructor(driver: WebDriver, opts: RetryOptions = {}) {
-        this.driver = driver;
+    constructor(private driver: WebDriver, opts: RetryOptions = {}) {
         this.config = resolveRetryConfig(opts, "EditorHeaderActions")
 
         this.publishModal = new PublishModal(this.driver, this.config)

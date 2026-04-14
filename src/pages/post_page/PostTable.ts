@@ -23,7 +23,6 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await table.clickEditorButton(container);
  */
 export class PostTable {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly POST_TABLE_BODY: Locator = By.css(`div[id="news-table-body"]`);
@@ -82,8 +81,7 @@ export class PostTable {
   public readonly OLD_SUFFIX = " | Creado por BlueStack_Test_Automation_Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "PostTable");
   }
   /**

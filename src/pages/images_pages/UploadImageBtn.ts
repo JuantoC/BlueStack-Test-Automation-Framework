@@ -24,7 +24,6 @@ const remote = require('selenium-webdriver/remote');
  */
 export class UploadImageBtn {
 
-  private driver: WebDriver;
   private config: RetryOptions;
 
 
@@ -32,8 +31,7 @@ export class UploadImageBtn {
   private static readonly IMAGE_UPLOAD_INPUT_TABLE: Locator = By.css('input#image-file[type="file"]')
   private static readonly IMAGE_UPLOAD_INPUT_SIDEBAR: Locator = By.css('div#file-upload-plus input[type="file"]')
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "UploadImageBtn");
   }
 

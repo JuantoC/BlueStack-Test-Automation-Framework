@@ -1,11 +1,11 @@
 /**
  * Page Object Maestro para la edición de notas.
  * Centraliza y coordina todas las secciones del editor.
+ * El tipo de nota se lee desde `data.noteType` en cada llamada a `fillFullNote()`,
+ * permitiendo que una sola instancia maneje POST, LISTICLE y LIVEBLOG sin reinstanciarse.
 */
 export class MainEditorPage {
-  private driver: WebDriver;
   private config: RetryOptions;
-  public readonly noteType: NoteType
   public readonly tags: EditorTagsSection;
   public readonly listicle: ListicleSection;
   public readonly liveBlog: LiveBlogSection;
@@ -16,10 +16,8 @@ export class MainEditorPage {
   public readonly creation: NewNoteBtn;
   public readonly images: EditorImageSection;
 
-  constructor(driver: WebDriver, noteType: NoteType, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "MainEditorPage");
-    this.noteType = noteType || 'POST';
     this.tags = new EditorTagsSection(driver, this.config);
     this.author = new EditorAuthorSection(driver, this.config);
     this.header = new EditorHeaderActions(driver, this.config);
@@ -41,8 +39,8 @@ export class MainEditorPage {
    */
   async fillFullNote(data: Partial<NoteData>): Promise<void> {
     await step(`Rellenado de la nota con datos dinámicos`, async (stepContext) => {
-      attachment(`${this.noteType} Data`, JSON.stringify(data, null, 2), "application/json");
-      this.noteType && stepContext.parameter("Note Type", this.noteType)
+      attachment(`${data.noteType ?? 'NOTE'} Data`, JSON.stringify(data, null, 2), "application/json");
+      data.noteType && stepContext.parameter("Note Type", data.noteType)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       logger.info(`Iniciando llenado dinámico de campos`, { label: this.config.label });
@@ -105,12 +103,12 @@ export class MainEditorPage {
   // Método privado para manejar la bifurcación lógica sin ensuciar el flujo principal
   private async fillListicleOrLiveblog(data: Partial<NoteData>) {
     const hasItems = data.listicleItems && data.listicleItems.length > 0;
-    const hasEvent = this.noteType === 'LIVEBLOG' && data.eventLiveBlog;
+    const hasEvent = data.noteType === 'LIVEBLOG' && data.eventLiveBlog;
 
     if (!hasItems && !hasEvent) return;
 
-    // Selección de la estrategia
-    const section = (this.noteType === 'LIVEBLOG') ? this.liveBlog : this.listicle;
+    // Selección de la estrategia según el tipo de nota en el objeto de datos
+    const section = (data.noteType === 'LIVEBLOG') ? this.liveBlog : this.listicle;
 
     // Ejecutar
     await section.fillAll(data as LiveBlogData);
@@ -131,6 +129,6 @@ import { EditorImageSection } from './EditorImagesSection.js';
 import { LiveBlogData } from './note_list/BaseListicleSection.js';
 import { step, attachment } from "allure-js-commons";
 import logger from '../../../core/utils/logger.js';
-import { NewNoteBtn, NoteType } from '../NewNoteBtn.js';
+import { NewNoteBtn } from '../NewNoteBtn.js';
 import { getErrorMessage } from '../../../core/utils/errorUtils.js';
 

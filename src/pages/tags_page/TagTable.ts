@@ -20,15 +20,13 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await table.selectTagByIndex(0);
  */
 export class TagTable {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly TAG_TABLE: Locator = By.css('div#tags-table-body');
   private static readonly CHECKBOXES: Locator = By.css('mat-checkbox.checkbox');
   private static readonly TAG_TITLE_IN_ROW: Locator = By.css('div.cmsmedios-table-content-item');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "TagTable");
   }
 

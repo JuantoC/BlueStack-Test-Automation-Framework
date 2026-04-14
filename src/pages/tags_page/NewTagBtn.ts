@@ -17,13 +17,11 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await btn.clickNewTag();
  */
 export class NewTagBtn {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly NEW_TAG_BTN: Locator = By.css('button.btn-create-note');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "NewTagBtn");
   }
 

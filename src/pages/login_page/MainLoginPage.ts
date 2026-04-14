@@ -18,14 +18,12 @@ import { parameter, step } from "allure-js-commons";
  * await page.passLoginAndTwoFA({ username: 'user', password: 'pass' });
  */
 export class MainLoginPage {
-  private driver: WebDriver;
   private readonly login: LoginSection;
   private readonly twoFA: TwoFASection;
   private readonly config: RetryOptions;
 
   constructor(driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "MainLoginPage");
-    this.driver = driver;
     this.login = new LoginSection(driver, this.config);
     this.twoFA = new TwoFASection(driver, this.config);
   }

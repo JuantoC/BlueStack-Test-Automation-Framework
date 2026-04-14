@@ -14,7 +14,6 @@ export type LiveBlogEventField = keyof typeof LiveBlogEventSection.LOCATORS;
  * y expone el método de escritura del título del evento utilizado por `LiveBlogSection`.
  */
 export class LiveBlogEventSection {
-    private driver: WebDriver;
     private config: RetryOptions;
 
     // ========== LOCATORS (Private & Readonly) ==========
@@ -31,8 +30,7 @@ export class LiveBlogEventSection {
      * @param driver - Instancia activa de WebDriver para la sesión actual.
      * @param opts - Opciones de reintento y trazabilidad del framework.
      */
-    constructor(driver: WebDriver, opts: RetryOptions) {
-        this.driver = driver;
+    constructor(private driver: WebDriver, opts: RetryOptions) {
         this.config = resolveRetryConfig(opts, "LiveBlogEventSection");
     }
 

@@ -14,7 +14,6 @@ import { getErrorMessage } from "../../../core/utils/errorUtils.js";
  * Maneja la selección de tipo de autor y la carga de metadatos asociados.
  */
 export class EditorAuthorSection {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   // ========== LOCATORS (Private & Readonly) ==========
@@ -28,8 +27,7 @@ export class EditorAuthorSection {
   private static readonly AUTHOR_NAME: Locator = By.css(".image-container_description input[type='text']");
 
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "EditorAuthorSection")
   }
 

@@ -20,7 +20,6 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await page.uploadNewImage(imageData);
  */
 export class MainImagePage {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private readonly uploadBtn: UploadImageBtn
@@ -29,13 +28,12 @@ export class MainImagePage {
   private readonly footer: FooterActions
 
   constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
     this.config = resolveRetryConfig(opts, "MainImagePage")
 
-    this.uploadBtn = new UploadImageBtn(this.driver, this.config);
-    this.table = new ImageTable(this.driver, this.config);
-    this.actions = new ImageActions(this.driver, this.config);
-    this.footer = new FooterActions(this.driver, this.config)
+    this.uploadBtn = new UploadImageBtn(driver, this.config);
+    this.table = new ImageTable(driver, this.config);
+    this.actions = new ImageActions(driver, this.config);
+    this.footer = new FooterActions(driver, this.config)
   }
 
   /**

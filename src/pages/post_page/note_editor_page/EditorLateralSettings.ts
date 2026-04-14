@@ -11,7 +11,6 @@ import { getErrorMessage } from "../../../core/utils/errorUtils.js";
  * Incluye la gestión de secciones y metadatos laterales.
  */
 export class EditorLateralSettings {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   // ========== LOCATORS ==========
@@ -19,8 +18,7 @@ export class EditorLateralSettings {
   private static readonly SECTION_COMBO: Locator = By.css('div#general-card mat-select[data-testid="section-options"]');
   private static readonly SECTION_OPT: Locator = By.css("div[role='listbox'] mat-option[role='option']");
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "EditorLateralSettings")
   }
 

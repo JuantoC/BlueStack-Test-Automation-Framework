@@ -17,14 +17,12 @@ import { waitVisible } from "../../core/actions/waitVisible.js";
  * await modal.selectImage(0);
  */
 export class CKEditorImageModal {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private static readonly CKEDITOR_SELECTOR_IMAGE: Locator = By.css('div#ckeditor-selector')
   private static readonly DONE_BTN_CKEDITOR_SELECTOR_LOCATOR: Locator = By.css('app-cmsmedios-button[data-testid="btn-ok-ckeditor"] button[data-testid="btn-calendar-confirm"]');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "CKEditorImageModal")
   }
 

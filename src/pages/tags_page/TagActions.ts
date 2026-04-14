@@ -19,7 +19,6 @@ export type TagActionType = keyof typeof TagActions.ACTION_TYPE_MAP;
  * await actions.clickOnAction(tagContainer, 'EDIT');
  */
 export class TagActions {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   public static readonly ACTION_TYPE_MAP = {
@@ -33,8 +32,7 @@ export class TagActions {
   private static readonly DROPDOWN_BTN: Locator = By.css('button#dropdownBasic1.dropdown-toggle');
   private static readonly ACTION_ITEMS: Locator = By.css('button.dropdown-item');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "TagActions");
   }
 

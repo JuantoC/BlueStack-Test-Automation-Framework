@@ -32,7 +32,6 @@ export type InlineActionType = keyof typeof VideoInlineActions.INLINE_ACTION_TYP
  * await actions.clickOnKebabAction(videoContainer, 'SCHEDULE');
  */
 export class VideoInlineActions {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   // =========================================================================
@@ -71,8 +70,7 @@ export class VideoInlineActions {
   private static readonly KEBAB_BTN: Locator = By.css('[data-testid="TODO_kebab_btn"]');
   private static readonly KEBAB_MENU_ITEMS: Locator = By.css('[data-testid="TODO_kebab_menu_item"]');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "VideoInlineActions");
   }
 

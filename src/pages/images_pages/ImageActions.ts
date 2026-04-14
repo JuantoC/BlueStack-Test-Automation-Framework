@@ -19,7 +19,6 @@ export type ImageActionType = keyof typeof ImageActions.ACTION_TYPE_MAP;
  * await actions.clickOnAction(imageContainer, 'DELETE');
  */
 export class ImageActions {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   public static readonly ACTION_TYPE_MAP = {
@@ -31,8 +30,7 @@ export class ImageActions {
   private static readonly LABELS_OF_ACTIONS: Locator = By.css('div[aria-labelledby="dropdownBasic1"] button.dropdown-item')
   private static readonly EDITOR_BTN: Locator = By.css('div.icon-default button[mat-icon-button]')
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "ImageActions")
   }
 

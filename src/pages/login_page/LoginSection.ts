@@ -12,7 +12,6 @@ import { LoginAttemptResult } from './login.types.js';
  * Maneja la interacción atómica con los inputs de credenciales y el botón de acceso.
  */
 export class LoginSection {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private static readonly USERNAME_INPUT: Locator = By.id('username-field-log');
@@ -22,8 +21,7 @@ export class LoginSection {
   private static readonly VERSION_LABEL: Locator = By.css('div.security-footer-text')
 
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "LoginSection");
   }
 

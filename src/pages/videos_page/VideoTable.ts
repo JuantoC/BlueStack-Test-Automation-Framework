@@ -22,7 +22,6 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await table.changeVideoTitle(container);
  */
 export class VideoTable {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly VIDEO_TABLE: Locator = By.css('div#multimedia-table-body')
@@ -33,8 +32,7 @@ export class VideoTable {
   public readonly OLD_SUFFIX = " | Subido por BlueStack_Test_Automation_Framework";
   public readonly NEW_SUFFIX = " | Titulo modificado inline por BlueStack_Test_Automation_Framework";
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "VideoTable")
   }
 

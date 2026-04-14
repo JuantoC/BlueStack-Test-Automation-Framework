@@ -22,7 +22,6 @@ export type { VideoType } from '../../interfaces/data.js';
  */
 export class UploadVideoBtn {
 
-  private driver: WebDriver;
   private config: RetryOptions;
 
   public static readonly VIDEO_TYPE_MAP = {
@@ -37,8 +36,7 @@ export class UploadVideoBtn {
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
   private static readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "UploadVideoBtn");
   }
 

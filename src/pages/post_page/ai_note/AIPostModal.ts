@@ -24,7 +24,6 @@ export type AIPostField = keyof typeof AIPostModal.LOCATORS;
  * await modal.clickOnDoneBtn();
  */
 export class AIPostModal {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   public static readonly LOCATORS = {
@@ -43,8 +42,7 @@ export class AIPostModal {
   private static readonly ERROR_STATUS_CONTAINER: Locator = By.css('div.status-container')
   private static readonly DONE_BTN: Locator = By.css('div.button-primary__four button')
 
-  constructor(driver: WebDriver, config: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, config: RetryOptions) {
     this.config = resolveRetryConfig(config, 'AIPostModal');
   }
 

@@ -19,7 +19,6 @@ export type FooterActionType = keyof typeof FooterActions.FOOTER_ACTIONS;
  * await footer.clickFooterAction('PUBLISH_ONLY');
  */
 export class FooterActions {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly publishModal: PublishModal;
 
@@ -34,8 +33,7 @@ export class FooterActions {
     SCHEDULE: FooterActions.FOOTER_DROPDOWN_BTN
   }
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "FooterActions")
 
     this.publishModal = new PublishModal(this.driver, this.config)

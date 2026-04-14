@@ -23,7 +23,6 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await page.uploadNewVideo(videoData);
  */
 export class MainVideoPage {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private readonly uploadBtn: UploadVideoBtn
@@ -35,16 +34,15 @@ export class MainVideoPage {
   private readonly image: CKEditorImageModal;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
     this.config = resolveRetryConfig(opts, "MainVideoPage")
 
-    this.uploadBtn = new UploadVideoBtn(this.driver, this.config);
-    this.uploadModal = new UploadVideoModal(this.driver, this.config);
-    this.table = new VideoTable(this.driver, this.config);
-    this.actions = new VideoInlineActions(this.driver, this.config);
-    this.typeFilter = new VideoTypeFilter(this.driver, this.config);
-    this.footer = new FooterActions(this.driver, this.config)
-    this.image = new CKEditorImageModal(this.driver, this.config)
+    this.uploadBtn = new UploadVideoBtn(driver, this.config);
+    this.uploadModal = new UploadVideoModal(driver, this.config);
+    this.table = new VideoTable(driver, this.config);
+    this.actions = new VideoInlineActions(driver, this.config);
+    this.typeFilter = new VideoTypeFilter(driver, this.config);
+    this.footer = new FooterActions(driver, this.config)
+    this.image = new CKEditorImageModal(driver, this.config)
   }
 
   /**
@@ -58,13 +56,13 @@ export class MainVideoPage {
    */
   async uploadNewVideo(videoData: VideoData): Promise<any> {
     await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
-      attachment(`${videoData.video_type} Data`, JSON.stringify(videoData, null, 2), "application/json");
-      videoData.video_type && stepContext.parameter("Video Type", videoData.video_type)
+      attachment(`${videoData.videoType} Data`, JSON.stringify(videoData, null, 2), "application/json");
+      videoData.videoType && stepContext.parameter("Video Type", videoData.videoType)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        logger.debug(`Abriendo modal de subida para videos: ${videoData.video_type}`, { label: this.config.label })
-        await this.uploadBtn.selectVideoType(videoData.video_type)
+        logger.debug(`Abriendo modal de subida para videos: ${videoData.videoType}`, { label: this.config.label })
+        await this.uploadBtn.selectVideoType(videoData.videoType)
 
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
         await this.uploadModal.fillAll(videoData);
@@ -72,7 +70,7 @@ export class MainVideoPage {
         logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
         await this.uploadModal.clickOnUploadBtn();
 
-        if (videoData.video_type === 'NATIVO') {
+        if (videoData.videoType === 'NATIVO') {
           await this.uploadModal.checkProgressBar()
         }
 
@@ -83,7 +81,7 @@ export class MainVideoPage {
         logger.info(`Subida finalizada`, { label: this.config.label });
 
       } catch (error: unknown) {
-        logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${getErrorMessage(error)}`, {
+        logger.error(`Fallo en la subida de nuevo video: ${videoData.videoType} ${getErrorMessage(error)}`, {
           label: this.config.label,
           error: getErrorMessage(error)
         });

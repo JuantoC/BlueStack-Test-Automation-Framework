@@ -19,7 +19,6 @@ import type { TagData } from "../../interfaces/data.js";
  * await modal.fillAndCreate({ title: 'Gaming', estado: 'Aprobados' });
  */
 export class NewTagModal {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly MODAL_CONTAINER: Locator = By.css('app-tags-modal div#tags-modal-cms');
@@ -32,8 +31,7 @@ export class NewTagModal {
   private static readonly CANCEL_BTN: Locator = By.css('div.button-primary__two button[data-testid="btn-calendar-confirm"]');
   private static readonly CREATE_BTN: Locator = By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "NewTagModal");
   }
 

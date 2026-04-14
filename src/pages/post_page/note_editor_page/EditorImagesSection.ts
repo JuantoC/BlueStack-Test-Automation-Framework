@@ -13,7 +13,6 @@ import { getErrorMessage } from "../../../core/utils/errorUtils.js";
  * y la escritura de la descripción de la imagen. Consumido por `MainEditorPage.fillFullNote`.
  */
 export class EditorImageSection {
-  private driver: WebDriver
   private config: RetryOptions;
 
   private readonly CKEditorSelector: CKEditorImageModal;
@@ -22,8 +21,7 @@ export class EditorImageSection {
   private static readonly MAIN_IMAGE_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] div[data-testid="img-prev-add"]');
   private static readonly MAIN_IMAGE_DESCRIPTION_LOCATOR: Locator = By.css('div[id="imagenPrevisualizacion-content"] textarea.input_description');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver
+  constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "EditorImageSection")
 
     this.CKEditorSelector = new CKEditorImageModal(driver, opts);

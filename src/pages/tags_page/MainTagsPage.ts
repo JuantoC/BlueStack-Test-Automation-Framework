@@ -23,7 +23,6 @@ import type { TagData } from "../../interfaces/data.js";
  * await page.createNewTag({ title: 'Gaming', estado: 'Aprobados' });
  */
 export class MainTagsPage {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private readonly newTagBtn: NewTagBtn;
@@ -34,15 +33,14 @@ export class MainTagsPage {
   private readonly footer: TagFooterActions;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
     this.config = resolveRetryConfig(opts, "MainTagsPage");
 
-    this.newTagBtn = new NewTagBtn(this.driver, this.config);
-    this.newTagModal = new NewTagModal(this.driver, this.config);
-    this.table = new TagTable(this.driver, this.config);
-    this.actions = new TagActions(this.driver, this.config);
-    this.alphaFilter = new TagAlphaFilter(this.driver, this.config);
-    this.footer = new TagFooterActions(this.driver, this.config);
+    this.newTagBtn = new NewTagBtn(driver, this.config);
+    this.newTagModal = new NewTagModal(driver, this.config);
+    this.table = new TagTable(driver, this.config);
+    this.actions = new TagActions(driver, this.config);
+    this.alphaFilter = new TagAlphaFilter(driver, this.config);
+    this.footer = new TagFooterActions(driver, this.config);
   }
 
   /**

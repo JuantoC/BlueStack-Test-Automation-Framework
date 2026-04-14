@@ -14,7 +14,6 @@ export type NoteTextField = keyof typeof EditorTextSection.LOCATORS;
  * Gestiona los campos de texto principales y enriquecidos (CKEditor) de la nota.
  */
 export class EditorTextSection {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   // ========== LOCATORS ( Readonly) ==========
@@ -30,8 +29,7 @@ export class EditorTextSection {
   private static readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
   private static readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "EditorTextSection")
   }
 

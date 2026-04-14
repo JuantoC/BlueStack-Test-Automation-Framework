@@ -32,7 +32,6 @@ export type UploadVideoModalFields = keyof typeof UploadVideoModal.LOCATORS;
  * await modal.clickOnUploadBtn();
  */
 export class UploadVideoModal {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
   private readonly image: CKEditorImageModal
 
@@ -49,8 +48,7 @@ export class UploadVideoModal {
   private static readonly PROGRESS_BAR = By.css('mat-progress-bar[mode="determinate"]');
   private static readonly BACKGROUND_PROGRESS_BAR = By.css('div.progress--bar');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "UploadVideoModal")
     this.image = new CKEditorImageModal(this.driver, this.config)
   }
@@ -92,7 +90,7 @@ export class UploadVideoModal {
       }
     }
 
-    if (data.video_type === 'EMBEDDED') {
+    if (data.videoType === 'EMBEDDED') {
       await this.clickImagePreview();
       await this.image.selectImage(0)
     }

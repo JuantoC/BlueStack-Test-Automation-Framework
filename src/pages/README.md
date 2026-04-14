@@ -45,8 +45,8 @@ src/pages/
 ├── post_page/
 │   ├── MainPostPage.ts            # Maestro — notas (POST, LISTICLE, LIVEBLOG, AI_POST)
 │   ├── PostTable.ts
-│   ├── NewNoteBtn.ts              # NoteType type
-│   ├── AIPost/
+│   ├── NewNoteBtn.ts              # NoteType re-exportado desde src/interfaces/data.ts
+│   ├── ai_note/
 │   │   ├── MainAIPage.ts          # Maestro — generación de notas con IA
 │   │   └── AIPostModal.ts
 │   └── note_editor_page/
@@ -128,7 +128,7 @@ Contratos completos de constructor, método, error handling y locators: [wiki/pa
 
 | Tipo | Archivo fuente |
 |---|---|
-| `NoteType` | `src/pages/post_page/NewNoteBtn.ts` |
+| `NoteType` | `src/interfaces/data.ts` (re-exportado por `NewNoteBtn.ts`) |
 | `NoteExitAction` | `src/pages/post_page/note_editor_page/EditorHeaderActions.ts` |
 | `VideoType` | `src/pages/videos_page/UploadVideoBtn.ts` |
 | `ActionType` / `InlineActionType` | `src/pages/videos_page/VideoInlineActions.ts` |

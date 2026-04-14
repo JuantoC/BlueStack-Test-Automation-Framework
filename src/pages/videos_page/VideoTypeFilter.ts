@@ -23,7 +23,6 @@ export type VideoFilterType = keyof typeof VideoTypeFilter.VIDEO_FILTER_MAP;
  * const active = await filter.getActiveTabLabel();
  */
 export class VideoTypeFilter {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   /**
@@ -41,8 +40,7 @@ export class VideoTypeFilter {
   private static readonly FILTER_TAB_ITEMS: Locator = By.css('[data-testid="TODO_filter_tab_item"]');
   private static readonly ACTIVE_TAB: Locator = By.css('[data-testid="TODO_active_tab"]');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "VideoTypeFilter");
   }
 

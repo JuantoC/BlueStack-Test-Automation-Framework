@@ -17,15 +17,13 @@ import { getErrorMessage } from "../../../core/utils/errorUtils.js";
  * await page.generateNewAINote(aiNoteData);
  */
 export class MainAIPage {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private readonly ai_post: AIPostModal;
 
   constructor(driver: WebDriver, config: RetryOptions) {
-    this.driver = driver;
     this.config = resolveRetryConfig(config, 'MainAIPage');
-    this.ai_post = new AIPostModal(this.driver, this.config);
+    this.ai_post = new AIPostModal(driver, this.config);
   }
 
   /**

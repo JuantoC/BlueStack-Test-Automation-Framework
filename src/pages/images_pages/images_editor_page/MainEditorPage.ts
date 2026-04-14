@@ -8,15 +8,13 @@ import logger from "../../../core/utils/logger.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export class MainEditorPage {
-    private driver: WebDriver;
     private config: RetryOptions
 
     public readonly header: EditorHeaderActions;
 
     constructor(driver: WebDriver, opts: RetryOptions) {
-        this.driver = driver;
         this.config = resolveRetryConfig(opts, "MainEditorPage");
-        this.header = new EditorHeaderActions(this.driver, this.config);
+        this.header = new EditorHeaderActions(driver, this.config);
     }
 
     /**

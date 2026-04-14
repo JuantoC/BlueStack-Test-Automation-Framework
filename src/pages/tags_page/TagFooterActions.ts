@@ -19,7 +19,6 @@ export type TagFooterActionType = keyof typeof TagFooterActions.FOOTER_ACTIONS;
  * await footer.clickFooterAction('APPROVE');
  */
 export class TagFooterActions {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly APPROVE_BTN: Locator = By.css('button[data-testid="dropdown-action"]');
@@ -33,8 +32,7 @@ export class TagFooterActions {
     DELETE: TagFooterActions.DELETE_BTN,
   } as const;
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "TagFooterActions");
   }
 

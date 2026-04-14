@@ -8,17 +8,15 @@ import { VideoType } from "../UploadVideoBtn.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export class MainEditorPage {
-    private driver: WebDriver;
     private config: RetryOptions
 
     private readonly videoType: VideoType;
     public readonly header: EditorHeaderActions;
 
     constructor(driver: WebDriver, videoType: VideoType, opts: RetryOptions) {
-        this.driver = driver;
         this.config = resolveRetryConfig(opts, "MainEditorPage");
         this.videoType = videoType || 'YOUTUBE';
-        this.header = new EditorHeaderActions(this.driver, this.config);
+        this.header = new EditorHeaderActions(driver, this.config);
     }
 
     /**

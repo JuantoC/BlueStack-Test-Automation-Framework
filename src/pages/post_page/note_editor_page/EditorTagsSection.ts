@@ -13,7 +13,6 @@ type NoteTagsData = Pick<NoteData, NoteTagField>;
  * Gestiona la sección de etiquetas (Tags) y etiquetas ocultas de la nota.
  */
 export class EditorTagsSection {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   // ========== LOCATORS ( Readonly) ==========
@@ -22,8 +21,7 @@ export class EditorTagsSection {
     hiddenTags: By.css('div[id="clavesOcultas-content"] input[role="combobox"]')
   } as const;
 
-  constructor(driver: WebDriver, opts: RetryOptions = {}) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "EditorTagsSection")
   }
 

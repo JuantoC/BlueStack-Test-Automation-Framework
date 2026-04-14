@@ -17,14 +17,12 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await filter.searchByText('gaming');
  */
 export class TagAlphaFilter {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly SEARCH_INPUT: Locator = By.css('input#smallSearching[data-testid="input-search-simple"]');
   private static readonly ALPHA_BUTTONS: Locator = By.css('div#table-header button.filter-abc');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "TagAlphaFilter");
   }
 

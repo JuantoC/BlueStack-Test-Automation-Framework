@@ -1,20 +1,18 @@
 /**
  * Page Object Maestro para la pagina de noticias.
  * Centraliza y coordina todas las secciones de la pagina de noticias.
+ * El tipo de nota se pasa en cada llamada a `createNewNote()` — no se fija en el constructor,
+ * permitiendo que una misma instancia gestione POST, LISTICLE, LIVEBLOG y AI_POST.
 */
 export class MainPostPage {
-  private driver: WebDriver;
   private config: RetryOptions;
 
-  private readonly NoteType: NoteType
   public readonly table: PostTable
   private readonly createBtn: NewNoteBtn
   private readonly footer: FooterActions
 
-  constructor(driver: WebDriver, NoteType: NoteType, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "MainPostPage");
-    this.NoteType = NoteType || 'POST';
 
     this.table = new PostTable(driver, this.config);
     this.createBtn = new NewNoteBtn(driver, this.config)
@@ -126,19 +124,19 @@ export class MainPostPage {
   /**
    * Crea una nueva nota del tipo indicado mediante el menú desplegable de creación.
    * Delega en `NewNoteBtn.selectNoteType` y monitorea banners tras la apertura del editor.
-   * Si no se pasa un tipo explícito, usa el `NoteType` con el que fue instanciado el Maestro.
+   * El tipo se lee desde el objeto de datos (`data.noteType`) en el test que invoca este método.
    *
-   * @param newNoteType - Tipo de nota a crear. Por defecto usa el tipo del constructor.
+   * @param noteType - Tipo de nota a crear. Obtenerlo desde `data.noteType`.
    */
-  async createNewNote(newNoteType: NoteType = this.NoteType) {
-    await step(`Crear nueva nota ${newNoteType}`, async () => {
+  async createNewNote(noteType: NoteType) {
+    await step(`Crear nueva nota ${noteType}`, async () => {
       try {
-        logger.info(`Abriendo modal para nueva nota: ${newNoteType}`, { label: this.config.label });
-        await this.createBtn.selectNoteType(newNoteType);
+        logger.info(`Abriendo modal para nueva nota: ${noteType}`, { label: this.config.label });
+        await this.createBtn.selectNoteType(noteType);
 
-        logger.info(`Nueva nota tipo: ${newNoteType} creada exitosamente`, { label: this.config.label });
+        logger.info(`Nueva nota tipo: ${noteType} creada exitosamente`, { label: this.config.label });
       } catch (error: unknown) {
-        logger.error(`Error en flujo de creación [${newNoteType}]: ${getErrorMessage(error)}`, { label: this.config.label });
+        logger.error(`Error en flujo de creación [${noteType}]: ${getErrorMessage(error)}`, { label: this.config.label });
         throw error;
       }
     });

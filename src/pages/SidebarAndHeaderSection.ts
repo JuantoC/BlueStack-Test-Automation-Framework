@@ -23,7 +23,6 @@ export type SidebarOption = keyof typeof SidebarAndHeader.SIDEBAR_MAP;
  * await sidebar.goToComponent(SidebarOption.VIDEOS);
  */
 export class SidebarAndHeader {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private static readonly MULTIMEDIA_FILE_BTN: Locator = By.css('a[title="Multimedia"]');
@@ -38,8 +37,7 @@ export class SidebarAndHeader {
     VIDEOS: By.css('a[title="Videos"]')
   } as const;
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "SidebarAndHeader")
   }
 

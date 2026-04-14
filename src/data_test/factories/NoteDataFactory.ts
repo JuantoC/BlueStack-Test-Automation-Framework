@@ -94,6 +94,7 @@ export class PostDataFactory {
     const autor = pickRandomAuthor();
 
     const defaultData: PostData = {
+      noteType: 'POST',
       title: `${faker.word.adjective({ strategy: 'closest' })} enfoque en ${tema} - ${uniqueSuffix()}`,
       subTitle: `Todo lo que necesitás saber sobre ${tema} en ${new Date().getFullYear()}`,
       body: [
@@ -139,6 +140,7 @@ export class ListicleDataFactory {
     const items = ListicleDataFactory.generateItems(tema, itemCount);
 
     const defaultData: ListicleData = {
+      noteType: 'LISTICLE',
       title: `${itemCount} claves sobre ${tema} que no podés ignorar - ${uniqueSuffix()}`,
       subTitle: `Una guía práctica sobre ${tema} para el día a día`,
       body: `Exploramos los aspectos más relevantes de ${tema} en el contexto actual. ${faker.lorem.sentence()}`,
@@ -189,6 +191,7 @@ export class LiveBlogDataFactory {
     const eventTitle = `Cumbre de ${tema} ${new Date().getFullYear()}`;
 
     const defaultData: LiveBlogData = {
+      noteType: 'LIVEBLOG',
       title: `EN VIVO: ${eventTitle} - ${uniqueSuffix()}`,
       subTitle: `Seguí todas las novedades de ${eventTitle} en tiempo real`,
       tags: generateTags(tema, 3),

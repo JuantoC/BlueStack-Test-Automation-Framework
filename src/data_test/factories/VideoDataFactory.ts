@@ -115,7 +115,7 @@ export class YoutubeVideoDataFactory {
 
     const defaultData: YoutubeVideoData = {
       url: `https://www.youtube.com/watch?v=${videoId}`,
-      video_type: 'YOUTUBE',
+      videoType: 'YOUTUBE',
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
     };
@@ -160,7 +160,7 @@ export class NativeVideoDataFactory {
     const tema = pickRandom(TEMAS_VIDEO);
 
     const defaultData: NativeVideoData = {
-      video_type: 'NATIVO',
+      videoType: 'NATIVO',
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),
       // Rota entre los archivos disponibles para variar entre tests
@@ -197,7 +197,7 @@ export class EmbeddedVideoDataFactory {
     const tema = pickRandom(TEMAS_VIDEO);
 
     const defaultData: EmbeddedVideoData = {
-      video_type: 'EMBEDDED',
+      videoType: 'EMBEDDED',
       iframe: pickRandom(EMBEDDED_IFRAME_URLS),
       title: generateVideoTitle(categoria, tema),
       description: generateDescription(tema),

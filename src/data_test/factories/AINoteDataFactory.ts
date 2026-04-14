@@ -249,6 +249,7 @@ export class AINoteDataFactory {
     const pool = THEMATIC_POOLS[group];
 
     const defaultData: AIDataNote = {
+      noteType: 'AI_POST',
       task: pickRandom(pool.tasks),
       context: pickRandom(pool.contexts),
       section: randomSectionID(),

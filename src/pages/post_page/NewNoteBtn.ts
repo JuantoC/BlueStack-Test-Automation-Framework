@@ -4,8 +4,9 @@ import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfi
 import logger from "../../core/utils/logger.js";
 import { waitFind } from "../../core/actions/waitFind.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
+import type { NoteType } from "../../interfaces/data.js";
 
-export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
+export type { NoteType } from "../../interfaces/data.js";
 
 /**
  * Sub-componente que representa el botón de creación de notas y su menú desplegable de tipos.
@@ -18,7 +19,6 @@ export type NoteType = keyof typeof NewNoteBtn.NOTE_TYPE_MAP;
  * await btn.selectNoteType('POST');
  */
 export class NewNoteBtn {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   public static readonly NOTE_TYPE_MAP = {
@@ -32,8 +32,7 @@ export class NewNoteBtn {
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
   private static readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "NewNoteBtn");
   }
 

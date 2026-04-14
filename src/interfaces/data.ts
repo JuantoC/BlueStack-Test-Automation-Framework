@@ -1,6 +1,13 @@
 /** Tipo de autor que puede tener una nota. Derivado de los valores válidos en `NoteData.authorType`. */
 export type AuthorType = 'INTERNAL' | 'ANONYMOUS' | 'MANUAL';
 
+/**
+ * Tipo discriminante de nota editorial del CMS.
+ * Campo canónico para identificar el tipo de nota en objetos de datos y Page Objects.
+ * Equivalente a `VideoType` en el contexto de videos.
+ */
+export type NoteType = 'POST' | 'LISTICLE' | 'LIVEBLOG' | 'AI_POST';
+
 /** Tipo de video que puede ser subido. Valores soportados: YouTube, video nativo o embedded. */
 export type VideoType  = 'YOUTUBE' | 'NATIVO' | 'EMBEDDED';
 
@@ -31,8 +38,14 @@ export interface EventLiveBlog {
  * Datos editable de una nota para el formulario del editor del CMS.
  * Base de otros tipos como `PostData`, `ListicleData` y `LiveBlogData`.
  * Todos los campos son opcionales para permitir relleno parcial en tests de datos.
+ *
+ * El campo `noteType` es el discriminante canónico del tipo de nota, equivalente a
+ * `videoType` en `VideoData`. Cada subtipo lo fija como literal requerido.
  */
 export interface NoteData {
+  /** Tipo discriminante de nota. Requerido en subtipos concretos (`PostData`, `ListicleData`, `LiveBlogData`). */
+  noteType?: NoteType;
+
   // Campos de texto principales
   title?: string;
   secondaryTitle?: string;
@@ -62,6 +75,7 @@ export interface NoteData {
  * Estos son derivados automáticamente por el backend y no deben ser enviados.
  */
 export interface PostData extends NoteData {
+  noteType: 'POST';
   title: string;
   body: string;
   tags: string[];
@@ -76,6 +90,7 @@ export interface PostData extends NoteData {
  * ⚠️ Campos prohibidos: `secondaryTitle`, `halfTitle`, `eventLiveBlog`.
  */
 export interface ListicleData extends NoteData {
+  noteType: 'LISTICLE';
   title: string;
   body: string;
   tags: string[];
@@ -91,6 +106,7 @@ export interface ListicleData extends NoteData {
  * ⚠️ Campos prohibidos: `secondaryTitle`, `halfTitle`, `body`.
  */
 export interface LiveBlogData extends NoteData {
+  noteType: 'LIVEBLOG';
   title: string;
   tags: string[];
   authorName: string;
@@ -105,7 +121,7 @@ export interface LiveBlogData extends NoteData {
  * Cada subtipo (`YoutubeVideoData`, `NativeVideoData`, `EmbeddedVideoData`) refina el contrato.
  */
 export interface VideoData {
-  video_type: VideoType
+  videoType: VideoType
   url?: string;
   iframe?: string;
   title: string;
@@ -118,7 +134,7 @@ export interface VideoData {
  * Requiere obligatoriamente una URL válida de YouTube.
  */
 export interface YoutubeVideoData extends VideoData {
-  video_type: 'YOUTUBE';
+  videoType: 'YOUTUBE';
   url: string;
   title: string;
   description?: string;
@@ -129,7 +145,7 @@ export interface YoutubeVideoData extends VideoData {
  * Requiere obligatoriamente una ruta (`path`) válida del servidor.
  */
 export interface NativeVideoData extends VideoData {
-  video_type: 'NATIVO';
+  videoType: 'NATIVO';
   title: string;
   path: string;
   description?: string;
@@ -140,7 +156,7 @@ export interface NativeVideoData extends VideoData {
  * Requiere obligatoriamente un código iframe válido (HTML embed code).
  */
 export interface EmbeddedVideoData extends VideoData {
-  video_type: 'EMBEDDED';
+  videoType: 'EMBEDDED';
   iframe: string;
   title: string;
   description?: string;
@@ -149,9 +165,10 @@ export interface EmbeddedVideoData extends VideoData {
 /**
  * Datos para la generación asistida por IA de notas.
  * Parámetros de contexto y tono que controlan el asistente IA del CMS.
- * Todos los campos son opcionales.
+ * `noteType` fijado como `'AI_POST'` para consistencia con el patrón de datos del framework.
  */
 export interface AIDataNote {
+  noteType?: 'AI_POST';
   task?: string;
   context?: string;
   section?: number;

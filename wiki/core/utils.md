@@ -50,6 +50,8 @@ logger.warn("Advertencia", { label: this.config.label });
 
 **Regla obligatoria:** siempre pasar `{ label: this.config.label }` en el segundo argumento. Sin `label`, los logs no son trazables.
 
+Convenciones de uso completas (cuándo usar debug/info/warn/error, anti-patrones, arquitectura de capas): [core/logging.md](logging.md)
+
 ---
 
 ## `stackLabel(parent?, current)` — trazabilidad de jerarquía

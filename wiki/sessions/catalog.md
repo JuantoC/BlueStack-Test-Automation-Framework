@@ -59,7 +59,7 @@ Inventario de todos los tests del framework con su categoría, flujo cubierto, d
 - **Categoría:** post
 - **Flujo:** Login → crear AI_POST → configurar parámetros IA → generar contenido → publicar
 - **Metadata Allure:** epic="Post Component", feature="AI Post"
-- **POs:** `MainLoginPage`, `MainPostPage` (NoteType='AI_POST'), `AIPost/MainAIPage`, `AIPost/AIPostModal`
+- **POs:** `MainLoginPage`, `MainPostPage` (NoteType='AI_POST'), `ai_note/MainAIPage`, `ai_note/AIPostModal`
 - **Factories:** `AINoteDataFactory.create()`
 
 #### `MassPublishNotes.test.ts`
@@ -148,7 +148,7 @@ Inventario de todos los tests del framework con su categoría, flujo cubierto, d
 ```bash
 npm run test:dev -- NewPost
 # o forma directa:
-cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false npx jest NewPost
+NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false node node_modules/.bin/jest NewPost
 ```
 
 **Estructura canónica:** todos los tests usan `runSession()` como punto de entrada. Ver [wiki/core/run-session.md](../core/run-session.md) para la firma completa.

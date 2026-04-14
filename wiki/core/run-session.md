@@ -1,6 +1,6 @@
 ---
 source: src/core/wrappers/testWrapper.ts · src/core/wrappers/retry.ts
-last-updated: 2026-04-13
+last-updated: 2026-04-14
 ---
 
 # Core: runSession & retry
@@ -78,7 +78,7 @@ interface TestMetadata {
 ## Ciclo de vida de `runSession`
 
 1. **Metadata Allure** — inyecta epic, feature, story, severity, tags, issueId como link a Jira.
-2. **Parámetros de entorno** — inyecta `Execution` (Grid/Local) y `Headless`.
+2. **Parámetros de entorno** — inyecta `Execution` (Grid/Local), `Headless` y `Environment` (nombre del entorno activo: testing/master/cliente).
 3. **Inicialización del driver** — llama `initializeDriver()` con config de env.
 4. **Ejecución del test** — llama `testLogic(context)`.
 5. **Error** (catch) — toma screenshot y lo adjunta a Allure como `Fallo_Visual_<label>`.

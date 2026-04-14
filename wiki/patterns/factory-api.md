@@ -1,6 +1,6 @@
 ---
 source: src/data_test/factories/ (NoteDataFactory.ts · VideoDataFactory.ts · AINoteDataFactory.ts · ImageDataFactory.ts · index.ts)
-last-updated: 2026-04-13
+last-updated: 2026-04-14
 ---
 
 # Patterns: Factory API
@@ -52,14 +52,21 @@ import { PostDataFactory, ListicleDataFactory, YoutubeVideoDataFactory } from ".
 
 ```typescript
 const post = PostDataFactory.create();
-// → { title, body, tags: string[], authorName, authorType: 'INTERNAL' | 'ANONYMOUS' | 'MANUAL', ... }
+// → { noteType: 'POST', title, body, tags: string[], authorName, authorType, ... }
 
 const listicle = ListicleDataFactory.create({ itemCount: 3 });
-// → { ...PostData, listicleItems: [{ title, body }, ...] }
+// → { noteType: 'LISTICLE', ...PostData, listicleItems: [{ title, body }, ...] }
 
 const liveblog = LiveBlogDataFactory.create({ entryCount: 2 });
-// → { title, tags, authorName, listicleItems, eventLiveBlog: { eventTitle, ... } }
+// → { noteType: 'LIVEBLOG', title, tags, authorName, listicleItems, eventLiveBlog: { eventTitle, ... } }
 // Nota: LiveBlogData no tiene campo body
+```
+
+Cada factory incluye `noteType` con el valor literal correcto. Usarlo en las sessions:
+
+```typescript
+await post.createNewNote(postData.noteType);   // 'POST'
+await editor.fillFullNote(postData);            // lee noteType internamente
 ```
 
 ---
@@ -74,13 +81,13 @@ const liveblog = LiveBlogDataFactory.create({ entryCount: 2 });
 
 ```typescript
 const youtube = YoutubeVideoDataFactory.create();
-// → { video_type: 'YOUTUBE', url: 'https://youtube.com/watch?v=...', title, description? }
+// → { videoType: 'YOUTUBE', url: 'https://youtube.com/watch?v=...', title, description? }
 
 const native = NativeVideoDataFactory.create();
-// → { video_type: 'NATIVO', path: 'src/data_test/videos/...', title, description? }
+// → { videoType: 'NATIVO', path: 'src/data_test/videos/...', title, description? }
 
 const embedded = EmbeddedVideoDataFactory.create();
-// → { video_type: 'EMBEDDED', iframe: '<iframe ...>', title, description? }
+// → { videoType: 'EMBEDDED', iframe: '<iframe ...>', title, description? }
 ```
 
 ---
@@ -94,10 +101,10 @@ const embedded = EmbeddedVideoDataFactory.create();
 ```typescript
 const aiData = AINoteDataFactory.create();
 // → picks un grupo aleatorio
-// → { task, context, section, paragraph, tone, language }
+// → { noteType: 'AI_POST', task, context, section, paragraph, tone, language }
 
 const aiData = AINoteDataFactory.createFromGroup('tecnologia');
-// → AIDataNote del pool temático específico
+// → AIDataNote del pool temático específico, con noteType: 'AI_POST'
 ```
 
 Cada grupo tiene `contexts` (perfiles de periodista) y `tasks` (prompts de artículo) específicos.

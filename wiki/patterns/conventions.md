@@ -1,6 +1,6 @@
 ---
 source: src/pages/README.md · README.md
-last-updated: 2026-04-13
+last-updated: 2026-04-14
 ---
 
 # Patterns: Conventions
@@ -57,11 +57,12 @@ Aplica a: `MainVideoPage`, `MainImagePage`, `MainTagsPage`, etc.
 ## Patrón constructor — Sub-componente
 
 ```typescript
-constructor(driver: WebDriver, opts: RetryOptions = {}) {
-  this.driver = driver;
+constructor(private driver: WebDriver, opts: RetryOptions = {}) {
   this.config = resolveRetryConfig(opts, "NombreSubComponente");
 }
 ```
+
+El parámetro `private driver` declara y asigna la propiedad en un solo paso (TypeScript parameter property). No se necesita `private driver: WebDriver;` en el cuerpo de la clase ni `this.driver = driver;` en el constructor.
 
 El `opts = {}` permite instanciación sin argumentos (aunque en la práctica siempre recibe el config del Maestro).
 
@@ -189,3 +190,5 @@ catch (error) {
 | `driver.sleep()` sin comentario | Enmasca inestabilidad real |
 | Import sin `.js` | Rompe la resolución ESM en WSL2 |
 | `catch` sin log y rethrow | Silencia errores → imposible debuggear |
+| `private driver: WebDriver;` + `this.driver = driver;` en sub-componentes | Redundante — usar parameter property `private driver` en el constructor |
+| Guardar `driver` como propiedad en Maestros | Los Maestros no usan `driver` en métodos — pasarlo como parámetro local al constructor |

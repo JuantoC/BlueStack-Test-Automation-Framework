@@ -1,6 +1,6 @@
 ---
 source: README.md · src/pages/README.md · src/core/README.md
-last-updated: 2026-04-13
+last-updated: 2026-04-14
 ---
 
 # Overview — BlueStack Test Automation Framework
@@ -62,21 +62,7 @@ sessions/           # Tests .test.ts organizados por categoría
 
 ## Comandos de Ejecución
 
-| Modo | Comando |
-|------|---------|
-| Dev (navegador visible) | `npm run test:dev -- TestName` |
-| Grid (headless, Docker) | `npm run test:grid -- TestName` |
-| CI (completo) | `npm run test:ci -- TestName` |
-
-**Forma directa (cuando npm scripts fallan en WSL2):**
-
-```bash
-# Dev
-cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=false IS_HEADLESS=false npx jest TestName
-
-# Grid
-cross-env NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true npx jest TestName
-```
+Referencia completa de todos los modos, multi-entorno, forma directa y pipeline: [`.claude/references/COMMANDS.md`](../.claude/references/COMMANDS.md)
 
 `NODE_OPTIONS='--experimental-vm-modules'` es siempre obligatorio (WSL2 + ESM).
 
@@ -117,15 +103,30 @@ Test (.test.ts)
 | Tipos derivados de maps | `keyof typeof Clase.MAP` | `NoteType`, `VideoType` |
 | Factories | `<Entidad>DataFactory` | `NoteDataFactory` |
 
-## Variables de Entorno Requeridas
+## Variables de Entorno
+
+### Infraestructura (compartidas, sin prefijo de entorno)
 
 | Variable | Descripción |
 |----------|-------------|
-| `TESTING_URL` | URL base del CMS (obligatoria — lanza error si falta) |
+| `TARGET_ENV` | Entorno activo: `testing` \| `master` \| `cliente` (default: `testing`) |
 | `USE_GRID` | `true` para Docker Selenium Grid |
-| `IS_HEADLESS` | `false` para ver el navegador |
+| `IS_HEADLESS` | `false` para ver el navegador (default: `true`) |
 | `GRID_URL` | URL del Grid (default: `http://localhost:4444`) |
 | `MAX_INSTANCES` | Workers paralelos (default: 1) |
-| `BASIC_AUTH_USER` / `BASIC_AUTH_PASS` | HTTP Basic Auth |
-| `ADMIN_USER` / `ADMIN_PASS` | Rol administrador |
-| `EDITOR_USER` / `EDITOR_PASS` | Rol editor |
+| `TEST_ROLE` | Override de rol para pipelines: `admin` \| `editor` \| `basic` (opcional) |
+
+### Credenciales por entorno (prefijo `{ENV}_`)
+
+Cada entorno requiere su propio bloque. Solo el entorno activo (`TARGET_ENV`) se carga en memoria.
+
+| Variable | Descripción |
+|----------|-------------|
+| `{ENV}_BASE_URL` | URL base del CMS (obligatoria — lanza error si falta) |
+| `{ENV}_BASIC_USER` / `{ENV}_BASIC_PASS` | HTTP Basic Auth |
+| `{ENV}_ADMIN_USER` / `{ENV}_ADMIN_PASS` | Rol administrador |
+| `{ENV}_EDITOR_USER` / `{ENV}_EDITOR_PASS` | Rol editor |
+
+**Ejemplos:** `TESTING_BASE_URL`, `MASTER_BASIC_USER`, `CLIENTE_ADMIN_PASS`
+
+> **Bridge de migración:** `TESTING_URL` (sin prefijo) sigue siendo aceptado como fallback mientras se actualizan secrets de CI.

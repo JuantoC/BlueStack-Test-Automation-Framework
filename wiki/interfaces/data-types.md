@@ -1,6 +1,6 @@
 ---
 source: src/interfaces/data.ts · src/interfaces/config.ts
-last-updated: 2026-04-13
+last-updated: 2026-04-14
 ---
 
 # Interfaces: Data Types
@@ -34,8 +34,12 @@ Los defaults viven en `defaultConfig.ts` → `DefaultConfig`. Esta interfaz es e
 
 ```typescript
 type AuthorType = 'INTERNAL' | 'ANONYMOUS' | 'MANUAL';
+type NoteType   = 'POST' | 'LISTICLE' | 'LIVEBLOG' | 'AI_POST';
 type VideoType  = 'YOUTUBE' | 'NATIVO' | 'EMBEDDED';
 ```
+
+`NoteType` es el campo discriminante canónico de las notas, equivalente a `VideoType` en videos.
+Vive en `src/interfaces/data.ts` y es re-exportado por `src/pages/post_page/NewNoteBtn.ts`.
 
 ---
 
@@ -52,6 +56,7 @@ NoteData (base — todos los campos opcionales)
 
 ```typescript
 interface NoteData {
+  noteType?: NoteType;    // discriminante — requerido en subtipos concretos
   title?: string;
   secondaryTitle?: string;
   subTitle?: string;
@@ -72,6 +77,7 @@ interface NoteData {
 
 ```typescript
 interface PostData extends NoteData {
+  noteType: 'POST';       // requerido, literal
   title: string;          // requerido
   body: string;           // requerido
   tags: string[];         // requerido
@@ -85,6 +91,7 @@ interface PostData extends NoteData {
 
 ```typescript
 interface ListicleData extends NoteData {
+  noteType: 'LISTICLE';   // requerido, literal
   title: string;
   body: string;
   tags: string[];
@@ -99,6 +106,7 @@ interface ListicleData extends NoteData {
 
 ```typescript
 interface LiveBlogData extends NoteData {
+  noteType: 'LIVEBLOG';   // requerido, literal
   title: string;
   tags: string[];
   authorName: string;
@@ -134,14 +142,14 @@ interface EventLiveBlog {
 
 ```
 VideoData (base)
-├── YoutubeVideoData   (video_type: 'YOUTUBE', url: string requerido)
-├── NativeVideoData    (video_type: 'NATIVO', path: string requerido)
-└── EmbeddedVideoData  (video_type: 'EMBEDDED', iframe: string requerido)
+├── YoutubeVideoData   (videoType: 'YOUTUBE', url: string requerido)
+├── NativeVideoData    (videoType: 'NATIVO', path: string requerido)
+└── EmbeddedVideoData  (videoType: 'EMBEDDED', iframe: string requerido)
 ```
 
 ```typescript
 interface VideoData {
-  video_type: VideoType;
+  videoType: VideoType;
   url?: string;
   iframe?: string;
   title: string;
@@ -158,12 +166,13 @@ interface VideoData {
 
 ```typescript
 interface AIDataNote {
-  task?: string;       // Prompt de tarea para el asistente IA
-  context?: string;    // Perfil periodístico / contexto
-  section?: number;    // Índice de sección
-  paragraph?: number;  // Número de párrafos
-  tone?: number;       // Índice de tono
-  language?: number;   // Índice de idioma
+  noteType?: 'AI_POST'; // discriminante — fijado por AINoteDataFactory
+  task?: string;        // Prompt de tarea para el asistente IA
+  context?: string;     // Perfil periodístico / contexto
+  section?: number;     // Índice de sección
+  paragraph?: number;   // Número de párrafos
+  tone?: number;        // Índice de tono
+  language?: number;    // Índice de idioma
 }
 ```
 
@@ -196,3 +205,6 @@ interface ImageData {
 - `PostData`, `ListicleData`, `LiveBlogData` son los tipos que reciben los métodos `fillFullNote` de los editores. Cada tipo restringe qué campos se procesan.
 - `eventAdress` conserva el typo — no corregirlo. El backend y la UI lo usan así.
 - `VideoType` es `'NATIVO'` (no `'NATIVE'`) — verificar al crear factories o fixtures.
+- El campo discriminante de videos es `videoType`; el de notas es `noteType` — mismo patrón, ambos en camelCase.
+- `noteType` es requerido en `PostData`, `ListicleData`, `LiveBlogData`. En `NoteData` base y `AIDataNote` es opcional.
+- Los factories siempre producen el `noteType` correcto — no hace falta setearlo manualmente.

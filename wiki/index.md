@@ -18,12 +18,16 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 ### Overview
 - [overview.md](overview.md) — Propósito del framework, stack, estructura de carpetas, comandos de ejecución, arquitectura POM
 
+### Infrastructure
+- [core/docker-grid.md](core/docker-grid.md) — Docker Selenium Grid setup · workaround WSL2 npm→Windows · comando Jest directo
+
 ### Core (`src/core/`)
 - [core/run-session.md](core/run-session.md) — `runSession()` · `retry()` · `TestContext` · `TestMetadata` · ciclo de vida del test
 - [core/actions.md](core/actions.md) — `clickSafe` · `writeSafe` · `waitFind` · `waitVisible` · `waitEnabled` · `assertValueEquals`
 - [core/driver-setup.md](core/driver-setup.md) — `DefaultConfig` · `resolveRetryConfig()` · `ENV_CONFIG` · `getAuthUrl()` · `AdminRoutes` · monitores CDP
 - [core/errors.md](core/errors.md) — `ErrorCategory` · `classifyError()` · `BusinessLogicError` · diccionarios FATAL/RETRIABLE
 - [core/utils.md](core/utils.md) — `logger` · `stackLabel()` · `getErrorMessage()` · helpers de DOM
+- [core/logging.md](core/logging.md) — Convenciones Winston · niveles · anti-patrones · arquitectura de capas
 
 ### Interfaces (`src/interfaces/`)
 - [interfaces/data-types.md](interfaces/data-types.md) — `RetryOptions` · `NoteData/PostData/ListicleData/LiveBlogData` · `VideoData` · `TagData` · `ImageData` · `AIDataNote`
@@ -44,6 +48,18 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 ### Sessions (`sessions/`)
 - [sessions/catalog.md](sessions/catalog.md) — Inventario de 14 tests: flujo, POs y factories de cada uno
 
+### Pipelines (`.claude/pipelines/`)
+- [pipelines/qa-orchestrator.md](pipelines/qa-orchestrator.md) — Arquitectura multi-agente QA: ticket-analyst · test-engine · test-reporter · qa-orchestrator · contratos JSON · flujos de ejecución
+
+### Development
+- [development/commit-conventions.md](development/commit-conventions.md) — Formato de commits semánticos: tipos, estructura, tabla módulo → impacto
+- [development/skill-conventions.md](development/skill-conventions.md) — Convenciones para crear y organizar skills: tipos, idioma, wiki-first, archivos modulares
+
+### QA / Jira
+- [qa/adf-format-guide.md](qa/adf-format-guide.md) — Formato ADF JSON para contenido rich text en Jira: nodos, marks, ejemplos completos
+- [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde pipeline
+- [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo pipeline ↔ jira-reader/jira-writer: inputs, outputs, operaciones
+
 ---
 
 ## Referencias rápidas
@@ -57,6 +73,10 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 | Hacer click / escribir en un elemento | [core/actions.md](core/actions.md) |
 | Navegar entre secciones del CMS | [pages/_shared.md](pages/_shared.md) |
 | Ver qué tests existen | [sessions/catalog.md](sessions/catalog.md) |
+| Cuándo usar cada nivel de log | [core/logging.md](core/logging.md) |
+| Arquitectura del pipeline QA multi-agente | [pipelines/qa-orchestrator.md](pipelines/qa-orchestrator.md) |
+| Levantar Docker Grid / comandos Jest en WSL2 | [core/docker-grid.md](core/docker-grid.md) |
+| Comandos de ejecución completos | [.claude/references/COMMANDS.md](../.claude/references/COMMANDS.md) |
 
 ---
 

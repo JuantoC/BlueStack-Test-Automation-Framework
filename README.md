@@ -47,13 +47,9 @@ sessions/                    # Test files (*.test.ts) — one per workflow
 
 ### How it works
 
-Each CMS page is a **Facade Page Object** (e.g., `MainVideoPage`, `MainPostPage`, `MainAIPage`) that internally composes smaller, focused sub-components (`VideoTable`, `UploadVideoModal`, `VideoActions`). This two-layer design keeps each class small and focused:
+Each CMS page is a **Facade Page Object** (e.g., `MainVideoPage`, `MainPostPage`, `MainAIPage`) that internally composes smaller, focused sub-components. This two-layer design keeps each class small and focused.
 
-- **Sub-components** handle a single UI section (e.g., the upload modal, the publish modal).
-- **Main Page Objects** orchestrate the full workflow across sub-components.
-- **Shared components** like `FooterActions` and the classes in `modals/` are reused across multiple Maestros.
-
-Test sessions import the Page Objects they need and call high-level methods, keeping the test logic clean and readable. All typed parameters are now plain string literals.
+Architecture, POM conventions, and the two-layer Facade pattern: [wiki/patterns/conventions.md](wiki/patterns/conventions.md). Full framework overview with stack and execution chain: [wiki/overview.md](wiki/overview.md)
 
 ---
 
@@ -144,6 +140,8 @@ npm run test:ci -- TestName
 - `test:dev` → Local execution with a visible browser; intended for development and debugging.
 - `test:grid` → Headless execution against a Docker Selenium Grid.
 - `test:ci` → Full lifecycle execution: clean → infra:up → exec → infra:down.
+
+For multi-environment variants (`test:dev:master`, `test:grid:master`, `test:dev:cliente`, `test:grid:cliente`), inline overrides, and direct-execution forms, see **[.claude/references/COMMANDS.md](.claude/references/COMMANDS.md)**.
 
 ### Local Execution (visible browser, for development & debugging)
 
@@ -242,21 +240,9 @@ npm run clean
 
 ## Contributing & Guidelines
 
-### Naming Conventions
+### Naming Conventions & Page Object rules
 
-| Artifact                  | Convention               | Example
-|---------------------------|--------------------------|---
-| Session test file         | `PascalCase.test.ts`     | `PublishNewPost.test.ts`
-| Main Page Object class    | `Main<PageName>Page`     | `MainPostPage`, `MainAIPage`
-| Sub-component Page Object | `<Feature><Component>`   | `VideoTable`, `UploadVideoModal`
-| Shared modal component    | `<Modal>Modal.ts`        | `PublishModal.ts`, `CKEditorImageModal.ts`
-| Factory file              | `<Type>DataFactory`      | `PostDataFactory`, `NativeVideoDataFactory`
-| Type key/value            | `SCREAMING_SNAKE_CASE`   | `'SAVE_AND_EXIT'`,
-| Folder name               | `snake_case`             | `data_test`, `video_page`
-
-### Page Object rules
-
-For the full specification of the Page Object layer — constructor contracts, method contracts, naming conventions, locator ownership, types, and shared utilities — see [src/pages/README.md](src/pages/README.md).
+Convenciones de naming, arquitectura POM y anti-patrones: [wiki/patterns/conventions.md](wiki/patterns/conventions.md) · [src/pages/README.md](src/pages/README.md)
 
 ### Branching & PR
 
@@ -284,6 +270,8 @@ Skills automatizadas invocables en Claude Code para tareas recurrentes del proye
 
 ## 🔗 Documentación relacionada
 
+- [wiki/index.md](wiki/index.md) — Hub de conocimiento del framework (wiki-first)
+- [wiki/overview.md](wiki/overview.md) — Stack, arquitectura, comandos de ejecución
 - [sessions/README.md](sessions/README.md) — catálogo de tests, API de `runSession`, factories de datos y convenciones de escritura de sesiones
 - [src/pages/README.md](src/pages/README.md) — especificación autoritativa de la capa Page Object: arquitectura, contratos, naming y tipos
 - [src/core/README.md](src/core/README.md) — motor del framework: acciones, retry, configuración del driver, errores, utilidades y wrapper del ciclo de vida del test

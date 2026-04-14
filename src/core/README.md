@@ -65,6 +65,8 @@ src/core/
     └── retry.ts              # retry<T> — wrapper de resiliencia con backoff
 ```
 
+Documentación detallada por sub-módulo: [wiki/core/](../../wiki/core/)
+
 ---
 
 ## Arquitectura
@@ -92,74 +94,21 @@ runSession()          ← test entry point (wrappers/)
 
 ## API pública clave
 
-### `runSession` — entrada de cada test
+| Función | Wiki |
+|---------|------|
+| `runSession`, `retry`, `TestContext`, `TestMetadata` | [wiki/core/run-session.md](../../wiki/core/run-session.md) |
+| `ENV_CONFIG`, `DefaultConfig`, `RetryOptions`, `resolveRetryConfig` | [wiki/core/driver-setup.md](../../wiki/core/driver-setup.md) |
+| `logger`, `stackLabel`, `getErrorMessage`, `getAuthUrl` | [wiki/core/utils.md](../../wiki/core/utils.md) |
+| `classifyError`, `BusinessLogicError`, `ErrorCategory` | [wiki/core/errors.md](../../wiki/core/errors.md) |
+| `clickSafe`, `waitFind`, `writeSafe`, `waitVisible`, `waitEnabled` | [wiki/core/actions.md](../../wiki/core/actions.md) |
+| Convenciones de log Winston (niveles, anti-patrones) | [wiki/core/logging.md](../../wiki/core/logging.md) |
 
-```typescript
-runSession(
-  sessionLabel: string,
-  testLogic: (context: TestContext) => Promise<void>,
-  metadata?: TestMetadata
-): void
-```
-
-Envuelve `test()` de Jest. Inicializa el driver, ejecuta la lógica del test, captura screenshot en fallo, verifica errores de red y toasts via CDP, y cierra la sesión.
-
-### `retry` — resiliencia
-
-```typescript
-retry<T>(action: () => Promise<T>, options?: RetryOptions): Promise<T>
-```
-
-Backoff exponencial. Reintenta en errores `RETRIABLE`, detiene en `FATAL`. Configurable vía `RetryOptions`.
-
-### `RetryOptions` / `DefaultConfig`
-
-```typescript
-interface RetryOptions {
-  timeoutMs?: number;       // default: 3000
-  retries?: number;         // default: 4
-  initialDelayMs?: number;  // default: 300
-  maxDelayMs?: number;      // default: 6000
-  backoffFactor?: number;   // default: 2
-  label?: string;           // breadcrumb de trazabilidad
-  supressRetry?: boolean;   // default: false
-}
-```
-
-Siempre pasar `opts` (no `DefaultConfig` directamente) a los sub-componentes; los Maestros hacen spread con `stackLabel`.
-
-### `stackLabel` — trazabilidad
-
-```typescript
-stackLabel(parent: string | undefined, current: string): string
-// "MainPostPage > PostTable > clickRow"
-```
-
-Cada Page Object llama `stackLabel(opts.label, "ClassName")` en su constructor para construir el breadcrumb de logs.
-
-### `ENV_CONFIG` — configuración de entorno
-
-```typescript
-ENV_CONFIG.baseUrl              // URL base del CMS
-ENV_CONFIG.getCredentials(role) // { user, pass } para 'editor' | 'admin'
-ENV_CONFIG.grid.url             // URL del Selenium Grid
-ENV_CONFIG.browser.isHeadless   // boolean
-```
-
----
-
-## Utilidades de URL
-
-| Función | Descripción |
-|---|---|
-| `getAuthUrl(base, user, pass)` | Construye URL con HTTP Basic Auth incrustado |
-| `postUrl(base, id)` | URL de edición de post: `base/admin/post/{id}` |
-| `joinUrl(base, path)` | Une base + path sin doble slash |
-| `AdminRoutes.POSTS` etc. | Rutas constantes del panel admin |
+URL utilities (`getAuthUrl`, `postUrl`, `joinUrl`, `AdminRoutes`): [wiki/core/utils.md](../../wiki/core/utils.md)
 
 ---
 
 ## 🔗 Documentación relacionada
 
+- [wiki/core/](../../wiki/core/) — Documentación detallada de todos los sub-módulos
 - [README.md raíz](../../README.md) — setup del proyecto, ejecución y convenciones globales
 - [src/pages/README.md](../pages/README.md) — cómo los Page Objects consumen este módulo (clickSafe, waitVisible, stackLabel, DefaultConfig)

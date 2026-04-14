@@ -10,14 +10,17 @@ reports/
 test/
 .mcp.json
 
+# Datos sensibles — nunca versionar
+.claude/references/team-accounts.md
+
 # SSoT - archivos generados en runtime
 .claude/pending-doc-updates.json
 .claude/pending-doc-review-prompt.md
-.claude/doc-update-suggestions.md
 .claude/prompts/fix-doc-orchestration.md
 .claude/settings.local.json
 
-docs/
+# docs/generated/ — auto-generado por pipelines, nunca editar manualmente
+docs/generated/
 
 # Windows/WSL2 alternate data streams
 *:Zone.Identifier

@@ -22,6 +22,7 @@ async function checkMdLogic() {
       "node_modules/**",
       ".git/**",
       "docs/audit/**",
+      "docs/generated/**",      // auto-generado por pipelines — no evaluar contra NO-LOGIC-IN-MD
       "**/README.md",           // READMEs son documentación — los code blocks son ilustrativos
       "**/*REPORT*.md",         // reportes de auditoría — los code blocks son descriptivos
       ".claude/**",             // instrucciones al agente — no describen el sistema
@@ -37,8 +38,10 @@ async function checkMdLogic() {
 
   for (const file of mdFiles) {
     const content = fs.readFileSync(file, "utf-8");
-    // Eliminar bloques de código para no detectar ejemplos ilustrativos
-    const contentWithoutCodeBlocks = content.replace(/```[\s\S]*?```/g, "");
+    // Eliminar bloques de código e inline code spans para no detectar ejemplos ilustrativos
+    const contentWithoutCodeBlocks = content
+      .replace(/```[\s\S]*?```/g, "")   // triple-backtick blocks
+      .replace(/`[^`\n]+`/g, "");       // inline code spans
     for (const pattern of normativePatterns) {
       if (pattern.test(contentWithoutCodeBlocks)) {
         violations.push({
@@ -157,7 +160,7 @@ async function main() {
   }
 
   // Escribir reporte
-  fs.writeFileSync("docs/audit/ssot-violations.json", JSON.stringify({
+  fs.writeFileSync("docs/generated/ssot-violations.json", JSON.stringify({
     timestamp: new Date().toISOString(),
     summary: { errors: errors.length, warnings: warnings.length },
     violations,

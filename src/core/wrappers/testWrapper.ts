@@ -153,6 +153,7 @@ export function runSession(
     await allure.owner("BlueStack Automation Team");
     await allure.parameter("Execution", ENV_CONFIG.grid.useGrid === true ? "Grid Docker" : "Local");
     await allure.parameter("Headless", ENV_CONFIG.browser.isHeadless === true ? "true" : "false");
+    await allure.parameter("Environment", ENV_CONFIG.targetEnv);
 
     try {
       logger.info(`>>> Iniciando Sesión: ${sessionLabel} <<<`, { label: sessionLabel });

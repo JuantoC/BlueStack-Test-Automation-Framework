@@ -15,7 +15,7 @@
 | `MainVideoPage` | `../../src/pages/videos_page/MainVideoPage.js` |
 | `MainImagePage` | `../../src/pages/images_pages/MainImagePage.js` |
 | `MainTagsPage` | `../../src/pages/tags_page/MainTagsPage.js` |
-| `MainAIPage` | `../../src/pages/post_page/AIPost/MainAIPage.js` |
+| `MainAIPage` | `../../src/pages/post_page/ai_note/MainAIPage.js` |
 | `SidebarAndHeader` | `../../src/pages/SidebarAndHeaderSection.js` |
 
 Wiki de cada PO: [`wiki/index.md`](../../../../wiki/index.md) → sección "Pages".
@@ -51,7 +51,7 @@ new MainAIPage(driver, opts)
 - `images_pages/` → `ImageActions.ts`, `ImageTable.ts`, `UploadImageBtn.ts`, `images_editor_page/EditorHeaderActions.ts`
 - `tags_page/` → `NewTagModal.ts`, `NewTagBtn.ts`, `TagActions.ts`, `TagAlphaFilter.ts`, `TagFooterActions.ts`, `TagTable.ts`
 - `modals/` → `CKEditorImageModal.ts`, `PublishModal.ts`
-- `post_page/AIPost/` → `AIPostModal.ts`
+- `post_page/ai_note/` → `AIPostModal.ts`
 
 ---
 

@@ -231,6 +231,17 @@ Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) para el sch
 Campos obligatorios mínimos: `operation`, `ticket_key`, `test_results[]`.
 Si alguno falta → retornar output de error estructurado (ver pipeline-schema.md → Output).
 
+### F1.5: Chequeo de idempotencia (OBLIGATORIO antes de cualquier acción)
+
+Antes de postear o transicionar, verificar:
+1. ¿El payload incluye `idempotency.already_reported: true`? → retornar output con `status: "skipped"` y motivo.
+2. ¿El payload incluye `idempotency.last_comment_id`? → verificar con `jira-reader OP-1` si ese comentario
+   ya existe en el ticket. Si existe → no postear comentario (evitar duplicado), pero evaluar si la
+   transición de estado aún corresponde.
+
+Este chequeo hace que el pipeline sea re-run safe: si GitHub Actions re-ejecuta el job por timeout u otro
+error después de que el comentario ya fue posteado, MODO F no duplica la escritura.
+
 ### F2: Routing por `operation`
 
 | `operation` | Flujo | Notas |
@@ -239,6 +250,21 @@ Si alguno falta → retornar output de error estructurado (ver pipeline-schema.m
 | `validate_devsaas` | MODO C + MODO D | Leer casos master vía jira-reader OP-3 primero |
 | `create_bug` | MODO A | Poblar descripción con datos técnicos del test |
 | `add_observation` | Solo comentar | Sin transición de estado |
+
+### F2.1: Entornos y routing por `environment`
+
+| `environment` | `operation` aplicable | Notas |
+|---------------|-----------------------|-------|
+| `master` | `validate_master` | Flujo estándar de validación |
+| `dev_saas` | `validate_devsaas` | Requiere `prerelease_version` |
+| `[nombre-cliente]` | `validate_master` | Header usa el nombre del cliente |
+| `testing` | `add_observation` | Entorno de desarrollo: solo observación, sin transición. Marcar con `[PIPELINE TEST]` en el pie del comentario. |
+
+> **Regla testing:** El entorno `testing` es el entorno de desarrollo del framework, no de producción.
+> Los resultados en `testing` nunca transicionan el estado del ticket. Solo se postea comentario
+> informativo si `operation == "add_observation"` y el payload lo indica explícitamente.
+> Si el pipeline no envía `operation` explícito para testing, MODO F retorna `status: "skipped"` con
+> motivo `"environment=testing no requiere acción en Jira"`.
 
 ### F3: Mapeo de test_results a comentario
 
@@ -251,6 +277,7 @@ Para cada `test_result`:
 
 Agregar al pie del comentario para trazabilidad:
 - `_Suite: [test_suite] — Archivo: [test_file]_` (si están presentes)
+- Si `is_pipeline_test: true` en el payload → agregar `_[PIPELINE TEST]_` al pie (para distinguir de validaciones humanas reales)
 
 ### F4: Crear bug desde test fallido (operation = create_bug)
 
@@ -268,6 +295,25 @@ Prioridad automática: `High` si `environment == dev_saas` o cliente; `Medium` p
 ### F5: Output al pipeline
 Generar siempre el objeto de respuesta al terminar.
 Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) → Output Schema.
+
+### F6: Actualizar Pipeline Context (OBLIGATORIO al terminar)
+Después de ejecutar las acciones, el output de F5 debe ser escrito en el campo
+`test_reporter_output` del Pipeline Context JSON (`pipeline-logs/completed/TICKET_KEY.json`).
+
+Campos obligatorios en `test_reporter_output`:
+```json
+{
+  "executed_at": "<ISO timestamp>",
+  "operation": "<operation usada>",
+  "environment": "<environment del payload>",
+  "status": "success | partial | skipped | error",
+  "actions_taken": [...],
+  "errors": [],
+  "comment_id": "<id del comentario posteado, o null>",
+  "transition_applied": "<to_status, o null>"
+}
+```
+Escribir el archivo completo con el campo actualizado (no solo el campo — reescribir el JSON completo).
 
 ---
 

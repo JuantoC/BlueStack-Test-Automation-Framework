@@ -9,7 +9,7 @@ Sos un arquitecto de test automation especializado en Page Object Model con Sele
 
 No sos un asistente genérico. No explicás tu proceso. Ejecutás la generación y entregás los archivos.
 
-Antes de generar cualquier código, inspeccioná archivos POM existentes en `src/pages/` del módulo más cercano al solicitado — esa es la fuente de verdad de las convenciones del repositorio. El archivo `references/conventions.md` es una referencia curada secundaria; `references/examples.md` es contexto ilustrativo adicional.
+Antes de generar cualquier código, inspeccioná archivos POM existentes en `src/pages/` del módulo más cercano al solicitado — esa es la fuente de verdad de las convenciones del repositorio. El archivo `wiki/patterns/conventions.md` es una referencia curada secundaria; `examples.md` (en esta misma carpeta) es contexto ilustrativo adicional.
 
 ---
 
@@ -84,15 +84,15 @@ Leer: src/pages/<módulo-más-cercano>/*.ts   ← INPUT PRIMARIO (código real)
 Una vez leído el código, usá el archivo de convenciones curadas como referencia complementaria:
 
 ```
-Leer: [ruta-de-esta-skill]/references/conventions.md   ← INPUT SECUNDARIO (contexto curado)
+Leer: wiki/patterns/conventions.md   ← INPUT SECUNDARIO (convenciones curadas en wiki)
 ```
 
-`conventions.md` resume patrones de naming, imports, estructura de clases, error handling y el catálogo de utilidades `core/`. Si hay conflicto entre lo que dice el código y lo que dice `conventions.md`, el código prevalece.
+`wiki/patterns/conventions.md` resume patrones de naming, imports, estructura de clases, error handling y el catálogo de utilidades `core/`. Si hay conflicto entre lo que dice el código y lo que dice la wiki, el código prevalece.
 
 Si necesitás ver ejemplos adicionales más allá del código que ya leíste:
 
 ```
-Leer: [ruta-de-esta-skill]/references/examples.md   ← INPUT TERCIARIO (ejemplos ilustrativos)
+Leer: [ruta-de-esta-skill]/examples.md   ← INPUT TERCIARIO (ejemplos ilustrativos)
 ```
 
 ## Paso 1 — Analizar el input y planificar la estructura
@@ -158,7 +158,7 @@ Generá cada subcomponente individual **antes** que la clase main. Esto es porqu
 Para cada subcomponente:
 
 1. Creá el archivo en la ubicación correcta dentro de `src/pages/`.
-2. Seguí los patrones del código TypeScript leído en el Paso 0. Si algo no quedó claro, consultá `references/conventions.md` como referencia secundaria.
+2. Seguí los patrones del código TypeScript leído en el Paso 0. Si algo no quedó claro, consultá `wiki/patterns/conventions.md` como referencia secundaria.
 3. Los locators que no tengan selector real se definen como:
    ```typescript
    private static readonly ELEMENT_NAME: Locator = By.css('[data-testid="TODO_element_name"]');
@@ -249,7 +249,7 @@ Este inventario es la línea base inmutable. Nada de lo listado se toca.
 ## Paso 1E — Gap Analysis
 
 Comparar el inventario contra el input del usuario (screenshot, DOM, texto).
-Formato de la tabla de brechas → ver `conventions.md § 13`.
+Formato de la tabla de brechas → ver `wiki/patterns/conventions.md` (sección "Modo Extensión — Gap Analysis").
 
 Presentar la tabla. No generar código antes de recibir confirmación.
 
@@ -270,7 +270,7 @@ Esperá confirmación antes de proceder.
 
 ## Paso 3E — Generación Aditiva
 
-Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `conventions.md § 13`. Ejemplo concreto → `examples.md § 4`.
+Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `wiki/patterns/conventions.md` (sección "Modo Extensión — Formatos de Output"). Ejemplo concreto → `examples.md § 4`.
 
 Para **archivos nuevos**: usar el mismo flujo de los Pasos 2–3 del Modo Creación.
 
@@ -305,13 +305,13 @@ Para **archivos nuevos**: usar el mismo flujo de los Pasos 2–3 del Modo Creaci
 # NOTAS DE MANTENIMIENTO
 
 ## Agregar nuevos componentes compartidos
-Si el repositorio agrega nuevos modales o componentes compartidos en `src/pages/modals/`, actualizar la tabla de "Componentes compartidos usados" en el Paso 1.2 y la lista de imports disponibles en `references/conventions.md`.
+Si el repositorio agrega nuevos modales o componentes compartidos en `src/pages/modals/`, actualizar la tabla de "Componentes compartidos usados" en el Paso 1.2 y la lista de imports disponibles en `wiki/patterns/conventions.md`.
 
 ## Cambiar las convenciones de naming o imports
-Modificar `references/conventions.md`. El SKILL.md no contiene convenciones hardcodeadas — todo se delega al archivo de referencia.
+Modificar `wiki/patterns/conventions.md`. El SKILL.md no contiene convenciones hardcodeadas — todo se delega a la wiki.
 
 ## Agregar nuevos patrones de subcomponente
-Agregar ejemplos en `references/examples.md` con una sección dedicada y referencia cruzada desde `conventions.md`.
+Agregar ejemplos en `examples.md` (esta carpeta) con una sección dedicada y referencia cruzada desde `wiki/patterns/conventions.md`.
 
 ## Cambiar el formato de los placeholders TODO
-Buscar `TODO_placeholder_name` en este archivo y en `references/conventions.md`. Modificar el patrón en ambos lugares.
+Buscar `TODO_placeholder_name` en este archivo y en `wiki/patterns/conventions.md`. Modificar el patrón en ambos lugares.

@@ -13,7 +13,7 @@ description: Valida que el modelo SSoT se respete en todo el repositorio BlueSta
 - Cuando el desarrollador lo indique explícitamente
 - Antes de un PR o un release importante
 - Como paso de verificación después de ejecutar `sync-docs`
-- Cuando el pre-commit hook reporte violaciones en `docs/audit/ssot-violations.json`
+- Cuando el pre-commit hook reporte violaciones en `docs/generated/ssot-violations.json`
 - Automáticamente desde el Paso 8 de la pipeline `sync-docs`
 - Automáticamente desde el Paso 10 de la skill `smart-commit`
 
@@ -39,11 +39,11 @@ El script imprime en stdout un resumen de la forma:
 ✅ Modelo SSoT íntegro. No se detectaron violaciones.
 ```
 
-**Si hay errores o warnings:** leer `docs/audit/ssot-violations.json` para obtener el detalle completo.
+**Si hay errores o warnings:** leer `docs/generated/ssot-violations.json` para obtener el detalle completo.
 
-## Paso 3 — Clasificar y presentar violaciones
+## Paso 3 — Clasificar violaciones
 
-Presentar los resultados agrupados por severidad:
+Agrupar por severidad:
 
 **ERRORES (bloquean el modelo SSoT):**
 - `NO-LOGIC-IN-MD`: archivos `.md` con lógica funcional o definiciones de tipos
@@ -52,24 +52,45 @@ Presentar los resultados agrupados por severidad:
 **WARNINGS (degradan la calidad documental):**
 - `JSDOC-PARAM-MISMATCH`: parámetros documentados en JSDoc que no existen en la firma real
 
-Para cada violación, mostrar:
-```
-[TIPO] archivo/path
-→ Problema: descripción
-→ Acción recomendada: qué hacer para resolverlo
-```
+## Paso 4 — Verificar falsos positivos
 
-## Paso 4 — Proponer correcciones
-Para cada violación encontrada, proponer la corrección concreta:
+Antes de corregir cualquier violación, verificar si es un **falso positivo**.
 
-- **`NO-LOGIC-IN-MD`**: identificar qué contenido debe migrarse al código y a qué archivo `.ts`
-- **`JSDOC-PARAM-MISMATCH`**: mostrar el JSDoc actual vs. la firma real, proponer el JSDoc corregido
-- **`SKILL-MD-PRIMARY-INPUT`**: identificar qué línea de la skill hace referencia al `.md` como input lógico y proponer la reescritura
+**Cómo verificar:**
 
-## Paso 5 — Preguntar antes de actuar
-Mostrar todas las correcciones propuestas y preguntar: *"¿Corregimos alguna de estas violaciones?"*
+Para `NO-LOGIC-IN-MD`:
+- Leer el archivo `.md` y localizar la línea exacta que disparó el match (abrir el archivo, no inferir)
+- Verificar si el patrón detectado está dentro de un inline code span (`` `...` ``), una tabla, o texto descriptivo que menciona código sin definirlo
+- **Es falso positivo si:** el patrón aparece en prosa que describe o referencia código, no en una definición funcional real
 
-Aplicar **solo lo que el desarrollador confirme**, en el orden que indique.
+Para `JSDOC-PARAM-MISMATCH`:
+- Leer la firma actual del método en el `.ts`
+- Comparar contra el JSDoc reportado
+- **Es falso positivo si:** el parámetro existe en la firma pero el scanner no lo detectó por un edge case de parseo
+
+Para `SKILL-MD-PRIMARY-INPUT`:
+- Leer la skill y localizar la referencia al `.md` externo
+- **Es falso positivo si:** la referencia es a un archivo dentro del directorio de la propia skill (`references/`, `agents/`, `assets/`) o a un README/CLAUDE.md
+
+**Si todas las violaciones son falsos positivos:**
+1. Corregir el patrón de detección en `scripts/validate-ssot.ts` para que no los detecte
+2. Reportar: `⚠️ Falso positivo corregido en el script de detección. No hay violaciones reales.`
+3. **Terminar el flujo aquí.**
+
+**Si hay al menos una violación real:** continuar al Paso 5.
+
+## Paso 5 — Aplicar correcciones automáticamente
+
+Aplicar todas las correcciones sin pedir confirmación, con estas reglas:
+
+**Correcciones automáticas (sin confirmación):**
+- `JSDOC-PARAM-MISMATCH` → editar el JSDoc en el `.ts` para alinear con la firma real
+- `NO-LOGIC-IN-MD` (contenido en `.md`) → mover o encerrar el contenido problemático en un bloque de código
+- `SKILL-MD-PRIMARY-INPUT` → reescribir la referencia en la skill para no depender del `.md` externo
+
+**Requiere confirmación explícita del usuario (único caso donde se pausa el flujo):**
+- Cualquier corrección que implique modificar **lógica funcional** en un archivo `.ts` (no solo JSDoc/TSDoc)
+- En ese caso: reportar el problema con el formato `[TIPO] archivo → Problema → Corrección propuesta` y preguntar `¿Aplicamos este cambio?`
 
 ---
 
@@ -83,10 +104,12 @@ Al analizar violaciones en este proyecto, tener en cuenta:
 - **`.claude/skills/`**: las skills usan `.md` para describir su invocación, lo cual es válido. La violación es cuando una skill lee un `.md` externo como input lógico para decidir qué hacer.
 
 # Restricciones
-- No modificar ningún archivo sin confirmación explícita del desarrollador
-- Si `validate-ssot.ts` no existe todavía, informar que debe crearse primero (Fase 6 del plan SSoT)
+- Aplicar correcciones automáticamente para JSDoc/TSDoc y `.md` — no pedir confirmación
+- Pausar y preguntar **solo** si la corrección requiere modificar lógica funcional en un `.ts`
+- Si `validate-ssot.ts` no existe todavía, informar que debe crearse primero
 - No reportar como violación el uso de `.md` para instrucciones de invocación dentro de `.claude/` — eso es uso válido
 
 # Output esperado
-- `docs/audit/ssot-violations.json` — reporte completo de violaciones
-- Resumen presentado al desarrollador con correcciones propuestas
+- `docs/generated/ssot-violations.json` — reporte completo de violaciones
+- Correcciones aplicadas automáticamente en el repositorio (JSDoc y `.md`)
+- Reporte final: violaciones encontradas, falsos positivos descartados, correcciones aplicadas

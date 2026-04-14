@@ -97,8 +97,8 @@ Runners: `npm run test:dev -- <NombreTest>` | `npm run test:grid -- <NombreTest>
 
 **Protocolo:**
 1. Identificar qué tipo de código genera el prompt: POM, session, u otro
-2. Si POM → leer `references/pom-conventions.md`
-3. Si session → leer `references/test-conventions.md`
+2. Si POM → leer `wiki/patterns/conventions.md`
+3. Si session → leer `wiki/core/run-session.md` y `wiki/sessions/catalog.md`
 4. Incluir en el prompt generado: stack exacto, convenciones de naming, patrón de imports (`.js`), estructura requerida
 5. Testear mentalmente el prompt con un caso concreto antes de entregarlo
 
@@ -123,6 +123,53 @@ Runners: `npm run test:dev -- <NombreTest>` | `npm run test:grid -- <NombreTest>
 
 ---
 
+### 5. Diseñar o revisar prompts para agentes de pipeline (context-budget aware)
+
+**Cuándo:** "armame el prompt del orquestador", "el pipeline se queda sin contexto",
+"el briefing del pipeline es muy largo", "optimizá el prompt de la Fase X",
+"el agente del pipeline consume demasiados tokens"
+
+El pipeline corre sin intervención humana. Quedarse sin contexto en medio de una
+ejecución es un fallo silencioso — no hay nadie para relanzar con contexto reducido.
+
+**Protocolo:**
+1. Auditar el briefing existente con la checklist de contexto (ver abajo)
+2. Identificar qué secciones el agente va a LEER de todos modos (docs, wiki)
+3. Eliminar esas secciones del briefing — reemplazar por referencia (path + sección)
+4. Verificar que las operaciones Jira usan lazy loading (OP-1-LIGHT antes que OP-1-FULL)
+5. Verificar que búsquedas JQL anchas delegan a subagente
+
+**Checklist de contexto para briefings de pipeline:**
+
+| Pregunta | Si la respuesta es NO → acción |
+|---|---|
+| ¿El "Estado del pipeline" es ≤ 15 bullets? | Reducir — lo detallado va a la wiki |
+| ¿Las secciones "QUÉ CONSTRUIR" referencian docs en lugar de repetirlos? | Reemplazar contenido duplicado por path + sección |
+| ¿Los schemas JSON están en `references/` y el briefing solo los cita? | Mover schemas a `references/`, citar con ruta |
+| ¿Las operaciones Jira especifican OP-1-LIGHT como default? | Agregar instrucción explícita de lazy loading |
+| ¿Las búsquedas JQL de >5 resultados esperados delegan a subagente? | Agregar instrucción de subagente para exploración ancha |
+| ¿La "LECTURA OBLIGATORIA" pide leer secciones, no archivos enteros? | Agregar `offset` + `limit` sugeridos o Grep previo |
+
+**Regla de oro del briefing de pipeline:**
+> El briefing describe QUÉ hacer y DÓNDE encontrar el contrato.
+> No reproduce el contrato — el agente lo lee él mismo.
+
+```
+❌ Mal: incluir el schema JSON completo del ticket_analyst_output en el briefing
+✅ Bien: "El schema del output está en ticket-analyst/PIPELINE.md §TA-9"
+
+❌ Mal: "LECTURA OBLIGATORIA: leer docs/architecture/... completo"  
+✅ Bien: "Leer §3.3 (líneas ~289-350) y §11.1 (líneas ~1042-1051) con offset+limit"
+
+❌ Mal: hacer getJiraIssue con comment desde el primer call
+✅ Bien: "Usar OP-1-LIGHT primero; escalar a OP-1-FULL solo si descripción no tiene criterios"
+
+❌ Mal: searchJiraIssuesUsingJql sin maxResults ni filtro de componente
+✅ Bien: "maxResults: 5, fields: [summary, status, customfield_10061]; refinar JQL antes de ampliar"
+```
+
+---
+
 ## Restricciones
 
 - No inventar locators, nombres de clases, ni paths que no existan en el proyecto
@@ -138,6 +185,6 @@ Runners: `npm run test:dev -- <NombreTest>` | `npm run test:grid -- <NombreTest>
 
 | Archivo | Cuándo leerlo |
 |---|---|
-| `references/pom-conventions.md` | Al diseñar prompts que generan o modifican POMs |
-| `references/test-conventions.md` | Al diseñar prompts que generan o modifican sessions |
-| `references/workspace-patterns.md` | Al optimizar skills — anti-patrones, landscape, arquitectura |
+| `wiki/patterns/conventions.md` | Al diseñar prompts que generan o modifican POMs |
+| `wiki/core/run-session.md` + `wiki/sessions/catalog.md` | Al diseñar prompts que generan o modifican sessions |
+| `references/workspace-patterns.md` | Al optimizar skills — anti-patrones, landscape de skills |

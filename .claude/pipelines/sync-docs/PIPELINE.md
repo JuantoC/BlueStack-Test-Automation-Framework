@@ -96,7 +96,7 @@ Revisar si alguno de estos archivos referencia el módulo modificado:
 - `@src/pages/README.md`
 
 ## Paso 5 — Escribir sugerencias
-Tal como se indica en el Paso 9 de **smart-commit**, agregar las sugerencias al final de `@docs/doc-update-suggestions.md` (modo **append**, no sobreescribir —
+Tal como se indica en el Paso 9 de **smart-commit**, agregar las sugerencias al final de `@docs/generated/doc-update-suggestions.md` (modo **append**, no sobreescribir —
 pueden existir sugerencias de commits anteriores aún no revisados). Si el archivo no existe,
 crearlo. Usar este formato:
 
@@ -171,6 +171,6 @@ y ejecutar sus Pasos 1 a 5. No pedir confirmación.
 - Los cambios automáticos están limitados a JSDoc/TSDoc y `.md` contextuales; nunca lógica funcional
 
 # Output esperado
-- `@docs/doc-update-suggestions.md` — registro de sugerencias generadas y aplicadas
+- `@docs/generated/doc-update-suggestions.md` — registro de sugerencias generadas y aplicadas
 - Cambios JSDoc/`.md` ya aplicados en el repositorio
 - Commit `docs(...)` si fue invocada desde smart-commit

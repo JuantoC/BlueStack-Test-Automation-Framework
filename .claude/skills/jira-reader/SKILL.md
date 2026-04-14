@@ -36,17 +36,49 @@ al pipeline automatizado de Selenium, y a agentes externos del sistema QA.
 Input:  issueKey (ej. NAA-4416)
 Output: summary, description, status, issuetype, priority, assignee, reporter,
         parent/epic, customfield_10061 (Componente), customfield_10021 (Sprint),
-        customfield_10062 (Resumen Ejecutivo), comments, issuelinks,
-        fixVersions, labels, attachment
+        customfield_10062 (Resumen Ejecutivo), issuelinks, fixVersions, labels
 Tool:   getJiraIssue
 ```
 
-Campos a solicitar siempre:
+#### OP-1-LIGHT (default — siempre usar primero)
+
+Campos baratos. No incluye `comment` ni `attachment`.
+Usar para: clasificación inicial, lectura rápida, chequeos de estado.
+
+```json
+["summary", "description", "status", "issuetype", "priority", "assignee",
+ "reporter", "parent", "issuelinks", "customfield_10061",
+ "customfield_10062", "customfield_10021", "labels", "fixVersions"]
+```
+
+#### OP-1-FULL (solo cuando OP-1-LIGHT no alcanza)
+
+Agrega `comment` y `attachment`. Usar únicamente si la descripción no tiene
+criterios de aceptación y se necesita inferir desde comentarios, o si se
+necesita metadata de adjuntos para OP-6.
+
 ```json
 ["summary", "description", "status", "issuetype", "priority", "assignee",
  "reporter", "parent", "comment", "issuelinks", "customfield_10061",
  "customfield_10062", "customfield_10021", "labels", "fixVersions", "attachment"]
 ```
+
+> **Regla de escalación:** Intentar TA-4.1 con OP-1-LIGHT. Si la descripción
+> tiene sección "Criterios de aceptación" o "Casos de prueba" → usar ese resultado,
+> no pedir `comment`. Solo escalar a OP-1-FULL si la descripción no tiene criterios
+> estructurados y se necesita inferir desde comentarios.
+
+> **Campos custom del equipo Bluestack** (IDs pendientes de discovery):
+> El proyecto NAA tiene campos custom creados por el equipo:
+> - **"deploy"** → descripción de los cambios desplegados en el ticket
+> - **"cambios SQL"** → scripts de base de datos asociados al ticket
+> - **"cambios VFS"** → archivos de configuración o assets modificados
+>
+> Para descubrir los IDs exactos: llamar `getJiraIssue` sobre un ticket con esos campos
+> completados (sin filtrar `fields`) y listar todos los `customfield_XXXXX` retornados.
+> Una vez conocidos, agregar sus IDs al array `fields` de OP-1 y OP-6.
+> Mientras no se descubran, incluir en el array el campo `"*all"` cuando se necesite
+> inferir criterios desde esos campos específicos.
 
 ### OP-2: Buscar tickets por JQL
 
@@ -123,20 +155,39 @@ Output: accountId, displayName, emailAddress
 Tool:   lookupJiraAccountId
 ```
 
-### OP-6: Extraer definición de casos de prueba del ticket
+### OP-6: Sintetizar criterios de prueba desde el ticket completo
 
-Usado por el pipeline automatizado para comparar los casos definidos en el ticket
-con los resultados de los tests de Selenium.
+Usado por el pipeline automatizado para producir los casos de prueba a ejecutar.
+**Siempre leer TODO el contenido del ticket** — muchos tickets tienen información clave
+en comentarios y campos custom, no solo en la descripción.
 
 ```
 Input:  issueKey
-Output: lista de criterios de aceptación extraídos de la descripción del ticket
-Tool:   getJiraIssue (campos: description)
+Output: lista de criterios de prueba sintetizados desde TODO el contenido del ticket
+Tool:   getJiraIssue
+Campos: ["summary", "description", "comment", "customfield_10061", "customfield_10062",
+         "customfield_10021", "customfield_deploy", "customfield_sql_changes",
+         "customfield_vfs_changes"]
 ```
 
-**Qué extraer de la descripción:**
-- Sección "Criterios de aceptación" → bullet list
-- Sección "Casos de prueba" si existe → bullet list
+> Los IDs exactos de los campos custom "deploy", "cambios SQL" y "cambios VFS" deben
+> descubrirse ejecutando OP-1 sobre un ticket real y observando todos los `customfield_*`
+> retornados. Usar `getJiraIssue` sin filtrar campos en esa discovery run.
+
+**Estrategia de extracción (en orden de precedencia):**
+
+1. **Sección "Criterios de aceptación"** en descripción → `source: "extracted"`
+2. **Sección "Casos de prueba"** en descripción (si existe) → `source: "extracted"`
+3. **Comentarios de devs/QA** con comportamiento descrito o pasos reproducibles → `source: "inferred"`
+4. **Campos custom:** deploy (qué cambios se desplegaron), cambios SQL (impacto en BD),
+   cambios VFS (archivos de configuración/assets modificados) → `source: "inferred"`
+5. **Título + Resumen Ejecutivo** (`customfield_10062`) para entender el flujo principal → `source: "inferred"`
+
+**Si ninguna fuente produce ≥ 1 criterio accionable:**
+- Retornar `criteria: []`, `source: "none"`
+- El pipeline debe marcar `testable: false`, `human_escalation: true`
+- Mensaje de escalación: "Ticket sin criterios de prueba ni descripción suficiente para inferir
+  el flujo. Adjuntar: comportamiento esperado, pasos para reproducir, o criterios de aceptación."
 
 **Output estructurado:**
 ```json
@@ -148,7 +199,7 @@ Tool:   getJiraIssue (campos: description)
     { "index": 2, "description": "El modal muestra el progreso de la subida" },
     { "index": 3, "description": "El video aparece en la grilla luego de la subida" }
   ],
-  "source": "description_criteria",
+  "source": "extracted | inferred | none",
   "jira_metadata": {
     "jiraSummary":      "ADMIN - Ecuavisa - pedido de fecha modificación en video",
     "ticketType":       "Story - Back",
@@ -171,6 +222,125 @@ Tool:   getJiraIssue (campos: description)
 > El orquestador del pipeline puede pasarlo directamente al wrapper `runSession` para poblar Allure.
 > Este output permite mapear cada criterio con el test Selenium correspondiente en `/sessions`
 > y enviar el resultado a jira-writer.
+
+---
+
+## Token Budget — campos por costo
+
+En pipelines automatizados el contexto es el recurso más escaso. Clasificar los
+campos por costo antes de hacer cualquier llamada a Jira:
+
+| Costo | Campos | Cuándo pedir |
+|-------|--------|--------------|
+| **Bajo** | `summary`, `status`, `issuetype`, `priority`, `assignee`, `customfield_10061`, `parent`, `fixVersions`, `labels` | Siempre (OP-1-LIGHT) |
+| **Medio** | `description`, `reporter`, `issuelinks`, `customfield_10062`, `customfield_10021` | OP-1-LIGHT (incluidos) |
+| **Alto** | `comment` | Solo si descripción no tiene criterios — OP-1-FULL |
+| **Alto** | `attachment` | Solo en OP-6 completo o para metadata de adjuntos |
+| **Muy alto** | `expand=changelog` / `expand=renderedFields` | Nunca en pipeline — solo discovery manual |
+
+**Regla para OP-2 (JQL search):**
+Cuando se hace una búsqueda exploratoria (¿qué tickets existen de este componente?),
+pedir solo campos baratos. Nunca pedir `comment` en una búsqueda JQL.
+
+```json
+// OP-2 exploración — campos mínimos
+["summary", "status", "issuetype", "customfield_10061", "priority", "fixVersions"]
+```
+
+**Regla para OP-2 con resultados amplios (>5 tickets esperados):**
+Usar `maxResults: 5` en la primera búsqueda. Si se necesita más, refinar el JQL
+antes de aumentar el límite. Nunca hacer `maxResults: 20` sin filtro de componente.
+
+---
+
+## Manejo de respuestas grandes (overflow de tokens)
+
+### Cuándo ocurre
+
+Cuando `getJiraIssue` devuelve un error del tipo:
+
+```
+Error: result (XX,XXX characters) exceeds maximum allowed tokens.
+Output has been saved to /home/jutoc/.claude/projects/.../{uuid}/tool-results/mcp-...-getJiraIssue-{timestamp}.txt
+```
+
+Esto pasa cuando el ticket tiene mucho historial de cambios (`changelog`), attachments,
+comentarios extensos, o cuando se usan flags de expansión (`expand=changelog,renderedFields,...`).
+El caso real que originó esta regla fue **NAA-4037** con 81.577 caracteres.
+
+### Regla 1 — Prevención (90% de los casos)
+
+Para **OP-1 a OP-6**, nunca usar el parámetro `expand`. Solo pedir los campos necesarios
+via el array `fields`. Esto evita el problema en la mayoría de tickets normales.
+
+```
+✅ Correcto: fields = ["summary", "status", "assignee", ...]
+❌ Incorrecto: expand = "changelog,renderedFields,names,schema,versionedRepresentations"
+```
+
+### Regla 2 — Detección y respuesta cuando ocurre
+
+Cuando el error aparece de todas formas:
+
+1. **Extraer el path del archivo** del mensaje de error — siempre termina en `getJiraIssue-{timestamp}.txt`
+2. **Lanzar un sub-agente** (tipo `Explore` para análisis, tipo general para extracción estructurada)
+3. **El sub-agente lee el archivo en chunks** usando `Read` con `offset` y `limit` hasta llegar al EOF
+4. **Devolver solo los campos necesarios** — no el archivo completo
+
+### Procedimiento de lanzamiento del sub-agente
+
+```
+Agent({
+  subagent_type: "Explore",  // o general-purpose si necesita lógica de extracción compleja
+  description: "Extraer campos de ticket Jira desde archivo de respuesta grande",
+  prompt: `
+    Lee el archivo en {FILE_PATH} completo en chunks usando Read con offset/limit incremental
+    hasta llegar al final (el archivo puede tener +80k caracteres).
+    
+    Extrae SOLAMENTE estos campos del JSON del ticket:
+    - summary, status.name, issuetype.name, priority.name
+    - assignee.displayName, assignee.accountId
+    - parent.key
+    - customfield_10061 (Componente)
+    - customfield_10021 (Sprint)
+    - customfield_10062 (Resumen Ejecutivo)
+    - fixVersions[].name
+    - labels[]
+    - issuelinks[].outwardIssue.key y inwardIssue.key
+    - attachment[].filename
+    
+    Retorná un JSON con exactamente esos campos y sus valores actuales del ticket.
+    No incluyas el changelog ni los renderedFields.
+    Leé el archivo ENTERO antes de responder.
+  `
+})
+```
+
+> El sub-agente corre en contexto aislado — el archivo completo no contamina el contexto principal.
+
+### Regla 3 — Cuándo sí usar expansión completa (y esperar el overflow)
+
+Solo cuando el objetivo **explícito** es extraer metadata completa del ticket para construir
+`jira_metadata` (OP-6 con `expand`). En ese caso, planificar el sub-agente desde el inicio:
+
+```
+Paso 1: Llamar getJiraIssue con expand=changelog,renderedFields,names,schema,...
+Paso 2: Esperar el error de overflow — es el comportamiento esperado
+Paso 3: Extraer el file_path del mensaje de error
+Paso 4: Lanzar sub-agente Explore con el prompt de extracción estructurada
+Paso 5: Usar el output del sub-agente como jira_metadata
+```
+
+No reintentar `getJiraIssue` sin el `expand` después del overflow — lanzar el sub-agente directamente.
+
+### Campos que típicamente causan overflow
+
+| Causa | Señal | Mitigación |
+|-------|-------|------------|
+| Historial largo (`changelog`) | Ticket con >30 transiciones/ediciones | Nunca incluir `expand=changelog` salvo que sea necesario |
+| Descripción larga (ADF) | Pedidos con specs extensas | `responseContentFormat: "markdown"` en vez de `"adf"` |
+| Muchos comentarios | Tickets de soporte con conversaciones largas | Separar `comment` en llamada aparte si es el único campo necesario |
+| Attachments con metadata | Tickets con muchos adjuntos y sus metadatos | No pedir `attachment` salvo en OP-6 completo |
 
 ---
 

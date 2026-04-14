@@ -45,6 +45,8 @@ const authUrl = getAuthUrl(ENV_CONFIG.baseUrl, ENV_CONFIG.auth.basic.user, ENV_C
 await driver.get(authUrl);
 ```
 
+> `ENV_CONFIG` resuelve automáticamente las credenciales y la URL del entorno activo (`TARGET_ENV`). No hay que cambiar nada en el test para correrlo contra otro ambiente — es un parámetro externo de invocación.
+
 **4.** Instanciar solo los POs que se usan. Firma base: `(driver, opts)`. Con tipo de nota: `(driver, 'POST', opts)`.
 
 **5. Login siempre primer paso:** `await login.passLoginAndTwoFA({ username: user, password: pass });`

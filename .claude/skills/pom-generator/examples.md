@@ -1,5 +1,8 @@
 # Ejemplos de Referencia — Clases POM del Repositorio
 
+> Código extraído de `src/pages/videos_page/` y `src/pages/modals/`.
+> Fuente canónica: código TypeScript. Wiki de referencia: [wiki/pages/videos-page.md](../../../wiki/pages/videos-page.md) · [wiki/pages/modals.md](../../../wiki/pages/modals.md)
+
 Este archivo contiene ejemplos reales del repositorio que funcionan como gold standard. Usá estos ejemplos para calibrar el estilo, nivel de detalle y patrones al generar nuevas clases.
 
 ---
@@ -47,7 +50,6 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * await page.uploadNewVideo(videoData);
  */
 export class MainVideoPage {
-  private driver: WebDriver;
   private config: RetryOptions;
 
   private readonly uploadBtn: UploadVideoBtn
@@ -59,16 +61,15 @@ export class MainVideoPage {
   private readonly banner: Banners;
 
   constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
     this.config = resolveRetryConfig(opts, "MainVideoPage")
 
-    this.uploadBtn = new UploadVideoBtn(this.driver, this.config);
-    this.uploadModal = new UploadVideoModal(this.driver, this.config);
-    this.table = new VideoTable(this.driver, this.config);
-    this.actions = new VideoActions(this.driver, this.config);
-    this.footer = new FooterActions(this.driver, this.config)
-    this.image = new CKEditorImageModal(this.driver, this.config)
-    this.banner = new Banners(this.driver, this.config);
+    this.uploadBtn = new UploadVideoBtn(driver, this.config);
+    this.uploadModal = new UploadVideoModal(driver, this.config);
+    this.table = new VideoTable(driver, this.config);
+    this.actions = new VideoActions(driver, this.config);
+    this.footer = new FooterActions(driver, this.config)
+    this.image = new CKEditorImageModal(driver, this.config)
+    this.banner = new Banners(driver, this.config);
   }
 
   /**
@@ -81,13 +82,13 @@ export class MainVideoPage {
    */
   async uploadNewVideo(videoData: VideoData): Promise<any> {
     await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
-      attachment(`${videoData.video_type} Data`, JSON.stringify(videoData, null, 2), "application/json");
-      videoData.video_type && stepContext.parameter("Video Type", videoData.video_type)
+      attachment(`${videoData.videoType} Data`, JSON.stringify(videoData, null, 2), "application/json");
+      videoData.videoType && stepContext.parameter("Video Type", videoData.videoType)
       stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
 
       try {
-        logger.debug(`Abriendo modal de subida para videos: ${videoData.video_type}`, { label: this.config.label })
-        await this.uploadBtn.selectVideoType(videoData.video_type)
+        logger.debug(`Abriendo modal de subida para videos: ${videoData.videoType}`, { label: this.config.label })
+        await this.uploadBtn.selectVideoType(videoData.videoType)
 
         logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
         await this.uploadModal.fillAll(videoData);
@@ -100,7 +101,7 @@ export class MainVideoPage {
           return
         }
 
-        if (videoData.video_type === 'NATIVO') {
+        if (videoData.videoType === 'NATIVO') {
           await this.uploadModal.checkProgressBar()
         }
 
@@ -110,7 +111,7 @@ export class MainVideoPage {
         logger.info(`Subida finalizada`, { label: this.config.label });
 
       } catch (error: unknown) {
-        logger.error(`Fallo en la subida de nuevo video: ${videoData.video_type} ${getErrorMessage(error)}`, {
+        logger.error(`Fallo en la subida de nuevo video: ${videoData.videoType} ${getErrorMessage(error)}`, {
           label: this.config.label,
           error: getErrorMessage(error)
         });
@@ -246,15 +247,13 @@ import { getErrorMessage } from "../../core/utils/errorUtils.js";
  * Consumido internamente por `FooterActions` y `EditorHeaderActions`; no debe invocarse desde tests.
  */
 export class PublishModal {
-  private readonly driver: WebDriver;
   private readonly config: RetryOptions;
 
   private static readonly PUBLISH_CONFIRM_BTN: Locator = By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]');
   private static readonly PUBLISH_CANCEL_BTN: Locator
   private static readonly CKEDITOR_LOAD_SUMMARY: Locator = By.css('div.loadSummary')
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.driver = driver;
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig({ ...opts, timeoutMs: 10000 }, "PublishModal")
   }
 

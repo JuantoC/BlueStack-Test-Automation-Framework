@@ -1,43 +1,8 @@
 # Workspace Patterns — BlueStack QA Automation
 
-> Patrones arquitecturales y landscape de skills. Referencia para optimizar skills existentes y detectar anti-patrones.
+> Landscape de skills y anti-patrones. Referencia para optimizar skills existentes.
 
----
-
-## Arquitectura del framework
-
-```
-BlueStack-Test-Automation-Framework/
-├── sessions/              ← Tests E2E ejecutables (*.test.ts) — fuente de verdad del comportamiento
-├── src/
-│   ├── pages/             ← Capa POM: Maestros + sub-componentes por dominio
-│   │   ├── login_page/
-│   │   ├── post_page/
-│   │   │   ├── AIPost/
-│   │   │   └── note_editor_page/
-│   │   │       └── note_list/
-│   │   ├── videos_page/
-│   │   │   └── video_editor_page/
-│   │   ├── images_pages/
-│   │   │   └── images_editor_page/
-│   │   └── modals/        ← Modales compartidos
-│   ├── core/
-│   │   ├── actions/       ← clickSafe, waitFind, waitForVisible (primitivas de interacción)
-│   │   ├── config/        ← defaultConfig (RetryOptions, resolveRetryConfig), envConfig
-│   │   ├── utils/         ← logger, stackLabel, getAuthURL, errorUtils
-│   │   └── wrappers/      ← testWrapper (runSession), retry
-│   ├── interfaces/        ← data.ts (NoteData, VideoData, AINoteData, ImageData...)
-│   └── data_test/
-│       └── factories/     ← faker-js factories: index.js exporta todas
-├── scripts/               ← audit-docs.ts, validate-ssot.ts (tsx)
-├── wiki/                  ← Knowledge base compilada del framework (entry point: wiki/index.md)
-├── .claude/
-│   ├── CLAUDE.md          ← Reglas globales del agente
-│   ├── rules/             ← Reglas contextuales (pages, ssot, doc-change, etc.)
-│   ├── skills/            ← Skills invocables por conversación
-│   └── pipelines/         ← Skills invocadas solo por agentes/hooks
-└── docs/audit/            ← Output de scripts de auditoría
-```
+> Arquitectura del framework, estructura de carpetas y stack: [wiki/overview.md](../../../../wiki/overview.md)
 
 ---
 
@@ -133,6 +98,59 @@ Cuando revisés una skill existente, buscá estos problemas:
 | SKILL.md monolítico | Más de 150 líneas, tablas con datos del código | Modularizar en `references/` |
 | Wiki-first ausente | La skill abre `.ts` sin mencionar consultar la wiki | Agregar paso wiki-first antes de abrir fuentes |
 | Skills muertos referenciados | Tabla de skills con entradas que no existen en `.claude/skills/` | Verificar con Glob y eliminar entradas muertas |
+
+---
+
+## Pipeline Prompt Budget — reglas para briefings de agentes de pipeline
+
+Los pipelines corren sin intervención humana. El contexto es finito y no hay retry manual.
+
+### Fuentes de consumo por tamaño (de mayor a menor)
+
+| Fuente | Costo típico | Mitigación |
+|---|---|---|
+| Briefing inicial con schemas JSON inline | Alto | Referenciar path+sección, no reproducir contenido |
+| `getJiraIssue` con `comment` | Alto | OP-1-LIGHT primero; `comment` solo si descripción vacía |
+| Architecture doc leído completo | Alto | Grep línea de sección → Read con offset+limit preciso |
+| JQL sin filtro de componente ni maxResults bajo | Medio-alto | `maxResults: 5` + `fields` mínimos; subagente para exploraciones |
+| Múltiples PIPELINE.md leídos completos en paralelo | Medio | Leer solo la sección necesaria usando offset+limit |
+| Respuesta overflow de Jira API | Bajo (el archivo se guarda en disco) | Subagente Explore para extraer solo lo necesario del archivo |
+
+### Patrón: leer secciones de docs sin cargar el archivo entero
+
+```
+# En lugar de: Read(architecture.md) completo
+# Hacer:
+Grep("### 3.3", "docs/architecture/qa-automation-architecture.md") → obtener línea N
+Read(offset=N, limit=80)
+```
+
+### Patrón: subagente para exploración JQL ancha
+
+Cuando se necesita descubrir qué tickets existen en un componente, no cargar
+los resultados completos en el contexto principal:
+
+```
+Agent({
+  subagent_type: "Explore",
+  prompt: "Busca en Jira (cloudId: c303d73b-...) tickets de componente Video
+           con JQL: project=NAA AND issuetype in ('QA Bug - Front','QA Bug - Back')
+           AND text ~ 'Video' ORDER BY updated DESC.
+           Campos: summary, status, customfield_10061. maxResults: 10.
+           Retorná solo: [{key, summary, status, component}]. Nada más."
+})
+```
+
+El resultado limpio (array de objetos pequeños) entra al contexto principal.
+El raw de Jira (con ADF, URLs, avatars, metadata) queda aislado en el subagente.
+
+### Señales de que un briefing está inflado
+
+- Tiene >200 líneas
+- Repite schemas que ya están en PIPELINE.md o architecture doc
+- Dice "leer el archivo X completo" sin especificar sección
+- No menciona OP-1-LIGHT en tareas que involucran Jira
+- Incluye "ESTADO DEL PIPELINE" con >15 checkboxes (moverlos a wiki)
 
 ---
 

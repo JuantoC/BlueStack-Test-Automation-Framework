@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-14",
+  "modules": {
+    "post": {
+      "sessions": ["NewPost", "NewListicle", "NewLiveBlog", "MassPublishNotes"],
+      "paths": [
+        "sessions/post/NewPost.test.ts",
+        "sessions/post/NewListicle.test.ts",
+        "sessions/post/NewLiveBlog.test.ts",
+        "sessions/post/MassPublishNotes.test.ts"
+      ],
+      "page_objects": ["src/pages/post_page/"],
+      "keywords": ["nota", "post", "listicle", "liveblog", "editor", "publicar", "borrador", "contenido", "imagen de portada", "imagen destacada"],
+      "component_jira": "Post",
+      "validated": true
+    },
+    "ai-post": {
+      "sessions": ["NewAIPost"],
+      "paths": ["sessions/post/NewAIPost.test.ts"],
+      "page_objects": ["src/pages/post_page/ai_note/"],
+      "keywords": ["nota IA", "AI", "prompt", "generación IA", "AI_POST", "inteligencia artificial", "IA genera"],
+      "component_jira": "AI",
+      "validated": true
+    },
+    "video": {
+      "sessions": ["NewYoutubeVideo", "NewEmbeddedVideo", "MassPublishVideos", "DebugVideoEditorHeader"],
+      "paths": [
+        "sessions/video/NewYoutubeVideo.test.ts",
+        "sessions/video/NewEmbeddedVideo.test.ts",
+        "sessions/video/MassPublishVideos.test.ts",
+        "sessions/debug/DebugVideoEditorHeader.test.ts"
+      ],
+      "page_objects": ["src/pages/videos_page/"],
+      "keywords": ["video", "youtube", "embedded", "subir video", "iframe", "reproductor", "upload video", "header video", "guardar video", "publicar video"],
+      "component_jira": "Video",
+      "validated": true
+    },
+    "images": {
+      "sessions": ["MassPublishImages", "DebugImageEditorHeader"],
+      "paths": [
+        "sessions/images/MassPublishImages.test.ts",
+        "sessions/debug/DebugImageEditorHeader.test.ts"
+      ],
+      "page_objects": ["src/pages/images_pages/"],
+      "keywords": ["imagen", "image", "subir imagen", "imágenes", "gallery", "foto", "header imagen", "guardar imagen", "publicar imagen"],
+      "component_jira": "Images",
+      "validated": true
+    },
+    "auth": {
+      "sessions": ["FailedLogin"],
+      "paths": ["sessions/auth/FailedLogin.test.ts"],
+      "page_objects": ["src/pages/login_page/"],
+      "keywords": ["login", "auth", "autenticación", "credenciales", "two-factor", "2FA"],
+      "component_jira": "Auth",
+      "validated": true
+    },
+    "cross": {
+      "sessions": ["PostAndVideo"],
+      "paths": ["sessions/cross/PostAndVideo.test.ts"],
+      "page_objects": ["src/pages/post_page/", "src/pages/videos_page/"],
+      "keywords": ["cross-component", "post y video", "flujo completo", "integración"],
+      "component_jira": null,
+      "validated": true
+    },
+    "stress": {
+      "sessions": ["StressMassActions"],
+      "paths": ["sessions/stress/StressMassActions.test.ts"],
+      "page_objects": ["src/pages/post_page/", "src/pages/videos_page/"],
+      "keywords": ["stress", "carga", "masa", "acciones masivas", "mass actions", "rendimiento"],
+      "component_jira": null,
+      "validated": true
+    }
+  }
+}

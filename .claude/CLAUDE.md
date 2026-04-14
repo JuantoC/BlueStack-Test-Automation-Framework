@@ -10,15 +10,17 @@ Framework QA end-to-end para el CMS interno de Bluestack.
 
 ## Comandos de Ejecución
 
-`NODE_OPTIONS='--experimental-vm-modules'` es **siempre obligatorio** en este entorno (WSL2 + ESM). Nunca proponer `npx jest` sin esto.
+`NODE_OPTIONS='--experimental-vm-modules'` es **siempre obligatorio** en este entorno (WSL2 + ESM).
 
-| Modo | Comando |
-|---|---|
-| Dev | `npm run test:dev -- TestName` |
-| Grid | `npm run test:grid -- TestName` |
-| CI | `npm run test:ci -- TestName` |
+**NUNCA usar `npx jest` ni `npm run` para ejecutar tests directamente.** `npm` y `npx` resuelven al binario de Windows en WSL2 y fallan. Forma correcta siempre:
+```
+node node_modules/.bin/jest TestName
+```
+
+**Docker Grid:** Usar `docker compose up -d --wait` (NO `npm run infra:up` — mismo problema Windows).
 
 Comandos completos, forma directa y curl de Jira: `.claude/references/COMMANDS.md`
+Setup de infra y diagnóstico WSL2: `wiki/core/docker-grid.md`
 
 > **Convención:** cuando generes o uses un comando nuevo relevante para el proyecto, agregalo a `.claude/references/COMMANDS.md`.
 
@@ -83,3 +85,4 @@ Si algo falta a mitad de un task, agregar `[gap] <tema>` a `wiki/log.md`.
 ## Wiki location
 
 Todo el conocimiento compilado vive en `wiki/`. Entry point: `wiki/index.md`.
+Organización y decision-tree para documentación: `.claude/rules/doc-organization.md`.

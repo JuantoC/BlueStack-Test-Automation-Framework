@@ -9,3 +9,8 @@
 - Si el contenido **define comportamiento** → va al código (`.ts`)
 - Si el contenido **describe contexto** → va al `.md`
 - Nunca duplicar: si ya está en el código, el `.md` lo referencia
+
+## Ver también
+
+- `wiki/index.md` — entry point del conocimiento compilado
+- `.claude/rules/doc-organization.md` — dónde vive cada tipo de documento

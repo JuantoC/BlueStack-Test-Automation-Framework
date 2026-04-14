@@ -24,32 +24,28 @@ runSession("Mass Publish Notes",
     const listicleData = ListicleDataFactory.create();
     const liveBlogData = LiveBlogDataFactory.create();
 
-    // PO instantiation
+    // PO instantiation — una sola instancia por Maestro, reutilizable para todos los tipos
     const login = new MainLoginPage(driver, opts);
+    const postPage = new MainPostPage(driver, opts);
+    const editor = new MainEditorPage(driver, opts);
 
     // Login
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // --- POST ---
-    const postPage = new MainPostPage(driver, 'POST', opts);
-    const editorPost = new MainEditorPage(driver, 'POST', opts);
-    await postPage.createNewNote();
-    await editorPost.fillFullNote(postData);
-    await editorPost.closeNoteEditor('SAVE_AND_EXIT');
+    await postPage.createNewNote(postData.noteType);
+    await editor.fillFullNote(postData);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- LISTICLE ---
-    const listiclePage = new MainPostPage(driver, 'LISTICLE', opts);
-    const editorListicle = new MainEditorPage(driver, 'LISTICLE', opts);
-    await listiclePage.createNewNote();
-    await editorListicle.fillFullNote(listicleData);
-    await editorListicle.closeNoteEditor('SAVE_AND_EXIT');
+    await postPage.createNewNote(listicleData.noteType);
+    await editor.fillFullNote(listicleData);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- LIVEBLOG ---
-    const liveBlogPage = new MainPostPage(driver, 'LIVEBLOG', opts);
-    const editorLiveBlog = new MainEditorPage(driver, 'LIVEBLOG', opts);
-    await liveBlogPage.createNewNote();
-    await editorLiveBlog.fillFullNote(liveBlogData);
-    await editorLiveBlog.closeNoteEditor('SAVE_AND_EXIT');
+    await postPage.createNewNote(liveBlogData.noteType);
+    await editor.fillFullNote(liveBlogData);
+    await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- INLINE EDIT TITLES ---
     const containerPost = await postPage.table.getPostContainerByTitle(postData.title);

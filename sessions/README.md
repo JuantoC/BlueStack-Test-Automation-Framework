@@ -25,6 +25,8 @@
 | Descubrimiento | Jest glob `**/sessions/**/*.test.ts` — recursivo por subcarpeta |
 | Timeout por test | 20 minutos (`jest.config.cjs`) |
 | Paralelismo | Controlado por `MAX_INSTANCES` en `.env` |
+| Entorno activo | Controlado por `TARGET_ENV` en `.env` (default: `testing`) |
+| Override de rol | `TEST_ROLE=admin` como env var — pisa el rol declarado en el test |
 
 ---
 
@@ -61,7 +63,7 @@ sessions/
 
 Los archivos en `sessions/` son el nivel más alto del framework. No contienen lógica de UI — solo orquestación: `runSession()` envuelve `test()` de Jest e inyecta automáticamente driver, logger, metadata de Allure, screenshot en fallo y verificación de errores de red via `NetworkMonitor`.
 
-Firma completa de `runSession`, `TestContext` y `TestMetadata`: [wiki/core/run-session.md](../wiki/core/run-session.md).
+API completa de `runSession`, `TestContext`, ciclo de vida y `retry`: [wiki/core/run-session.md](../wiki/core/run-session.md).
 
 ---
 

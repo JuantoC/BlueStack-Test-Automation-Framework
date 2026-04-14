@@ -20,12 +20,12 @@ runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
   const listicleData = ListicleDataFactory.create();
 
   const login = new MainLoginPage(driver, opts);
-  const post = new MainPostPage(driver, 'LISTICLE', opts);
-  const editor = new MainEditorPage(driver, 'LISTICLE', opts);
+  const post = new MainPostPage(driver, opts);
+  const editor = new MainEditorPage(driver, opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });
 
-  await post.createNewNote();
+  await post.createNewNote(listicleData.noteType);
   await editor.fillFullNote(listicleData);
   await editor.closeNoteEditor('SAVE_AND_EXIT');
 

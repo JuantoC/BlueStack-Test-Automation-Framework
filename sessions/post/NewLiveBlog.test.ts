@@ -19,11 +19,11 @@ runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     const liveBlogData = LiveBlogDataFactory.create({ entryCount: 12 });
 
     const login = new MainLoginPage(driver, opts);
-    const post = new MainPostPage(driver, 'LIVEBLOG', opts);
-    const editor = new MainEditorPage(driver, 'LIVEBLOG', opts);
+    const post = new MainPostPage(driver, opts);
+    const editor = new MainEditorPage(driver, opts);
 
     await login.passLoginAndTwoFA({ username: user, password: pass });
-    await post.createNewNote();
+    await post.createNewNote(liveBlogData.noteType);
     await editor.fillFullNote(liveBlogData);
     await editor.closeNoteEditor('SAVE_ONLY');
     await editor.closeNoteEditor('PUBLISH_AND_EXIT');

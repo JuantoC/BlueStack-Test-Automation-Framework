@@ -21,11 +21,11 @@ runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
   const postData = PostDataFactory.create();
 
   const login = new MainLoginPage(driver, opts);
-  const post = new MainPostPage(driver, 'POST', opts);
-  const editor = new MainEditorPage(driver, 'POST', opts);
+  const post = new MainPostPage(driver, opts);
+  const editor = new MainEditorPage(driver, opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });
-  await post.createNewNote();
+  await post.createNewNote(postData.noteType);
   await editor.fillFullNote(postData);
   await editor.closeNoteEditor('SAVE_AND_EXIT');
 

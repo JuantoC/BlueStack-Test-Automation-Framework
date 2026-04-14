@@ -24,15 +24,15 @@ runSession(
 
     // Instanciación de Page Objects necesarios
     const login = new MainLoginPage(driver, opts);
-    const post = new MainPostPage(driver, 'AI_POST', opts);
+    const post = new MainPostPage(driver, opts);
     const ai_post = new MainAIPage(driver, opts)
-    const editor = new MainEditorPage(driver, 'AI_POST', opts)
+    const editor = new MainEditorPage(driver, opts)
 
     const AIData = AINoteDataFactory.create()
 
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
-    await post.createNewNote();
+    await post.createNewNote(AIData.noteType);
 
     await ai_post.generateNewAINote(AIData);
 
@@ -57,5 +57,5 @@ import { description } from "allure-js-commons";
 import { AINoteDataFactory } from "../../src/data_test/factories/AINoteDataFactory.js";
 import { MainPostPage } from "../../src/pages/post_page/MainPostPage.js";
 import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
-import { MainAIPage } from "../../src/pages/post_page/AIPost/MainAIPage.js";
+import { MainAIPage } from "../../src/pages/post_page/ai_note/MainAIPage.js";
 import { MainEditorPage } from "../../src/pages/post_page/note_editor_page/MainEditorPage.js";

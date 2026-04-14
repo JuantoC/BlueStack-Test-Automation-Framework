@@ -31,8 +31,8 @@ runSession(
 
     // Instanciación de Page Objects necesarios
     const login = new MainLoginPage(driver, opts);
-    const post = new MainPostPage(driver, 'POST', opts);
-    const editor = new MainEditorPage(driver, 'POST', opts);
+    const post = new MainPostPage(driver, opts);
+    const editor = new MainEditorPage(driver, opts);
     const video = new MainVideoPage(driver, opts);
     const sidebar = new SidebarAndHeader(driver, opts);
 
@@ -40,7 +40,7 @@ runSession(
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // 2. Crear nueva nota
-    await post.createNewNote();
+    await post.createNewNote(newPostData.noteType);
 
     await editor.fillFullNote(newPostData);
 

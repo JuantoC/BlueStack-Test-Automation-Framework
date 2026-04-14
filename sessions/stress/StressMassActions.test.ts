@@ -39,25 +39,25 @@ runSession("Stress Mass Actions",
     const sidebar = new SidebarAndHeader(driver, opts);
     const ai = new MainAIPage(driver, opts);
 
-    // PO instantiation
-    const postPage = new MainPostPage(driver, 'POST', opts);
-    const editor = new MainEditorPage(driver, 'POST', opts);
+    // PO instantiation — una sola instancia por Maestro, reutilizable para todos los tipos
+    const postPage = new MainPostPage(driver, opts);
+    const editor = new MainEditorPage(driver, opts);
 
     // Login
     await login.passLoginAndTwoFA({ username: user, password: pass });
 
     // --- POST ---
-    await postPage.createNewNote();
+    await postPage.createNewNote(postData.noteType);
     await editor.fillFullNote(postData);
     await editor.closeNoteEditor('BACK_SAVE_AND_EXIT');
 
     // --- LISTICLE ---
-    await postPage.createNewNote('LISTICLE');
+    await postPage.createNewNote(listicleData.noteType);
     await editor.fillFullNote(listicleData);
     await editor.closeNoteEditor('SAVE_AND_EXIT');
 
     // --- LIVEBLOG ---
-    await postPage.createNewNote('LIVEBLOG');
+    await postPage.createNewNote(liveBlogData.noteType);
     await editor.fillFullNote(liveBlogData);
     await editor.closeNoteEditor('SAVE_AND_EXIT');
 
@@ -85,7 +85,7 @@ runSession("Stress Mass Actions",
 
     await sidebar.goToComponent('NEWS');
 
-    await postPage.createNewNote('AI_POST');
+    await postPage.createNewNote(AIData.noteType);
     await ai.generateNewAINote(AIData);
     await editor.closeNoteEditor('SAVE_AND_EXIT');
 
@@ -104,7 +104,7 @@ import { ENV_CONFIG } from "../../src/core/config/envConfig.js";
 import { description } from "allure-js-commons";
 import { MainLoginPage } from "../../src/pages/login_page/MainLoginPage.js";
 import { MainPostPage } from "../../src/pages/post_page/MainPostPage.js";
-import { MainAIPage } from "../../src/pages/post_page/AIPost/MainAIPage.js";
+import { MainAIPage } from "../../src/pages/post_page/ai_note/MainAIPage.js";
 import { MainEditorPage } from "../../src/pages/post_page/note_editor_page/MainEditorPage.js";
 import {
   PostDataFactory,

@@ -1,0 +1,227 @@
+{
+  "pipeline_id": "pipe-VALIDATION2-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "done",
+  "stage_status": "completed",
+  "idempotency": {
+    "last_comment_id": "39950",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-15T00:01:00.000Z",
+      "completed_at": "2026-04-15T00:02:00.000Z",
+      "status": "completed",
+      "duration_ms": null
+    },
+    {
+      "stage": "test-engine",
+      "started_at": "2026-04-15T14:50:26.000Z",
+      "completed_at": "2026-04-15T14:51:11.000Z",
+      "status": "completed",
+      "duration_ms": 44402
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-15T14:52:10.000Z",
+      "completed_at": "2026-04-15T14:52:20.000Z",
+      "status": "completed",
+      "duration_ms": null
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-VALIDATION2-001",
+    "ticket_key": "NAA-4188",
+    "summary": "[## 30309 ##] Modificar fecha video",
+    "issue_type": "Story  - Front",
+    "status": "Revisión",
+    "priority": "High",
+    "component_jira": "Videos",
+    "classification": {
+      "domain": "video",
+      "module": "video",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'Videos' tiene exact match en component-to-module.json → 'video'. Módulo 'video' existe en test-map.json con sessions validadas.",
+      "criteria_source": "inferred",
+      "human_escalation": false,
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "El campo de fecha y hora de creación en el editor de video es editable y persiste el valor modificado",
+          "automatable": true,
+          "criterion_type": "field_validation",
+          "specific_action": "Abrir editor de video existente, modificar el campo de fecha/hora",
+          "specific_assertion": "El campo de fecha persiste el valor modificado tras guardar el video",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Las sessions NewYoutubeVideo y NewEmbeddedVideo cubren creación pero no modificación de fecha específica"
+        },
+        {
+          "hint_id": 2,
+          "description": "El editor de video cuenta con opción de programar publicación (similar a notas)",
+          "automatable": true,
+          "criterion_type": "functional_flow",
+          "specific_action": "Abrir editor de nuevo video y verificar existencia de opción de programación",
+          "specific_assertion": "Existe control de scheduling visible en el editor de video",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Las sessions actuales no validan el campo de scheduling en videos"
+        },
+        {
+          "hint_id": 3,
+          "description": "El listado de autores es visible y configurable en el editor de video",
+          "automatable": true,
+          "criterion_type": "visual_check",
+          "specific_action": "Abrir editor de video y verificar la sección de autores",
+          "specific_assertion": "El campo/selector de autores es visible en el panel del editor",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Las sessions actuales no tienen assertion específica sobre visibilidad del campo autores"
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 3,
+      "automatable_count": 3,
+      "non_automatable_count": 0,
+      "all_automatable": true,
+      "partial_automatable": false,
+      "human_escalation_needed": false,
+      "escalation_reasons": [],
+      "action": "full_run"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "Es posible modificar la fecha y hora de creación de un video desde el editor",
+        "test_approach": {
+          "precondition": "Existe al menos un video publicado en el CMS",
+          "action": "Editar el video y modificar el campo de fecha/hora de creación",
+          "assertion": "El campo de fecha persiste el valor ingresado tras guardar el video"
+        },
+        "criterion_type": "field_validation",
+        "automatable": true,
+        "reason_if_not": null
+      },
+      {
+        "criterion_id": 2,
+        "description": "Los videos pueden programarse para publicación futura (como las notas)",
+        "test_approach": {
+          "precondition": "Usuario con permisos de editor/admin en el CMS",
+          "action": "Abrir editor de nuevo video y verificar existencia de opción de programación",
+          "assertion": "Existe control de scheduling visible en el editor de video"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": true,
+        "reason_if_not": null
+      },
+      {
+        "criterion_id": 3,
+        "description": "El listado de autores es visible y configurable en el editor de video",
+        "test_approach": {
+          "precondition": "Usuario con permisos de editor/admin en el CMS",
+          "action": "Abrir editor de video y verificar la sección de autores",
+          "assertion": "El campo/selector de autores es visible en el panel del editor"
+        },
+        "criterion_type": "visual_check",
+        "automatable": true,
+        "reason_if_not": null
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [
+      {
+        "key": "NAA-4037",
+        "summary": "ADMIN - Ecuavisa - pedido de fecha modificación en video",
+        "status": "In Progress",
+        "link_type": "is blocked by"
+      }
+    ],
+    "jira_metadata": {
+      "jiraSummary": "[## 30309 ##] Modificar fecha video",
+      "ticketType": "Story  - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": "Videos",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": "NAA-1751",
+      "linkedIssues": ["NAA-4037"],
+      "fixVersion": "8.6.16.2.2",
+      "priority": "High",
+      "jiraLabels": [],
+      "jiraAttachments": ["unnamed.png", "unnamed (1).png"]
+    }
+  },
+  "test_engine_output": {
+    "pipeline_id": "pipe-VALIDATION2-001",
+    "ticket_key": "NAA-4188",
+    "execution_id": "exec-20260415-001",
+    "executed_at": "2026-04-15T14:50:26.000Z",
+    "mode_used": "discover_and_run",
+    "environment": "master",
+    "grid": true,
+    "headless": true,
+    "sessions_found": true,
+    "result": "failed",
+    "total_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "results": [
+      {
+        "session_file": "sessions/video/NewYoutubeVideo.test.ts",
+        "session_name": "NewYoutubeVideo",
+        "status": "fail",
+        "duration_ms": 40826,
+        "failure_messages": [
+          "Error: El menú se abrió, pero no se encontraron labels con el selector: By(css selector, div[data-testid=\"dropdown-item\"] label)\n    at UploadVideoBtn.matchVideoType (/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/src/pages/videos_page/UploadVideoBtn.ts:116:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at UploadVideoBtn.selectVideoType (/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/src/pages/videos_page/UploadVideoBtn.ts:59:30)\n    at /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/src/pages/videos_page/MainVideoPage.ts:65:9"
+        ],
+        "mapped_to_hint": null
+      }
+    ],
+    "failure_summary": {
+      "test_name": "Sesión: Creación de Youtube, edicion y publicacion",
+      "error_message": "El menú se abrió, pero no se encontraron labels con el selector: By(css selector, div[data-testid=\"dropdown-item\"] label)",
+      "source": "UploadVideoBtn.matchVideoType (src/pages/videos_page/UploadVideoBtn.ts:116:13)",
+      "stack": "Error: El menú se abrió, pero no se encontraron labels con el selector: By(css selector, div[data-testid=\"dropdown-item\"] label)\n    at UploadVideoBtn.matchVideoType (src/pages/videos_page/UploadVideoBtn.ts:116:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at UploadVideoBtn.selectVideoType (src/pages/videos_page/UploadVideoBtn.ts:59:30)\n    at /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/src/pages/videos_page/MainVideoPage.ts:65:9"
+    },
+    "console_errors_detected": [],
+    "jest_output_path": "pipeline-logs/results-NAA-4188-exec-20260415-001.json"
+  },
+  "test_reporter_output": {
+    "executed_at": "2026-04-15T14:52:16.000Z",
+    "operation": "validate_master",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      {
+        "action": "comment_posted",
+        "ticket": "NAA-4188",
+        "comment_id": "39950"
+      },
+      {
+        "action": "transition_applied",
+        "ticket": "NAA-4188",
+        "from_status": "Revisión",
+        "to_status": "FEEDBACK",
+        "transition_id": "2"
+      }
+    ],
+    "errors": [],
+    "comment_id": "39950",
+    "transition_applied": "FEEDBACK"
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-VALIDATION2-001",
+    "ticket_key": "NAA-4188",
+    "outcome": "completed_with_failures",
+    "executed_at": "2026-04-15T14:52:20.000Z",
+    "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

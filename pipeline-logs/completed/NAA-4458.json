@@ -1,0 +1,64 @@
+{
+  "pipeline_id": "pipe-20260415-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "completed",
+  "stage_status": "done",
+  "idempotency": { "last_comment_id": "39713", "already_reported": true },
+  "step_log": [
+    { "step": "ORC-1:init", "status": "completed", "ts": "2026-04-15T00:00:01.000Z", "note": "pipeline_id=pipe-20260415-001, no duplicate context found" },
+    { "step": "ORC-2:ticket-analyst", "status": "completed", "ts": "2026-04-15T04:33:00.000Z", "note": "Ticket leído. component_jira=['IA','NotaLista'] → módulo ai-post vía component-to-module.json" },
+    { "step": "ORC-3:test-engine:grid-check", "status": "completed", "ts": "2026-04-15T04:33:10.000Z", "note": "Grid ready en localhost:4444" },
+    { "step": "ORC-3:test-engine:run", "status": "completed", "ts": "2026-04-15T04:34:00.000Z", "note": "NewAIPost ejecutado. Resultado: FAILED. 1 test, 0 passed, 1 failed. 27.8s" },
+    { "step": "ORC-5:test-reporter", "status": "completed", "ts": "2026-04-15T04:34:24.000Z", "note": "Comentario ADF posteado en NAA-4458. comment_id=39713" },
+    { "step": "ORC-6:finalize", "status": "completed", "ts": "2026-04-15T04:34:30.000Z", "note": "Context movido a completed/" }
+  ],
+  "ticket_analyst_output": {
+    "ticket_key": "NAA-4458",
+    "summary": "NOTAS IA - Renderizado de Markdown en preview del modal de creación de nota",
+    "issuetype": "Subtarea",
+    "status": "Revisión",
+    "priority": "High",
+    "assignee": "Paula Valentina Rodriguez Roberto",
+    "component_jira": ["IA", "NotaLista"],
+    "module": "ai-post",
+    "classification_method": "component-to-module.json (exact match: 'IA' → 'ai-post')",
+    "testable": true,
+    "acceptance_criteria": [
+      "Actualizar el preview para que soporte caracteres de HTML",
+      "Asegurarse de que el contenido no se rompa al utilizar HTML en notas comunes y en notas listas"
+    ],
+    "testability_summary": "Ticket testable. Existe session NewAIPost.test.ts que cubre el flujo de creación de nota IA en master. El último comentario del dev (Paula, 2026-04-14) indica que los cambios están en master con commit 28af21ccd84f73cda94f3b9b636d68c8267f6a69."
+  },
+  "test_engine_output": {
+    "grid_available": true,
+    "sessions_found": true,
+    "session": "NewAIPost",
+    "session_path": "sessions/post/NewAIPost.test.ts",
+    "execution_id": "exec-001",
+    "result": "FAILED",
+    "num_total": 1,
+    "num_passed": 0,
+    "num_failed": 1,
+    "duration_s": 27.8,
+    "failure_summary": "El menú se abrió, pero no se encontraron labels con el selector: By(css selector, div[data-testid=\"dropdown-item\"] label)",
+    "failure_origin": "NewNoteBtn.ts:103 → selectNoteType → MainPostPage.ts:135",
+    "results_file": "pipeline-logs/results-NAA-4458-exec-001.json"
+  },
+  "test_reporter_output": {
+    "comment_id": "39713",
+    "posted_at": "2026-04-15T04:34:24.000Z",
+    "outcome": "reported_failure",
+    "prefix_present": true,
+    "transition_applied": false
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260415-001",
+    "ticket_key": "NAA-4458",
+    "outcome": "success",
+    "executed_at": "2026-04-15T04:34:30.000Z",
+    "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
+    "total_duration_note": "Ver step_log"
+  }
+}

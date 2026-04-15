@@ -50,5 +50,18 @@
     },
     "console_errors_detected": []
   },
-  "test_reporter_output": null
+  "test_reporter_output": {
+    "executed_at": "2026-04-15T04:30:15.356Z",
+    "operation": "validate_master",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["comment_posted"],
+    "errors": [],
+    "comment_id": "39712",
+    "transition_applied": null
+  },
+  "idempotency": {
+    "already_reported": true,
+    "last_comment_id": "39712"
+  }
 }

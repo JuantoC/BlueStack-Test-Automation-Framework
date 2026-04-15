@@ -1,0 +1,166 @@
+{
+  "pipeline_id": "pipe-VALIDATION2-003",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "done",
+  "stage_status": "escalated",
+  "outcome": "human_escalation",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-15T00:00:10.000Z",
+      "completed_at": "2026-04-15T00:00:30.000Z",
+      "status": "completed",
+      "duration_ms": null
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-VALIDATION2-003",
+    "ticket_key": "NAA-3228",
+    "summary": "Refactor del ws de review teniendo en cuenta excepciones + frecuencia",
+    "issue_type": "Story - Back",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": ["Productividad"],
+    "classification": {
+      "domain": "unclassified",
+      "module": null,
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "low",
+      "confidence_reason": "component_jira 'Productividad' no existe en component-to-module.json. Fuzzy match en test-map.json retornó 0 coincidencias de keywords. sessions_found: false. Además criteria_source: 'none' fuerza confidence: 'low' independientemente del module match.",
+      "criteria_source": "none",
+      "human_escalation": true,
+      "sessions_found": false,
+      "test_hints": []
+    },
+    "testability_summary": {
+      "total_criteria": 0,
+      "automatable_count": 0,
+      "non_automatable_count": 0,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "description es null — no hay campo de descripción en el ticket",
+        "No hay 'Criterios de aceptación' ni 'Casos de prueba' en ningún campo",
+        "El único comentario (Verónica Tarletta, 7/3) es un status update de validación manual via Postman — no contiene criterios QA accionables para Selenium",
+        "customfield_10069 (Cambios VFS/Deploy) describe la implementación técnica del WS backend — no es un criterio de prueba UI",
+        "El ticket es un Story-Back de refactor de webservice sin superficie de UI identificada",
+        "component_jira 'Productividad' no existe en component-to-module.json → sessions_found: false",
+        "Fuzzy match 0 keywords en test-map.json → no hay sesión candidata"
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [],
+    "escalation_report": {
+      "summary": "NAA-3228 es un ticket de refactor de webservice backend (Story-Back). La descripción es null. El único comentario confirma validación interna via Postman sin criterios QA para Selenium. El componente 'Productividad' no tiene cobertura de sesiones automatizadas. No fue posible extraer ni inferir criterios automatizables con Selenium WebDriver.",
+      "criteria_attempted": [
+        {
+          "source": "description",
+          "content": "null — campo completamente vacío",
+          "reason_discarded": "No existe descripción. No hay ningún texto, imagen inline ni contenido estructurado en este campo."
+        },
+        {
+          "source": "customfield_10062 (Executive Summary)",
+          "content": "null",
+          "reason_discarded": "Campo vacío. No aporta contexto de criterios."
+        },
+        {
+          "source": "customfield_10069 (Cambios VFS/Deploy - grupo B)",
+          "content": "Descripción técnica del nuevo endpoint /system/modules/com.tfsla.diario.webservices/productivityPlan/reviewr/detail. Variables: validCount (no cumple cantidad), validContent (no cumple contenido), validFrecuency (no cumple frecuencia).",
+          "reason_discarded": "Describe implementación técnica de un WS backend. No hay superficie de UI asociada. No es testeable con Selenium WebDriver. Requiere llamada directa al endpoint via herramienta de API (Postman, curl)."
+        },
+        {
+          "source": "comment[0] — Verónica Tarletta, 2025-03-07",
+          "content": "status 7/3: Quedaron todos los casos validados desde el postman. [imagen adjunta con resultados Postman]",
+          "reason_discarded": "Es un status update de validación manual ya realizada via Postman. No define criterios QA para Selenium. La validación ya fue realizada por el dev/QA manualmente — el comentario documenta el resultado, no los criterios. Además es validación de API, no de UI."
+        },
+        {
+          "source": "summary (fuzzy keyword match)",
+          "content": "Refactor del ws de review teniendo en cuenta excepciones + frecuencia",
+          "reason_discarded": "Palabras clave: 'Refactor', 'ws', 'review', 'excepciones', 'frecuencia'. Ninguna coincide con keywords[] de ningún módulo en test-map.json (post, ai-post, video, images, auth, cross, stress). 0 matches."
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "El endpoint /productivityPlan/reviewr/detail retorna validCount=false cuando el usuario no cumple con la cantidad requerida de reviews",
+          "precondition": "Tener acceso a Postman o herramienta de API. Tener credenciales de un usuario que NO cumple con la cantidad de reviews.",
+          "steps": [
+            "Autenticarse en el CMS o via token API",
+            "Llamar al endpoint /system/modules/com.tfsla.diario.webservices/productivityPlan/reviewr/detail con el usuario que no cumple cantidad",
+            "Verificar que la respuesta incluye validCount: false",
+            "Verificar que validContent y validFrecuency tienen el valor correspondiente al estado real del usuario"
+          ],
+          "assertion": "La respuesta JSON del WS contiene validCount: false cuando el usuario no cumple el mínimo de reviews. Cuando SÍ cumple, el campo está ausente o en true.",
+          "reason_not_automatable": "Test de API/WS backend — requiere Postman/RestAssured/curl, no Selenium WebDriver. No hay UI que exponga este dato de forma testeable en el CMS."
+        },
+        {
+          "criterion": "El endpoint retorna validContent=false cuando el usuario no cumple con el contenido requerido",
+          "precondition": "Usuario con reviews de contenido insuficiente (según definición de negocio).",
+          "steps": [
+            "Autenticarse",
+            "Llamar al endpoint con usuario que no cumple contenido",
+            "Verificar validContent: false en la respuesta"
+          ],
+          "assertion": "validContent: false presente en la respuesta cuando el contenido no es suficiente.",
+          "reason_not_automatable": "Mismo motivo: API backend, sin superficie UI en el CMS para Selenium."
+        },
+        {
+          "criterion": "El endpoint retorna validFrecuency=false cuando el usuario no cumple con la frecuencia de reviews",
+          "precondition": "Usuario con frecuencia de reviews insuficiente.",
+          "steps": [
+            "Autenticarse",
+            "Llamar al endpoint con usuario que no cumple frecuencia",
+            "Verificar validFrecuency: false en la respuesta"
+          ],
+          "assertion": "validFrecuency: false presente en la respuesta.",
+          "reason_not_automatable": "API backend. Sin UI expuesta en CMS para automatización Selenium."
+        },
+        {
+          "criterion": "Compatibilidad del nuevo endpoint con el llamado igual al anterior (backward compatibility)",
+          "precondition": "Tener documentación del endpoint anterior para comparar firma y respuesta.",
+          "steps": [
+            "Llamar al nuevo endpoint con los mismos parámetros que el anterior",
+            "Comparar estructura de respuesta con el contrato del WS anterior",
+            "Verificar que los consumidores existentes del WS siguen funcionando"
+          ],
+          "assertion": "El nuevo endpoint acepta los mismos parámetros y retorna una respuesta compatible con el contrato anterior.",
+          "reason_not_automatable": "Requiere conocimiento del contrato del WS anterior y herramienta de API. Fuera del scope de Selenium UI."
+        }
+      ]
+    },
+    "master_validation": null,
+    "linked_tickets": [],
+    "jira_metadata": {
+      "jiraSummary": "Refactor del ws de review teniendo en cuenta excepciones + frecuencia",
+      "ticketType": "Story - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": ["Productividad"],
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": "8.8.0",
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": ["image-20250307-144638.png"]
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": null,
+  "milestone_notes": {
+    "pipeline_id": "pipe-VALIDATION2-003",
+    "ticket_key": "NAA-3228",
+    "outcome": "escalated",
+    "executed_at": "2026-04-15T00:00:30.000Z",
+    "stages_completed": ["ticket-analyst"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

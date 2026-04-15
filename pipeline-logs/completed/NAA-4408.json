@@ -1,0 +1,188 @@
+{
+  "pipeline_id": "pipe-VALIDATION2-004",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "done",
+  "stage_status": "escalated",
+  "outcome": "no_sessions",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-15T00:01:00.000Z",
+      "completed_at": "2026-04-15T00:02:00.000Z",
+      "status": "completed",
+      "duration_ms": null
+    },
+    {
+      "stage": "test-engine",
+      "status": "skipped",
+      "notes": "sessions_found: false — testable: false — automatable_count: 0 — test-generator pendiente (Fase 5)"
+    },
+    {
+      "stage": "test-reporter",
+      "status": "skipped",
+      "notes": "sessions_found: false — no hay resultados que reportar en Jira"
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-VALIDATION2-004",
+    "ticket_key": "NAA-4408",
+    "summary": "Quitar licencia y servidor de estadisticas",
+    "issue_type": "Task - Back",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": null,
+    "classification": {
+      "domain": null,
+      "module": null,
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": null,
+      "confidence_reason": "customfield_10061 es null. Paso 1: null no existe en component-to-module.json — no hay match de componente. Paso 2: ninguna key del test-map aparece en el summary. Paso 3: fuzzy match de palabras del summary ('quitar', 'licencia', 'servidor', 'estadisticas') contra todos los keywords[] de todos los módulos — 0 matches. Resultado: sessions_found=false por regla TA-6 Paso 6.",
+      "criteria_source": "inferred",
+      "human_escalation": true,
+      "sessions_found": false,
+      "escalation_reason": "0 matches en fuzzy (Paso 3 de TA-6). Ninguna palabra del summary ('licencia', 'servidor', 'estadisticas') matchea keywords de ningún módulo del test-map. El ticket es una tarea de cleanup de backend (XML, JARs, VFS, SQL) sin flujo de UI en el CMS de contenidos.",
+      "test_hints": [],
+      "escalation_report": {
+        "summary": "El ticket NAA-4408 describe la eliminación del módulo de rankings/estadísticas y el control de licencias del servidor OpenCMS. Es una tarea de configuración de servidor backend sin cobertura posible con las sessions Selenium existentes (post, video, images, auth).",
+        "criteria_attempted": [
+          {
+            "criterion": "Verificar que el módulo com.tfsla.diario.rankings ya no aparece en el panel de administración de OpenCMS",
+            "reason_not_sufficient": "El framework de test automation cubre el CMS de contenidos (creación de notas, videos, imágenes). No tiene Page Objects para el panel de administración de OpenCMS ni para verificar módulos instalados. No es automatizable con las sessions existentes."
+          },
+          {
+            "criterion": "Verificar que la ruta /system/workplace/admin/cmsMedios/ ya no es accesible y que los archivos de licencia han sido eliminados",
+            "reason_not_sufficient": "Requiere acceso de navegación al servidor de archivos OpenCMS (VFS) o al panel admin, no cubierto por el framework de automatización."
+          }
+        ],
+        "manual_test_guide": [
+          {
+            "criterion": "Módulo de rankings eliminado del servidor",
+            "precondition": "Acceso SSH al servidor o acceso al panel de administración de OpenCMS como administrador",
+            "steps": [
+              "1. Navegar al panel admin de OpenCMS (/system/workplace/)",
+              "2. Verificar que 'com.tfsla.diario.rankings' ya no aparece en la lista de módulos instalados",
+              "3. Confirmar que no existen los archivos /system/modules/com.tfsla.diario.rankings/ ni /system/modules/com.tfsla.diario.UserRankings/",
+              "4. Verificar en opencms-modules.xml que no existe el tag <name>com.tfsla.diario.rankings</name>"
+            ],
+            "assertion": "El módulo no aparece en la lista de módulos instalados y los archivos han sido eliminados",
+            "reason_not_automatable": "Requiere acceso al panel de administración del servidor OpenCMS, no a la aplicación CMS de contenidos cubierta por Selenium"
+          },
+          {
+            "criterion": "Control de licencia eliminado",
+            "precondition": "Acceso al servidor o URL de la ruta de licencias",
+            "steps": [
+              "1. Intentar acceder a /system/workplace/admin/cmsMedios/",
+              "2. Verificar que retorna 404 o acceso denegado",
+              "3. Verificar que los archivos config/cmsMediosLicense.xml y config/cmsMediosLicense.dtd han sido eliminados"
+            ],
+            "assertion": "La ruta retorna error (no accesible) y los archivos de licencia no existen en el servidor",
+            "reason_not_automatable": "Requiere navegación a URL de servidor de aplicaciones Java (OpenCMS admin), no al CMS de contenidos"
+          },
+          {
+            "criterion": "Tabla SQL TFS_STATUS eliminada",
+            "precondition": "Acceso a la base de datos de OpenCMS",
+            "steps": [
+              "1. Conectar a la base de datos de OpenCMS",
+              "2. Ejecutar: SHOW TABLES LIKE 'TFS_STATUS';",
+              "3. Verificar que el resultado está vacío"
+            ],
+            "assertion": "La tabla TFS_STATUS no existe en la base de datos",
+            "reason_not_automatable": "Requiere acceso directo a base de datos, fuera del alcance del framework Selenium"
+          },
+          {
+            "criterion": "JAR tfs_statisticsClient.jar eliminado",
+            "precondition": "Acceso al servidor de aplicaciones",
+            "steps": [
+              "1. Verificar en el directorio de JARs del servidor que tfs_statisticsClient.jar no existe"
+            ],
+            "assertion": "El archivo JAR no existe en el servidor",
+            "reason_not_automatable": "Requiere acceso al sistema de archivos del servidor"
+          }
+        ]
+      }
+    },
+    "testability_summary": {
+      "total_criteria": 2,
+      "automatable_count": 0,
+      "non_automatable_count": 2,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "Criterios requieren acceso al panel admin de OpenCMS (no cubierto por el framework Selenium)",
+        "Criterios requieren verificación de sistema de archivos del servidor",
+        "Criterios requieren verificación de base de datos directa",
+        "0 keyword matches en fuzzy match TA-6 — ninguna session del test-map corresponde al dominio de este ticket"
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "El módulo com.tfsla.diario.rankings ha sido eliminado del servidor OpenCMS (opencms-modules.xml, archivos VFS, JARs)",
+        "test_approach": {
+          "precondition": "Acceso al panel admin de OpenCMS o al servidor",
+          "action": "Verificar ausencia del módulo en la lista de módulos instalados y en el sistema de archivos",
+          "assertion": "Módulo no aparece en la lista de módulos instalados de OpenCMS"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Requiere acceso al panel de administración del servidor OpenCMS, fuera del alcance del framework Selenium que cubre el CMS de contenidos"
+      },
+      {
+        "criterion_id": 2,
+        "description": "El control de licencias y el servidor de estadísticas han sido removidos (archivos config, JARs, tabla TFS_STATUS)",
+        "test_approach": {
+          "precondition": "Acceso al servidor y base de datos",
+          "action": "Verificar eliminación de archivos de licencia, tabla SQL TFS_STATUS y JAR tfs_statisticsClient.jar",
+          "assertion": "Archivos de licencia, tabla SQL y JAR no existen en el servidor"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Requiere verificación directa de sistema de archivos del servidor y base de datos, fuera del alcance del framework Selenium"
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "jira_metadata": {
+      "jiraSummary": "Quitar licencia y servidor de estadisticas",
+      "ticketType": "Task - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Victor Podberezski",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": "8.6.16.2.2",
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "deploy_changes": {
+        "sql": "DROP TABLE TFS_STATUS;",
+        "librerias": "Eliminar tfs_statisticsClient.jar; modificar tfs-extensions.jar, tfs-newstags.jar, tfs-diario.jar, tfs-webservices.jar",
+        "tld": "Eliminar tfsStatistics.tld",
+        "vfs": "Borrar /system/workplace/admin/cmsMedios/ y /system/modules/com.tfsla.diario.ediciones/templates/licenseStatus.jsp",
+        "configuracion": "Quitar líneas de opencms.xml, opencms-modules.xml, opencms-vfs.xml; eliminar config/cmsMediosLicense.xml, cmsMediosLicense.dtd, clases rankUsers, rankViews, statistics",
+        "comentarios": "Se puede eliminar la base de datos y el servidor del servidor de estadísticas. commit: 241b93fd6c8a1a6d2ff0a70c9536058de4d0e169"
+      }
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": null,
+  "milestone_notes": {
+    "pipeline_id": "pipe-VALIDATION2-004",
+    "ticket_key": "NAA-4408",
+    "outcome": "no_sessions",
+    "executed_at": "2026-04-15T00:03:00.000Z",
+    "stages_completed": ["ticket-analyst"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

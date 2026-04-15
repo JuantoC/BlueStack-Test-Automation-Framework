@@ -4,7 +4,6 @@
   "stage": "test_execution",
   "stage_status": "completed",
   "environment": "master",
-  "idempotency": { "already_reported": false, "last_comment_id": null },
   "step_log": [],
   "ticket_analyst_output": {
     "ticket_key": "NAA-4429",
@@ -45,5 +44,18 @@
     "failure_summary": null,
     "console_errors_detected": []
   },
-  "test_reporter_output": null
+  "test_reporter_output": {
+    "executed_at": "2026-04-15T04:30:13.693Z",
+    "operation": "validate_master",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["comment_posted"],
+    "errors": [],
+    "comment_id": "39711",
+    "transition_applied": null
+  },
+  "idempotency": {
+    "already_reported": true,
+    "last_comment_id": "39711"
+  }
 }

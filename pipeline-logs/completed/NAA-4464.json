@@ -1,0 +1,237 @@
+{
+  "pipeline_id": "pipe-VALIDATION2-002",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "done",
+  "stage_status": "escalated",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-15T00:01:00.000Z",
+      "completed_at": "2026-04-15T00:02:30.000Z",
+      "status": "completed",
+      "duration_ms": 90000
+    },
+    {
+      "stage": "test-engine",
+      "status": "skipped",
+      "notes": "sessions_found: false — todos los criterios son non-automatable (backend Java/Lucene/TLD). No hay sessions aplicables."
+    },
+    {
+      "stage": "test-reporter",
+      "status": "skipped",
+      "notes": "sessions_found: false — no hay resultados de test para reportar"
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-VALIDATION2-002",
+    "ticket_key": "NAA-4464",
+    "summary": "Modificaciones de News-Tags - ultimaModificacion en Videos",
+    "issue_type": "Task - Back",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": null,
+    "classification": {
+      "domain": "video",
+      "module": "video",
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "low",
+      "confidence_reason": "customfield_10061 es null. Fuzzy match: 1 sola keyword ('Videos' del summary → módulo 'video'). Confianza insuficiente. Además, todos los criterios extraídos son no-automatizables por Selenium (cambios Java/Lucene/TLD de backend).",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "escalation_reason": "Clasificación de bajo confidence — 1 sola keyword. Además: todos los criterios de aceptación son cambios internos de backend (Java, Lucene, TLD) no observables en el DOM mediante Selenium.",
+      "test_hints": []
+    },
+    "testability_summary": {
+      "total_criteria": 5,
+      "automatable_count": 0,
+      "non_automatable_count": 5,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "Criterio 1: re-indexación Lucene en servidor — no observable en DOM",
+        "Criterio 2: comportamiento de sort en motor Lucene — acceso a índices interno, no UI",
+        "Criterio 3: campo en modelo Java TfsVideo — clase interna, sin reflejo visible en DOM CMS",
+        "Criterio 4: tag JSP TfsVideoUserModificationDateTag — validación requiere URL de prueba en servidor con contenido real, no flujo CMS automatizable",
+        "Criterio 5: registro en tfsNewsTags.tld — no observable en DOM"
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "opencms-search.xml — Agregar campo ultimaModificacion en índices VIDEOS_ONLINE y VIDEOS_OFFLINE como campo numérico ordenable. Requiere re-indexación completa post-deploy.",
+        "test_approach": {
+          "precondition": "Deploy realizado sobre Master con el opencms-search.xml actualizado",
+          "action": "Verificar re-indexación completa de índices *_VIDEOS_ONLINE y *_VIDEOS_OFFLINE",
+          "assertion": "El campo ultimaModificacion aparece correctamente en los documentos indexados (verificación vía herramienta de administración OpenCms o endpoint de búsqueda)"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Requiere acceso al servidor de indexación Lucene/OpenCms, no observable via Selenium en el DOM del CMS"
+      },
+      {
+        "criterion_id": 2,
+        "description": "LuceneVideoCollector.java — ORDER_BY_USERMODIFICATIONDATE usa el campo ultimaModificacion del índice (TYPE_LONG) en lugar de FIELD_DATE_LASTMODIFIED (TYPE_STRING)",
+        "test_approach": {
+          "precondition": "Videos con distintas fechas ultimaModificacion indexados",
+          "action": "Consultar endpoint de búsqueda de videos ordenados por fecha de modificación de usuario",
+          "assertion": "El orden reflejado corresponde al campo ultimaModificacion y no a lastmodifieddate"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "El ordenamiento ocurre en el motor Lucene del servidor; Selenium no tiene acceso al índice ni a la API interna de búsqueda"
+      },
+      {
+        "criterion_id": 3,
+        "description": "TfsVideo.java — Campo usermodificationdate con getter y fallback a lastmodifieddate en constructor",
+        "test_approach": {
+          "precondition": "Video con propiedad ultimaModificacion seteada en VFS",
+          "action": "Acceder al video vía tag JSP y verificar que usermodificationdate devuelve el valor correcto; probar fallback con video sin la propiedad",
+          "assertion": "El campo devuelve ultimaModificacion si existe, o lastmodifieddate como fallback"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Clase Java interna del modelo de dominio; no hay elemento DOM en el CMS que exponga directamente este campo para assertions Selenium"
+      },
+      {
+        "criterion_id": 4,
+        "description": "Nueva clase TfsVideoUserModificationDateTag.java — Tag <nt:video-user-modification-date/> con atributos format y type='descriptive', fallback a lastmodifieddate",
+        "test_approach": {
+          "precondition": "Archivo TLD actualizado en servidor, video con propiedad ultimaModificacion seteada",
+          "action": "Abrir URL de prueba https://dev.cms-medios.com/ISSUES/videos/newstagsVideos.jsp",
+          "assertion": "El tag renderiza la fecha correcta en los formatos esperados; el fallback funciona con video sin la propiedad"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Requiere una URL de prueba específica en el servidor (provista por dev). No es un flujo del CMS automatizable con Selenium en el framework actual."
+      },
+      {
+        "criterion_id": 5,
+        "description": "Registro del tag video-user-modification-date en tfsNewsTags.tld apuntando a TfsVideoUserModificationDateTag con atributos format y type",
+        "test_approach": {
+          "precondition": "Archivo TLD desplegado en servidor Tomcat",
+          "action": "Verificar que el tag library descriptor incluye la declaración correcta del tag",
+          "assertion": "El TLD contiene la entrada del tag con nombre, clase y atributos correctos"
+        },
+        "criterion_type": "functional_flow",
+        "automatable": false,
+        "reason_if_not": "Verificación de archivo XML de configuración del servidor Tomcat — no observable en el DOM del CMS via Selenium"
+      }
+    ],
+    "escalation_report": {
+      "summary": "NAA-4464 es un ticket de backend puro (Task - Back). Los 5 criterios de aceptación corresponden a cambios en clases Java (TfsVideo, LuceneVideoCollector, TfsVideoUserModificationDateTag), configuración de índices Lucene (opencms-search.xml) y descriptores de tag library (tfsNewsTags.tld). Ninguno es observable en el DOM del CMS mediante Selenium. La validación correcta requiere acceso al servidor de búsqueda, a la URL de prueba provista por la dev (https://dev.cms-medios.com/ISSUES/videos/newstagsVideos.jsp) y verificación del comportamiento de re-indexación post-deploy.",
+      "criteria_attempted": [
+        {
+          "criterion_id": 1,
+          "description": "opencms-search.xml — campo ultimaModificacion en índices VIDEOS",
+          "reason_not_automatable": "Re-indexación de servidor Lucene — sin representación en DOM"
+        },
+        {
+          "criterion_id": 2,
+          "description": "LuceneVideoCollector.java — ORDER_BY_USERMODIFICATIONDATE",
+          "reason_not_automatable": "Comportamiento de sort en motor Lucene interno — no observable via Selenium"
+        },
+        {
+          "criterion_id": 3,
+          "description": "TfsVideo.java — campo usermodificationdate con fallback",
+          "reason_not_automatable": "Clase de modelo Java interno — no hay elemento DOM que exponga el campo"
+        },
+        {
+          "criterion_id": 4,
+          "description": "TfsVideoUserModificationDateTag.java — tag <nt:video-user-modification-date/>",
+          "reason_not_automatable": "Requiere URL de prueba en servidor externo (dev.cms-medios.com)"
+        },
+        {
+          "criterion_id": 5,
+          "description": "tfsNewsTags.tld — registro del nuevo tag",
+          "reason_not_automatable": "Verificación de archivo de configuración del servidor Tomcat — sin observable en DOM"
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "Validar tag <nt:video-user-modification-date/> renderiza la fecha correcta",
+          "precondition": "Deploy realizado en master. Video de prueba con propiedad ultimaModificacion seteada en VFS.",
+          "steps": [
+            "Abrir URL: https://dev.cms-medios.com/ISSUES/videos/newstagsVideos.jsp",
+            "Verificar que la fecha de ultima modificación del usuario aparece correctamente formateada",
+            "Probar con video sin la propiedad ultimaModificacion — debe mostrar lastmodifieddate como fallback",
+            "Probar con atributo type='descriptive' — debe mostrar formato descriptivo"
+          ],
+          "assertion": "El tag renderiza la fecha de ultimaModificacion; el fallback funciona correctamente",
+          "reason_not_automatable": "URL de prueba específica en servidor externo al entorno CMS del framework"
+        },
+        {
+          "criterion": "Validar ordenamiento de videos por ultimaModificacion en búsqueda",
+          "precondition": "Re-indexación completa de *_VIDEOS_ONLINE y *_VIDEOS_OFFLINE post-deploy.",
+          "steps": [
+            "Acceder a la interfaz de administración de búsqueda de OpenCms",
+            "Realizar una búsqueda de videos ordenada por usermodificationdate",
+            "Verificar que el orden corresponde al campo ultimaModificacion y no a lastmodifieddate"
+          ],
+          "assertion": "Los videos aparecen ordenados por la fecha de modificación de usuario",
+          "reason_not_automatable": "Motor de búsqueda Lucene interno — sin endpoint en el CMS frontend del framework"
+        },
+        {
+          "criterion": "Validar campo ultimaModificacion presente en índice Lucene post-indexación",
+          "precondition": "Deploy + re-indexación completa realizada.",
+          "steps": [
+            "Acceder a la consola de administración de OpenCms",
+            "Navegar a Search Administration → índice *_VIDEOS_ONLINE",
+            "Verificar documento de un video — el campo ultimaModificacion debe estar presente como campo numérico Long"
+          ],
+          "assertion": "El campo ultimaModificacion aparece como campo numérico (Long) en el documento del índice",
+          "reason_not_automatable": "Requiere acceso a consola de administración de servidor"
+        }
+      ]
+    },
+    "master_validation": null,
+    "linked_tickets": [
+      { "key": "NAA-4037", "summary": "ADMIN - Ecuavisa - pedido de fecha modificación en video", "link_type": "Relates", "status": "In Progress" }
+    ],
+    "jira_metadata": {
+      "jiraSummary": "Modificaciones de News-Tags - ultimaModificacion en Videos",
+      "ticketType": "Task - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": ["NAA-4037"],
+      "fixVersion": "8.6.16.2.2",
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "deploy_fields": {
+        "cambios_librerias": "6 archivos Java modificados + commit 0a0126e064141f9ad575e7f8c3b3676cb831c65e",
+        "cambios_configuracion": "opencms-search.xml — campo ultimaModificacion en fieldconfiguration VIDEOS",
+        "cambios_tld": "tfsNewsTags.tld — nuevo tag video-user-modification-date → TfsVideoUserModificationDateTag",
+        "cambios_vfs": null,
+        "cambios_sql": null,
+        "comentarios_deploy": null
+      },
+      "comments_count": 3,
+      "validation_url_from_dev": "https://dev.cms-medios.com/ISSUES/videos/newstagsVideos.jsp"
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": null,
+  "milestone_notes": {
+    "pipeline_id": "pipe-VALIDATION2-002",
+    "ticket_key": "NAA-4464",
+    "outcome": "escalated",
+    "executed_at": "2026-04-15T00:03:00.000Z",
+    "stages_completed": ["ticket-analyst"],
+    "stages_skipped": ["test-engine", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage",
+    "escalation_reason": "Ticket de backend puro: 5/5 criterios non-automatable (Java/Lucene/TLD). confidence:low por 1 sola keyword fuzzy match. sessions_found: false."
+  }
+}

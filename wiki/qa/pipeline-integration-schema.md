@@ -1,6 +1,6 @@
 ---
 source: .claude/skills/jira-reader/references/pipeline-schema.md + .claude/skills/jira-writer/references/pipeline-schema.md
-last-updated: 2026-04-14
+last-updated: 2026-04-15
 ---
 
 # Pipeline Integration Schema — Contrato completo
@@ -26,7 +26,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_agent": "selenium-orchestrator",
   "operation": "extract_criteria",
   "ticket_key": "NAA-XXXX"
@@ -48,7 +48,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 **OP-6 / extract_criteria**
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_skill": "jira-reader",
   "operation": "extract_criteria",
   "timestamp": "2026-04-13T10:30:00Z",
@@ -75,7 +75,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 **OP-3 / extract_test_cases**
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_skill": "jira-reader",
   "operation": "extract_test_cases",
   "timestamp": "2026-04-13T10:30:00Z",
@@ -96,7 +96,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 **OP-1 / read_ticket**
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_skill": "jira-reader",
   "operation": "read_ticket",
   "timestamp": "2026-04-13T10:30:00Z",
@@ -124,7 +124,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_agent": "selenium-runner",
   "operation": "validate_master",
   "ticket_key": "NAA-XXXX",
@@ -210,7 +210,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "skill": "jira-writer",
   "status": "success",
   "operation": "validate_master",
@@ -234,7 +234,7 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 { "ticket_key": "NAA-4416", "action": "run_and_validate" }
 
 // Orquestador llama a jira-reader
-{ "schema_version": "2.0", "source_agent": "selenium-orchestrator", "operation": "extract_criteria", "ticket_key": "NAA-4416" }
+{ "schema_version": "3.0", "source_agent": "selenium-orchestrator", "operation": "extract_criteria", "ticket_key": "NAA-4416" }
 ```
 
 ### Etapa 2-3: Mapear criterios y ejecutar tests
@@ -245,7 +245,7 @@ El orquestador mapea cada criterio con el test en `/sessions` que lo cubre, ejec
 
 ```json
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "source_agent": "selenium-runner",
   "operation": "validate_master",
   "ticket_key": "NAA-4416",
@@ -272,3 +272,34 @@ El orquestador mapea cada criterio con el test en `/sessions` que lo cubre, ejec
 - El campo `log_excerpt` se incluye en la descripción de bugs bajo "Otra información"
 - Los stacktraces se truncan a las primeras 5-8 líneas para mantener el ticket legible
 - La MCP para Jira está configurada en `.mcp.json` del repositorio (`@sooperset/mcp-atlassian`)
+
+---
+
+## Idempotencia del Execution Context
+
+El Execution Context incluye el campo `idempotency` para evitar que el pipeline
+postee comentarios duplicados en Jira ante reinicios o errores parciales.
+
+### Estructura
+
+```json
+"idempotency": {
+  "already_reported": false,
+  "last_comment_id": null
+}
+```
+
+### Comportamiento
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `already_reported` | boolean | `true` si el comentario de validación ya fue posteado en Jira |
+| `last_comment_id` | string \| null | ID del comentario Jira posteado, o `null` si aún no se posteó |
+
+### Ciclo de vida
+
+- **ORC-1.3 (qa-orchestrator):** inicializa ambos campos en `false` / `null` al crear el Execution Context.
+- **TR-1 (test-reporter):** verifica `already_reported` antes de actuar. Si es `true` → `status: "skipped"` sin llamar a Jira.
+- **TR-6 (test-reporter):** tras postear exitosamente → `already_reported: true`, `last_comment_id: "<id>"`.
+
+> Fuente de verdad: `.claude/agents/qa-orchestrator.md` (ORC-1.3) y `.claude/agents/test-reporter.md` (TR-1, TR-6).

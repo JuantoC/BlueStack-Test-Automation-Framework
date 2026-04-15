@@ -45,6 +45,14 @@ Los campos "deploy", "cambios SQL" y "cambios VFS" existen en el proyecto NAA pe
 customfield_XXXXX IDs no estaban mapeados.
 
 [2026-04-15] fix | customfield IDs de campos deploy/SQL/VFS descubiertos y documentados
+
+[2026-04-15] gap | discovery semántico por criterio en TE-4 — deuda técnica
+TE-4 usa classification.module como proxy para elegir sesiones. Dos fallas conocidas:
+1. Tickets con el mismo componente pueden requerir sesiones distintas.
+2. Una sesión puede cubrir parcialmente los criterios — el pipeline la toma igual por módulo.
+Propuesta: matching semántico (acceptance_criteria vs description() de cada sesión) + campo
+"covers" en test-map.json. Postergado por decisión del equipo — aplicar solo a sesiones nuevas
+cuando se retome. Ver fix 4 de sesión de validación 2026-04-15.
 Discovery via GET /rest/api/3/field sobre la instancia NAA.
 Encontrados DOS grupos de campos: A (10036-10041, legacy) y B (10066-10071, NAA activo).
 Mapeo completo:
@@ -176,6 +184,24 @@ Correcciones aplicadas:
 
 Gap cerrado: docker-grid.md ya estaba referenciado en wiki/index.md (pendiente del log era falso positivo).
 Gap pendiente: customfield IDs — no tiene ticket Jira ni fecha asignada. Formalizado en backlog Fase 4.
+
+---
+
+[2026-04-15] update | Sesión de validación real — 5 fixes al pipeline QA aplicados
+Hallazgos documentados en wiki/qa/validation-session-2026-04-15.md.
+Fix 1 — component-to-module.json: 7 aliases nuevos (Liveblog/liveblog → post, NotaLista/notalista → post,
+  Acciones/acciones/estilo → null). Valores encontrados en tickets NAA reales.
+Fix 2 — ticket-analyst §TA-6 Paso 1: soporte para component_jira como array; null-ignorado; desempate
+  por especificidad (ai-post > post > video > images > auth); no ir a fuzzy si hay ≥1 match.
+Fix 3 — qa-orchestrator §ORC-2: confidence:low split en 2 sub-casos según sessions_found.
+  sessions_found:true → continuar pipeline, postear con ⚠️ warning, sin transición de estado.
+  sessions_found:false → escalar, outcome: "low_confidence".
+Fix 4 — jira-writer/references/field-map.md: nota explícita de formato correcto customfield_10061
+  = array de strings planos ["AI"], no [{value:"AI"}] que era rechazado por la API NAA.
+Fix 5 — wiki/qa/validation-session-2026-04-15.md: creada con tabla de tickets, aliases, desvíos y decisiones.
+
+[gap] pipeline: archivos binarios adjuntos (.webm, .mp4) en comentarios de dev —
+evaluar si el pipeline debería sugerir revisión manual antes de escalar criteria_source:none
 
 ---
 

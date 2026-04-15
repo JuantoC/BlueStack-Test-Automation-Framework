@@ -73,6 +73,59 @@ Cada pipeline run consume tokens de Claude Code. Para evitar truncaciones silenc
 2. test-engine: truncar el output de Jest a las primeras 100 líneas del stdout si el output es excesivo. El JSON de resultados (`--outputFile`) siempre está completo en disco.
 3. Si el pipeline run completo excede el límite: dividir en dos invocaciones serializadas: (ticket-analyst + test-engine) en una sesión, guardar resultados en disco, luego (test-reporter) en otra sesión cargando el output del disco.
 
+### 11.7 — Problema conocido: `components[]` vacío en tickets Jira (PENDIENTE)
+
+**Estado:** Identificado en audit 2026-04-15. Pendiente de evaluar solución.
+
+#### Descripción del problema
+
+El agente `ticket-analyst` usa el campo `customfield_10061` (componente Jira)
+como path primario de clasificación. Si el campo está vacío, cae al fuzzy keyword
+matching sobre el summary del ticket (Paso 3 del algoritmo de TA-6).
+
+Durante el audit del 2026-04-15 se detectó que **todos los tickets en estado
+"Revisión"** tenían `components: []` vacío. Esto implica que:
+
+- El path primario de clasificación (exact match por component_jira) no puede ejercerse.
+- El pipeline depende 100% del fuzzy keyword matching, que puede producir
+  confidence "medium" o "low" en lugar de "high".
+- Tickets sin keywords claros en el summary pueden quedar sin clasificar.
+
+#### Planilla de componentes para el equipo de desarrollo
+
+El equipo de desarrollo debe asignar el componente correcto en Jira al crear o
+mover un ticket a "Revisión". Los componentes válidos y sus módulos de automatización:
+
+| Componente Jira | Módulo QA | Sessions disponibles |
+|-----------------|-----------|----------------------|
+| AI / Ai / IA / ia | ai-post | NewAIPost |
+| Post / post / Editor / CKEditor | post | NewPost, NewListicle, NewLiveBlog, MassPublishNotes |
+| Video / Videos / video / videos | video | NewYoutubeVideo, NewEmbeddedVideo, MassPublishVideos |
+| Images / Imagenes / Imágenes | images | MassPublishImages |
+| Auth / auth / Login / login | auth | FailedLogin |
+| Tags / Planning / Planificación / Admin / Permisos | (sin cobertura aún) | — |
+
+**Proceso:** Al crear o mover un ticket a "Revisión", asignar el componente
+desde el campo "Component/s" en Jira. Sin componente → el pipeline usará
+keyword matching como fallback (menor confianza).
+
+#### Posibles soluciones a evaluar
+
+1. **Proceso manual + documentación** (solución actual): el equipo asigna el
+   componente manualmente. Costo: requiere disciplina del equipo.
+
+2. **Agente de metadata automática**: crear un agente Claude Code que, dado un
+   ticket en "Revisión" sin componente, infiera el componente correcto a partir
+   del summary y descripción, y lo asigne via MCP antes de que lo procese el
+   ticket-analyst. Podría correr como pre-step en ORC-2.0.
+   Costo: desarrollo adicional. Beneficio: elimina la dependencia del proceso manual.
+
+3. **Enriquecer el fuzzy matching**: mejorar el algoritmo de TA-6 Paso 3
+   para usar embeddings o mayor contexto del ticket.
+
+**Acción recomendada:** Evaluar opciones 1 y 2 en próximo sprint de infra QA.
+No iniciar implementación hasta validar con el equipo la disciplina de asignación manual.
+
 ---
 
 ## 12. Riesgos y Mitigaciones

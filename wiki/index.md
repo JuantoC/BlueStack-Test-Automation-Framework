@@ -64,6 +64,7 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde el agente orquestador
 - [qa/environments.md](qa/environments.md) — Mapping de ambientes: `.env TARGET_ENV` ↔ agente `environment` ↔ Jira (testing=dev_saas, master=master)
 - [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo agente test-reporter ↔ jira-reader/jira-writer: inputs, outputs, operaciones
+- [qa/validation-session-2026-04-15.md](qa/validation-session-2026-04-15.md) — Hallazgos sesión real: aliases de componentes, fuzzy matching, decisión confidence:low, bug customfield_10061
 
 ---
 

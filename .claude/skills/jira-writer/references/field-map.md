@@ -4,9 +4,9 @@
 
 | Nombre | ID | Cuándo usar |
 |--------|----|-------------|
-| QA Bug - Front | 10027 | Bug en Angular/UI detectado por QA |
+| QA Bug  - Front | 10027 | Bug en Angular/UI detectado por QA |
 | QA Bug - Back | 10030 | Bug en backend/API/servicio detectado por QA |
-| Story - Front | 10015 | Historia de usuario frontend |
+| Story  - Front | 10015 | Historia de usuario frontend |
 | Story - Back | 10028 | Historia de usuario backend |
 | Bug - Front | 10017 | Bug confirmado (no QA) frontend |
 | Bug - Back | 10029 | Bug confirmado (no QA) backend |
@@ -54,6 +54,10 @@
 
 > Un nuevo componente puede crearse si se identifica un módulo recurrente no listado.
 > Para automatización: usar el nombre del módulo que se testeó en la suite Selenium.
+
+> ⚠️ **Formato correcto en `createJiraIssue`:** `"customfield_10061": ["AI"]` (array de strings planos).
+> El formato `[{ "value": "AI" }]` es rechazado por el proyecto NAA con error
+> `"Specify an string at index 0 for Componente"`. Usar strings planos siempre.
 
 ## AccountIds conocidos
 

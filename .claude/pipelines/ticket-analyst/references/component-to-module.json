@@ -28,5 +28,12 @@
   "Resumen":  null,
   "busqueda": null,
   "Permisos": null,
+  "Liveblog":     "post",
+  "liveblog":     "post",
+  "NotaLista":    "post",
+  "notalista":    "post",
+  "Acciones":     null,
+  "acciones":     null,
+  "estilo":       null,
   "_note": "Agregar alias cada vez que se encuentre un nuevo valor real de customfield_10061 en tickets NAA. Valores son case-sensitive en Jira — mapear todas las variantes encontradas."
 }

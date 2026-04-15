@@ -25,7 +25,12 @@
       "Bash(sed -n '1,20p' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-reader/SKILL.md)",
       "Bash(sed -n '1,20p' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-writer/SKILL.md)",
       "Bash(NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest NewAIPost --testPathPattern=\"sessions/post/NewAIPost\" --no-coverage --json)",
-      "Bash(NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest NewAIPost --testPathPattern=\"sessions/post/NewAIPost\" --no-coverage)"
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest NewAIPost --testPathPattern=\"sessions/post/NewAIPost\" --no-coverage)",
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=master USE_GRID=true IS_HEADLESS=true node node_modules/.bin/jest NewAIPost --json --outputFile=pipeline-logs/results-NAA-4458-exec-001.json)",
+      "mcp__claude_ai_Atlassian__createJiraIssue",
+      "Bash(python3 -c ' *)",
+      "mcp__claude_ai_Atlassian__getJiraProjectIssueTypesMetadata",
+      "Bash(ls pipeline-logs/results-*.json)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines"

@@ -181,6 +181,18 @@ export function runSession(
         try {
           const screenshot = await session.driver.takeScreenshot();
           await allure.attachment(`Fallo_Visual_${sessionLabel}`, Buffer.from(screenshot, 'base64'), 'image/png');
+          // Screenshot a disco en modo pipeline (para análisis visual del test-reporter)
+          if (process.env.IS_PIPELINE === 'true' && process.env.PIPELINE_ID) {
+            try {
+              const { writeFileSync, mkdirSync } = await import('node:fs');
+              const screenshotDir = 'pipeline-logs/screenshots';
+              mkdirSync(screenshotDir, { recursive: true });
+              const fileName = `${process.env.PIPELINE_ID}-${sessionLabel.replace(/[^a-zA-Z0-9-]/g, '_')}-${Date.now()}.png`;
+              writeFileSync(`${screenshotDir}/${fileName}`, Buffer.from(screenshot, 'base64'));
+            } catch (diskErr) {
+              logger.error("No se pudo guardar screenshot a disco para pipeline.", { label: opts.label, error: getErrorMessage(diskErr) });
+            }
+          }
         } catch (scrErr) {
           logger.error("No se pudo tomar screenshot del fallo.", { label: opts.label, error: getErrorMessage(scrErr) });
         }

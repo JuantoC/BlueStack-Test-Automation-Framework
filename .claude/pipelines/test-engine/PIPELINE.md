@@ -5,6 +5,11 @@ invoked_by: qa-orchestrator
 uses_skills: []
 ---
 
+> **DEPRECATED — Referencia histórica v3.0**  
+> Este archivo fue el prompt de invocación en el modelo pipelines-as-prompts.  
+> El agente vigente está en `.claude/agents/test-engine.md`.  
+> Este documento se conserva como referencia de la lógica interna del agente.
+
 # test-engine
 
 **Responsabilidad única:** Dado el output del ticket-analyst, descubrir sessions existentes,
@@ -115,17 +120,28 @@ Si la lista queda vacía tras las verificaciones → `sessions_found: false`. Sa
 
 ## Paso TE-6: Construir y ejecutar comando Jest
 
-### Master / Testing (default)
+### Mapping de `environment` del pipeline → `TARGET_ENV` del `.env`
+
+| Pipeline `environment` | `.env TARGET_ENV` | URL usada | Descripción |
+|------------------------|-------------------|-----------|-------------|
+| `master` | `master` | `MASTER_BASE_URL` | Rama principal del CMS |
+| `dev_saas` | `testing` | `TESTING_BASE_URL` | Pre-producción / staging del CMS. El `.env` lo llama "testing" pero es el ambiente DEV_SAAS de Jira. |
+| `[cliente]` | `cliente` | `CLIENTE_BASE_URL` | Ambiente específico del cliente |
+
+> **Regla crítica:** El campo `environment` del Pipeline Trigger NO es el mismo que `TARGET_ENV` del `.env`.
+> `TARGET_ENV=testing` en el `.env` apunta a la URL de pre-producción (Dev_SAAS en Jira), NO a un ambiente de desarrollo local.
+> Nunca usar `environment: "testing"` en el Pipeline Trigger — "testing" no es un ambiente válido para postear a Jira.
+
+### Comando para `environment: "master"`
 ```bash
-NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true \
+NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=master USE_GRID=true IS_HEADLESS=true \
   node node_modules/.bin/jest {TestName} \
   --json --outputFile=pipeline-logs/results-{ticket}-{execution_id}.json
 ```
 
-### Dev_SAAS (pasar TESTING_URL inline — nunca modificar .env)
+### Comando para `environment: "dev_saas"`
 ```bash
-NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true \
-  TESTING_URL="{dev_saas_url}" \
+NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=testing USE_GRID=true IS_HEADLESS=true \
   node node_modules/.bin/jest {TestName} \
   --json --outputFile=pipeline-logs/results-{ticket}-{execution_id}.json
 ```
@@ -293,8 +309,9 @@ El Pipeline Context final en `pipeline-logs/completed/<TICKET_KEY>.json` con:
 
 ## Referencias
 
-- `docs/architecture/qa-automation-architecture.md` — §3.3 (input/output), §11.1 (comando Jest),
-  §11.3 (naming TestName), §11.4 (variables de entorno), §11.5 (Dev_SAAS TESTING_URL)
+- `docs/architecture/qa-pipeline/INDEX.md` — entry point del contrato arquitectónico
+  - §3.3 (input/output) → [`02-arquitectura-agentes.md`](../../../docs/architecture/qa-pipeline/02-arquitectura-agentes.md)
+  - §11.1 (comando Jest), §11.3 (naming), §11.4 (env vars), §11.5 (Dev_SAAS) → [`07-entorno-riesgos-metricas.md`](../../../docs/architecture/qa-pipeline/07-entorno-riesgos-metricas.md)
 - `.claude/pipelines/test-engine/references/test-map.json` — inventario de sessions por módulo
 - `.claude/pipelines/test-reporter/PIPELINE.md` — pipeline que consume el output de test-engine
 - `wiki/pipelines/qa-orchestrator.md` — arquitectura completa del pipeline multi-agente

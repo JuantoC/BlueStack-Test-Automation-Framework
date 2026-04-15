@@ -5,6 +5,11 @@ invoked_by: qa-orchestrator
 uses_skills: [jira-reader OP-1, OP-3, OP-6]
 ---
 
+> **DEPRECATED — Referencia histórica v3.0**  
+> Este archivo fue el prompt de invocación en el modelo pipelines-as-prompts.  
+> El agente vigente está en `.claude/agents/ticket-analyst.md`.  
+> Este documento se conserva como referencia de la lógica interna del agente.
+
 # ticket-analyst
 
 **Responsabilidad única:** Dado un ticket key, leer su contenido completo, sintetizar los
@@ -88,6 +93,11 @@ Verificar si el Pipeline Context ya tiene `ticket_analyst_output` con datos.
 
 ## Paso TA-3: Leer ticket con jira-reader OP-1 (lazy loading)
 
+**Regla de status — Revisión:**
+Si `status.name === "Revisión"` → ejecutar OP-1-FULL directamente (incluir `comment`).
+No aplicar lazy-loading. Loguear en step_log: `"Revisión → OP-1-FULL forzado"`.
+Leer el hilo de comentarios cronológicamente para entender: qué fix implementó el dev, qué feedback hubo, qué quedó listo.
+
 Usar siempre la estrategia de dos fases para preservar el contexto disponible.
 
 ### Fase 3A — OP-1-LIGHT (siempre ejecutar primero)
@@ -132,6 +142,11 @@ Extraer y registrar en memoria de trabajo:
 
 ## Paso TA-4: Sintetizar criteria[] desde todo el contenido del ticket
 
+Antes de producir criterios, el agente debe responder mentalmente:
+1. ¿Qué condición reporta el ticket como fallida/incorrecta?
+2. ¿Qué fix describe el desarrollador en los comentarios?
+3. ¿Cómo se demuestra que el fix está en lugar? → **esto es el test**
+
 Analizar TODO el contenido leído en TA-3 para construir los criterios de prueba.
 Aplicar en orden de precedencia:
 
@@ -164,6 +179,47 @@ Si después de 4.1 y 4.2 no se puede construir ≥ 1 criterio de prueba accionab
 ```
 Registrar en `step_log`, setear `human_escalation: true` en Pipeline Context y **detener** el pipeline.
 
+El output de `acceptance_criteria[]` es un array de objetos estructurados `Criterion[]`:
+```json
+{
+  "criterion_id": 1,
+  "description": "...",
+  "test_approach": {
+    "precondition": "...",
+    "action": "...",
+    "assertion": "... (observable en DOM)"
+  },
+  "criterion_type": "field_validation | functional_flow | state_transition | error_handling | visual_check | responsive | performance",
+  "automatable": true,
+  "reason_if_not": null
+}
+```
+
+`criteria_source` sigue siendo: `"extracted" | "inferred" | "none"`.
+
+---
+
+## Paso TA-4b: Clasificar automatizabilidad por criterio
+
+Para cada criterio en `acceptance_criteria[]`:
+- Aplicar el modelo de capacidades del agente (ver `.claude/pipelines/ticket-analyst/references/agent-capabilities.md`)
+- El agente NO busca keywords. El agente se pregunta: "¿Puedo escribir una assertion Selenium que falle si este criterio no se cumple y pase si sí se cumple?"
+- Si la assertion requiere percepción humana, entorno físico específico, o no hay propiedad DOM observable → `automatable: false`
+- Completar `reason_if_not` con la razón fundamental
+
+Calcular y escribir en el contexto:
+```json
+"testability_summary": {
+  "total_criteria": 2,
+  "automatable_count": 1,
+  "non_automatable_count": 1,
+  "all_automatable": false,
+  "partial_automatable": true,
+  "human_escalation_needed": true,
+  "escalation_reasons": ["Criterio 2: scroll en monitores grandes — entorno físico no reproducible en headless"]
+}
+```
+
 ---
 
 ## Paso TA-5: Extraer test_cases del comentario master (solo flujo Dev_SAAS)
@@ -188,6 +244,24 @@ Abortar flujo Dev_SAAS. Informar al orchestrator.
   "test_cases": [
     { "description": "...", "result": "✔" }
   ]
+}
+```
+
+---
+
+## Paso TA-5b: Coverage gap analysis
+
+Para cada criterio con `automatable: true`:
+- Consultar `test-map.json` del módulo clasificado
+- Comparar el `test_approach` del criterio con el propósito de cada session
+- Regla: "session existe" ≠ "criterio cubierto"
+- Las sessions de flujo completo (NewAIPost, NewPost, etc.) cubren `functional_flow` pero NO edge cases de `field_validation` ni inputs intencionalmente incorrectos
+- Asignar por criterio:
+```json
+"coverage": {
+  "covered_by_existing_session": false,
+  "session_file": "sessions/post/NewAIPost.test.ts",
+  "gap_description": "NewAIPost completa el happy path pero no verifica estado de error en campos vacíos"
 }
 ```
 
@@ -253,11 +327,37 @@ comentario de jira-writer con texto "Se requiere corrección" o similar, o si el
 de transiciones muestra un estado previo `Feedback`.
 
 **test_hints[]:** construir desde `criteria[]` sintetizados en TA-4.
-Cada criterio se transforma en un hint accionable para el test runner:
-- Criterio: "El usuario puede publicar sin errores de validación"
-- Hint: "Verificar que el flujo de publicación completa sin errores de validación"
+Los test_hints son objetos accionables `TestHint[]`:
+```json
+{
+  "hint_id": 1,
+  "description": "Verificar campo requerido al hacer submit sin rellenar",
+  "automatable": true,
+  "criterion_type": "field_validation",
+  "specific_action": "Dejar campo X vacío → clic en botón Submit",
+  "specific_assertion": "Campo X tiene clase de error o atributo de error en DOM",
+  "covered_by_existing_session": false,
+  "session_file": "sessions/post/NewAIPost.test.ts",
+  "gap_description": "..."
+}
+```
 
 Si `criteria` viene de `master_validation.test_cases` (flujo Dev_SAAS) → usar esas descripciones.
+
+---
+
+## Paso TA-7b: Determinar testability_summary.action
+
+Determinar el campo `action` del `testability_summary` basándose en las evaluaciones anteriores:
+
+| Condición | action |
+|---|---|
+| Todos automatable + todos cubiertos por sessions existentes | `"full_run"` |
+| Mezcla de automatable/no automatable, y los automatable están cubiertos | `"partial_run_and_escalate"` |
+| Todos (o algunos) automatable, pero hay gaps de cobertura | `"generate_tests"` |
+| Ninguno automatable | `"escalate_all"` |
+
+Agregar `action` al `testability_summary`.
 
 ---
 
@@ -277,6 +377,10 @@ Asignar según el resultado de TA-6:
 - Setear `human_escalation: true`
 - Registrar en `escalation_reason`: "Clasificación de bajo confidence — no se ejecutan
   tests con match de 1 sola keyword. Revisar manualmente el módulo correcto."
+
+**Reglas adicionales:**
+- Si `criteria_source === "none"` → `confidence: "low"` independientemente del module match
+- Si algún criterio tiene `test_approach` incompleto (falta assertion) → `confidence: "medium"` máximo
 
 ---
 
@@ -302,9 +406,49 @@ Leer el Pipeline Context desde `pipeline-logs/active/<TICKET_KEY>.json`, agregar
     "confidence": "high | medium | low",
     "confidence_reason": "<string explicativo>",
     "criteria_source": "extracted | inferred | none",
-    "test_hints": ["..."]
+    "test_hints": [
+      {
+        "hint_id": 1,
+        "description": "...",
+        "automatable": true,
+        "criterion_type": "...",
+        "specific_action": "...",
+        "specific_assertion": "...",
+        "covered_by_existing_session": false,
+        "session_file": "...",
+        "gap_description": "..."
+      }
+    ]
   },
-  "acceptance_criteria": ["<criteria[].description>"],
+  "testability_summary": {
+    "total_criteria": 0,
+    "automatable_count": 0,
+    "non_automatable_count": 0,
+    "all_automatable": false,
+    "partial_automatable": false,
+    "human_escalation_needed": false,
+    "escalation_reasons": [],
+    "action": "full_run | partial_run_and_escalate | generate_tests | escalate_all"
+  },
+  "acceptance_criteria": [
+    {
+      "criterion_id": 1,
+      "description": "...",
+      "test_approach": {
+        "precondition": "...",
+        "action": "...",
+        "assertion": "... (observable en DOM)"
+      },
+      "criterion_type": "field_validation | functional_flow | state_transition | error_handling | visual_check | responsive | performance",
+      "automatable": true,
+      "reason_if_not": null,
+      "coverage": {
+        "covered_by_existing_session": false,
+        "session_file": "...",
+        "gap_description": "..."
+      }
+    }
+  ],
   "master_validation": { "<output de OP-3 si aplica, o null>" },
   "linked_tickets": ["NAA-XXXX"],
   "jira_metadata": {
@@ -380,4 +524,4 @@ El orchestrator lee este archivo para decidir el siguiente sub-pipeline a invoca
 - [`references/classification-rules.md`](references/classification-rules.md) — reglas completas de clasificación, action_type, confidence y edge cases
 - [`.claude/skills/jira-reader/SKILL.md`](../../skills/jira-reader/SKILL.md) — OPs disponibles y output schemas
 - [`.claude/pipelines/test-engine/references/test-map.json`](../test-engine/references/test-map.json) — módulos con sessions disponibles
-- [`docs/architecture/qa-automation-architecture.md`](../../../docs/architecture/qa-automation-architecture.md) — contrato arquitectónico completo (§3.3, §6.2, §6.3)
+- [`docs/architecture/qa-pipeline/INDEX.md`](../../../docs/architecture/qa-pipeline/INDEX.md) — entry point del contrato arquitectónico; §3.3 y §6.2/§6.3 → [`02-arquitectura-agentes.md`](../../../docs/architecture/qa-pipeline/02-arquitectura-agentes.md) y [`04-test-map.md`](../../../docs/architecture/qa-pipeline/04-test-map.md)

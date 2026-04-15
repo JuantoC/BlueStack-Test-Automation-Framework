@@ -1,6 +1,6 @@
 # classification-rules — ticket-analyst
 
-Documento de referencia para las reglas de clasificación del pipeline ticket-analyst.
+Documento de referencia para las reglas de clasificación del agente ticket-analyst.
 Formaliza el algoritmo de §6.2 del architecture doc y los edge cases de producción.
 
 ---
@@ -59,7 +59,7 @@ Paso 4 — Verificar existencia de paths en disco
   (el test-map puede estar desactualizado → test-engine lo detectará)
 
 Paso 5 — Verificar validated = true en test-map.json
-  Si validated = false → dry_run = true en Pipeline Context
+  Si validated = false → dry_run = true en Execution Context
   Si validated = true  → dry_run = false (normal)
 
 Paso 6 — Si sin match con confidence ≥ "medium":
@@ -170,19 +170,21 @@ contiene los casos que se probaron → usarlo como fuente de criterios (`source:
 
 Estos campos contienen información valiosa para entender el flujo del ticket:
 
-| Campo visible en Jira | Propósito | customfield_ID |
-|---|---|---|
-| **Componente** | Módulo funcional del ticket | `customfield_10061` |
-| **Resumen Ejecutivo** | Descripción ejecutiva del cambio | `customfield_10062` |
-| **Sprint** | Sprint activo | `customfield_10021` |
-| **deploy** | Cambios desplegados en el build | pendiente de discovery |
-| **cambios SQL** | Scripts de BD asociados al ticket | pendiente de discovery |
-| **cambios VFS** | Archivos de configuración/assets modificados | pendiente de discovery |
+| Campo visible en Jira | Propósito | ID grupo A (legacy) | ID grupo B (NAA activo) |
+|---|---|---|---|
+| **Componente** | Módulo funcional del ticket | `customfield_10061` | — |
+| **Resumen Ejecutivo** | Descripción ejecutiva del cambio | `customfield_10062` | `customfield_10072` |
+| **Sprint** | Sprint activo | `customfield_10021` | — |
+| **Cambios SQL - Deploy** | Scripts de BD asociados al ticket | `customfield_10036` | `customfield_10066` |
+| **Cambios Librerias - Deploy** | Dependencias/librerías modificadas | `customfield_10037` | `customfield_10067` |
+| **Cambios TLD - Deploy** | Cambios en templates/layouts | `customfield_10039` | `customfield_10068` |
+| **Cambios VFS - Deploy** | Archivos config/assets modificados | `customfield_10040` | `customfield_10069` |
+| **Cambios configuración - Deploy** | Cambios de config del servidor | `customfield_10041` | `customfield_10070` |
+| **Comentarios - Deploy** | Notas adicionales del deploy | `customfield_10038` | `customfield_10071` |
 
-> **Discovery de IDs pendientes:** Ejecutar `getJiraIssue` sobre un ticket que tenga
-> los campos "deploy", "cambios SQL" y "cambios VFS" completados, sin filtrar `fields`.
-> Identificar los `customfield_XXXXX` correspondientes y actualizar esta tabla y OP-1/OP-6
-> de jira-reader.
+> **IDs descubiertos 2026-04-15** via `GET /rest/api/3/field` sobre la instancia NAA.
+> Existen dos grupos (A: 10036-10041, B: 10066-10071) — probablemente Front vs Back.
+> Leer ambos y usar el que tenga valor no-null. Si ambos tienen valor, preferir grupo B.
 
 ---
 
@@ -201,3 +203,63 @@ Estos campos contienen información valiosa para entender el flujo del ticket:
 | ticket en `Revisión` con history FEEDBACK | `action_type: retest` |
 | trigger con `requested_env: dev_saas` | ejecutar OP-3, `action_type: regression_test` |
 | OP-3 vacío en flujo dev_saas | abortar Dev_SAAS, blocker |
+
+---
+
+## Criterion Type Taxonomy
+
+Cada criterio de prueba extraído de un ticket tiene un `criterion_type`. La tabla siguiente define los 7 tipos, su automatable por defecto y ejemplos del proyecto.
+
+| criterion_type | Descripción | automatable default | Ejemplos |
+|---|---|---|---|
+| `field_validation` | Validaciones de formulario: campos requeridos, formatos, estados de error de input | true | "Tema se marca rojo si está vacío al hacer submit", "El campo título no acepta más de 255 caracteres" |
+| `functional_flow` | Flujo end-to-end completo (happy path) | true | "Se puede crear una nota IA completa desde el modal", "El video se publica correctamente" |
+| `state_transition` | Cambio de estado de objetos: guardado, publicación, archivado | true | "La nota pasa a estado Publicado tras hacer clic en Publicar", "El draft se guarda automáticamente" |
+| `error_handling` | Manejo de errores, mensajes de fallo, recovery | true | "Toast de error aparece si la API falla", "El formulario no se envía si hay errores de validación" |
+| `visual_check` | Estilos, colores, layout — evaluar con modelo de capacidades | condicional | "El botón tiene borde azul cuando está seleccionado" (→ automatable si hay clase CSS), "Se ve centrado visualmente" (→ no automatable) |
+| `responsive` | Comportamiento por tamaño de viewport o dispositivo | false (casi siempre) | "El checkbox es accesible con scroll en monitores grandes", "El modal se adapta en mobile" |
+| `performance` | Velocidad, animaciones, fluidez | false (siempre) | "El editor carga en menos de 2 segundos", "La animación es fluida" |
+
+**Nota sobre `visual_check`:** Si el criterio visual tiene una propiedad DOM observable (clase CSS aplicada, atributo data-, valor de style computado via JS) → `automatable: true`. Si requiere percepción visual subjetiva → `automatable: false`.
+
+---
+
+## Modelo de Capacidades del Agente
+
+El pipeline NO usa listas de keywords para determinar automatizabilidad. Usa razonamiento sobre sus propias capacidades.
+
+**Referencia completa:** `.claude/pipelines/ticket-analyst/references/agent-capabilities.md`
+
+**Regla de aplicación:**
+
+Para cada criterio, formular la assertion concreta y preguntarse:
+> "¿Puedo implementar esta assertion en Selenium verificando una propiedad DOM observable, sin depender de percepción humana ni entorno físico específico?"
+
+Si la respuesta es NO → `automatable: false` con `reason_if_not` explicando la razón fundamental.
+
+---
+
+## Coverage Gap Analysis
+
+Cuando el módulo fue clasificado y existe una session en test-map.json, no asumir automáticamente que la session cubre los criterios del ticket.
+
+**Regla:** "La session existe" ≠ "Los criterios del ticket están cubiertos"
+
+**Proceso:**
+1. Leer el nombre y propósito de la session (ej: `NewAIPost.test.ts` → "flujo completo de creación de nota IA")
+2. Comparar con el `test_approach` de cada criterio automatable
+3. Preguntarse: "¿Esta session ejecuta exactamente esta acción y verifica esta assertion?"
+
+**Heurística:**
+- Sessions de flujo completo (NewPost, NewAIPost, NewListicle) → cubren `functional_flow` pero NO edge cases de `field_validation` ni criterios que requieran inputs intencionalmente incorrectos
+- Sessions de masa (MassPublishNotes) → cubren operaciones bulk, no flujos individuales
+- Ninguna session existente cubre validaciones de formulario con campos vacíos/inválidos a menos que esté explícitamente diseñada para eso
+
+**Output por criterio:**
+```json
+"coverage": {
+  "covered_by_existing_session": false,
+  "session_file": "sessions/post/NewAIPost.test.ts",
+  "gap_description": "NewAIPost completa el flujo happy path pero no verifica el estado de error de campos vacíos al hacer submit"
+}
+```

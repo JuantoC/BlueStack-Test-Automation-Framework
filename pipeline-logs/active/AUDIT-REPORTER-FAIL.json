@@ -1,0 +1,54 @@
+{
+  "pipeline_id": "pipe-audit-003",
+  "schema_version": "3.0",
+  "stage": "test_execution",
+  "stage_status": "completed",
+  "environment": "master",
+  "idempotency": { "already_reported": false, "last_comment_id": null },
+  "step_log": [],
+  "ticket_analyst_output": {
+    "ticket_key": "NAA-4443",
+    "component_jira": "Planificación",
+    "classification": { "domain": null, "module": null, "action_type": "regression_test" },
+    "jira_metadata": {
+      "jiraSummary": "[AUDIT] Errores encontrados en planning - test audit",
+      "ticketType": "Bug - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Sin asignar",
+      "component": "Planificación",
+      "sprint": "Sprint actual",
+      "executiveSummary": "",
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
+  },
+  "test_engine_output": {
+    "execution_id": "audit-exec-002",
+    "environment": "master",
+    "result": "failed",
+    "total_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "results": [
+      {
+        "session": "NewAIPost",
+        "file": "sessions/post/NewAIPost.test.ts",
+        "status": "failed",
+        "duration_ms": 33028,
+        "failure_messages": ["ElementClickInterceptedError: backdrop overlay blocking btn-create-note at point (81, 131)"]
+      }
+    ],
+    "failure_summary": {
+      "test_name": "NewAIPost > debería crear una nota IA",
+      "error_message": "ElementClickInterceptedError: element click intercepted",
+      "source": "src/core/wrappers/clickSafe.ts:44",
+      "stack": "ElementClickInterceptedError\n  at clickSafe (src/core/wrappers/clickSafe.ts:44)\n  at NewNoteBtn.openNoteTypeDropdown\n  at NewAIPost.run"
+    },
+    "console_errors_detected": []
+  },
+  "test_reporter_output": null
+}

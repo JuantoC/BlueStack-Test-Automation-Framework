@@ -1,0 +1,139 @@
+{
+  "pipeline_id": "pipe-20260414-004",
+  "schema_version": "3.0",
+  "created_at": "2026-04-14T18:00:00.000-03:00",
+  "environment": "master",
+  "stage": "test-reporter",
+  "stage_status": "completed",
+  "idempotency": {
+    "last_comment_id": "39678",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-14T18:00:00.000-03:00",
+      "completed_at": "2026-04-14T18:02:00.000-03:00",
+      "status": "completed",
+      "duration_ms": null,
+      "notes": "OP-1-LIGHT suficiente. Criterio extraído desde descripción (informal pero accionable). component_jira 'IA' → ai-post via component-to-module.json. validated: true en test-map.json."
+    },
+    {
+      "stage": "test-engine",
+      "started_at": "2026-04-14T18:10:00.000-03:00",
+      "completed_at": "2026-04-14T18:15:47.000-03:00",
+      "status": "completed",
+      "duration_ms": 35693,
+      "notes": "NewAIPost ejecutado con grid+headless. Failed: ElementClickInterceptedError — backdrop bloqueando click inicial."
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-14T20:58:00.000-03:00",
+      "completed_at": "2026-04-14T20:58:39.000-03:00",
+      "status": "completed",
+      "duration_ms": null,
+      "notes": "Comentario ADF posteado (id: 39678). Transición FEEDBACK aplicada. Sin \\n literales en el body."
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260414-004",
+    "ticket_key": "NAA-4467",
+    "summary": "Creacion de nota lista IA : se perdió el campo obligatorio para tema",
+    "issue_type": "QA Bug  - Front",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": "IA",
+    "classification": {
+      "domain": "post",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'IA' matchea exactamente en component-to-module.json → 'ai-post'. validated: true en test-map.json.",
+      "criteria_source": "extracted",
+      "test_hints": [
+        "Verificar que al hacer click en Generar con campos vacíos, el campo TEMA se marque en rojo como obligatorio",
+        "Verificar que el flujo de creación de nota IA sigue funcionando correctamente en master",
+        "Verificar que el resto de campos obligatorios del modal de nota IA también se marcan correctamente"
+      ]
+    },
+    "acceptance_criteria": [
+      "Al hacer click en el botón Generar con campos vacíos, TEMA debe marcarse en rojo como campo obligatorio",
+      "El resto de los campos del formulario de nota lista IA deben seguir marcándose en rojo al faltar datos"
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "jira_metadata": {
+      "jiraSummary": "Creacion de nota lista IA : se perdió el campo obligatorio para tema",
+      "ticketType": "QA Bug  - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Paula Valentina Rodriguez Roberto",
+      "component": "IA",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": "NAA-1977",
+      "linkedIssues": [],
+      "fixVersion": "8.6.16.2.2",
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
+  },
+  "test_engine_output": {
+    "pipeline_id": "pipe-20260414-004",
+    "ticket_key": "NAA-4467",
+    "execution_id": "exec-20260414-001",
+    "executed_at": "2026-04-14T18:15:47.556-03:00",
+    "mode_used": "discover_and_run",
+    "environment": "master",
+    "grid": true,
+    "headless": true,
+    "sessions_found": true,
+    "result": "failed",
+    "total_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "results": [
+      {
+        "session_file": "sessions/post/NewAIPost.test.ts",
+        "session_name": "Sesión: Creación de Nota IA, guardado y publicación",
+        "status": "fail",
+        "duration_ms": 34030,
+        "failure_messages": [
+          "ElementClickInterceptedError: element click intercepted — backdrop 'backdrop-update' bloqueando click en btn-create-note al abrir dropdown de tipo de nota. Source: src/pages/post_page/NewNoteBtn.ts:48 → openNoteTypeDropdown"
+        ],
+        "mapped_to_hint": "Verificar que el flujo de creación de nota IA sigue funcionando correctamente en master"
+      }
+    ],
+    "failure_summary": {
+      "test_name": "Sesión: Creación de Nota IA, guardado y publicación",
+      "error_type": "ElementClickInterceptedError",
+      "error_message": "element click intercepted — backdrop 'backdrop-update' bloqueando click en btn-create-note al abrir dropdown de tipo de nota",
+      "source": "src/pages/post_page/NewNoteBtn.ts:48 → openNoteTypeDropdown"
+    },
+    "console_errors_detected": [],
+    "jest_output_path": "pipeline-logs/results-NAA-4467-exec-fase3.json"
+  },
+  "test_reporter_output": {
+    "executed_at": "2026-04-14T20:58:39.921-03:00",
+    "operation": "validate_master",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      "addCommentToJiraIssue — NAA-4467 — comment_id: 39678",
+      "transitionJiraIssue — NAA-4467 — transition: FEEDBACK (id: 2)"
+    ],
+    "errors": [],
+    "comment_id": "39678",
+    "transition_applied": "FEEDBACK"
+  },
+  "milestone_notes": {
+    "fase": "Fase 3 — E2E validado 20260414",
+    "resultado": "SUCCESS",
+    "comentario_id": "39678",
+    "transicion": "FEEDBACK",
+    "adf_valido": true,
+    "sin_backslash_n": true,
+    "observaciones": "Primer E2E real contra Jira. Test NewAIPost falló por backdrop interceptando click — posible estado residual en la app. Pipeline completo de 3 etapas ejecutado correctamente: ticket-analyst → test-engine → test-reporter."
+  }
+}

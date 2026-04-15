@@ -1,0 +1,95 @@
+{
+  "pipeline_id": "pipe-20260414-002",
+  "schema_version": "3.0",
+  "created_at": "2026-04-14T15:00:00.000-03:00",
+  "stage": "ticket-analyst",
+  "stage_status": "completed",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-14T15:00:00.000-03:00",
+      "completed_at": "2026-04-14T15:01:00.000-03:00",
+      "status": "completed",
+      "duration_ms": null,
+      "notes": "Clasificación correcta tras actualizar component-to-module.json con variante 'Videos'. Criterios inferidos — ticket no tiene sección estructurada."
+    }
+  ],
+
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260414-002",
+    "ticket_key": "NAA-3964",
+    "summary": "PREVISUALIZACIÓN de Videos - en Gestor, Edición y en Nota",
+    "issue_type": "QA Bug - Back",
+    "status": "BLOCKED",
+    "priority": "High",
+    "component_jira": "Videos",
+    "classification": {
+      "domain": "video",
+      "module": "video",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'Videos' matchea directamente en component-to-module.json (alias) → 'video'. Nota: requería actualización del mapa — clave original era 'Video' (sin S).",
+      "criteria_source": "inferred",
+      "test_hints": [
+        "Verificar que los videos nativos se reproducen correctamente en la edición de una nota con video insertado",
+        "Verificar que los videos embedded se visualizan en nota y en la previsualización pública",
+        "Verificar que los videos YouTube se reproducen correctamente en nota y previsualización",
+        "Verificar que la previsualización del video desde la edición del video funciona para los 3 tipos (nativos, embedded, YouTube)",
+        "Verificar que no se generan errores de path al cargar el template de previsualización"
+      ]
+    },
+    "acceptance_criteria": [
+      "Los videos nativos se reproducen correctamente en la edición de una nota con video insertado",
+      "Los videos embedded se visualizan correctamente en nota y en previsualización",
+      "Los videos YouTube se reproducen en nota y previsualización sin errores de path",
+      "La previsualización del video desde la edición funciona para todos los tipos de video",
+      "No se generan errores de carga de template al previsualizar"
+    ],
+    "master_validation": null,
+    "linked_tickets": ["NAA-2209", "NAA-2783", "NAA-4092", "NAA-4041"],
+    "jira_metadata": {
+      "jiraSummary":      "PREVISUALIZACIÓN de Videos - en Gestor, Edición y en Nota",
+      "ticketType":       "QA Bug - Back",
+      "ticketStatus":     "BLOCKED",
+      "assignee":         "Verónica Tarletta",
+      "component":        "Videos",
+      "sprint":           null,
+      "executiveSummary": null,
+      "parentKey":        "NAA-1751",
+      "linkedIssues":     ["NAA-2209", "NAA-2783", "NAA-4092", "NAA-4041"],
+      "fixVersion":       "8.6.16.3",
+      "priority":         "High",
+      "jiraLabels":       ["SAAS"],
+      "jiraAttachments":  [
+        "dev.cms-medios.com_grabacixn_de_pantalla_desde_10-12-25_17_57_32-vf20251229mp4.html - Google Chrome 2026-01-05 11-47-37.mp4",
+        "image-20251218-212138.png",
+        "image-20251231-184851.png",
+        "image-20260105-142636.png",
+        "image-20260105-145047.png",
+        "image-20260105-145121.png",
+        "Plataforma BLUESTACK CMS - 8.6.15.5 - Google Chrome 2026-01-05 11-15-47.mp4",
+        "Plataforma BLUESTACK CMS - 8.7.1 - Google Chrome 2026-01-05 11-39-21.mp4"
+      ]
+    }
+  },
+
+  "test_engine_output": null,
+  "test_reporter_output": null,
+
+  "milestone_notes": {
+    "fase": "Fase 1 — Milestone validation",
+    "resultado": "CORRECTO",
+    "module_esperado": "video",
+    "module_obtenido": "video",
+    "confidence": "high",
+    "criteria_count": 5,
+    "criteria_source": "inferred",
+    "jira_metadata_completo": true,
+    "observaciones": "El component_jira 'Videos' no estaba en component-to-module.json. Se agregó alias. Sin esta corrección el match habría fallado en TA-6 paso 1 y 2, quedando en fuzzy con 1 keyword → confidence 'low'. Con el alias: confidence 'high'."
+  }
+}

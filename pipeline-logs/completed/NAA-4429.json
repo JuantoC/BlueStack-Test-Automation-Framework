@@ -1,0 +1,106 @@
+{
+  "pipeline_id": "pipe-20260414-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-14T01:38:00.000-03:00",
+  "stage": "test-engine",
+  "stage_status": "failed",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "timestamp": "2026-04-14T01:38:00.000-03:00",
+      "status": "completed",
+      "duration_ms": null
+    },
+    {
+      "stage": "test-engine",
+      "timestamp": "2026-04-14T11:39:34.000-03:00",
+      "status": "failed",
+      "duration_ms": 50183
+    }
+  ],
+
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260414-001",
+    "ticket_key": "NAA-4429",
+    "summary": "ERRORES EN COMPONENTES IA - 429, billing, modelo inexistente",
+    "issue_type": "QA Bug - Back",
+    "status": "A Versionar",
+    "priority": "Critical path development",
+    "component_jira": "AI",
+    "classification": {
+      "domain": "post",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'AI' matchea directamente en component-to-module.json → 'ai-post'",
+      "test_hints": [
+        "Verificar que la creación de nota IA no genera errores JSON (error 429 o modelo inexistente)",
+        "Verificar que la nota generada es relevante al prompt ingresado y no genérica",
+        "Verificar que los mensajes de error de la IA se formatean correctamente en la UI",
+        "Verificar que no se presenten errores falsos al usuario"
+      ]
+    },
+    "acceptance_criteria": [
+      "Probar y revisar el componente",
+      "Asegurar que el formateo de los errores sea correcto",
+      "Confirmar que las respuestas recibidas sean precisas y estén contenidas dentro de la respuesta de la IA",
+      "Evitar proporcionar errores falsos"
+    ],
+    "master_validation": {
+      "comment_id": "37328",
+      "validated_by": "Juan Tomas Caldera",
+      "validated_at": "2026-04-01T14:19:36.100-03:00",
+      "test_cases": [
+        { "description": "El error presentado sobre la creacion de notas IA deje de suceder", "result": "✔" },
+        { "description": "La generacion de una nota que no se habia solicitado se evite y siempre se traiga lo relacionado a la tarea y al contexto", "result": "✔" }
+      ]
+    },
+    "linked_tickets": ["NAA-3682"],
+    "jira_metadata": {
+      "jiraSummary":      "ERRORES EN COMPONENTES IA - 429, billing, modelo inexistente",
+      "ticketType":       "QA Bug - Back",
+      "ticketStatus":     "A Versionar",
+      "assignee":         "Verónica Tarletta",
+      "component":        "AI",
+      "sprint":           null,
+      "executiveSummary": null,
+      "parentKey":        "NAA-1977",
+      "linkedIssues":     ["NAA-3682"],
+      "fixVersion":       "8.6.16.2.1 Crear Noticia Lista IA",
+      "priority":         "Critical path development",
+      "jiraLabels":       [],
+      "jiraAttachments":  []
+    }
+  },
+
+  "test_engine_output": {
+    "execution_id": "exec-001",
+    "executed_at": "2026-04-14T11:39:34.000-03:00",
+    "session": "NewAIPost",
+    "environment": "testing",
+    "grid": true,
+    "headless": true,
+    "result": "failed",
+    "duration_ms": 50183,
+    "total_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "failure_summary": {
+      "test_name": "Sesión: Creación de Nota IA, guardado y publicación",
+      "error_message": "Hubo un error en la generacion del preview: Modelo inexistente",
+      "source": "src/pages/post_page/ai_note/AIPostModal.ts:245",
+      "stack": "AIPostModal.isAIFailed → MainAIPage.ts:42"
+    },
+    "console_errors_detected": [
+      "Your session has expired (failed to identify the intended token)"
+    ],
+    "notes": "[PIPELINE TEST - Fase 0] Bug reproducible en entorno testing. El error 'Modelo inexistente' coincide exactamente con el bug reportado en NAA-4429. La validación manual en master (comment 37328) fue en 2026-04-01 — posible regresión o fix no disponible en testing."
+  },
+
+  "test_reporter_output": null
+}

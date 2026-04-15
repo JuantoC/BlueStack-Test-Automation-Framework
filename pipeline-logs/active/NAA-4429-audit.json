@@ -1,0 +1,144 @@
+{
+  "pipeline_id": "pipe-audit-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-15T00:00:00.000Z",
+  "environment": "master",
+  "stage": "ticket_analysis",
+  "stage_status": "completed",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-15T00:00:00.000Z",
+      "status": "completed"
+    }
+  ],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-audit-001",
+    "ticket_key": "NAA-4429",
+    "summary": "ERRORES EN COMPONENTES IA - 429, billing, modelo inexistente",
+    "issue_type": "QA Bug - Back",
+    "status": "A Versionar",
+    "priority": "Critical path development",
+    "component_jira": "AI",
+    "classification": {
+      "domain": "post",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'AI' tiene mapeo directo a module 'ai-post' en component-to-module.json. Lookup exacto — Paso 1 del algoritmo. validated=true en test-map.json.",
+      "criteria_source": "extracted"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "El componente IA debe manejar correctamente el error 429 (rate limit / saturación) sin mostrar un error falso o genérico al usuario.",
+        "test_approach": {
+          "precondition": "El usuario está autenticado y accede al editor de notas con generación IA activa.",
+          "action": "Provocar o simular condición de error 429 al invocar la generación de contenido IA.",
+          "assertion": "Verificar que el mensaje de error mostrado al usuario corresponde al tipo 'rate limit' o 429, y no es un mensaje genérico o falso positivo."
+        },
+        "criterion_type": "error_handling",
+        "automatable": false,
+        "reason_if_not": "Requiere simular un error 429 desde el backend (rate limit real o mock de la API de IA). Selenium no puede controlar la respuesta del servidor externo sin un mecanismo de intercepción de red o stub configurado en el entorno.",
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": "NewAIPost cubre el flujo happy path de creación de nota IA pero no verifica comportamiento ante errores 429 del proveedor de IA."
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "El componente IA debe manejar el error 'modelo no encontrado' y formatearlo correctamente, sin que aparezca como error falso o inesperado.",
+        "test_approach": {
+          "precondition": "El usuario está autenticado y accede al editor de notas con generación IA activa.",
+          "action": "Invocar la generación IA bajo condición donde el modelo configurado no sea encontrado (configuración incorrecta o modelo deprecado).",
+          "assertion": "Verificar que la respuesta muestra un mensaje de error específico de 'modelo no encontrado', contenido dentro de la respuesta de la IA, sin mostrar error genérico ni estado inconsistente."
+        },
+        "criterion_type": "error_handling",
+        "automatable": false,
+        "reason_if_not": "El error 'modelo no encontrado' depende de la configuración del backend (proveedor IA). Selenium no puede forzar esta condición sin un stub/mock del endpoint externo.",
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": "NewAIPost no cubre escenarios de error de modelo inexistente."
+        }
+      },
+      {
+        "criterion_id": 3,
+        "description": "El formateo de los mensajes de error de la IA debe ser correcto: los errores deben estar contenidos dentro de la respuesta de la IA, sin errores falsos ('false positives').",
+        "test_approach": {
+          "precondition": "El usuario está autenticado y el componente IA está en estado de error (cualquier tipo: 429, billing, modelo).",
+          "action": "Observar la respuesta del componente IA en la UI tras recibir un error del proveedor.",
+          "assertion": "Verificar que: (a) el texto de error aparece dentro del contenedor de respuesta IA, (b) no se muestra ningún mensaje de error adicional fuera del contenedor esperado, (c) el estado del editor no queda en estado roto."
+        },
+        "criterion_type": "error_handling",
+        "automatable": false,
+        "reason_if_not": "Requiere que el entorno esté en condición de error controlada. Sin mock del backend, no se puede reproducir consistentemente en Selenium.",
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": "NewAIPost solo verifica el happy path — no el formateo de errores ni la integridad del editor en estado de error."
+        }
+      },
+      {
+        "criterion_id": 4,
+        "description": "Las respuestas recibidas de la IA deben ser precisas y estar contenidas dentro del componente de respuesta esperado.",
+        "test_approach": {
+          "precondition": "El usuario está autenticado y el entorno de IA está operativo (sin errores).",
+          "action": "Ingresar un prompt en el componente IA y solicitar generación de contenido.",
+          "assertion": "Verificar que la respuesta generada aparece dentro del contenedor designado para la respuesta IA y no se desborda ni aparece en lugares inesperados del DOM."
+        },
+        "criterion_type": "functional_flow",
+        "automatable": true,
+        "reason_if_not": null,
+        "coverage": {
+          "covered_by_existing_session": true,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": "NewAIPost cubre este happy path. Este criterio específico (respuesta contenida en el componente) puede verificarse como assertion adicional dentro de la session existente."
+        }
+      }
+    ],
+    "testability_summary": {
+      "total_criteria": 4,
+      "automatable_count": 1,
+      "non_automatable_count": 3,
+      "all_automatable": false,
+      "partial_automatable": true,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "3 de 4 criterios requieren simulación de errores de backend (429, billing, modelo no encontrado). Sin mock/stub del endpoint de IA, Selenium no puede reproducir estas condiciones de forma determinística.",
+        "Se recomienda evaluar la posibilidad de configurar un mock server o interceptor de red (ej: via proxy Selenium, BrowserMob, o flag de entorno de prueba) para habilitar automatización de los criterios de error handling."
+      ],
+      "action": "partial_run_and_escalate"
+    },
+    "jira_metadata": {
+      "jiraSummary": "ERRORES EN COMPONENTES IA - 429, billing, modelo inexistente",
+      "ticketType": "QA Bug - Back",
+      "ticketStatus": "A Versionar",
+      "assignee": "Verónica Tarletta",
+      "component": "AI",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": "NAA-1977",
+      "linkedIssues": [
+        {
+          "key": "NAA-3682",
+          "summary": "Servicios IA - formatear mensaje de error ( billing / 429 / safety reason)",
+          "status": "Done",
+          "relation": "relates to"
+        }
+      ],
+      "fixVersion": "8.6.16.2.1 Crear Noticia Lista IA",
+      "priority": "Critical path development",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": null
+}

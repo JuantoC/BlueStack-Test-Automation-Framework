@@ -1,0 +1,49 @@
+{
+  "pipeline_id": "pipe-audit-002",
+  "schema_version": "3.0",
+  "stage": "test_execution",
+  "stage_status": "completed",
+  "environment": "master",
+  "idempotency": { "already_reported": false, "last_comment_id": null },
+  "step_log": [],
+  "ticket_analyst_output": {
+    "ticket_key": "NAA-4429",
+    "component_jira": "Ai",
+    "classification": { "domain": "post", "module": "ai-post", "action_type": "regression_test" },
+    "jira_metadata": {
+      "jiraSummary": "[AUDIT] Test de validación - no procesar",
+      "ticketType": "QA Bug - Back",
+      "ticketStatus": "A Versionar",
+      "assignee": "Sin asignar",
+      "component": "Ai",
+      "sprint": "Sprint actual",
+      "executiveSummary": "",
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": "Critical path development",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
+  },
+  "test_engine_output": {
+    "execution_id": "audit-exec-001",
+    "environment": "master",
+    "result": "passed",
+    "total_tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "results": [
+      {
+        "session": "NewAIPost",
+        "file": "sessions/post/NewAIPost.test.ts",
+        "status": "passed",
+        "duration_ms": 45000,
+        "failure_messages": []
+      }
+    ],
+    "failure_summary": null,
+    "console_errors_detected": []
+  },
+  "test_reporter_output": null
+}

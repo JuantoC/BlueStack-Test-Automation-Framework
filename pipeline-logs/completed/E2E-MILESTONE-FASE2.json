@@ -1,0 +1,62 @@
+{
+  "pipeline_id": "pipe-E2E-FASE2-20260414",
+  "schema_version": "3.0",
+  "created_at": "2026-04-14T15:41:00.000-03:00",
+  "stage": "test-engine",
+  "stage_status": "completed",
+  "notes": "E2E de validación del milestone Fase 2 — test-engine/PIPELINE.md. Session elegida: NewLiveBlog (módulo post). IA features omitidas por fallo activo en entorno TESTING.",
+
+  "step_log": [
+    {
+      "stage": "test-engine",
+      "timestamp": "2026-04-14T15:41:00.000-03:00",
+      "status": "completed",
+      "duration_ms": 317331
+    }
+  ],
+
+  "infra_log": {
+    "grid_check": "ready",
+    "nodes": 3,
+    "grid_url": "http://localhost:4444",
+    "docker_command": "docker compose up -d --wait",
+    "wsl2_note": "npm/npx resuelven al binario de Windows (/mnt/c/Program Files/nodejs/). Comando Jest ejecutado vía: node node_modules/.bin/jest"
+  },
+
+  "ticket_analyst_output": null,
+
+  "test_engine_output": {
+    "pipeline_id": "pipe-E2E-FASE2-20260414",
+    "ticket_key": "E2E-MILESTONE-FASE2",
+    "execution_id": "exec-20260414-001",
+    "executed_at": "2026-04-14T15:46:16.000-03:00",
+    "mode_used": "run_existing",
+    "environment": "testing",
+    "grid": true,
+    "headless": true,
+    "sessions_found": true,
+    "result": "passed",
+    "total_tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "results": [
+      {
+        "session_file": "sessions/post/NewLiveBlog.test.ts",
+        "session_name": "NewLiveBlog",
+        "status": "pass",
+        "duration_ms": 309155,
+        "failure_messages": [],
+        "mapped_to_hint": null
+      }
+    ],
+    "failure_summary": null,
+    "console_errors_detected": [
+      "Your session has expired (failed to identify the intended token) [x2]",
+      "Google Maps JavaScript API included multiple times"
+    ],
+    "jest_output_path": "pipeline-logs/results-E2E-liveblog-exec-20260414-001.json",
+    "command_used": "NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true node node_modules/.bin/jest NewLiveBlog --json --outputFile=pipeline-logs/results-E2E-liveblog-exec-20260414-001.json"
+  },
+
+  "test_reporter_output": null
+}

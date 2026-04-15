@@ -1,0 +1,46 @@
+{
+  "pipeline_id": "pipe-audit-001",
+  "schema_version": "3.0",
+  "stage": "test_engine",
+  "stage_status": "completed",
+  "ticket_analyst_output": {
+    "ticket_key": "NAA-4429",
+    "classification": {
+      "domain": "post",
+      "module": "ai-post",
+      "testable": true,
+      "confidence": "high"
+    }
+  },
+  "test_engine_output": {
+    "execution_id": "exec-20260415-001",
+    "executed_at": "2026-04-15T00:00:00.000Z",
+    "mode_used": "discover_and_run",
+    "environment": "master",
+    "grid": true,
+    "headless": true,
+    "sessions_found": true,
+    "result": "failed",
+    "total_tests": 1,
+    "passed": 0,
+    "failed": 1,
+    "results": [
+      {
+        "session": "NewAIPost",
+        "path": "sessions/post/NewAIPost.test.ts",
+        "status": "failed",
+        "duration_ms": 33028,
+        "error": "ElementClickInterceptedError: element click intercepted — backdrop overlay (cdk-overlay-backdrop) blocking btn-create-note at point (81, 131)"
+      }
+    ],
+    "failure_summary": {
+      "session": "NewAIPost",
+      "error_type": "app",
+      "error_class": "ElementClickInterceptedError",
+      "location": "NewNoteBtn.openNoteTypeDropdown → clickSafe.ts:44",
+      "detail": "A modal backdrop (cdk-overlay-backdrop custom-backdrop) was still visible when the create-note button was clicked. The overlay intercepted the click before Selenium could reach the target element."
+    },
+    "console_errors_detected": [],
+    "error_type": "app"
+  }
+}

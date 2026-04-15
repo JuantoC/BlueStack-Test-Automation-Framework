@@ -1,0 +1,68 @@
+{
+  "pipeline_id": "pipe-audit-002",
+  "schema_version": "3.0",
+  "stage": "ticket_analysis",
+  "stage_status": "completed",
+  "executed_at": "2026-04-15T00:00:00.000Z",
+  "audit_note": "Ticket seleccionado por tener component_jira mapeado a null en component-to-module.json. Valida el path 'no mapeado' del agente ticket-analyst: sessions_found=false sin error.",
+  "ticket_analyst_output": {
+    "ticket_key": "NAA-4443",
+    "ticket_url": "https://bluestack-cms.atlassian.net/browse/NAA-4443",
+    "summary": "Errores encontrados en planning",
+    "issue_type": "Bug - Front",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": "Planificación",
+    "component_to_module_lookup": {
+      "input": "Planificación",
+      "result": null,
+      "reason": "Clave presente en component-to-module.json con valor null — componente conocido pero sin módulo de automatización asociado."
+    },
+    "classification": {
+      "domain": null,
+      "module": null,
+      "testable": true,
+      "confidence": "high",
+      "sessions_found": false,
+      "sessions_found_reason": "El component 'Planificación' no tiene un módulo de automatización mapeado (valor null en component-to-module.json). No existen sessions .test.ts para este dominio. El agente completa el análisis correctamente sin lanzar error — path válido de 'componente no cubierto'."
+    },
+    "acceptance_criteria": [
+      {
+        "id": "AC-01",
+        "source": "description",
+        "description": "Al mover un evento con recurrencia mediante drag & drop en el calendario de planning, la recurrencia actualizada debe reflejarse visualmente en el calendario de forma inmediata.",
+        "type": "functional",
+        "steps": [
+          "Abrir el módulo de planning (calendario).",
+          "Seleccionar un evento que tenga recurrencia configurada.",
+          "Arrastrar y soltar el evento a una nueva posición en el calendario.",
+          "Verificar que el calendario muestra la recurrencia actualizada correctamente."
+        ],
+        "expected_result": "El calendario refleja la nueva distribución de eventos recurrentes sin necesidad de recargar la página.",
+        "regression_fix": "Parámetro 'recurrece' renombrado a 'recurrence' en el servicio /news/refactor/get (commit 20457b6cbc22bcc24e1b5c034340963ca871c3c0)"
+      },
+      {
+        "id": "AC-02",
+        "source": "description",
+        "description": "Al programar un evento en planning y presionar 'Volver' en el modal de confirmación (check), no deben generarse errores en consola.",
+        "type": "functional",
+        "steps": [
+          "Abrir el módulo de planning.",
+          "Crear o editar un evento y avanzar hasta el modal de confirmación (check).",
+          "Presionar el botón 'Volver' en el modal.",
+          "Abrir la consola del navegador y verificar que no hay errores JS."
+        ],
+        "expected_result": "El modal cierra correctamente y la consola del navegador no registra ningún error.",
+        "regression_fix": "Corrección en timepicker para campo hora (commits e0d4c7437f89fa761564fb916a106e96b1c1992a y 9a290a670c9a954fa5a9a3ce896b8e02de0c3db1)"
+      }
+    ],
+    "testability_summary": {
+      "total_criteria": 2,
+      "testable_criteria": 2,
+      "non_testable_criteria": 0,
+      "automation_blocker": "No hay módulo mapeado para 'Planificación' — los criterios son testables funcionalmente pero no existe sesión de automatización Selenium para este componente.",
+      "manual_validation_possible": true,
+      "environment": "master"
+    }
+  }
+}

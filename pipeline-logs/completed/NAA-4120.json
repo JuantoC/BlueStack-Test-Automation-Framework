@@ -1,0 +1,91 @@
+{
+  "pipeline_id": "pipe-20260414-003",
+  "schema_version": "3.0",
+  "created_at": "2026-04-14T15:01:00.000-03:00",
+  "stage": "ticket-analyst",
+  "stage_status": "completed",
+  "idempotency": {
+    "last_comment_id": null,
+    "already_reported": false
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-14T15:01:00.000-03:00",
+      "completed_at": "2026-04-14T15:02:00.000-03:00",
+      "status": "completed",
+      "duration_ms": null,
+      "notes": "Criterios extraídos de sección 'Criterios de aceptación'. Clasificación correcta tras agregar alias 'imagenes' en component-to-module.json."
+    }
+  ],
+
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260414-003",
+    "ticket_key": "NAA-4120",
+    "summary": "RELACIONES en IMAGENES - Servicio de CHECK para DESPUBLICAR/ELIMINAR",
+    "issue_type": "QA Bug - Back",
+    "status": "Done",
+    "priority": "Medium",
+    "component_jira": "imagenes",
+    "classification": {
+      "domain": "images",
+      "module": "images",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "component_jira 'imagenes' matchea directamente en component-to-module.json (alias) → 'images'. Nota: requería actualización del mapa — clave original era 'Images' (en inglés, capitalizada).",
+      "criteria_source": "extracted",
+      "test_hints": [
+        "Verificar que el servicio de check retorna las relaciones de la imagen al despublicar",
+        "Verificar que no se realiza doble llamado al servicio al ejecutar despublicación o eliminación"
+      ]
+    },
+    "acceptance_criteria": [
+      "El servicio de check debe retornar información sobre las relaciones de las imágenes al despublicarlas",
+      "Se debe evitar el doble llamado en las funcionalidades relacionadas"
+    ],
+    "master_validation": {
+      "comment_id": "34859",
+      "validated_by": "Juan Tomas Caldera",
+      "validated_at": "2026-02-19T12:49:19.384-03:00",
+      "test_cases": [
+        { "description": "Para los circuitos de edicion de video se utilice el servicio /images/unlock/check", "result": "✔" },
+        { "description": "Para los circuitos de despublicacion y de eliminacion se utilice el servicio /images/unpublish/check", "result": "✔" }
+      ]
+    },
+    "linked_tickets": ["NAA-4211"],
+    "jira_metadata": {
+      "jiraSummary":      "RELACIONES en IMAGENES - Servicio de CHECK para DESPUBLICAR/ELIMINAR",
+      "ticketType":       "QA Bug - Back",
+      "ticketStatus":     "Done",
+      "assignee":         "Verónica Tarletta",
+      "component":        "imagenes",
+      "sprint":           null,
+      "executiveSummary": null,
+      "parentKey":        "NAA-891",
+      "linkedIssues":     ["NAA-4211"],
+      "fixVersion":       "8.6.16.2 - Recolector bugs .13 .14 .15",
+      "priority":         "Medium",
+      "jiraLabels":       [],
+      "jiraAttachments":  [
+        "image-20260216-151913.png",
+        "Plataforma BLUESTACK CMS - 8.7.1 - Google Chrome 2026-01-07 18-16-54.mp4"
+      ]
+    }
+  },
+
+  "test_engine_output": null,
+  "test_reporter_output": null,
+
+  "milestone_notes": {
+    "fase": "Fase 1 — Milestone validation",
+    "resultado": "CORRECTO",
+    "module_esperado": "images",
+    "module_obtenido": "images",
+    "confidence": "high",
+    "criteria_count": 2,
+    "criteria_source": "extracted",
+    "jira_metadata_completo": true,
+    "observaciones": "Ticket con sección 'Criterios de aceptación' estructurada — extracción limpia. El component_jira 'imagenes' (español, minúsculas) no estaba en el mapa. Agregado alias. Tiene comentario de validación master (comment 34859) — escenario ideal para flujo Dev_SAAS."
+  }
+}

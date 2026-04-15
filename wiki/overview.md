@@ -62,7 +62,7 @@ sessions/           # Tests .test.ts organizados por categoría
 
 ## Comandos de Ejecución
 
-Referencia completa de todos los modos, multi-entorno, forma directa y pipeline: [`.claude/references/COMMANDS.md`](../.claude/references/COMMANDS.md)
+Referencia completa de todos los modos, multi-entorno, forma directa y agente: [`.claude/references/COMMANDS.md`](../.claude/references/COMMANDS.md)
 
 `NODE_OPTIONS='--experimental-vm-modules'` es siempre obligatorio (WSL2 + ESM).
 
@@ -114,7 +114,7 @@ Test (.test.ts)
 | `IS_HEADLESS` | `false` para ver el navegador (default: `true`) |
 | `GRID_URL` | URL del Grid (default: `http://localhost:4444`) |
 | `MAX_INSTANCES` | Workers paralelos (default: 1) |
-| `TEST_ROLE` | Override de rol para pipelines: `admin` \| `editor` \| `basic` (opcional) |
+| `TEST_ROLE` | Override de rol para agentes: `admin` \| `editor` \| `basic` (opcional) |
 
 ### Credenciales por entorno (prefijo `{ENV}_`)
 

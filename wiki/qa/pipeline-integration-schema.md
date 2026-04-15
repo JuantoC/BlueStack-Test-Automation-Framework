@@ -5,11 +5,13 @@ last-updated: 2026-04-14
 
 # Pipeline Integration Schema — Contrato completo
 
+Documenta el contrato entre el agente test-reporter y las skills jira-reader/jira-writer.
+
 ## Contexto
 
-Define el contrato de comunicación entre el pipeline de pruebas automatizadas y las skills `jira-reader` / `jira-writer`.
+Define el contrato de comunicación entre el agente automatizado de pruebas y las skills `jira-reader` / `jira-writer`.
 
-El orquestador invoca `jira-reader` y `jira-writer` como pasos distintos del mismo pipeline:
+El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del mismo agente:
 
 ```
 1. jira-reader OP-6 → extraer criterios del ticket
@@ -20,7 +22,7 @@ El orquestador invoca `jira-reader` y `jira-writer` como pasos distintos del mis
 
 ---
 
-## Input: pipeline → jira-reader
+## Input: qa-orchestrator → jira-reader
 
 ```json
 {
@@ -41,7 +43,7 @@ El orquestador invoca `jira-reader` y `jira-writer` como pasos distintos del mis
 | `search_jql` | OP-2 | Buscar tickets relacionados por componente o suite |
 | `list_transitions` | OP-4 | Verificar transiciones disponibles para el ticket |
 
-### Output: jira-reader → pipeline
+### Output: jira-reader → qa-orchestrator
 
 **OP-6 / extract_criteria**
 ```json
@@ -116,7 +118,7 @@ El orquestador invoca `jira-reader` y `jira-writer` como pasos distintos del mis
 
 ---
 
-## Input: pipeline → jira-writer
+## Input: qa-orchestrator → jira-writer
 
 ### Campos obligatorios
 
@@ -204,7 +206,7 @@ El orquestador invoca `jira-reader` y `jira-writer` como pasos distintos del mis
 | `editor` | Claudia Tobares | `5c1d65c775b0e95216e8e175` |
 | omitido | Inferir del componente o preguntar | — |
 
-### Output: jira-writer → pipeline
+### Output: jira-writer → qa-orchestrator
 
 ```json
 {

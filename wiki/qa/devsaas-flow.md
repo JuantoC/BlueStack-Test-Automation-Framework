@@ -93,7 +93,7 @@ Se tuvo en cuenta:
 - Los bullets son **exactamente** los mismos que los del comentario master — no se inventan
   variaciones ni se adaptan.
 - El comentario **no tiene cierre** — termina en el último bullet (sin "Se ve bien!").
-- Para pipeline automatizado: el resultado de cada bullet puede diferir del master (algunos
+- Para orquestador automatizado: el resultado de cada bullet puede diferir del master (algunos
   que pasaron en master pueden fallar en Dev_SAAS). Actualizar ✔/✘ según el resultado real.
 
 ---
@@ -128,7 +128,7 @@ transitionJiraIssue:
 1. **Resumen:** "Este ticket surge del error detectado durante la validación en Dev_SAAS del ticket [NAA-ORIGINAL]"
 2. **Contexto:** ambiente Dev_SAAS, versión, URL del ambiente si disponible
 3. **Pasos para reproducir:** pasos específicos en el ambiente Dev_SAAS
-4. **Resultado actual:** descripción del error + stacktrace si viene del pipeline
+4. **Resultado actual:** descripción del error + stacktrace si viene del orquestador
 5. **Resultado esperado:** descripción del caso de prueba del ticket original
 6. **Otra información:** referencia al ticket original, log_excerpt si disponible
 
@@ -199,16 +199,16 @@ Se creó el ticket NAA-4460 para su corrección.
 
 ---
 
-## Uso desde el pipeline automatizado
+## Uso desde el agente orquestador
 
-Cuando el pipeline envía `operation: "validate_devsaas"`:
+Cuando el qa-orchestrator envía `operation: "validate_devsaas"`:
 
 1. Invocar `jira-reader OP-3` sobre `ticket_key` para extraer los casos del comentario master
-2. Cruzar esos casos con los `test_results` del payload del pipeline
+2. Cruzar esos casos con los `test_results` del payload del orquestador
 3. Para cada test_result, determinar si el caso pasó ✔ o falló ✘
 4. Construir el comentario Dev_SAAS con los resultados actualizados
 5. Si todos ✔ → transicionar a Done
-6. Si hay ✘ → crear nuevos tickets (PASO D1) con los datos técnicos del pipeline
+6. Si hay ✘ → crear nuevos tickets (PASO D1) con los datos técnicos del orquestador
 
-El pipeline puede proveer en cada `test_result` datos adicionales (`error_message`, `stacktrace`,
+El qa-orchestrator puede proveer en cada `test_result` datos adicionales (`error_message`, `stacktrace`,
 `environment_url`) que enriquecen los tickets de error creados automáticamente.

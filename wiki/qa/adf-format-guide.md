@@ -115,8 +115,9 @@ Párrafo con **negrita** y *cursiva*:
 }
 ```
 
-> Las blockquotes van como nodo hermano del `listItem` que las precede, NO dentro del listItem.
-> Estructura: `bulletList > listItem (con ✘)` seguido de `blockquote` al mismo nivel del bulletList.
+> **Posición correcta:** `blockquote` es un nodo **hermano del `bulletList`** en `doc.content[]`, NO un nodo dentro del `bulletList` ni del `listItem`.
+> Estructura: `doc.content = [..., bulletList { listItem(✘) }, blockquote, ...]`
+> Si se anida dentro del `listItem`, Jira retorna `INVALID_INPUT`. Este fue el error real en NAA-4467 (2026-04-14).
 
 ### codeBlock (bloque de código — stacktrace, logs)
 ```json
@@ -208,7 +209,7 @@ Se pueden combinar: `"marks": [{ "type": "strong" }, { "type": "em" }]`
 
 ---
 
-## Ejemplo completo: Comentario con error (pipeline automatizado)
+## Ejemplo completo: Comentario con error (agente automatizado)
 
 Muestra cómo un resultado ✘ del pipeline incluye error_message y stacktrace:
 

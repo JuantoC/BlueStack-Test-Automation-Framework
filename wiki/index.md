@@ -48,8 +48,12 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 ### Sessions (`sessions/`)
 - [sessions/catalog.md](sessions/catalog.md) — Inventario de 14 tests: flujo, POs y factories de cada uno
 
-### Pipelines (`.claude/pipelines/`)
-- [pipelines/qa-orchestrator.md](pipelines/qa-orchestrator.md) — Arquitectura multi-agente QA: ticket-analyst · test-engine · test-reporter · qa-orchestrator · contratos JSON · flujos de ejecución
+### Agents (`.claude/agents/`)
+5 agentes personalizados de Claude Code con roles y herramientas definidas: ticket-analyst · test-engine · test-reporter · qa-orchestrator · test-generator (Fase 5)
+
+- [docs/architecture/qa-pipeline/INDEX.md](../docs/architecture/qa-pipeline/INDEX.md) — Arquitectura multi-agente QA: tabla de decisión por tema → ticket-analyst · test-engine · test-reporter · qa-orchestrator · contratos JSON · flujos · plan de implementación
+- **Nota:** los agentes en `.claude/agents/` reemplazan el modelo pipelines-as-prompts; el `qa-orchestrator` los invoca via `Agent` tool con `subagent_type`.
+- **Referencias activas** de los agentes (component-to-module.json, test-map.json) permanecen en `.claude/pipelines/*/references/` — no se migraron para no romper rutas hardcoded en los agentes.
 
 ### Development
 - [development/commit-conventions.md](development/commit-conventions.md) — Formato de commits semánticos: tipos, estructura, tabla módulo → impacto
@@ -57,8 +61,9 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 
 ### QA / Jira
 - [qa/adf-format-guide.md](qa/adf-format-guide.md) — Formato ADF JSON para contenido rich text en Jira: nodos, marks, ejemplos completos
-- [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde pipeline
-- [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo pipeline ↔ jira-reader/jira-writer: inputs, outputs, operaciones
+- [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde el agente orquestador
+- [qa/environments.md](qa/environments.md) — Mapping de ambientes: `.env TARGET_ENV` ↔ agente `environment` ↔ Jira (testing=dev_saas, master=master)
+- [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo agente test-reporter ↔ jira-reader/jira-writer: inputs, outputs, operaciones
 
 ---
 
@@ -74,7 +79,7 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 | Navegar entre secciones del CMS | [pages/_shared.md](pages/_shared.md) |
 | Ver qué tests existen | [sessions/catalog.md](sessions/catalog.md) |
 | Cuándo usar cada nivel de log | [core/logging.md](core/logging.md) |
-| Arquitectura del pipeline QA multi-agente | [pipelines/qa-orchestrator.md](pipelines/qa-orchestrator.md) |
+| Arquitectura del pipeline QA multi-agente | [docs/architecture/qa-pipeline/INDEX.md](../docs/architecture/qa-pipeline/INDEX.md) |
 | Levantar Docker Grid / comandos Jest en WSL2 | [core/docker-grid.md](core/docker-grid.md) |
 | Comandos de ejecución completos | [.claude/references/COMMANDS.md](../.claude/references/COMMANDS.md) |
 

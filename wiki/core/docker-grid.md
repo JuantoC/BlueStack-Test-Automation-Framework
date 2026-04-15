@@ -104,7 +104,7 @@ Estos errores aparecen en `console_errors_detected[]` del test-engine output per
 | `"Your session has expired (failed to identify the intended token)"` | Siempre x2 | Token de sesión de algún servicio externo (no el CMS) expira al navegar | Ignorar — no afecta flujo de automatización |
 | `"Google Maps JavaScript API included multiple times"` | Siempre | Dos scripts de Maps cargados en la misma página | Ignorar — warning de Google, no error funcional |
 
-> Si aparece un console error NO listado aquí, puede ser un bug real — reportarlo en el Pipeline Context y no ignorarlo.
+> Si aparece un console error NO listado aquí, puede ser un bug real — documentarlo como bug en el ticket Jira correspondiente y no ignorarlo.
 
 ---
 

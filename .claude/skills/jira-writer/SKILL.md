@@ -11,7 +11,7 @@ description: >
   "linkeá con", "basate en el NAA-XXXX", "los tests pasaron", "los tests fallaron",
   "registrá los resultados en jira", "el pipeline terminó con errores", "actualizá el ticket
   con los resultados del test", "crear bug desde el test fallido".
-  También se activa cuando un pipeline automatizado envía un JSON con resultados de tests.
+  También se activa cuando un agente automatizado (test-reporter) envía un JSON con resultados de tests.
   Depende de jira-reader para leer contexto previo cuando se necesita.
 ---
 
@@ -20,7 +20,7 @@ description: >
 Skill de **escritura** para el proyecto NAA. Crea tickets, postea comentarios y transiciona
 estados siguiendo las convenciones del equipo de QA de Bluestack.
 Opera en dos modos: **conversacional** (Juanto describe una validación) y **automatizado**
-(pipeline de Selenium envía JSON con resultados de tests del framework en `/sessions`).
+(agente test-reporter envía JSON con resultados de tests del framework en `/sessions`).
 
 ## Contexto fijo
 
@@ -221,7 +221,7 @@ Si el usuario menciona "basate en el NAA-XXXX" o "dividí el NAA-XXXX":
 ## MODO F — Input automatizado del pipeline de tests Selenium
 
 ### Cuándo usar
-El pipeline automatizado envía un JSON estructurado con resultados de tests del framework
+El agente test-reporter envía un JSON estructurado con resultados de tests del framework
 (archivos en `/sessions`). Sin intervención humana. El skill parsea el objeto y ejecuta
 las operaciones Jira correspondientes.
 
@@ -271,9 +271,36 @@ error después de que el comentario ya fue posteado, MODO F no duplica la escrit
 Para cada `test_result`:
 - `description` → texto del bullet
 - `result` (`✔` / `✘`) → al final del bullet
-- `error_message` → blockquote bajo el bullet ✘
+- `error_message` → blockquote **hermano del bulletList** en `doc.content[]`, NO dentro del listItem
 - `stacktrace` → nodo `codeBlock` dentro del blockquote (primeras 5-8 líneas)
 - `environment_url` → incluir en el error como referencia
+
+> **Regla ADF blockquote:** Siempre colocar el blockquote como nodo siguiente al `bulletList` en `doc.content[]`.
+> Nunca anidarlo dentro de un `listItem` — Jira retorna `INVALID_INPUT` en ese caso.
+> Ver `wiki/qa/adf-format-guide.md §Blockquote` para el ejemplo correcto.
+
+**Mención al asignado (si hay resultados ✘):**
+
+El comentario de cierre debe incluir una mención usando el `assignee_hint` del payload:
+
+| `assignee_hint` | accountId | displayName |
+|-----------------|-----------|-------------|
+| `frontend` | `633b5c898b75455be4580f5b` | @Paula Rodriguez |
+| `backend` | `5c51d02898c1ac41b4329be3` | @Verónica Tarletta |
+| `editor` | `5c1d65c775b0e95216e8e175` | @Claudia Tobares |
+| omitido / ambiguo | — | No incluir mención |
+
+Ejemplo de párrafo de cierre ADF con mención:
+```json
+{
+  "type": "paragraph",
+  "content": [
+    { "type": "text", "text": "Quedan observaciones. " },
+    { "type": "mention", "attrs": { "id": "633b5c898b75455be4580f5b", "text": "@Paula Rodriguez", "accessLevel": "" } },
+    { "type": "text", "text": " por favor revisar el ítem marcado con ✘" }
+  ]
+}
+```
 
 Agregar al pie del comentario para trazabilidad:
 - `_Suite: [test_suite] — Archivo: [test_file]_` (si están presentes)
@@ -296,9 +323,9 @@ Prioridad automática: `High` si `environment == dev_saas` o cliente; `Medium` p
 Generar siempre el objeto de respuesta al terminar.
 Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) → Output Schema.
 
-### F6: Actualizar Pipeline Context (OBLIGATORIO al terminar)
+### F6: Actualizar Execution Context (OBLIGATORIO al terminar)
 Después de ejecutar las acciones, el output de F5 debe ser escrito en el campo
-`test_reporter_output` del Pipeline Context JSON (`pipeline-logs/completed/TICKET_KEY.json`).
+`test_reporter_output` del Execution Context JSON (`pipeline-logs/completed/TICKET_KEY.json`).
 
 Campos obligatorios en `test_reporter_output`:
 ```json

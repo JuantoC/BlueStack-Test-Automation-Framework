@@ -102,18 +102,27 @@ NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true \
 `--json --outputFile` es obligatorio para que test-engine parsee los resultados.
 Nunca modificar el `.env` para cambiar la URL — usar override inline.
 
-### Discovery de campos custom Jira (pendiente)
+### Discovery de campos custom Jira ✅ Resuelto 2026-04-15
+
+IDs de campos deploy/SQL/VFS descubiertos via `GET /rest/api/3/field`. Ver mapeo completo en:
+- `.claude/pipelines/ticket-analyst/references/classification-rules.md` §6
+- `.claude/agents/ticket-analyst.md` — sección TA-3 (mapeo de customfields)
+
+Grupos encontrados: A (10036-10041, legacy) y B (10066-10071, NAA activo).
 
 ```bash
-# Obtener todos los campos de un ticket para identificar customfield_* de deploy/SQL/VFS
+# Refrescar el listado completo de campos custom de la instancia (si se agregan nuevos campos)
 curl -s -u "$JIRA_USERNAME:$JIRA_API_TOKEN" \
   -H "Accept: application/json" \
-  "https://bluestack-cms.atlassian.net/rest/api/3/issue/NAA-XXXX" \
-  | jq '[to_entries[] | select(.key | startswith("customfield")) | {key, value}]'
+  "https://bluestack-cms.atlassian.net/rest/api/3/field" \
+  | python3 -c "
+import json, sys
+fields = json.load(sys.stdin)
+custom = [f for f in fields if f.get('custom', False)]
+for f in sorted(custom, key=lambda x: x['id']):
+    print(f'{f[\"id\"]}: {f[\"name\"]}')
+"
 ```
-
-Ejecutar sobre un ticket que tenga los campos "deploy", "cambios SQL" y "cambios VFS" completados.
-Agregar los IDs encontrados a OP-1 y OP-6 de jira-reader y a classification-rules.md.
 
 ---
 

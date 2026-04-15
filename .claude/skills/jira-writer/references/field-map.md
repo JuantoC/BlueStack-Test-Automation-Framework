@@ -28,7 +28,7 @@
 | Low | 4 | Puede esperar |
 | Lowest | 5 | Nice-to-have |
 
-> **Regla de prioridad para bugs creados por el pipeline automatizado:**
+> **Regla de prioridad para bugs creados por el agente automatizado:**
 > - `dev_saas` o ambiente de cliente → `High` mínimo
 > - `master` → `Medium` por defecto
 

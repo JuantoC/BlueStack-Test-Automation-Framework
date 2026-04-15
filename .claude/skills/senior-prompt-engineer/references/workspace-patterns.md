@@ -121,8 +121,7 @@ Los pipelines corren sin intervención humana. El contexto es finito y no hay re
 ```
 # En lugar de: Read(architecture.md) completo
 # Hacer:
-Grep("### 3.3", "docs/architecture/qa-automation-architecture.md") → obtener línea N
-Read(offset=N, limit=80)
+Read("docs/architecture/qa-pipeline/02-arquitectura-agentes.md")  # §3 completo, ~280 líneas
 ```
 
 ### Patrón: subagente para exploración JQL ancha

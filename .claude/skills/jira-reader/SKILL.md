@@ -9,7 +9,7 @@ description: >
   Se activa con frases como: "buscá tickets de", "qué dice el NAA-XXXX", "leé el ticket",
   "cuáles son los comentarios de", "buscar por JQL", "dame el contexto del ticket",
   "encontrá tickets similares", "qué casos de prueba tiene el NAA-XXXX",
-  "el pipeline necesita leer el ticket", "extraé los criterios de aceptación del NAA-XXXX".
+  "un agente necesita leer el ticket", "extraé los criterios de aceptación del NAA-XXXX".
   Esta skill es el punto de entrada de lectura para el sistema multi-agente de QA.
   jira-writer depende de sus outputs para el flujo de validación Dev_SAAS.
 ---
@@ -17,7 +17,7 @@ description: >
 # jira-reader
 
 Skill de **solo lectura** para el proyecto NAA. Provee contexto a jira-writer,
-al pipeline automatizado de Selenium, y a agentes externos del sistema QA.
+al agente test-engine del sistema QA, y a agentes externos.
 
 ## Contexto fijo
 
@@ -62,6 +62,15 @@ necesita metadata de adjuntos para OP-6.
  "reporter", "parent", "comment", "issuelinks", "customfield_10061",
  "customfield_10062", "customfield_10021", "labels", "fixVersions", "attachment"]
 ```
+
+> **Excepción obligatoria — status "Revisión":**
+> Si el ticket tiene `status.name === "Revisión"`, incluir SIEMPRE el campo `comment`
+> desde el primer request (OP-1-FULL). No aplicar lazy-loading.
+> **Razón:** En estado "Revisión", el hilo de comentarios documenta el fix implementado
+> por el dev, el feedback recibido y el estado final del trabajo. Es la fuente más rica
+> de criterios de prueba.
+> Leer los comentarios cronológicamente: entender qué se implementó, qué feedback hubo,
+> qué quedó listo para validar.
 
 > **Regla de escalación:** Intentar TA-4.1 con OP-1-LIGHT. Si la descripción
 > tiene sección "Criterios de aceptación" o "Casos de prueba" → usar ese resultado,
@@ -155,15 +164,14 @@ Output: accountId, displayName, emailAddress
 Tool:   lookupJiraAccountId
 ```
 
-### OP-6: Sintetizar criterios de prueba desde el ticket completo
+### OP-6: Sintetizar y estructurar criterios de prueba
 
-Usado por el pipeline automatizado para producir los casos de prueba a ejecutar.
-**Siempre leer TODO el contenido del ticket** — muchos tickets tienen información clave
-en comentarios y campos custom, no solo en la descripción.
+Esta operación transforma la información cruda del ticket en criterios de prueba estructurados
+con `test_approach` concreto. Es la operación más crítica del pipeline.
 
 ```
 Input:  issueKey
-Output: lista de criterios de prueba sintetizados desde TODO el contenido del ticket
+Output: lista de criterios de prueba estructurados con test_approach
 Tool:   getJiraIssue
 Campos: ["summary", "description", "comment", "customfield_10061", "customfield_10062",
          "customfield_10021", "customfield_deploy", "customfield_sql_changes",
@@ -174,20 +182,59 @@ Campos: ["summary", "description", "comment", "customfield_10061", "customfield_
 > descubrirse ejecutando OP-1 sobre un ticket real y observando todos los `customfield_*`
 > retornados. Usar `getJiraIssue` sin filtrar campos en esa discovery run.
 
-**Estrategia de extracción (en orden de precedencia):**
+**Principio central — derivación de criterios desde bugs:**
 
-1. **Sección "Criterios de aceptación"** en descripción → `source: "extracted"`
-2. **Sección "Casos de prueba"** en descripción (si existe) → `source: "extracted"`
-3. **Comentarios de devs/QA** con comportamiento descrito o pasos reproducibles → `source: "inferred"`
-4. **Campos custom:** deploy (qué cambios se desplegaron), cambios SQL (impacto en BD),
-   cambios VFS (archivos de configuración/assets modificados) → `source: "inferred"`
-5. **Título + Resumen Ejecutivo** (`customfield_10062`) para entender el flujo principal → `source: "inferred"`
+Un bug describe una condición fallida. El test correcto NO es "ejecutar el flujo y ver si pasa".
+El test correcto es:
+1. Reproducir exactamente la condición que reporta el bug
+2. Assertar que el fix la corrige
 
-**Si ninguna fuente produce ≥ 1 criterio accionable:**
-- Retornar `criteria: []`, `source: "none"`
-- El pipeline debe marcar `testable: false`, `human_escalation: true`
-- Mensaje de escalación: "Ticket sin criterios de prueba ni descripción suficiente para inferir
-  el flujo. Adjuntar: comportamiento esperado, pasos para reproducir, o criterios de aceptación."
+Ejemplo:
+- Bug: "Campo Tema no se marca rojo cuando está vacío al hacer clic en Generar"
+- Test INCORRECTO: completar el flujo de creación de nota IA → si pasa, validado
+- Test CORRECTO: abrir modal → dejar Tema vacío → clic Generar → assertar que Tema tiene estado de error en DOM
+
+**Schema de output — cada criterio es un objeto:**
+
+```json
+{
+  "criterion_id": 1,
+  "description": "Descripción en lenguaje natural del criterio",
+  "test_approach": {
+    "precondition": "Estado inicial requerido antes de la acción",
+    "action": "Acción específica a ejecutar",
+    "assertion": "Qué debe ser verdad después de la acción (observable en DOM)"
+  },
+  "criterion_type": "field_validation | functional_flow | state_transition | error_handling | visual_check | responsive | performance",
+  "automatable": true,
+  "reason_if_not": null
+}
+```
+
+**Criterion type taxonomy:**
+- `field_validation` — validaciones de formulario: campos requeridos, formatos, longitud, estados de error
+- `functional_flow` — flujo end-to-end completo (happy path funcional)
+- `state_transition` — cambios de estado de objetos: guardado, publicación, archivado
+- `error_handling` — manejo de errores: mensajes, fallbacks, recovery
+- `visual_check` — estilos y layout — evaluar `automatable` via modelo de capacidades
+- `responsive` — comportamiento por viewport/dispositivo — casi siempre `automatable: false`
+- `performance` — velocidad y animaciones — siempre `automatable: false`
+
+**Proceso de clasificación de automatable:**
+
+Para cada criterio:
+1. Formular el `test_approach` completo (precondition + action + assertion)
+2. Preguntarse: "¿Puedo escribir esta assertion en Selenium verificando una propiedad DOM observable?"
+3. Si la assertion requiere percepción humana, entorno físico específico, o no hay propiedad DOM → `automatable: false`
+4. `reason_if_not` describe la razón fundamental (no keywords)
+
+Referencia completa del modelo de capacidades: `.claude/pipelines/ticket-analyst/references/agent-capabilities.md` (referencia activa — los agentes la consumen desde su ubicación en .claude/pipelines/)
+
+**Fuentes en orden de precedencia:**
+1. Lista explícita en descripción del ticket (bullets con pasos numerados)
+2. Comentarios del dev describiendo qué cambio implementó
+3. Derivación por lógica inversa del bug: condición fallida → test que verifica el fix
+4. Ninguna de las anteriores → `criteria_source: "none"`, `acceptance_criteria: []`, `testable: false`
 
 **Output estructurado:**
 ```json
@@ -195,9 +242,18 @@ Campos: ["summary", "description", "comment", "customfield_10061", "customfield_
   "ticket_key": "NAA-XXXX",
   "ticket_summary": "...",
   "criteria": [
-    { "index": 1, "description": "El video se sube correctamente con formato MP4" },
-    { "index": 2, "description": "El modal muestra el progreso de la subida" },
-    { "index": 3, "description": "El video aparece en la grilla luego de la subida" }
+    {
+      "criterion_id": 1,
+      "description": "El video se sube correctamente con formato MP4",
+      "test_approach": {
+        "precondition": "Usuario autenticado en el CMS con permisos de carga",
+        "action": "Seleccionar archivo MP4 válido y ejecutar el flujo de subida completo",
+        "assertion": "El video aparece en la grilla con estado 'publicado' y sin mensajes de error en DOM"
+      },
+      "criterion_type": "functional_flow",
+      "automatable": true,
+      "reason_if_not": null
+    }
   ],
   "source": "extracted | inferred | none",
   "jira_metadata": {
@@ -219,7 +275,7 @@ Campos: ["summary", "description", "comment", "customfield_10061", "customfield_
 ```
 
 > `jira_metadata` sigue el contrato exacto de `TestMetadata` en `src/core/wrappers/testWrapper.ts`.
-> El orquestador del pipeline puede pasarlo directamente al wrapper `runSession` para poblar Allure.
+> El agente orquestador puede pasarlo directamente al wrapper `runSession` para poblar Allure.
 > Este output permite mapear cada criterio con el test Selenium correspondiente en `/sessions`
 > y enviar el resultado a jira-writer.
 
@@ -227,7 +283,7 @@ Campos: ["summary", "description", "comment", "customfield_10061", "customfield_
 
 ## Token Budget — campos por costo
 
-En pipelines automatizados el contexto es el recurso más escaso. Clasificar los
+En agentes automatizados el contexto es el recurso más escaso. Clasificar los
 campos por costo antes de hacer cualquier llamada a Jira:
 
 | Costo | Campos | Cuándo pedir |
@@ -236,7 +292,7 @@ campos por costo antes de hacer cualquier llamada a Jira:
 | **Medio** | `description`, `reporter`, `issuelinks`, `customfield_10062`, `customfield_10021` | OP-1-LIGHT (incluidos) |
 | **Alto** | `comment` | Solo si descripción no tiene criterios — OP-1-FULL |
 | **Alto** | `attachment` | Solo en OP-6 completo o para metadata de adjuntos |
-| **Muy alto** | `expand=changelog` / `expand=renderedFields` | Nunca en pipeline — solo discovery manual |
+| **Muy alto** | `expand=changelog` / `expand=renderedFields` | Nunca en agente automatizado — solo discovery manual |
 
 **Regla para OP-2 (JQL search):**
 Cuando se hace una búsqueda exploratoria (¿qué tickets existen de este componente?),
@@ -346,7 +402,7 @@ No reintentar `getJiraIssue` sin el `expand` después del overflow — lanzar el
 
 ## Modo automatizado (invocación desde pipeline)
 
-Cuando jira-reader es invocado por el orquestador del pipeline (no por el usuario):
+Cuando jira-reader es invocado por un agente orquestador (no por el usuario):
 
 1. El orquestador envía un input estructurado con `operation` y `ticket_key`
 2. jira-reader ejecuta la operación correspondiente
@@ -368,7 +424,7 @@ Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) para el con
 
 ## Output contract (para integración multi-agente)
 
-Cuando jira-reader es invocado por otro agente o pipeline, el output sigue este schema:
+Cuando jira-reader es invocado por otro agente, el output sigue este schema:
 
 ```json
 {
@@ -387,4 +443,4 @@ El campo `data` contiene el payload específico de la operación (ver schemas de
 
 ## Referencias
 - [`references/transitions.md`](references/transitions.md) → IDs y nombres de todas las transiciones del proyecto NAA, flujo QA estándar
-- [`references/pipeline-schema.md`](references/pipeline-schema.md) → contrato de input/output para invocación desde pipeline
+- [`references/pipeline-schema.md`](references/pipeline-schema.md) → contrato de input/output para invocación desde agente automatizado

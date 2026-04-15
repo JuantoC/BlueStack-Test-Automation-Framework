@@ -120,6 +120,18 @@ Buscar "Criterios de aceptación" o "Casos de prueba" en la descripción. Si tie
 **4.2 — Inferencia desde contexto (source: "inferred"):**
 Si extracción retorna vacío, inferir desde: comentarios de devs/QA, campos custom (deploy, SQL, VFS), título + resumen ejecutivo (`customfield_10062`).
 
+**4.4 — Validar criterios contra comentarios (invalidación):**
+Después de 4.1 o 4.2, ANTES de declarar el listado final: leer el hilo de comentarios cronológicamente y detectar señales de invalidación:
+
+- **"se trabaja en otro ticket" / "ya se está trabajando" / ticket linkeado `is blocked by` sin resolver** → ese criterio fue delegado. Excluirlo del listado.
+- **"evaluar y definir" / "pendiente de decisión" / "a definir" / "falta definir"** → la implementación no está confirmada. El criterio no tiene base verificable. Excluirlo.
+- **Confirmación de implementación en comentario de dev/autor** ("ya está hecho", "deploy incluye", "listo en master") → el criterio tiene respaldo → mantener válido.
+
+Si todos los criterios quedan invalidados tras este paso:
+- `criteria_source: "none"`, `testable: false`, `human_escalation: true`
+- `escalation_reason`: describir exactamente qué criterios se invalidaron y qué señal lo causó. Ejemplo: `"3 criterios inferidos de la descripción invalidados por comentarios: 2/3 se trabajan en NAA-4037 (is blocked by, In Progress), 1/3 en estado 'evaluar y definir' sin implementación confirmada."`
+- Generar `escalation_report` completo (ver formato en TA-4.3).
+
 **4.3 — Escalación (source: "none"):**
 Si después de 4.1 y 4.2 no hay ≥ 1 criterio accionable:
 ```json
@@ -128,9 +140,24 @@ Si después de 4.1 y 4.2 no hay ≥ 1 criterio accionable:
   "source": "none",
   "testable": false,
   "human_escalation": true,
-  "escalation_reason": "Ticket sin criterios de prueba ni descripción suficiente."
+  "escalation_reason": "Ticket sin criterios de prueba ni descripción suficiente.",
+  "escalation_report": {
+    "summary": "No fue posible extraer ni inferir criterios automatizables.",
+    "criteria_attempted": [],
+    "manual_test_guide": []
+  }
 }
 ```
+
+**Regla:** `escalation_report` es OBLIGATORIO cuando `human_escalation: true`. Debe incluir:
+- `criteria_attempted[]`: bullets con cada criterio que se intentó extraer, con razón de por qué no fue suficiente (demasiado ambiguo, solo imagen, sin comportamiento observable, etc.)
+- `manual_test_guide[]`: por cada criterio posible, describir cómo probarlo manualmente:
+  - `criterion`: descripción del comportamiento a verificar
+  - `precondition`: estado inicial necesario
+  - `steps`: pasos concretos en el CMS
+  - `assertion`: qué observar para dar por válido
+  - `reason_not_automatable`: por qué no puede automatizarse
+
 Setear `human_escalation: true` en Execution Context y **detener**.
 
 Schema de cada criterio:
@@ -169,6 +196,13 @@ Calcular `testability_summary`:
 }
 ```
 
+**Si `all_automatable: false` (ningún criterio es ejecutable por Selenium):**
+Generar `escalation_report` OBLIGATORIO con el mismo formato que TA-4.3:
+- `criteria_attempted[]`: cada criterio con la razón exacta de por qué no es automatizable (acceso a servidor, cambio de backend, percepción humana, etc.).
+- `manual_test_guide[]`: por cada criterio, guía completa de testing manual (criterion, precondition, steps, assertion, reason_not_automatable).
+
+Este report existe aunque los criterios estén bien estructurados — la diferencia con TA-4.3 es que hay criterios pero el framework actual no puede ejecutarlos.
+
 ---
 
 ## TA-5: Extraer test_cases del comentario master (solo dev_saas)
@@ -201,7 +235,12 @@ Para cada criterio con `automatable: true`: consultar `test-map.json` del módul
 
 Leer `.claude/pipelines/ticket-analyst/references/component-to-module.json`.
 
-**Paso 1 — component_jira exacto:** buscar el valor exacto de `component_jira` como clave en el JSON (case-sensitive). El JSON es la fuente de verdad — incluye variantes de case (`Ai`, `ia`, `Videos`, etc.) y aliases (`CKEditor`, `Login`, `login`). Si el valor de `module` y `domain` es `null` → `sessions_found = false`. No escalar.
+**Paso 1 — component_jira en el mapa:** `component_jira` puede ser un string o un array.
+- Si es array → iterar por TODOS los valores y colectar los módulos non-null que matcheen en el JSON.
+- Si hay múltiples matches → aplicar regla de desempate: el módulo más específico gana (`ai-post` > `post` > `video` > `images` > `auth`). Usar el ganador como módulo final.
+- Si hay al menos 1 match → **NO ir a Paso 2 ni Paso 3** (fuzzy).
+- Si algún valor mapea a `null` → ignorarlo para el match; `null` no cuenta como "no match".
+- Si ningún valor tiene match en el JSON → ir al Paso 2.
 
 **Paso 2:** Si no está en el mapa, exact match en `test-map.json` por nombre de módulo → `confidence: "high"`.
 
@@ -293,6 +332,7 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` c
     "confidence": "high | medium | low",
     "confidence_reason": "...",
     "criteria_source": "extracted | inferred | none",
+    "human_escalation": false,
     "test_hints": [...]
   },
   "testability_summary": { ... },
@@ -318,6 +358,8 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` c
 ```
 
 Actualizar: `stage: "ticket-analyst"`, `stage_status: "completed"`, agregar entry en `step_log[]`.
+
+**Nota sobre `human_escalation`:** Si `testable: false` por cualquier razón (`criteria_source: none`, `sessions_found: false`, o todos los criterios son `automatable: false`), setear `human_escalation: true` SIEMPRE. El valor por defecto es `false`.
 
 ---
 

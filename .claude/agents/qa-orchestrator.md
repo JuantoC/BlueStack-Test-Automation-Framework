@@ -1,6 +1,6 @@
 ---
 description: Orquestador principal del pipeline QA. Invocar cuando se necesita procesar un ticket Jira de forma end-to-end: leer el ticket, ejecutar los tests correspondientes y reportar los resultados en Jira. Trigger manual o desde CronCreate.
-tools: Agent, Read, Write, Glob
+tools: Agent, Read, Write, Glob, mcp__claude_ai_Atlassian__getJiraIssue
 ---
 
 # Rol: qa-orchestrator
@@ -93,6 +93,30 @@ Persistir a disco antes de continuar.
 
 ## ORC-2: Invocar ticket-analyst
 
+### ORC-2.0 — Verificar estado del ticket antes de invocar ticket-analyst
+
+Leer el estado actual del ticket via MCP (`getJiraIssue` con campo `status`).
+
+| `environment` | Estado válido para proceder | Estado → abortar |
+|---|---|---|
+| `master` | `Revisión` | cualquier otro |
+| `dev_saas` | `Done` | cualquier otro |
+
+Si el estado NO es válido:
+```json
+{
+  "stage": "done",
+  "stage_status": "skipped",
+  "outcome": "wrong_status",
+  "reason": "Ticket en estado '<status>' — no corresponde procesar en ambiente '<environment>'"
+}
+```
+
+Ir directamente a **ORC-6 (Finalizar)** con `already_reported: false`.
+No invocar ticket-analyst, test-engine ni test-reporter.
+
+---
+
 Invocar el sub-agente ticket-analyst pasando el trigger y el pipeline_id:
 
 ```
@@ -111,10 +135,27 @@ Después de que retorna, leer `pipeline-logs/active/<ticket_key>.json` y registr
 
 **Si ticket-analyst produce `testable: false`:**
 - Registrar `stage_status: "escalated"`.
-- Ir a **ORC-6 (Finalizar)** con outcome `"escalated"`. No invocar test-engine.
+- Determinar `outcome` según la razón:
+  - `criteria_source: "none"` → `outcome: "human_escalation"`
+  - `testability_summary.all_automatable: false` (criterios existen pero todos non-automatable) → `outcome: "non_automatable"`
+- Ir a **ORC-6 (Finalizar)**. No invocar test-engine.
 
-**Si ticket-analyst produce `confidence: "low"`:**
-- Idem — escalar sin proceder.
+**Si ticket-analyst produce `confidence: "low"` y `sessions_found: true`:**
+- Continuar el pipeline normalmente (invocar test-engine y test-reporter).
+- test-reporter debe incluir en el comentario Jira un bloque de advertencia visible:
+  `"⚠️ Clasificación automática con baja confianza — módulo asignado por fuzzy match. Validar manualmente que las sesiones ejecutadas corresponden al ticket antes de cambiar estado."`
+- **NO aplicar transición de estado** (`transitionJiraIssue` no debe ejecutarse).
+- Notificar al humano en el chat que el ticket requiere revisión manual del módulo clasificado.
+
+**Si ticket-analyst produce `confidence: "low"` y `sessions_found: false`:**
+- Escalar sin proceder. Registrar `outcome: "low_confidence"`.
+
+**Si ticket-analyst produce `testability_summary.partial_automatable: true`:**
+- Continuar el pipeline (invocar test-engine y test-reporter).
+- Setear flag `partial_coverage: true` en el Execution Context antes de invocar test-reporter.
+- test-reporter NO aplica transición de estado (ver TR-4b regla condicional).
+- Incluir en el comentario Jira el bloque ⚠️ con los criterios no-automatizables y su guía manual del `escalation_report`.
+- Notificar al humano en el chat: qué criterios se probaron y cuáles quedan pendientes de validación manual.
 
 Persistir el context después de completar ORC-2.
 
@@ -197,6 +238,27 @@ Persistir el context después de completar ORC-5.
 
 Para outcome de escalación o sin sessions: `stage_status: "escalated"` o `"no_sessions"` y mantener `already_reported: false`.
 
+**Si `outcome` es `"human_escalation"`, `"non_automatable"` o `"no_sessions"`:**
+
+1. **Invocar test-reporter en modo escalación:**
+   ```
+   Agent({
+     subagent_type: "test-reporter",
+     prompt: "Reportar escalación del ticket NAA-XXXX. Execution Context en pipeline-logs/active/NAA-XXXX.json. Modo: escalation."
+   })
+   ```
+   El test-reporter detecta `mode: "escalation"` (ausencia de `test_engine_output`), construye el comentario ADF desde `escalation_report` y lo postea via jira-writer. No transiciona estado. Ver TR-E en test-reporter.
+
+2. **Imprimir en el chat** el `escalation_report` completo formateado como bullets:
+   - Summary de la escalación
+   - Cada entrada de `criteria_attempted[]` con su razón
+   - Cada entrada de `manual_test_guide[]` con sus pasos
+
+3. **Notificar al humano en el chat:**
+   `"⚠️ Ticket <KEY> requiere validación manual. Se adjuntó comentario en Jira con las guías de testing. El ticket permanece en Revisión."`
+
+No resumir como "ticket escalado" — el humano debe recibir todo el trabajo de análisis aunque no haya test automático.
+
 ### ORC-6.2 — Mover context de active/ a completed/
 
 1. Escribir el context final en `pipeline-logs/completed/<ticket_key>.json`.
@@ -223,6 +285,7 @@ Agregar `milestone_notes` al context antes de cerrarlo:
 
 | Stage | Error | Acción |
 |-------|-------|--------|
+| ticket-analyst | Ticket en estado incorrecto | ORC-2.0 aborta antes de invocar — `outcome: "wrong_status"` |
 | ticket-analyst | MCP Jira no responde | Registrar en `error_log`, abortar, `stage_status: "error"` |
 | ticket-analyst | Ticket no existe | Registrar error, abortar con mensaje claro |
 | test-engine | Docker Grid no disponible | Registrar error, abortar — no reintentar automáticamente |

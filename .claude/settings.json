@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/pages/post_page/note_editor_page/MainEditorPage.ts)",
+      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/core/wrappers/testWrapper.ts)",
+      "Bash(python3 -c ':*)",
+      "Bash(./node_modules/.bin/tsx scripts/skills/commit-parser.ts --author jtcaldera-bluestack --days 1)",
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true node node_modules/.bin/jest NewAIPost --json --outputFile=pipeline-logs/results-NAA-4467-exec-fase3.json)",
+      "mcp__claude_ai_Atlassian__transitionJiraIssue",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('pipeline-logs/completed/NAA-4467.json'\\)\\); print\\('already_reported:', d['idempotency']['already_reported']\\); print\\('last_comment_id:', d['idempotency']['last_comment_id']\\); print\\('stage:', d['stage']\\)\")",
+      "Bash(node_modules/.bin/tsx scripts/sync-test-map.ts)",
+      "Bash(wc -l /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/docs/architecture/qa-pipeline/*.md)",
+      "mcp__claude_ai_Atlassian__getTransitionsForJiraIssue",
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.aitmpl.com)",
+      "Edit(/.claude/skills/jira-reader/**)",
+      "Bash([ -f \"$BASE/.claude/pipelines/$f/PIPELINE.md\" ])",
+      "Bash(grep -i \"Pipeline Context\\\\|Pipeline Execution Record\\\\|sub-pipeline\\\\|sub-pipelines\\\\|pipeline automatizado\\\\|inter-pipeline\" /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines/*/PIPELINE.md)",
+      "Bash([ -f \"/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/$file\" ])",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills -type f \\\\\\( -name \"*.md\" -o -name \"*.json\" -o -name \"*.html\" \\\\\\) -exec grep -l \"Pipeline Context\\\\|Pipeline Execution Record\\\\|sub-pipeline\\\\|pipeline automatizado\\\\|inter-pipeline\\\\|orquestador del pipeline\\\\|invocar sub-pipelines\" {} \\\\;)",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills -type f \\\\\\( -name \"*.md\" -o -name \"*.json\" -o -name \"*.html\" \\\\\\) -exec grep -Hn \"Pipeline Context\\\\|Pipeline Execution Record\\\\|sub-pipeline\\\\|pipeline automatizado\\\\|inter-pipeline\\\\|orquestador del pipeline\" {} \\\\;)",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/rules -type f -name \"*.md\" -exec grep -Hn \"Pipeline Context\\\\|Pipeline Execution Record\\\\|sub-pipeline\\\\|pipeline automatizado\\\\|inter-pipeline\\\\|orquestador del pipeline\" {} \\\\;)",
+      "Bash(sed -n '1,20p' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-reader/SKILL.md)",
+      "Bash(sed -n '1,20p' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-writer/SKILL.md)",
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest NewAIPost --testPathPattern=\"sessions/post/NewAIPost\" --no-coverage --json)",
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest NewAIPost --testPathPattern=\"sessions/post/NewAIPost\" --no-coverage)"
+    ],
+    "additionalDirectories": [
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines"
+    ]
+  }
+}

@@ -65,6 +65,8 @@ Acción recomendada: [tu recomendación]
 Las pipelines no se cargan automáticamente. Ver `.claude/pipelines/` para invocación y triggers.  
 Regla: si una skill solo se activa desde otras skills o pipelines (nunca por conversación directa), va en `.claude/pipelines/`, no en `.claude/skills/`.
 
+**Agentes personalizados:** Los pipelines principales fueron migrados a custom agents en `.claude/agents/` (`ticket-analyst`, `test-engine`, `test-reporter`, `qa-orchestrator`). El `qa-orchestrator` los invoca via el tool `Agent` con `subagent_type`, reemplazando el modelo anterior de pipelines-as-prompts. Los archivos en `.claude/pipelines/` se mantienen como referencia histórica.
+
 ---
 
 ## Acceso a Jira

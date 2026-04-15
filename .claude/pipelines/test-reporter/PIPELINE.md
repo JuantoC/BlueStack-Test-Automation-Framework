@@ -5,6 +5,11 @@ invoked_by: qa-orchestrator
 uses_skills: [jira-writer MODO F]
 ---
 
+> **DEPRECATED — Referencia histórica v3.0**  
+> Este archivo fue el prompt de invocación en el modelo pipelines-as-prompts.  
+> El agente vigente está en `.claude/agents/test-reporter.md`.  
+> Este documento se conserva como referencia de la lógica interna del agente.
+
 # test-reporter
 
 **Responsabilidad única:** Traducir el output del test-engine a acciones Jira usando

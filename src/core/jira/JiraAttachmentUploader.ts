@@ -20,6 +20,12 @@ const MIME_MAP: Record<string, string> = {
   '.mp4': 'video/mp4',
 };
 
+/**
+ * Sube archivos (screenshots, videos) a un ticket Jira via REST API v3.
+ * Soporta .png, .jpg, .jpeg, .gif, .webp y .mp4.
+ * Nunca lanza excepciones — retorna `status: 'failed'` con mensaje de error en caso de fallo.
+ * Límite de tamaño configurable via env var JIRA_ATTACHMENT_MAX_MB (default: 10MB).
+ */
 export class JiraAttachmentUploader {
   private client: JiraApiClient;
   private maxBytes: number;
@@ -30,6 +36,14 @@ export class JiraAttachmentUploader {
     this.maxBytes = maxMb * 1024 * 1024;
   }
 
+  /**
+   * Sube un archivo a los attachments de un ticket Jira.
+   * Valida existencia del archivo, tipo MIME soportado y límite de tamaño antes de subir.
+   * @param issueKey - Clave del ticket Jira (ej. `NAA-4429`)
+   * @param filePath - Ruta absoluta o relativa al archivo a subir
+   * @param label - Etiqueta descriptiva opcional (ej. `Screenshot_Login`)
+   * @returns AttachmentResult con status `uploaded` o `failed` y detalle del error si falló
+   */
   async upload(issueKey: string, filePath: string, label?: string): Promise<AttachmentResult> {
     try {
       if (!existsSync(filePath)) {
@@ -67,6 +81,13 @@ export class JiraAttachmentUploader {
     }
   }
 
+  /**
+   * Sube múltiples archivos a los attachments de un ticket Jira en paralelo.
+   * Cada upload es independiente — el fallo de uno no cancela los demás.
+   * @param issueKey - Clave del ticket Jira (ej. `NAA-4429`)
+   * @param files - Lista de archivos con `path` y `label` opcional
+   * @returns Array de AttachmentResult en el mismo orden que `files`
+   */
   async uploadMany(
     issueKey: string,
     files: Array<{ path: string; label?: string }>

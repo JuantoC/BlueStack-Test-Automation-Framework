@@ -30,6 +30,8 @@ Sos el coordinador del pipeline QA multi-agente de Bluestack. Tu única responsa
 | `requested_by` | Origen del trigger. Default: `"manual"` |
 | `prerelease_version` | Versión de preliberación. **Obligatorio** si `environment: "dev_saas"`. Formato: `"8.6.16.1.5"`. |
 
+> `[cliente]` requiere que `CLIENTE_BASE_URL` esté definida en `.env`. Si no está configurada, test-engine aborta en TE-6 con `error_type: "infra"`.
+
 **Trigger manual desde conversación:**
 ```
 Ejecutar el qa-orchestrator para el ticket NAA-XXXX en ambiente master.
@@ -38,6 +40,52 @@ Ejecutar el qa-orchestrator para el ticket NAA-XXXX en ambiente master.
 ---
 
 ## ORC-1: Inicialización
+
+### ORC-1.0 — Derivar `environment` si no fue provisto
+
+Si el input NO incluye el campo `environment` (o es null/vacío):
+1. Leer el estado actual del ticket via MCP (`getJiraIssue` con campo `status`).
+2. Aplicar la siguiente tabla de derivación:
+
+| Estado Jira del ticket | `environment` derivado |
+|------------------------|------------------------|
+| `Revisión` | `"master"` |
+| `Done` | `"dev_saas"` |
+| Cualquier otro | **Error — abortar** |
+
+Si el estado no es `"Revisión"` ni `"Done"`:
+```json
+{
+  "stage": "done",
+  "stage_status": "error",
+  "outcome": "wrong_status",
+  "reason": "Estado del ticket '<status>' no permite determinar el ambiente automáticamente. Proveer `environment` explícitamente en el trigger."
+}
+```
+Ir a ORC-6 (Finalizar) sin invocar sub-agentes.
+
+Si el input SÍ incluye `environment` → respetar el valor provisto (retrocompatibilidad). No releer el estado del ticket en este paso.
+
+> Ver `wiki/qa/environments.md` para la tabla completa de equivalencias ambiente ↔ Jira ↔ TARGET_ENV.
+
+---
+
+### ORC-1.0b — Validar prerequisitos de ambiente
+
+Si `environment == "[cliente]"`:
+- Leer el archivo `.env` con Read y buscar la línea `CLIENTE_BASE_URL=`.
+- Si no existe o la línea está comentada (comienza con `#`) → abortar con:
+  ```json
+  {
+    "stage": "done",
+    "stage_status": "error",
+    "outcome": "missing_env_config",
+    "reason": "CLIENTE_BASE_URL no está configurada en .env — requerida para ambiente [cliente]. Descomentar y configurar antes de ejecutar."
+  }
+  ```
+  Ir a ORC-6 (Finalizar) sin invocar sub-agentes.
+
+---
 
 ### ORC-1.1 — Generar pipeline_id
 
@@ -56,7 +104,7 @@ Buscar `pipeline-logs/completed/<ticket_key>.json`. Si existe:
 
 Buscar `pipeline-logs/active/<ticket_key>.json`. Si existe con `stage = "init"` → pipeline recién iniciado en paralelo. **ABORT** para evitar ejecución paralela. Si existe con `stage != "init"` → proceso previo interrumpido. Cargar ese context y aplicar stage routing.
 
-**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"` o `"low_confidence"` → **ABORT**:
+**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"`, `"low_confidence"` o `"auto_generated_dry_run_failed"` → **ABORT**:
 ```json
 { "status": "skipped", "reason": "pipeline_already_finalized", "outcome": "<outcome>" }
 ```
@@ -69,6 +117,8 @@ No reabrir pipelines ya finalizados. Para forzar re-procesamiento, eliminar el a
 | `"ticket_analysis"` | `ticket_analyst_output` tiene `testability_summary`, `acceptance_criteria[]` y `classification` | Saltar a **ORC-3** (test-engine) |
 | `"test_execution"` | `test_engine_output` tiene `result`, `results[]`, `total_tests`, `passed` y `failed` con valores completos | Saltar a **ORC-5** (test-reporter) |
 | `"test_execution"` | `test_engine_output` null o incompleto (crash mid-write) | Reiniciar desde **ORC-3** (re-ejecutar test-engine) |
+| `"test_generation"` | `test_generator_output` tiene `status`, `test_path`, `dry_run_result` | Evaluar en **ORC-4.2** y continuar según resultado |
+| `"test_generation"` | `test_generator_output` null o incompleto | Reiniciar desde **ORC-4.1** (re-invocar test-generator) |
 | `"reporting"` | `test_reporter_output` null | Saltar a **ORC-5** (retry test-reporter) |
 | cualquier otro | — | Reiniciar desde **ORC-2** (seguro) |
 
@@ -191,12 +241,58 @@ Leer `test_engine_output.sessions_found` del context activo:
 | `sessions_found` | Acción |
 |-----------------|--------|
 | `true` | → **ORC-5** (test-reporter) |
-| `false` | → **ORC-6** con `outcome: "no_sessions"` (Fase 5 pendiente: test-generator) |
+| `false` | → **ORC-4.1** (invocar test-generator) |
 
-Si `sessions_found: false`: registrar en el context:
-```json
-{ "stage": "test-engine", "status": "skipped", "notes": "sessions_found: false — test-generator pendiente (Fase 5)" }
+### ORC-4.1 — Invocar test-generator
+
+Cuando `sessions_found: false`, construir el input desde `ticket_analyst_output` y invocar el agente:
+
 ```
+Agent({
+  subagent_type: "test-generator",
+  prompt: "Generar test para el ticket NAA-XXXX. Input: { ticket_key, domain, acceptance_criteria, test_hints, pom_paths } — ver ticket_analyst_output en pipeline-logs/active/NAA-XXXX.json."
+})
+```
+
+El input a pasar (extraído de `ticket_analyst_output`):
+```json
+{
+  "ticket_key": "<ticket_key>",
+  "domain": "<classification.domain>",
+  "acceptance_criteria": "<acceptance_criteria[]>",
+  "test_hints": "<classification.test_hints[].description unido por ' | '>",
+  "pom_paths": []
+}
+```
+
+> Nota: `test_hints` viene de `ticket_analyst_output.classification.test_hints[]` (array). ORC-4.1 extrae solo el campo `description` de cada elemento y los une con ` | ` antes de pasarlos a test-generator, que espera un string.
+
+> `pom_paths` se deriva de los paths del módulo clasificado en `test-map.json` correspondiente al `classification.module`. Si no hay paths mapeados, pasar array vacío.
+
+Después de que retorna, leer el context y registrar en `step_log`:
+```json
+{ "stage": "test-generator", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed | failed", "dry_run": "<dry_run_result>" }
+```
+
+### ORC-4.2 — Evaluar resultado de test-generator
+
+| `test_generator_output.status` | `dry_run_result` | Acción |
+|-------------------------------|------------------|--------|
+| `"auto_generated"` | `"pass"` | → **ORC-5** con el nuevo `test_path` |
+| `"auto_generated"` | `"fail"` | → **ORC-6** con `outcome: "auto_generated_dry_run_failed"` |
+| `"auto_generated"` | `"infra_error"` | → **ORC-6** con `outcome: "auto_generated_dry_run_failed"` |
+| `"failed"` | cualquiera | → **ORC-6** con `outcome: "no_sessions"` |
+
+Si el resultado es `status: "auto_generated"` con `dry_run_result: "pass"`:
+- Actualizar el Execution Context con el nuevo `test_path` para que test-engine lo use en ORC-5.
+- Registrar en el context: `"auto_generated_test": "<test_path>"`.
+- Continuar a **ORC-5** (test-reporter) — en este caso ORC-5 recibe el resultado del test generado tras su ejecución en el contexto de test-generator (dry-run solo).
+
+> **Nota:** el test auto-generado tiene `validated: false` en test-map.json. El pipeline reporta en Jira con una nota indicando que el test fue generado automáticamente y requiere revisión manual. No aplica transición de estado (igual que `partial_coverage: true`).
+
+Si el resultado es `status: "auto_generated"` con `dry_run_result: "fail"` o `"infra_error"`:
+- Escalar con `outcome: "auto_generated_dry_run_failed"`.
+- Notificar al humano que el test fue generado pero no compiló correctamente — requiere revisión manual antes de poder ejecutarse.
 
 ---
 
@@ -239,7 +335,7 @@ Persistir el context después de completar ORC-5.
 
 Para outcome de escalación o sin sessions: setear `stage_status: "escalated"` o `"no_sessions"` según corresponda. El campo `already_reported` es gestionado por TR-E: queda en `true` si el comentario fue posteado exitosamente, `false` si TR-E no pudo postear. No sobreescribir este campo en ORC-6.
 
-**Si `outcome` es `"human_escalation"`, `"non_automatable"` o `"no_sessions"`:**
+**Si `outcome` es `"human_escalation"`, `"non_automatable"`, `"no_sessions"` o `"auto_generated_dry_run_failed"`:**
 
 1. **Setear `escalation_mode: true`** en el Execution Context antes de invocar test-reporter. Persistir a disco.
 
@@ -275,7 +371,7 @@ Agregar `milestone_notes` al context antes de cerrarlo:
 "milestone_notes": {
   "pipeline_id": "<pipeline_id>",
   "ticket_key": "<ticket_key>",
-  "outcome": "success | failed | escalated | no_sessions | error",
+  "outcome": "success | failed | escalated | no_sessions | auto_generated | auto_generated_dry_run_failed | error",
   "executed_at": "<ISO>",
   "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
   "total_duration_note": "Ver step_log para tiempos por stage"
@@ -333,7 +429,10 @@ ORC-3: Agent(test-engine)
   │
   ▼
 ORC-4: Decisión
-  │  sessions_found: false → ORC-6 (no_sessions)
+  │  sessions_found: false → ORC-4.1: Agent(test-generator)
+  │    auto_generated + dry_run:pass → ORC-5
+  │    auto_generated + dry_run:fail → ORC-6 (auto_generated_dry_run_failed)
+  │    failed → ORC-6 (no_sessions)
   │  sessions_found: true  → ORC-5
   │
   ▼

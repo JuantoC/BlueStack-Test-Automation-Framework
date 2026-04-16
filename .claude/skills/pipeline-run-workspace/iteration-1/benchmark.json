@@ -1,0 +1,273 @@
+{
+  "metadata": {
+    "skill_name": "pipeline-run",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-04-16T16:23:31Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 23.9,
+        "tokens": 23516,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Extrae correctamente el ticket key NAA-4467 del mensaje",
+          "passed": true,
+          "evidence": "La tabla PR-1 muestra ticket_key = NAA-4467 expl\u00edcitamente"
+        },
+        {
+          "text": "Asume ambiente 'master' por default sin preguntar",
+          "passed": true,
+          "evidence": "La tabla PR-1 muestra environment = master (default)"
+        },
+        {
+          "text": "Muestra el bloque de anuncio con '\u25b6 Pipeline Run \u2014 NAA-4467'",
+          "passed": true,
+          "evidence": "El bloque PR-2 contiene exactamente '\u25b6 Pipeline Run \u2014 NAA-4467'"
+        },
+        {
+          "text": "Invoca el qa-orchestrator sin pedir confirmaci\u00f3n al usuario",
+          "passed": true,
+          "evidence": "PR-3 muestra [WOULD INVOKE qa-orchestrator] sin ning\u00fan prompt de confirmaci\u00f3n previo"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 33.0,
+        "tokens": 24071,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Extrae ticket key NAA-4188",
+          "passed": true,
+          "evidence": "PR-2 muestra '\u25b6 Pipeline Run \u2014 NAA-4188'"
+        },
+        {
+          "text": "Detecta ambiente 'dev_saas' desde el mensaje",
+          "passed": true,
+          "evidence": "El anuncio muestra 'Ambiente:  dev_saas'"
+        },
+        {
+          "text": "El anuncio muestra 'Ambiente: dev_saas'",
+          "passed": true,
+          "evidence": "Exactamente: 'Ambiente:  dev_saas' en el bloque PR-2"
+        },
+        {
+          "text": "El prompt al qa-orchestrator incluye 'dev_saas' como environment",
+          "passed": true,
+          "evidence": "[WOULD INVOKE qa-orchestrator with: '...ticket NAA-4188 en ambiente dev_saas...']"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 20.7,
+        "tokens": 23167,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "No intenta lanzar el orquestador sin un ticket key",
+          "passed": true,
+          "evidence": "La respuesta completa es solo la pregunta al usuario \u2014 sin invocaci\u00f3n del orchestrator"
+        },
+        {
+          "text": "Pregunta al usuario por el n\u00famero de ticket con ejemplo (ej. NAA-4467)",
+          "passed": true,
+          "evidence": "Respuesta exacta: '\u00bfCu\u00e1l es el n\u00famero del ticket? (ej. NAA-4467)'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.25,
+        "passed": 1,
+        "failed": 3,
+        "total": 4,
+        "time_seconds": 36.0,
+        "tokens": 23049,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Extrae correctamente el ticket key NAA-4467 del mensaje",
+          "passed": true,
+          "evidence": "El agente ley\u00f3 el ticket NAA-4467 de Jira directamente"
+        },
+        {
+          "text": "Asume ambiente 'master' por default sin preguntar",
+          "passed": false,
+          "evidence": "No hay concepto de 'ambiente' \u2014 responde con an\u00e1lisis t\u00e9cnico del bug sin estructura de pipeline"
+        },
+        {
+          "text": "Muestra el bloque de anuncio con '\u25b6 Pipeline Run \u2014 NAA-4467'",
+          "passed": false,
+          "evidence": "No hay anuncio estructurado \u2014 responde con t\u00edtulo del ticket y an\u00e1lisis"
+        },
+        {
+          "text": "Invoca el qa-orchestrator sin pedir confirmaci\u00f3n al usuario",
+          "passed": false,
+          "evidence": "No invoca orchestrator \u2014 hace 3 preguntas al usuario antes de proceder"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 2,
+        "failed": 2,
+        "total": 4,
+        "time_seconds": 19.8,
+        "tokens": 18988,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Extrae ticket key NAA-4188",
+          "passed": true,
+          "evidence": "Identifica el ticket correctamente en su respuesta"
+        },
+        {
+          "text": "Detecta ambiente 'dev_saas' desde el mensaje",
+          "passed": true,
+          "evidence": "Menciona dev_saas en el paso 3 de su respuesta"
+        },
+        {
+          "text": "El anuncio muestra 'Ambiente: dev_saas'",
+          "passed": false,
+          "evidence": "No hay bloque de anuncio estructurado \u2014 respuesta narrativa sin formato de pipeline"
+        },
+        {
+          "text": "El prompt al qa-orchestrator incluye 'dev_saas' como environment",
+          "passed": false,
+          "evidence": "No invoca el orchestrator \u2014 describe pasos manuales y pregunta si proceder"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 1,
+        "failed": 1,
+        "total": 2,
+        "time_seconds": 16.8,
+        "tokens": 18659,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "No intenta lanzar el orquestador sin un ticket key",
+          "passed": true,
+          "evidence": "Tampoco lanza el orchestrator \u2014 pide el ticket key de forma conversacional"
+        },
+        {
+          "text": "Pregunta al usuario por el n\u00famero de ticket con ejemplo (ej. NAA-4467)",
+          "passed": false,
+          "evidence": "Pide el ticket pero con respuesta m\u00e1s larga (describe las 3 etapas del pipeline) y sin el ejemplo exacto '(ej. NAA-4467)'"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 25.8667,
+        "stddev": 6.3815,
+        "min": 20.7,
+        "max": 33.0
+      },
+      "tokens": {
+        "mean": 23584.6667,
+        "stddev": 455.8951,
+        "min": 23167,
+        "max": 24071
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.4167,
+        "stddev": 0.1443,
+        "min": 0.25,
+        "max": 0.5
+      },
+      "time_seconds": {
+        "mean": 24.2,
+        "stddev": 10.3286,
+        "min": 16.8,
+        "max": 36.0
+      },
+      "tokens": {
+        "mean": 20232.0,
+        "stddev": 2445.1333,
+        "min": 18659,
+        "max": 23049
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.58",
+      "time_seconds": "+1.7",
+      "tokens": "+3353"
+    }
+  },
+  "notes": []
+}

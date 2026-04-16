@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "eval_name": "ticket-key-bare",
+  "prompt": "NAA-4467",
+  "assertions": [
+    { "text": "Extrae correctamente el ticket key NAA-4467 del mensaje", "passed": true, "evidence": "La tabla PR-1 muestra ticket_key = NAA-4467 explícitamente" },
+    { "text": "Asume ambiente 'master' por default sin preguntar", "passed": true, "evidence": "La tabla PR-1 muestra environment = master (default)" },
+    { "text": "Muestra el bloque de anuncio con '▶ Pipeline Run — NAA-4467'", "passed": true, "evidence": "El bloque PR-2 muestra exactamente '▶ Pipeline Run — NAA-4467'" },
+    { "text": "Invoca el qa-orchestrator sin pedir confirmación al usuario", "passed": true, "evidence": "PR-3 muestra [WOULD INVOKE qa-orchestrator with: ...] sin ningún prompt de confirmación" }
+  ]
+}

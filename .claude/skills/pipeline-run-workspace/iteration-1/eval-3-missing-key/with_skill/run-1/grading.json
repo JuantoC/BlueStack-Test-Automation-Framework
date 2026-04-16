@@ -1,0 +1,22 @@
+{
+  "eval_id": 3,
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "No intenta lanzar el orquestador sin un ticket key",
+      "passed": true,
+      "evidence": "La respuesta completa es solo la pregunta al usuario — sin invocación del orchestrator"
+    },
+    {
+      "text": "Pregunta al usuario por el número de ticket con ejemplo (ej. NAA-4467)",
+      "passed": true,
+      "evidence": "Respuesta exacta: '¿Cuál es el número del ticket? (ej. NAA-4467)'"
+    }
+  ],
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

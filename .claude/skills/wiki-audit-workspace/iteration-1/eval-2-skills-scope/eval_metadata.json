@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "eval_name": "skills-scope-duplications",
+  "prompt": "revisá que las skills no estén duplicando contenido de la wiki",
+  "assertions": [
+    {"text": "Scope enfocado en .claude/skills/*/references/ vs wiki/ — no se dispersa a otras áreas", "type": "qualitative"},
+    {"text": "Identifica los 3 stubs conocidos: adf-format-guide, log-conventions, bluestack-conventions", "type": "qualitative"},
+    {"text": "Distingue datos de instancia legítimos (field-map, transitions) que NO deben moverse", "type": "qualitative"}
+  ]
+}

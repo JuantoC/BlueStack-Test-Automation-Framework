@@ -1,0 +1,25 @@
+{
+  "eval_id": 1,
+  "eval_name": "report-only-mode",
+  "run": "with_skill",
+  "assertions": [
+    {
+      "text": "Respeta mode:report — no menciona haber modificado ningún archivo",
+      "passed": true,
+      "evidence": "El output solo lista issues con 'Acción recomendada' sin mencionar haber aplicado ningún cambio. No usa verbos completados sobre archivos reales"
+    },
+    {
+      "text": "Incluye tabla de issues con severidad ALTA/MEDIA/BAJA",
+      "passed": true,
+      "evidence": "Tabla de 7 issues con columna Severidad (ALTA/MEDIA/BAJA) presente — 2 ALTA, 3 MEDIA, 2 BAJA"
+    },
+    {
+      "text": "No usa verbos de acción completada sobre archivos reales",
+      "passed": true,
+      "evidence": "Usa 'Acción recomendada' y 'Reportado' — nunca 'apliqué', 'modifiqué' ni 'eliminé' en relación a cambios en archivos del proyecto"
+    }
+  ],
+  "pass_count": 3,
+  "total_count": 3,
+  "pass_rate": 1.0
+}

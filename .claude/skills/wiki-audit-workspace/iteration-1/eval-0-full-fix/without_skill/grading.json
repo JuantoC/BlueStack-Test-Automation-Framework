@@ -1,0 +1,30 @@
+{
+  "eval_id": 0,
+  "eval_name": "full-audit-fix",
+  "run": "without_skill",
+  "assertions": [
+    {
+      "text": "El reporte menciona el uso de sub-agentes en paralelo para el research",
+      "passed": false,
+      "evidence": "El baseline no menciona sub-agentes — realizó un scan lineal directo leyendo archivos secuencialmente sin estructura de agentes paralelos"
+    },
+    {
+      "text": "El output incluye una tabla de issues con columnas Severidad, Issue y archivos",
+      "passed": true,
+      "evidence": "Tabla resumen presente con columnas ID, Página wiki, Descripción, Severidad — formato distinto pero cumple la función"
+    },
+    {
+      "text": "El reporte cubre las 4 dimensiones de auditoría",
+      "passed": false,
+      "evidence": "Cubre pages y código pero no tiene dimensión explícita de 'duplicaciones references/wiki' ni 'artefactos históricos'. Se enfoca en contenido pero no en estructura de documentación"
+    },
+    {
+      "text": "El reporte menciona actualizar wiki/log.md como parte de los fixes",
+      "passed": false,
+      "evidence": "El baseline es report-only — no menciona wiki/log.md como parte del proceso de auditoría"
+    }
+  ],
+  "pass_count": 1,
+  "total_count": 4,
+  "pass_rate": 0.25
+}

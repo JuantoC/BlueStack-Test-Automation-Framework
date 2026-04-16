@@ -1,0 +1,25 @@
+{
+  "eval_id": 1,
+  "eval_name": "report-only-mode",
+  "run": "without_skill",
+  "assertions": [
+    {
+      "text": "Respeta mode:report — no menciona haber modificado ningún archivo",
+      "passed": true,
+      "evidence": "Respeta la instrucción 'no toques nada' — el reporte finaliza con 'No se realizó ningún cambio al repositorio. El reporte es de solo lectura.'"
+    },
+    {
+      "text": "Incluye tabla de issues con severidad ALTA/MEDIA/BAJA",
+      "passed": true,
+      "evidence": "Tabla resumen con 9 entradas (P1-P7, G1-G2) con columna Severidad (Media/Baja/etc.) — usa 'Media' en lugar de 'MEDIA' pero cumple el propósito"
+    },
+    {
+      "text": "No usa verbos de acción completada sobre archivos reales",
+      "passed": true,
+      "evidence": "Solo usa 'Acción:' para proponer cambios futuros, no afirma haberlos aplicado"
+    }
+  ],
+  "pass_count": 3,
+  "total_count": 3,
+  "pass_rate": 1.0
+}

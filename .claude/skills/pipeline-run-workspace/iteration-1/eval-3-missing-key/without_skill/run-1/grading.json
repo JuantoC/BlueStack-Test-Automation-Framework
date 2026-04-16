@@ -1,0 +1,22 @@
+{
+  "eval_id": 3,
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "No intenta lanzar el orquestador sin un ticket key",
+      "passed": true,
+      "evidence": "Tampoco lanza el orchestrator — pide el ticket key de forma conversacional"
+    },
+    {
+      "text": "Pregunta al usuario por el número de ticket con ejemplo (ej. NAA-4467)",
+      "passed": false,
+      "evidence": "Pide el ticket pero con respuesta más larga (describe las 3 etapas del pipeline) y sin el ejemplo exacto '(ej. NAA-4467)'"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.5,
+    "passed": 1,
+    "failed": 1,
+    "total": 2
+  }
+}

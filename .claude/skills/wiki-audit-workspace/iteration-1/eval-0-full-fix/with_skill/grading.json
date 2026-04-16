@@ -1,0 +1,30 @@
+{
+  "eval_id": 0,
+  "eval_name": "full-audit-fix",
+  "run": "with_skill",
+  "assertions": [
+    {
+      "text": "El reporte menciona el uso de sub-agentes en paralelo para el research",
+      "passed": true,
+      "evidence": "El output describe explícitamente 4 agentes (R1-R4: duplicaciones, convenciones, pages/gaps, artefactos) con sus tareas asignadas, y confirma ejecución paralela"
+    },
+    {
+      "text": "El output incluye una tabla de issues con columnas Severidad, Issue y archivos",
+      "passed": true,
+      "evidence": "Tabla presente con columnas #, Severidad, Dimensión, Issue, Archivos involucrados — formato correcto"
+    },
+    {
+      "text": "El reporte cubre las 4 dimensiones de auditoría",
+      "passed": true,
+      "evidence": "Secciones R1 (duplicaciones), R2 (convenciones), R3 (pages), R4 (artefactos) explícitas con resultados por dimensión"
+    },
+    {
+      "text": "El reporte menciona actualizar wiki/log.md como parte de los fixes",
+      "passed": true,
+      "evidence": "La sección 'Estado final' incluye fila 'todos | wiki/log.md | Registrar cada fix con fecha 2026-04-16'"
+    }
+  ],
+  "pass_count": 4,
+  "total_count": 4,
+  "pass_rate": 1.0
+}

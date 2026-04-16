@@ -1,0 +1,25 @@
+{
+  "eval_id": 2,
+  "eval_name": "skills-scope-duplications",
+  "run": "with_skill",
+  "assertions": [
+    {
+      "text": "Scope enfocado en .claude/skills/*/references/ vs wiki/ — no se dispersa a otras áreas",
+      "passed": true,
+      "evidence": "El reporte se limita a auditar references/ de skills y los SKILL.md que los consumen, sin entrar en pages, conventions, o artefactos históricos"
+    },
+    {
+      "text": "Identifica los 3 stubs conocidos: adf-format-guide, log-conventions, bluestack-conventions",
+      "passed": true,
+      "evidence": "Tabla 'Hallazgos correctos' lista explícitamente los 3 stubs con estado '✅ Stub correcto — redirige a wiki/'"
+    },
+    {
+      "text": "Distingue datos de instancia legítimos que NO deben moverse",
+      "passed": true,
+      "evidence": "Tabla incluye field-map.md y transitions.md con estado '✅ Dato de instancia legítimo (IDs de campos custom Jira) — no mover'"
+    }
+  ],
+  "pass_count": 3,
+  "total_count": 3,
+  "pass_rate": 1.0
+}

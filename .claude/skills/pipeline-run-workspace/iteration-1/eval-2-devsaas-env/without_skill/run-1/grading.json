@@ -1,0 +1,32 @@
+{
+  "eval_id": 2,
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "Extrae ticket key NAA-4188",
+      "passed": true,
+      "evidence": "Identifica el ticket correctamente en su respuesta"
+    },
+    {
+      "text": "Detecta ambiente 'dev_saas' desde el mensaje",
+      "passed": true,
+      "evidence": "Menciona dev_saas en el paso 3 de su respuesta"
+    },
+    {
+      "text": "El anuncio muestra 'Ambiente: dev_saas'",
+      "passed": false,
+      "evidence": "No hay bloque de anuncio estructurado — respuesta narrativa sin formato de pipeline"
+    },
+    {
+      "text": "El prompt al qa-orchestrator incluye 'dev_saas' como environment",
+      "passed": false,
+      "evidence": "No invoca el orchestrator — describe pasos manuales y pregunta si proceder"
+    }
+  ],
+  "summary": {
+    "pass_rate": 0.5,
+    "passed": 2,
+    "failed": 2,
+    "total": 4
+  }
+}

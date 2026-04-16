@@ -1,0 +1,79 @@
+{
+  "skill_name": "pipeline-run",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "NAA-4467",
+      "expected_output": "La skill detecta el ticket key NAA-4467, asume ambiente master, muestra el anuncio '▶ Pipeline Run — NAA-4467' e intenta invocar el qa-orchestrator.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Extrae correctamente el ticket key NAA-4467 del mensaje",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Asume ambiente 'master' por default sin preguntar",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Muestra el bloque de anuncio con '▶ Pipeline Run — NAA-4467'",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Invoca el qa-orchestrator (o indica que lo haría) sin pedir confirmación al usuario",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "quiero probar el ticket NAA-4188 en dev_saas",
+      "expected_output": "La skill detecta NAA-4188 y ambiente dev_saas, muestra el anuncio correcto con ambiente 'dev_saas' e invoca el orquestador con el ambiente correcto.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Extrae ticket key NAA-4188",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Detecta ambiente 'dev_saas' desde el mensaje",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "El anuncio muestra 'Ambiente: dev_saas'",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "El prompt al qa-orchestrator incluye 'dev_saas' como environment",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ejecutar pipeline",
+      "expected_output": "La skill detecta que no hay ticket key y pregunta al usuario cuál es el número del ticket, sin lanzar el pipeline.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "No intenta lanzar el orquestador sin un ticket key",
+          "passed": null,
+          "evidence": null
+        },
+        {
+          "text": "Pregunta al usuario por el número de ticket con ejemplo (ej. NAA-4467)",
+          "passed": null,
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "eval_id": 1,
+  "eval_name": "report-only-mode",
+  "prompt": "solo reportame los problemas de la wiki, no toques nada",
+  "assertions": [
+    {"text": "Respeta mode:report — no menciona haber modificado ningún archivo", "type": "qualitative"},
+    {"text": "Incluye tabla de issues con severidad ALTA/MEDIA/BAJA", "type": "qualitative"},
+    {"text": "No usa verbos de acción completada (apliqué, modifiqué, eliminé) sobre archivos reales", "type": "qualitative"}
+  ]
+}

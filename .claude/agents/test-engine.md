@@ -193,9 +193,22 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar y reescribir:
   "results": [...],
   "failure_summary": null,
   "console_errors_detected": [],
-  "jest_output_path": "pipeline-logs/results-NAA-XXXX-exec-NNN.json"
+  "jest_output_path": "pipeline-logs/results-NAA-XXXX-exec-NNN.json",
+  "screenshots": [
+    {
+      "testName": "NombreDelTest",
+      "path": "allure-results/attachments/<uuid>.png",
+      "capturedAt": "<ISO-8601>"
+    }
+  ]
 }
 ```
+
+**Captura de screenshots (TE-8):**
+- Allure genera archivos en `allure-results/attachments/` automáticamente cuando un test falla
+- Para cada test con `status: "fail"` en el JSON de Jest: registrar archivos `.png`/`.mp4` en ese directorio cuyo timestamp coincida con la ejecución (±30 segundos)
+- Si no hay fallos → `screenshots: []`
+- Si el directorio no existe o está vacío → `screenshots: []` (nunca error)
 
 Actualizar: `stage: "test-engine"`, `stage_status: "completed" | "failed"`, agregar entrada en `step_log[]`.
 

@@ -169,9 +169,22 @@ Para cada test en `test_engine_output.results[]`:
     "last_comment_id": null
   },
   "is_pipeline_test": false,
-  "pipeline_id": "<pipeline_id del Execution Context>"
+  "pipeline_id": "<pipeline_id del Execution Context>",
+  "schema_version": "3.1",
+  "attachments": [
+    {
+      "path": "allure-results/attachments/<uuid>.png",
+      "label": "Screenshot_<testName>",
+      "linkedTestName": "<testName>"
+    }
+  ]
 }
 ```
+
+**Regla de inclusión de attachments (TR-4):**
+- Solo incluir `attachments[]` si `test_engine_output.screenshots` no está vacío
+- Si `screenshots` está vacío o ausente → omitir `attachments[]` del payload (compatibilidad v3.0)
+- El campo `label` sigue el patrón `Screenshot_<testName>`
 
 **`prerelease_version` para `environment: "dev_saas"`:**
 Leer `prerelease_version` del Execution Context. Si es `null` → abortar con:

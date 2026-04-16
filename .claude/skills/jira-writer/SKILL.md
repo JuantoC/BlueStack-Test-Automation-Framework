@@ -266,6 +266,23 @@ error después de que el comentario ya fue posteado, MODO F no duplica la escrit
 > Si el pipeline no envía `operation` explícito para testing, MODO F retorna `status: "skipped"` con
 > motivo `"environment=testing no requiere acción en Jira"`.
 
+### F2.5: Upload de attachments (condicional)
+
+Ejecutar ANTES de construir el comentario ADF (F3).
+
+```
+SI payload.attachments existe Y payload.attachments.length > 0:
+  1. Instanciar JiraAttachmentUploader desde src/core/jira/index.js
+     (lee .env en constructor — JIRA_BASE_URL, JIRA_USER_EMAIL, JIRA_API_TOKEN)
+  2. Ejecutar uploadMany(payload.ticket_key, payload.attachments)
+     → attachment_results: AttachmentResult[]
+  3. Guardar attachment_results — se usan en F3 para nodos ADF
+  4. Si alguno status='failed': registrar en errors[], NO abortar — el comentario se postea igual
+
+SI payload.attachments ausente o vacío:
+  → Saltear F2.5 por completo, ir directo a F3 (comportamiento v3.0 sin cambios)
+```
+
 ### F3: Mapeo de test_results a comentario
 
 Para cada `test_result`:
@@ -302,6 +319,14 @@ Ejemplo de párrafo de cierre ADF con mención:
 }
 ```
 
+**Nodos multimedia (si hay attachment_results de F2.5):**
+- Para cada `attachment_results[i]` donde `status='uploaded'`:
+  ```json
+  { "type": "inlineCard", "attrs": { "url": "<contentUrl>" } }
+  ```
+- Para cada `attachment_results[i]` donde `status='failed'`:
+  - Agregar párrafo ADF con texto: `⚠️ Screenshot no pudo adjuntarse (upload falló). Disponible localmente: allure-results/attachments/<filename>`
+
 Agregar al pie del comentario para trazabilidad:
 - `_Suite: [test_suite] — Archivo: [test_file]_` (si están presentes)
 - Si `is_pipeline_test: true` en el payload → agregar `_[PIPELINE TEST]_` al pie (para distinguir de validaciones humanas reales)
@@ -335,6 +360,15 @@ Campos obligatorios en `test_reporter_output`:
   "environment": "<environment del payload>",
   "status": "success | partial | skipped | error",
   "actions_taken": [...],
+  "attachment_results": [
+    {
+      "label": "Screenshot_X",
+      "attachmentId": "12345",
+      "filename": "abc123-uuid.png",
+      "contentUrl": "https://bluestack-cms.atlassian.net/rest/api/3/attachment/content/12345",
+      "status": "uploaded"
+    }
+  ],
   "errors": [],
   "comment_id": "<id del comentario posteado, o null>",
   "transition_applied": "<to_status, o null>"

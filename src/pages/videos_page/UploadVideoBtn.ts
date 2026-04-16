@@ -34,7 +34,7 @@ export class UploadVideoBtn {
   private static readonly VIDEOS_TABLE: Locator = By.css('div#multimedia-table-body')
   private static readonly UPLOAD_VIDEO_BTN: Locator = By.css("button.btn-create-note");
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private static readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
+  private static readonly LABELS_OF_VIDEO_TYPES: Locator = By.css('div[data-testid^="dropdown-item-"] label');
 
   constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "UploadVideoBtn");

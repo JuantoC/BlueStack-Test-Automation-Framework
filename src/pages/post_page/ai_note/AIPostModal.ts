@@ -158,8 +158,8 @@ export class AIPostModal {
 
       logger.debug(`Intentando hacer click en la opción "${value}"...`, { label: this.config.label });
       await clickSafe(this.driver, elementToClick, this.config);
-    } catch (error_any) {
-      logger.error(`Error al seleccionar opción para ${value}`, { label: this.config.label, error: error_any });
+    } catch (error_any: unknown) {
+      logger.error(`Error al seleccionar opción para ${value}: ${getErrorMessage(error_any)}`, { label: this.config.label, error: getErrorMessage(error_any) });
       throw error_any;
     }
   }

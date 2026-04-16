@@ -26,8 +26,8 @@ export class EditorTextSection {
     summary: By.id('resumen-content')
   } as const;
 
-  private static readonly ADD_NEW_TITLE_BTN: Locator = By.xpath("//li[contains(@class,'more-icon__input-label')]//button[contains(@class,'mat-mdc-icon-button')]");
-  private static readonly ADD_NEW_TITLE_ITEM: Locator = By.css('div[data-testid="dropdown-menu"] div[data-testid="dropdown-item"]');
+  private static readonly ADD_NEW_TITLE_BTN: Locator = By.css('[data-testid="button-add-title"]');
+  private static readonly ADD_NEW_TITLE_ITEM: Locator = By.css('[data-testid^="dropdown-item-agregar-"]');
 
   constructor(private driver: WebDriver, opts: RetryOptions = {}) {
     this.config = resolveRetryConfig(opts, "EditorTextSection")

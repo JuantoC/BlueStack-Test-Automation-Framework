@@ -30,7 +30,16 @@ export class NewNoteBtn {
 
   private static readonly NEW_NOTE_DROPDOWN_BTN: Locator = By.css("button.btn-create-note");
   private static readonly DROPDOWN_COMBO_MODAL: Locator = By.css('div[data-testid="dropdown-menu"]');
-  private static readonly LABELS_OF_NOTE_TYPES: Locator = By.css('div[data-testid="dropdown-item"] label');
+
+  // Mapa de NoteType → data-testid del elemento clickeable en el dropdown.
+  // Reemplaza la búsqueda por texto (LABELS_OF_NOTE_TYPES) que dejó de funcionar
+  // cuando los items recibieron testids específicos por tipo (NAA-4324).
+  private static readonly NOTE_TYPE_TESTID_MAP: Record<NoteType, string> = {
+    POST:     'link-navigate-news',
+    LISTICLE: 'link-navigate-listas',
+    LIVEBLOG: 'link-navigate-liveblog',
+    AI_POST:  'btn-create-ai',
+  } as const;
 
   constructor(private driver: WebDriver, opts: RetryOptions) {
     this.config = resolveRetryConfig(opts, "NewNoteBtn");
@@ -96,27 +105,13 @@ export class NewNoteBtn {
       throw error;
     }
 
-    // 2. Buscar todos los labels candidatos
-    const elements = await this.driver.findElements(NewNoteBtn.LABELS_OF_NOTE_TYPES);
+    // 2. Localizar el elemento por testid específico del tipo
+    const testid = NewNoteBtn.NOTE_TYPE_TESTID_MAP[noteType];
+    logger.debug(`Buscando opción "${noteType}" por testid: ${testid}`, { label: this.config.label });
 
-    if (elements.length === 0) {
-      throw new Error(`El menú se abrió, pero no se encontraron labels con el selector: ${NewNoteBtn.LABELS_OF_NOTE_TYPES}`);
-    }
-
-    logger.debug(`Analizando ${elements.length} opciones disponibles...`, { label: this.config.label });
-
-    // 3. Iterar dinámicamente
-    for (const element of elements) {
-      const text = await element.getText();
-      const cleanLabel = text.trim();
-
-      if (NewNoteBtn.NOTE_TYPE_MAP[noteType].has(cleanLabel)) {
-        logger.debug(`Match encontrado: "${cleanLabel}"`, { label: this.config.label });
-        return element;
-      }
-    }
-
-    throw new Error(`No se encontró la opción "${noteType}" en el menú.`);
+    const element = await this.driver.findElement(By.css(`[data-testid="${testid}"]`));
+    logger.debug(`Opción "${noteType}" encontrada.`, { label: this.config.label });
+    return element;
   }
 
   /**

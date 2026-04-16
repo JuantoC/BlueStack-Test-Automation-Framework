@@ -37,6 +37,7 @@
 src/pages/
 ├── SidebarAndHeaderSection.ts     # Navegación global — SidebarOption type
 ├── FooterActions.ts               # Publicación masiva compartida — FooterActionType type
+├── HeaderNewContentBtn.ts         # Botón "+" del header y dropdown de creación — HeaderNewContentType type → wiki/pages/_shared.md#headernewcontentbtn
 ├── login_page/
 │   ├── MainLoginPage.ts           # Maestro — login + 2FA
 │   ├── LoginSection.ts

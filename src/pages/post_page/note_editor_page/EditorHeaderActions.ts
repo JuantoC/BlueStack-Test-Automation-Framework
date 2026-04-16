@@ -19,21 +19,20 @@ export class EditorHeaderActions {
 
   // ========== LOCATORS ==========
   private static readonly INFO_SECTION_DATA_TIME: Locator = By.css('div.info-section')
-  private static readonly SAVE_BTN: Locator = By.css('[data-testid="btn-save-post"] button[data-testid="dropdown-action"]');
-  private static readonly PUBLISH_BTN: Locator = By.css('button.btn-info[data-testid="dropdown-action"]');
+  private static readonly SAVE_BTN: Locator = By.css('[data-testid="btn-genericsavetext"]');
+  private static readonly PUBLISH_BTN: Locator = By.css('button[data-testid="btn-newnotepublishtext"]');
   private static readonly BACK_BTN: Locator = By.css('a[data-testid="btn-exit-note"]');
 
-  private static readonly DROPDOWN_SAVE_CONTAINER: Locator = By.id('dropdown-save');
-  private static readonly DROPDOWN_PUBLISH_CONTAINER: Locator = By.id('dropdown-publish');
+  private static readonly DROPDOWN_SAVE_CONTAINER: Locator = By.css('[data-testid="dropdown-toggle-genericsavetext"]');
+  private static readonly DROPDOWN_PUBLISH_CONTAINER: Locator = By.css('[data-testid="dropdown-toggle-newnotepublishtext"]');
 
-  // Nota: IDs compartidos son un riesgo potencial en el DOM.
-  private static readonly SAVE_AND_EXIT_OPT: Locator = By.id("option-dropdown-0");
-  private static readonly EXIT_WITHOUT_SAVING_OPT: Locator = By.id("option-dropdown-1");
-  private static readonly PUBLISH_AND_EXIT_OPT: Locator = By.id("option-dropdown-0");
-  private static readonly SCHEDULE_OPT: Locator = By.id("option-dropdown-1");
+  private static readonly SAVE_AND_EXIT_OPT: Locator = By.css('[data-testid="dropdown-item-guardar-y-salir"]');
+  private static readonly EXIT_WITHOUT_SAVING_OPT: Locator = By.css('[data-testid="dropdown-item-salir"]');
+  private static readonly PUBLISH_AND_EXIT_OPT: Locator = By.css('[data-testid="dropdown-item-publicar-y-salir"]');
+  private static readonly SCHEDULE_OPT: Locator = By.css('[data-testid="dropdown-item-programar"]');
 
-  private static readonly MODAL_BACK_SAVE_AND_EXIT_BTN: Locator = By.css('[data-testid="btn-ok-confirmModal"] button');
-  private static readonly MODAL_BACK_DISCARD_EXIT_BTN: Locator = By.css('[data-testid="btn-cancel"] button');
+  private static readonly MODAL_BACK_SAVE_AND_EXIT_BTN: Locator = By.css('[data-testid="btn-confirm-generic-saveexit-text"] button[data-testid="btn-calendar-confirm"]');
+  private static readonly MODAL_BACK_DISCARD_EXIT_BTN: Locator = By.css('[data-testid="btn-cancel-newnote-get-out-anyway-text"] button[data-testid="btn-calendar-confirm"]');
 
   public static readonly LOCATORS = {
     SAVE_ONLY: EditorHeaderActions.SAVE_BTN,

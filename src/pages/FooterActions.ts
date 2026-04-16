@@ -22,15 +22,18 @@ export class FooterActions {
   private readonly config: RetryOptions;
   private readonly publishModal: PublishModal;
 
-  private static readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-action"]');
-  private static readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-actions"]');
-  private static readonly FOOTER_DROPDOWN_SCHEDULE = By.xpath("//div[@data-testid='dropdown-item']//mat-icon[contains(text(), 'access_alarm')]");
-  private static readonly SCHEDULE_LABEL = 'access_alarm'
+  private static readonly FOOTER_PUBLISH_BTN = By.css('div.cmsmedios-table-content button[data-testid="btn-tablepublishtext"]');
+  private static readonly FOOTER_DROPDOWN_BTN = By.css('div.cmsmedios-table-content button[data-testid="dropdown-toggle-tablepublishtext"]');
+  private static readonly FOOTER_DROPDOWN_SCHEDULE = By.css('div[data-testid="dropdown-item-programar"]');
+  private static readonly FOOTER_DROPDOWN_PUBLISH = By.css('div[data-testid="dropdown-item-publicar"]');
+  private static readonly FOOTER_DROPDOWN_EXPORT = By.css('div[data-testid="dropdown-item-exportar"]');
 
   // ========== LOCATORS ( Readonly) ==========
   public static readonly FOOTER_ACTIONS = {
     PUBLISH_ONLY: FooterActions.FOOTER_PUBLISH_BTN,
-    SCHEDULE: FooterActions.FOOTER_DROPDOWN_BTN
+    SCHEDULE: FooterActions.FOOTER_DROPDOWN_BTN,
+    PUBLICAR: FooterActions.FOOTER_DROPDOWN_BTN,
+    EXPORT: FooterActions.FOOTER_DROPDOWN_BTN
   }
 
   constructor(private readonly driver: WebDriver, opts: RetryOptions) {
@@ -73,7 +76,15 @@ export class FooterActions {
           await clickSafe(this.driver, FooterActions.FOOTER_DROPDOWN_SCHEDULE, this.config);
           await this.publishModal.clickOnPublishBtn();
           await global.activeToastMonitor?.waitForSuccess(10000);
-          break
+          break;
+        case 'PUBLICAR':
+          await clickSafe(this.driver, FooterActions.FOOTER_DROPDOWN_PUBLISH, this.config);
+          await this.publishModal.clickOnPublishBtn();
+          await global.activeToastMonitor?.waitForSuccess(10000);
+          break;
+        case 'EXPORT':
+          await clickSafe(this.driver, FooterActions.FOOTER_DROPDOWN_EXPORT, this.config);
+          break;
 
       }
     } catch (error: unknown) {

@@ -29,7 +29,7 @@ export class PostTable {
   private static readonly POST_TITLE_LABEL: Locator = By.css('div[data-testid="div-edit-title"]');
   private static readonly POST_TITLE_INPUT: Locator = By.css('textarea[data-testid="text-title-post"]');
   private static readonly POST_EDIT_BTN: Locator = By.css('button[data-testid="btn-edit-post"]');
-  private static readonly CHECKBOX: Locator = By.css('mat-checkbox[data-testid="checkbox-notice"]');
+  private static readonly CHECKBOX: Locator = By.css('mat-checkbox[data-testid^="checkbox-notice"]');
   private static readonly LOADING_CONTAINER: Locator = By.css('div.process-fields');
 
   // ── Nivel fila — elementos de acción no cubiertos ────────────────────────
@@ -43,6 +43,7 @@ export class PostTable {
   private static readonly SEARCH_INPUT: Locator = By.css('input[data-testid="input-search-simple"]');
   private static readonly ADVANCED_SEARCH_BTN: Locator = By.css('button[data-testid="btn-search-modal-news"]');
   private static readonly VIEWS_DROPDOWN_BTN: Locator = By.css('button[data-testid="btn-dropdown-views"]');
+  private static readonly VIEWS_DROPDOWN_MENU: Locator = By.css('[data-testid="dropdown-menu"]');
   // TODO: sin testid en el DOM — inspeccionar y reemplazar este selector
   private static readonly VIEW_MODE_BTN: Locator = By.css('[data-testid="TODO_view_mode_toggle"]');
   // FRAGILE: clase interna de Angular Material — inspeccionar si cambia con actualizaciones del framework
@@ -50,21 +51,49 @@ export class PostTable {
 
   /**
    * Mapa de acciones disponibles en el dropdown de cada fila de la tabla.
-   * Los valores son el texto visible exacto del botón, incluyendo el prefijo del ícono Material.
+   * Los valores son los data-testid de cada botón (patrón: menu-new-option-{icono-material}).
    * Usar con `PostRowActionType` para tipado en métodos públicos.
    */
   public static readonly ROW_ACTION_MAP = {
-    TRANSLATE_AI:      'translate Traducir con IA',
-    PREVIEW:           'phonelink Previsualizar',
-    REWRITE_AI:        'insights Reescribir con IA',
-    EDIT:              'create Editar',
-    COPY:              'file_copy Copiar',
-    PUSH_NOTIFICATION: 'notifications_active Notificaciones push',
-    UNPUBLISH:         'remove_circle_outline Despublicar',
-    VERSIONS:          'layers Versiones',
-    SCHEDULE:          'access_alarm Programar',
-    UNLOCK:            'no_encryption_gmailerrorred Desbloquear',
-    REVIEW:            'visibility Revisar',
+    TRANSLATE_AI:      'menu-new-option-translate',
+    PREVIEW:           'menu-new-option-phonelink',
+    REWRITE_AI:        'menu-new-option-insights',
+    EDIT:              'menu-new-option-create',
+    COPY:              'menu-new-option-file_copy',
+    PUSH_NOTIFICATION: 'menu-new-option-notifications_active',
+    UNPUBLISH:         'menu-new-option-remove_circle_outline',
+    VERSIONS:          'menu-new-option-layers',
+    SCHEDULE:          'menu-new-option-access_alarm',
+    UNLOCK:            'menu-new-option-no_encryption_gmailerrorred',
+    REVIEW:            'menu-new-option-visibility',
+    DELETE:            'menu-new-option-delete',
+  } as const;
+
+  /**
+   * Mapa de vistas de filtro disponibles en el dropdown de vistas de la tabla.
+   * Los valores son los data-testid de cada opción del menú `post-views`.
+   * Usar con `ViewFilterType` para tipado en métodos públicos.
+   */
+  public static readonly VIEW_FILTER_MAP = {
+    PINS:                        'dropdown-item-pines',
+    FRESHNESS:                   'dropdown-item-frescura',
+    AI_POST:                     'dropdown-item-noticias-ia',
+    MY_LATEST_NEWS:              'dropdown-item-mis-ultimas-noticias',
+    LAST_MODIFIED_NEWS:          'dropdown-item-ultimas-noticias-modificadas',
+    HOME:                        'dropdown-item-home',
+    HOME_PARRILLA:               'dropdown-item-home--parrilla',
+    NOTES_HOME_AND_UNLINKED:     'dropdown-item-notas-en-home-y-notas-desvinculadas',
+    PRIORITY_MOBILE:             'dropdown-item-prioridad--movil',
+    SECTION_BY_ZONE:             'dropdown-item-seccion---por-zona',
+    FACEBOOK_INSTANT_ARTICLES:   'dropdown-item-facebook-instant-articles',
+    NOTES_BY_RELEVANCE:          'dropdown-item-notas-por-relevancia',
+    PENDING:                     'dropdown-item-pendientes',
+    NOTES_DE_ROMA:               'dropdown-item-notas-de-roma',
+    IN_PROGRAMMING:              'dropdown-item-en-programacion',
+    SHARED_ZONE:                 'dropdown-item-zona-compartida',
+    TODO:                        'dropdown-item-todo',
+    PENDING_BY_STATUS:           'dropdown-item-pendiente-por-estado',
+    TESTING:                     'dropdown-item-testing',
   } as const;
 
   /**
@@ -155,7 +184,7 @@ export class PostTable {
         }
         throw new Error(`No se encontró la nota con título parcial "${title}" tras escanear ${limit} filas.`);
       } catch (error: unknown) {
-        logger.error(`Error en búsqueda de nota: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        logger.debug(`Error en búsqueda de nota: ${getErrorMessage(error)}`, { label: this.config.label });
         throw error;
       }
     }, { ...this.config, retries: 2 });
@@ -491,32 +520,12 @@ export class PostTable {
     try {
       await this.openMoreActionsDropdown(postContainer);
 
-      const expectedText = PostTable.ROW_ACTION_MAP[action];
+      const testid = PostTable.ROW_ACTION_MAP[action];
+      logger.debug(`Buscando acción "${action}" por testid: ${testid}`, { label: this.config.label });
 
-      await this.driver.wait(
-        until.elementLocated(PostTable.ROW_DROPDOWN_ITEMS),
-        this.config.timeoutMs,
-        'El panel de acciones no apareció en el DOM'
-      );
-
-      const items = await this.driver.findElements(PostTable.ROW_DROPDOWN_ITEMS);
-
-      if (items.length === 0) {
-        throw new Error(`El dropdown se abrió pero no se encontraron items. Selector: ${PostTable.ROW_DROPDOWN_ITEMS}`);
-      }
-
-      logger.debug(`Analizando ${items.length} opciones del dropdown de fila...`, { label: this.config.label });
-
-      for (const item of items) {
-        const text = (await item.getText()).trim();
-        if (text === expectedText) {
-          logger.debug(`Match encontrado: "${text}"`, { label: this.config.label });
-          await clickSafe(this.driver, item, this.config);
-          return;
-        }
-      }
-
-      throw new Error(`No se encontró la acción "${action}" (texto esperado: "${expectedText}") en el dropdown.`);
+      const item = await waitFind(this.driver, By.css(`button[data-testid="${testid}"]`), this.config);
+      logger.debug(`Acción "${action}" encontrada. Ejecutando click.`, { label: this.config.label });
+      await clickSafe(this.driver, item, this.config);
     } catch (error: unknown) {
       logger.error(`Error al ejecutar acción de fila "${action}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
@@ -586,6 +595,40 @@ export class PostTable {
       logger.debug('Dropdown de vistas abierto.', { label: this.config.label });
     } catch (error: unknown) {
       logger.error(`Error al abrir dropdown de vistas: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Abre el dropdown de vistas y selecciona la vista indicada por su testid directo.
+   * Espera a que el menú sea visible antes de buscar la opción.
+   *
+   * **Dependencia de rol:** El dropdown muestra opciones distintas según el rol del usuario.
+   * - Rol `editor` (QAuno): PINS, FRESHNESS, AI_POST, LAST_MODIFIED_NEWS, HOME (Noticias), IN_PROGRAMMING (Programadas).
+   * - Las vistas `MY_LATEST_NEWS`, `PENDING`, `TODO`, `TESTING` NO están disponibles para el rol editor;
+   *   son exclusivas de admin u otros roles con más permisos. Intentar seleccionarlas en sesión editor
+   *   lanzará timeout porque el item no aparece en el menú.
+   *
+   * **Incompatibilidad con selectPost (bulk-selection):** Después de llamar `selectPost()`, la UI entra
+   * en modo de selección múltiple y el botón `btn-dropdown-views` desaparece del DOM. Si el test necesita
+   * ambas operaciones, llamar `selectView` ANTES de `selectPost`.
+   *
+   * @param view - Vista a seleccionar. Tipado via `ViewFilterType`.
+   */
+  async selectView(view: ViewFilterType): Promise<void> {
+    try {
+      await this.openViewsDropdown();
+
+      const testid = PostTable.VIEW_FILTER_MAP[view];
+      logger.debug(`Seleccionando vista "${view}" por testid: ${testid}`, { label: this.config.label });
+
+      await waitFind(this.driver, PostTable.VIEWS_DROPDOWN_MENU, this.config);
+      const item = await waitFind(this.driver, By.css(`[data-testid="${testid}"]`), this.config);
+      await clickSafe(this.driver, item, this.config);
+
+      logger.debug(`Vista "${view}" seleccionada.`, { label: this.config.label });
+    } catch (error: unknown) {
+      logger.error(`Error al seleccionar vista "${view}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -708,3 +751,4 @@ export class PostTable {
 
 export type PostRowActionType = keyof typeof PostTable.ROW_ACTION_MAP;
 export type ViewModeType = keyof typeof PostTable.VIEW_MODE_MAP;
+export type ViewFilterType = keyof typeof PostTable.VIEW_FILTER_MAP;

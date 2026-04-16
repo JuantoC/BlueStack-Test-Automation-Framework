@@ -70,7 +70,7 @@ export class UploadImageBtn {
           this.driver.setFileDetector(new DetectorClass());
           logger.debug('FileDetector activado correctamente.', { label: this.config.label });
         } catch (err: unknown) {
-          logger.error(`Error en configuración Grid: ${getErrorMessage(err)}`, { label: this.config.label });
+          logger.error(`Error en configuración Grid: ${getErrorMessage(err)}`, { label: this.config.label, error: getErrorMessage(err) });
           throw err;
         }
       } else {

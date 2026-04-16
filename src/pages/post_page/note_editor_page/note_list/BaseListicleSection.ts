@@ -109,7 +109,7 @@ export abstract class BaseListicleSection {
       }
     } catch (error: unknown) {
       logger.error(
-        `No se pudo interactuar con el icono del ítem #${uiIndex}`,
+        `No se pudo interactuar con el icono del ítem #${uiIndex}: ${getErrorMessage(error)}`,
         { label: this.config.label, error: getErrorMessage(error) }
       );
       throw error;

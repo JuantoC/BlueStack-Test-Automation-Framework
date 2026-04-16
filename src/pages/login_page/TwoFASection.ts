@@ -2,6 +2,7 @@ import { By, Locator, WebDriver } from 'selenium-webdriver';
 import { RetryOptions, resolveRetryConfig } from "../../core/config/defaultConfig.js";
 import { clickSafe } from "../../core/actions/clickSafe.js";
 import logger from "../../core/utils/logger.js";
+import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
  * Componente para gestionar la pagina de Doble Autenticación (2FA).
@@ -33,6 +34,7 @@ export class TwoFASection {
       });
 
     } catch (error: unknown) {
+      logger.error(`Error al gestionar el modal de 2FA: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

@@ -51,6 +51,10 @@ export class MainLoginPage {
         logger.debug(`Flujo AuthPage completado correctamente: ${credentials.username}`, { label: this.config.label });
 
       } catch (error: unknown) {
+        logger.error(`Error en passLoginAndTwoFA: ${getErrorMessage(error)}`, {
+          label: this.config.label,
+          error: getErrorMessage(error),
+        });
         throw error;
       }
     });

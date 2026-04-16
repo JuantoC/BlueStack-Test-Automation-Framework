@@ -136,7 +136,7 @@ export class MainPostPage {
 
         logger.info(`Nueva nota tipo: ${noteType} creada exitosamente`, { label: this.config.label });
       } catch (error: unknown) {
-        logger.error(`Error en flujo de creación [${noteType}]: ${getErrorMessage(error)}`, { label: this.config.label });
+        logger.error(`Error en flujo de creación [${noteType}]: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
         throw error;
       }
     });

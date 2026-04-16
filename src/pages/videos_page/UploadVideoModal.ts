@@ -231,6 +231,7 @@ export class UploadVideoModal {
       await fileInput.sendKeys(absolutePath);
       logger.debug('Archivo enviado al nodo de Chrome en Docker.', { label: this.config.label });
     } catch (error: unknown) {
+      logger.error(`Error en sendKeys: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw new Error(`Error en sendKeys: ${getErrorMessage(error)}`);
     }
   }

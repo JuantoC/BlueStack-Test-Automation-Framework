@@ -54,10 +54,10 @@ export async function waitVisible(
                     return element;
 
                 } catch (hoverErr: any) {
-                    logger.error(`La recuperación por hover falló o no fue necesaria: ${getErrorMessage(hoverErr)}`, { label: config.label, error: getErrorMessage(hoverErr) });
+                    logger.debug(`Recuperación por hover fallida en este intento (retry lo manejará): ${getErrorMessage(hoverErr)}`, { label: config.label });
                 }
             }
-            logger.error(`waitVisible: elemento no visible tras recovery: ${getErrorMessage(err)}`, { label: config.label, error: getErrorMessage(err) });
+            logger.debug(`waitVisible: elemento no visible en este intento (retry lo manejará): ${getErrorMessage(err)}`, { label: config.label });
             throw err;
         }
     }, config);

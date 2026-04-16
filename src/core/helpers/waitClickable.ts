@@ -40,7 +40,7 @@ export async function waitClickable(
       if (err instanceof error.TimeoutError) {
         err.message = `El elemento no fue interactuable tras ${fullOpts.timeoutMs / 1000}s. ${err.message}`;
       }
-      logger.error(`Error en waitClickable: ${getErrorMessage(err)}`, { label: fullOpts.label, error: getErrorMessage(err) });
+      logger.debug(`Error en waitClickable: ${getErrorMessage(err)}`, { label: fullOpts.label });
       throw err;
     }
   }, fullOpts);

@@ -308,7 +308,7 @@ export async function startToastMonitoring(
       });
 
       ws.on('error', (err) => {
-        logger.error(`Error CDP Toast Monitor: ${err.message}`, { label });
+        logger.error(`Error CDP Toast Monitor: ${err.message}`, { label, error: err.message });
         resolve(null);
       });
     });

@@ -33,10 +33,7 @@ export async function waitEnabled(
       return element;
     } catch (err) {
       if (err instanceof error.TimeoutError) {
-        logger.error(`Timeout: El elemento permaneció deshabilitado tras ${config.timeoutMs / 1000}s`, {
-          label: config.label,
-          error: getErrorMessage(err)
-        });
+        logger.debug(`Timeout: elemento deshabilitado en este intento (retry lo manejará)`, { label: config.label });
       }
       throw err;
     }

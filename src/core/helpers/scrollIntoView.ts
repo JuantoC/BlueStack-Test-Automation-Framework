@@ -31,7 +31,7 @@ export async function scrollIntoView(
       return element;
 
     } catch (error: unknown) {
-      logger.error(`Fallo scroll (reintentable): ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
+      logger.debug(`Fallo scroll (reintentable): ${getErrorMessage(error)}`, { label: config.label });
       throw new Error(`scrollIntoView falló: ${getErrorMessage(error)}`);
     }
   }, config);

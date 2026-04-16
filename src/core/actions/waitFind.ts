@@ -30,7 +30,7 @@ export async function waitFind<T extends WebElement = WebElement>(
       );
       return element as T;
     } catch (err) {
-      logger.error(`Error en waitFind: ${getErrorMessage(err)}`, { label: config.label, error: getErrorMessage(err) });
+      logger.debug(`Fallo en intento (retry lo manejará): ${getErrorMessage(err)}`, { label: config.label });
       throw err;
     }
   }, config);

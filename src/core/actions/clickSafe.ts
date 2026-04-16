@@ -6,6 +6,7 @@ import logger from "../utils/logger.js";
 import { waitFind } from "../actions/waitFind.js";
 import { waitClickable } from "../helpers/waitClickable.js";
 import { getErrorMessage } from "../utils/errorUtils.js";
+import { handleUpdateModal } from "../helpers/handleUpdateModal.js";
 
 /**
  * Realiza un clic resistente a la inestabilidad del DOM (flakiness).
@@ -48,12 +49,7 @@ export async function clickSafe<T extends WebElement = WebElement>(
 
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'ElementClickInterceptedError') {
-        logger.error(`Intercepción detectada. Posible toast bloqueante capturado por CDP monitor.`, { label: config.label, error: getErrorMessage(error) });
-        throw error;
-      }
-      /* // 4. Contingencia Reactiva para el Modal de Angular
-      if (error.name === 'ElementClickInterceptedError') {
-        logger.debug(`Intercepción detectada. Verificando si es el modal de actualización...`, { label: config.label });
+        logger.warn(`Intercepción detectada. Verificando si es el modal de actualización...`, { label: config.label });
 
         // Timeout corto para no penalizar si la intercepción fue por otra causa
         const modalHandled = await handleUpdateModal(driver, { ...internalOpts, timeoutMs: 1500 });
@@ -63,8 +59,8 @@ export async function clickSafe<T extends WebElement = WebElement>(
           staleError.name = "StaleElementReferenceError";
           throw staleError;
         }
-      } */
-      logger.error(`Error en clickSafe: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
+      }
+      logger.debug(`Fallo en intento (retry lo manejará): ${getErrorMessage(error)}`, { label: config.label });
       throw error;
     }
   }, config);

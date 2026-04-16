@@ -136,7 +136,7 @@ export async function startNetworkMonitoring(
       });
 
       ws.on('error', (err) => {
-        logger.error(`Error CDP: ${err.message}`, { label });
+        logger.error(`Error CDP: ${err.message}`, { label, error: err.message });
         resolve(null);
       });
     });

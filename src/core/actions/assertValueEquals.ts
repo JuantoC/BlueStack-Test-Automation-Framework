@@ -91,7 +91,7 @@ Obtenido (frag): "...${actualSnippet}..."`
       }
 
     } catch (error: unknown) {
-      logger.error(`Error en la validacion del texto: ${getErrorMessage(error)}`, { label: config.label, error: getErrorMessage(error) });
+      logger.debug(`Fallo en validación de texto en este intento (retry lo manejará): ${getErrorMessage(error)}`, { label: config.label });
       throw error;
     }
   }, config);

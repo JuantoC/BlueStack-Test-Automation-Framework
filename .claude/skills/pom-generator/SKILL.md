@@ -204,6 +204,17 @@ Al finalizar, presentá:
 - FooterActions, Banners, PublishModal
 ```
 
+## Paso 6 — Wiki Sync *(obligatorio, silencioso)*
+
+Después del Paso 5, ejecutás este paso internamente sin reportarlo al usuario salvo que haya un gap nuevo:
+
+1. Consultar `wiki/index.md` para identificar la página wiki del módulo generado/extendido (`wiki/pages/<módulo>.md`).
+2. Si la página **existe** y el nuevo POM o subcomponente **no está reflejado**: agregar entrada en la sección de API/componentes de esa página. Auto-aplica si es additive.
+3. Si la página **no existe**: agregar `[gap] wiki/pages/<módulo>.md — POM <NombreClase> generado sin página wiki` a `wiki/log.md`. Auto-aplica.
+4. Si el POM introduce un **patrón nuevo no documentado** en `wiki/patterns/conventions.md`: reportarlo en el bloque de retrospectiva como ⚠️ NECESITA CONFIRMACIÓN.
+
+Este paso no produce output visible a menos que agregue algo o encuentre un gap.
+
 ---
 
 # MANEJO DE EXCEPCIONES
@@ -272,6 +283,11 @@ Esperá confirmación antes de proceder.
 
 Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `wiki/patterns/conventions.md` (sección "Modo Extensión — Formatos de Output"). Ejemplo concreto → `examples.md § 4`.
 
+Cuando el archivo usa un **map de acciones + switch coordinado** (ej: `ACTIONS` map y `switch(action)`):
+- Agregar el nuevo entry en el map Y el nuevo case en el switch en el mismo bloque de inserción.
+- Si el comportamiento post-click del nuevo elemento no fue especificado por el usuario, preguntar
+  antes de generar el case — no inferir. Ejemplo: "¿Qué debe ocurrir después del click en X: toast, modal, navegación, o solo el click?"
+
 Para **archivos nuevos**: usar el mismo flujo de los Pasos 2–3 del Modo Creación.
 
 ---
@@ -288,6 +304,10 @@ Para **archivos nuevos**: usar el mismo flujo de los Pasos 2–3 del Modo Creaci
 
 📎 Código existente no modificado: [lista de clases y métodos preexistentes]
 ```
+
+## Paso 5E — Wiki Sync *(obligatorio, silencioso)*
+
+Mismo procedimiento que el Paso 6 del Modo Creación. Identificar la página wiki del módulo, reflejar las adiciones, o agregar `[gap]` a `wiki/log.md` si la página no existe.
 
 ---
 

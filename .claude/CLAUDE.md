@@ -31,7 +31,7 @@ Setup de infra y diagnóstico WSL2: `wiki/core/docker-grid.md`
 Aplican a toda interacción con el repositorio:
 
 - Código explícito e intencional. Sin atajos inteligentes.
-- Nunca silenciar errores: todo `catch` debe loguear y re-lanzar la excepción.
+- Nunca silenciar errores: todo `catch` debe re-lanzar la excepción. Detalle de tiers (dentro de retry vs. boundary externo): `wiki/patterns/conventions.md` § Retry Boundary · `wiki/core/logging.md` § Retry Boundary.
 - Nunca usar `driver.sleep()` sin comentar por qué no funciona una espera explícita.
 - Imports internos TypeScript: siempre extensión `.js` (requisito ESM).
 - Preferir edición puntual sobre reescritura total de archivos.
@@ -57,6 +57,9 @@ Acción recomendada: [tu recomendación]
 
 - **Firmas TypeScript o tipos modificados** → preguntar: *"¿Querés que actualice el JSDoc correspondiente y revise si hay `.md` relacionados que necesiten ajuste?"*
 - **Nuevo test en `/sessions`** → activar skill `create-session`. El `.test.ts` generado es fuente de verdad del flujo.
+- **El usuario declara una convención explícita** (frases: "de ahora en más", "de ahora en adelante", "siempre que", "la convención es", "nunca más", "acordamos que", "usá siempre X", "a partir de ahora") → capturar **inmediatamente** en memoria SIN esperar al cierre de ninguna skill. Luego evaluar si es project-wide y proponer actualización a `wiki/patterns/conventions.md` según la regla en `.claude/rules/memory-wiki-bridge.md`.
+- **Al finalizar cualquier skill activa** → aplicar internamente el proceso `skill-retrospective` antes de cerrar la respuesta. Excepciones: `skill-retrospective`, `skill-creator`, `senior-prompt-engineer`.
+- **Al finalizar cualquier turno donde se editaron archivos `.ts`/`.md`** → aplicar internamente el proceso `skill-retrospective` para Lente 3 y Lente 4 aunque no haya corrido ninguna skill.
 
 ---
 

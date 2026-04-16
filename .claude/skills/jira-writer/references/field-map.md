@@ -39,9 +39,22 @@
 | Componente | `customfield_10061` | array[string] | Tag de componente técnico |
 | Resumen Ejecutivo | `customfield_10062` | string | Una línea ejecutiva del issue |
 | Descripción Funcional | `customfield_10072` | string | Detalle funcional adicional |
-| Cambios SQL - Deploy | `customfield_10066` | string | Solo para tickets de deploy |
-| Cambios Librerías | `customfield_10067` | string | Solo para tickets de deploy |
 | Key ticket original (CMSM) | `customfield_10073` | string | Referencia a ticket de soporte origen |
+
+### Campos de deploy (dos grupos históricos)
+
+El proyecto NAA tiene dos grupos de customfields para datos de deploy. Grupo A = legacy; Grupo B = NAA activo. Usar siempre el grupo B en tickets nuevos.
+
+| Campo | Grupo A (legacy) | Grupo B (NAA activo) | Tipo | Descripción |
+|-------|-----------------|----------------------|------|-------------|
+| Cambios SQL | `customfield_10036` | `customfield_10066` | string | Migraciones de base de datos |
+| Cambios Librerías | `customfield_10037` | `customfield_10067` | string | Dependencias y librerías actualizadas |
+| Cambios TLD | `customfield_10039` | `customfield_10068` | string | Cambios en top-level domain o configuración TLD |
+| Cambios VFS | `customfield_10040` | `customfield_10069` | string | Cambios de sistema de archivos virtual |
+| Cambios Configuración | `customfield_10041` | `customfield_10070` | string | Variables de entorno o config general |
+| Comentarios Deploy | `customfield_10038` | `customfield_10071` | string | Notas y comentarios del proceso de deploy |
+
+> IDs descubiertos via GET /rest/api/3/field sobre instancia NAA — 2026-04-15.
 
 > **Labels vs Componente:**
 > - `labels` (campo nativo) = tickets de soporte con tag del cliente (ej. "Martin", "LAURACARVAJAL")
@@ -66,8 +79,8 @@
 | Juan Tomas Caldera (Juanto) | `712020:59e4ac7b-f44f-45cb-a444-44746cecec49` | QA — reporter default |
 | Verónica Tarletta | `5c51d02898c1ac41b4329be3` | Backend / IA / servicios Java |
 | Paula Valentina Rodriguez Roberto | `633b5c898b75455be4580f5b` | Frontend Angular |
-| Fernando Sismonda | `712020:2a7b50cb-749e-4524-9efe-245bf14c23af` | Dev (mencionar en comentarios) |
-| Claudia Tobares | `5c1d65c775b0e95216e8e175` | CKEditor / rich text |
+| Fernando Sismonda | `712020:2a7b50cb-749e-4524-9efe-245bf14c23af` | Jefe de operaciones / líder del equipo |
+| Claudia Tobares | `5c1d65c775b0e95216e8e175` | CKEditor / rich text + empaquetado y deployeo de versiones + parte del backend |
 
 > Para usuarios no listados: `lookupJiraAccountId` con el nombre completo.
 

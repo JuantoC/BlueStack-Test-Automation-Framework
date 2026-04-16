@@ -27,7 +27,7 @@ Then after the skill is done, you can also run the skill description improver to
 
 ## Contexto de invocación — BlueStack
 
-> Convenciones del repositorio (tipos de skills, plantillas de frontmatter, idioma, archivos modulares, entorno WSL2): leer `references/bluestack-conventions.md`.
+> Convenciones del repositorio (tipos de skills, plantillas de frontmatter, idioma, archivos modulares, entorno WSL2): leer `wiki/development/skill-conventions.md`.
 
 ---
 
@@ -43,7 +43,7 @@ Start by understanding the user's intent. The current conversation might already
 4. Should we set up test cases to verify the skill works? Skills with objectively verifiable outputs (file transforms, data extraction, code generation, fixed workflow steps) benefit from test cases. Skills with subjective outputs (writing style, art) often don't need them. Suggest the appropriate default based on the skill type, but let the user decide.
 5. **[BlueStack] ¿Quién invoca esta skill — un humano en conversación, u otro agente/pipeline/hook?**
    - Si es **solo agentes/pipeline**: ubicar en `.claude/pipelines/`, frontmatter con `type: pipeline` + `called-by:` + `invocation: explicit-only`. Los test prompts deben modelar la invocación estructurada del agente llamador.
-   - Si es **conversacional** (humano o trigger automático de Claude): ubicar en `.claude/skills/`, description con trigger phrases en español. Ver `references/bluestack-conventions.md`.
+   - Si es **conversacional** (humano o trigger automático de Claude): ubicar en `.claude/skills/`, description con trigger phrases en español. Ver `wiki/development/skill-conventions.md`.
 
 ### Interview and Research
 
@@ -60,7 +60,7 @@ Based on the user interview, fill in these components:
 - **compatibility**: Required tools, dependencies (optional, rarely needed)
 - **the rest of the skill :)**
 
-> Plantillas canónicas BlueStack (conversacional y pipeline): ver `references/bluestack-conventions.md`.
+> Plantillas canónicas BlueStack (conversacional y pipeline): ver `wiki/development/skill-conventions.md`.
 
 ---
 
@@ -243,7 +243,7 @@ Put each with_skill version before its baseline counterpart.
 
    **Cowork / headless environments:** If `webbrowser.open()` is not available or the environment has no display, use `--static <output_path>` to write a standalone HTML file instead of starting a server. Feedback will be downloaded as a `feedback.json` file when the user clicks "Submit All Reviews". After download, copy `feedback.json` into the workspace directory for the next iteration to pick up.
 
-   **WSL2 (BlueStack):** ver `references/bluestack-conventions.md` → Entorno WSL2.
+   **WSL2 (BlueStack):** ver `wiki/development/skill-conventions.md` → Entorno WSL2.
 
 Note: please use generate_review.py to create the viewer; there's no need to write custom HTML.
 
@@ -465,7 +465,7 @@ The agents/ directory contains instructions for specialized subagents. Read them
 
 The references/ directory has additional documentation:
 - `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
-- `references/bluestack-conventions.md` — convenciones BlueStack: tipos de skills, plantillas de frontmatter, archivos modulares, entorno WSL2
+- `wiki/development/skill-conventions.md` — convenciones BlueStack: tipos de skills, plantillas de frontmatter, archivos modulares, entorno WSL2
 
 ---
 

@@ -16,6 +16,61 @@ Genera un `.test.ts` dentro de `sessions/` siguiendo las convenciones Bluestack.
 
 ---
 
+## Modo debug — invocación desde otras skills
+
+Cuando otra skill (ej: `update-testids`) pasa `--debug` como flag, el comportamiento cambia:
+
+**Input esperado del invocador:**
+```
+--debug
+ticket: NAA-XXXX
+area: <nombre del área, ej: "post_editor_header">
+locators:
+  - POM: src/pages/post_page/note_editor_page/EditorHeaderActions.ts
+    nombre: SAVE_BTN
+    método: closeNoteEditor('SAVE_ONLY')
+    navegación: Login → Posts → entrar al primer ítem en EDIT
+  - POM: src/pages/post_page/note_editor_page/EditorHeaderActions.ts
+    nombre: PUBLISH_BTN
+    método: closeNoteEditor('PUBLISH_ONLY')
+    navegación: (misma sesión, re-entrar al editor)
+```
+
+**Comportamiento en modo debug:**
+- Destino: `sessions/debug/DebugTestids_{KEY}_{area}.test.ts`
+- Nombre del test: `"Debug Testids {KEY} — {área legible}"`
+- Allure: `epic: "Debug"`, `feature: "Testid Validation"`, `story: "{KEY}"`
+- Flujo: el mínimo necesario para llegar a cada elemento e invocar su método real
+  - No replicar flujos completos de negocio
+  - Agrupar locators de la misma ruta de navegación en un solo `runSession`
+  - Un `step()` por cada locator validado
+- Las reglas de escritura del modo normal aplican igual (imports al final, etc.)
+- **No preguntar al usuario** — generar directamente con el input recibido
+- **No registrar en `wiki/sessions/catalog.md`** — es una session temporal
+- El invocador es responsable de eliminar el archivo después de ejecutarlo
+
+**Reglas de resolución en modo debug:**
+
+**M1 — Método inexistente en POM:** Si el invocador especifica un método o tipo que no existe en el POM real leído, usar el método real equivalente y dejar un comentario inline:
+```typescript
+// NOTE: caller specified openNewNoteMenu(), real method is openNoteTypeDropdown()
+await postTable.openNoteTypeDropdown();
+```
+
+**M2 — Maestro no expone el método (excepción a "solo Maestros"):** Si el Maestro no expone el método requerido como público, instanciar el sub-component directamente con comentario explicativo:
+```typescript
+// sub-component directo — Maestro no expone selectNoteType() públicamente
+const dropdown = new NoteTypeDropdown(driver, opts);
+await dropdown.selectNoteType('POST');
+```
+
+**M3 — Locators inline sin respaldo POM:** Marcar con `// VERIFY_TESTID` todo locator inline sin método POM para que el invocador sepa qué confirmar con DevTools:
+```typescript
+const saveBtn = await driver.findElement(By.css('[data-testid="save-btn"]')); // VERIFY_TESTID
+```
+
+---
+
 ## Reglas (todas obligatorias)
 
 **1. Imports al final** — convención del proyecto (romper el orden rompe la legibilidad del flujo):
@@ -84,6 +139,16 @@ description(`
 > API completa: [`wiki/patterns/factory-api.md`](../../../wiki/patterns/factory-api.md).
 
 Caso especial AI Post: usar `AINoteDataFactory` — ver wiki para el contrato de `AIDataNote`.
+
+---
+
+## Wiki Sync *(obligatorio, silencioso — no aplica en modo debug)*
+
+Después de generar el archivo `.test.ts`, ejecutás este paso internamente:
+
+1. Abrir `wiki/sessions/catalog.md` y agregar la nueva session al catálogo con: nombre del archivo, descripción del flujo, módulo/sección del CMS y fecha. **Auto-aplica** (es una adición al catálogo, no modifica entradas existentes).
+2. Si la session usa un flujo o patrón que **no está documentado** en la wiki (nueva navegación, nuevo tipo de dato, nuevo PO usado por primera vez): agregar `[gap] <tema>` a `wiki/log.md`. **Auto-aplica**.
+3. Si la session documenta un **comportamiento del CMS desconocido** para el framework: reportarlo en la retrospectiva como ⚠️ NECESITA CONFIRMACIÓN para evaluar si va a una página wiki.
 
 ---
 

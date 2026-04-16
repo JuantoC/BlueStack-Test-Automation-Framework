@@ -52,7 +52,7 @@ produciendo `\\n` literal en Jira. Aplica a `description`, `comment`, y cualquie
 rich text custom.
 
 **Cómo:** Redactar el contenido en markdown mentalmente → convertir a ADF JSON →
-ver [`references/adf-format-guide.md`](references/adf-format-guide.md) para nodos y ejemplos.
+ver [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) para nodos y ejemplos.
 
 **Validación pre-envío:**
 - `contentFormat` == `"adf"` (nunca `"markdown"`)
@@ -95,7 +95,7 @@ Secciones en orden:
 6. **Criterios de aceptación** (h3 + bulletList)
 7. **Otra información** (h3 + codeBlock) — logs, `log_excerpt`, referencias
 
-Ver [`references/adf-format-guide.md`](references/adf-format-guide.md) → "Ejemplo completo: Descripción de ticket".
+Ver [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) → "Ejemplo completo: Descripción de ticket".
 
 ### A4: Ejecutar createJiraIssue
 ```json
@@ -375,7 +375,7 @@ Escribir el archivo completo con el campo actualizado (no solo el campo — rees
 
 ## Referencias
 
-- [`references/adf-format-guide.md`](references/adf-format-guide.md) → **[MANDATORIO]** Nodos ADF, ejemplos completos, checklist pre-envío
+- [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) → **[MANDATORIO]** Nodos ADF, ejemplos completos, checklist pre-envío
 - [`references/field-map.md`](references/field-map.md) → issue types, prioridades, campos custom, accountIds, épicas
 - [`references/comment-examples.md`](references/comment-examples.md) → ejemplos reales (master, dev_saas, automation)
 - [`references/devsaas-flow.md`](references/devsaas-flow.md) → flujo Dev_SAAS completo, pasos D1-D3, ejemplos

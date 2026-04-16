@@ -1,6 +1,6 @@
 ---
 source: src/pages/README.md · README.md
-last-updated: 2026-04-14
+last-updated: 2026-04-16
 ---
 
 # Patterns: Conventions
@@ -157,6 +157,19 @@ catch (error) {
 }
 ```
 
+**Regla fundamental:** todo `catch` DEBE re-lanzar. Silenciar = atrapar sin relanzar.
+
+### Retry Boundary — distinción de tiers
+
+El comportamiento del `catch` depende de si está dentro o fuera del boundary de `retry()`:
+
+| Contexto | `logger.error()` | `logger.debug()` | Rethrow |
+|----------|-----------------|-----------------|---------|
+| Dentro del lambda de `retry()` | **Prohibido** — dispara en cada intento | Permitido (diagnóstico) | **Obligatorio** |
+| Boundary externo (envuelve `retry()`) o método sin retry | **Obligatorio** | Opcional | **Obligatorio** |
+
+Ver [`wiki/core/logging.md`](../core/logging.md) — sección "Concepto: Retry Boundary" para el detalle completo, reglas numeradas y anti-patrones.
+
 ---
 
 ## Reglas de `step()`
@@ -177,6 +190,101 @@ catch (error) {
 | Tipos derivados de maps | `keyof typeof Clase.MAP` | `NoteType`, `SidebarOption`, `FooterActionType` |
 | Archivos | PascalCase | `MainPostPage.ts`, `EditorHeaderActions.ts` |
 | Tests | `<Nombre>.<categoria>.test.ts` | `NewPost.test.ts`, `FailedLogin.test.ts` |
+
+---
+
+---
+
+## Patrones de interacción — componentes Angular Material
+
+Estos patrones se descubrieron en NAA-4324 y aplican a cualquier test que toque los componentes indicados.
+
+### Patrón A — `mat-slide-toggle` (Autoplay / Mute)
+
+El componente `<mat-slide-toggle>` de Angular Material es compuesto: el elemento raíz no es interactuable directamente. El click debe apuntar al `button[role="switch"]` interno.
+
+```typescript
+// ❌ No clickear el <mat-slide-toggle> ni su data-testid raíz directamente
+By.css('[data-testid="check-autoplay"]')
+
+// ✅ Clickear el button interno dentro del componente
+By.css('[data-testid="check-autoplay"] button[role="switch"]')
+```
+
+Aplica a: `EditorInfoSection.AUTOPLAY_TOGGLE`, `EditorInfoSection.MUTE_TOGGLE` (video editor).
+
+---
+
+### Patrón B — `mat-select` (Rating / clasificación)
+
+El click en un `<mat-select>` abre un overlay global del framework Angular Material. Las opciones (`mat-option`) se renderizan en el `body` del documento, **fuera** del shadow del componente padre.
+
+```typescript
+// Abrir: selector del componente es suficiente
+By.css('[data-testid="dropdown-classification"]')  // abre el overlay
+
+// Seleccionar opción: buscar a nivel documento, no dentro del componente
+By.css('mat-option')  // opciones al nivel document — filtrar por texto si hay múltiples
+```
+
+Aplica a: `EditorInfoSection.RATING_DROPDOWN` (video editor). Cualquier `mat-select` del CMS sigue este patrón.
+
+---
+
+### Patrón C — timepicker de Angular Bootstrap
+
+El `data-testid` está en el componente `<timepicker>` raíz, no en sus inputs internos. Para acceder a los campos HH y MM se usa un selector compuesto.
+
+```typescript
+// ✅ Selector compuesto: testid del componente + atributo placeholder del input interno
+By.css('[data-testid="timepicker-create-hour"] input[placeholder="HH"]')
+By.css('[data-testid="timepicker-create-hour"] input[placeholder="MM"]')
+
+// ❌ No hay data-testid en los inputs individuales — no intentar asignarlos
+```
+
+Aplica a: `EditorInfoSection.TIMEPICKER_HOURS` / `TIMEPICKER_MINUTES` (video editor).
+
+---
+
+### Patrón D — `app-cmsmedios-button` (modales con botón de confirmación)
+
+El componente Angular `<app-cmsmedios-button>` actúa como wrapper. Su `data-testid` se declara en el componente raíz, pero el `<button>` interno **siempre** renderiza con `data-testid="btn-calendar-confirm"` independientemente del contexto. El selector debe combinar ambos niveles.
+
+```typescript
+// ❌ No apuntar solo al wrapper — no es interactuable
+By.css('[data-testid="btn-confirm-generic-saveexit-text"]')
+
+// ❌ No apuntar solo al button interno — puede haber múltiples en el DOM
+By.css('button[data-testid="btn-calendar-confirm"]')
+
+// ✅ Selector compuesto: wrapper con su testid + button interno
+By.css('[data-testid="btn-confirm-generic-saveexit-text"] button[data-testid="btn-calendar-confirm"]')
+By.css('[data-testid="btn-cancel-newnote-get-out-anyway-text"] button[data-testid="btn-calendar-confirm"]')
+```
+
+Aplica a: `EditorHeaderActions.MODAL_BACK_SAVE_AND_EXIT_BTN` y `MODAL_BACK_DISCARD_EXIT_BTN` (note editor).
+Cualquier modal que use `app-cmsmedios-button` sigue este patrón — el `data-testid` diferenciador está en el wrapper, no en el button.
+
+---
+
+## `driver.sleep()` — uso restringido
+
+`driver.sleep()` está prohibido sin justificación explícita. Enmasca inestabilidad real y hace el test frágil ante cambios de rendimiento del ambiente.
+
+**Regla:** si usás `driver.sleep()`, debés agregar un comentario que explique por qué ninguna espera explícita (como `waitVisible`, `waitEnabled` u otras core actions) puede resolver el caso.
+
+```typescript
+// ❌ Nunca sin comentario
+await driver.sleep(1000);
+
+// ✅ Solo si se justifica la excepción
+// driver.sleep: el elemento aparece en el DOM antes de estar interactuable
+// y waitEnabled retorna true prematuramente. No hay condición observable alternativa.
+await driver.sleep(500);
+```
+
+Alternativas siempre preferibles: `waitVisible`, `waitEnabled`, `waitFind`, `assertValueEquals` con retry.
 
 ---
 

@@ -1,131 +1,42 @@
 ---
-source: .claude/skills/jira-reader/references/pipeline-schema.md + .claude/skills/jira-writer/references/pipeline-schema.md
-last-updated: 2026-04-15
+last-updated: 2026-04-16
 ---
 
-# Pipeline Integration Schema — Contrato completo
-
-Documenta el contrato entre el agente test-reporter y las skills jira-reader/jira-writer.
+# Pipeline Integration Schema — Contrato test-reporter ↔ jira-writer
 
 ## Contexto
 
-Define el contrato de comunicación entre el agente automatizado de pruebas y las skills `jira-reader` / `jira-writer`.
+Define el contrato de comunicación entre el agente `test-reporter` y la skill `jira-writer`.
 
-El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del mismo agente:
+**Modelo de agentes actual:**
+- `qa-orchestrator` coordina invocando subagentes via `Agent({ subagent_type: "..." })`
+- `ticket-analyst` lee Jira directamente via MCP (`mcp__claude_ai_Atlassian__getJiraIssue`)
+- `test-engine` ejecuta Jest y escribe resultados en el Execution Context
+- `test-reporter` es el **único punto de integración** con las skills Jira — llama a `jira-writer` via `Skill()`
+- `jira-writer` maneja internamente `jira-reader` cuando lo necesita (ej. OP-3 en Dev_SAAS)
 
 ```
-1. jira-reader OP-6 → extraer criterios del ticket
-2. Selenium runner → ejecutar tests
-3. jira-reader OP-3 → extraer casos del comentario master (si es Dev_SAAS)
-4. jira-writer MODO F → procesar resultados y actualizar Jira
-```
-
----
-
-## Input: qa-orchestrator → jira-reader
-
-```json
-{
-  "schema_version": "3.0",
-  "source_agent": "selenium-orchestrator",
-  "operation": "extract_criteria",
-  "ticket_key": "NAA-XXXX"
-}
-```
-
-### Operaciones soportadas
-
-| `operation` | OP equivalente | Cuándo el orquestador la necesita |
-|-------------|----------------|----------------------------------|
-| `read_ticket` | OP-1 | Leer contexto completo antes de cualquier acción |
-| `extract_test_cases` | OP-3 | Antes de `validate_devsaas` — necesita casos del master |
-| `extract_criteria` | OP-6 | Antes de ejecutar los tests — necesita criterios del ticket |
-| `search_jql` | OP-2 | Buscar tickets relacionados por componente o suite |
-| `list_transitions` | OP-4 | Verificar transiciones disponibles para el ticket |
-
-### Output: jira-reader → qa-orchestrator
-
-**OP-6 / extract_criteria**
-```json
-{
-  "schema_version": "3.0",
-  "source_skill": "jira-reader",
-  "operation": "extract_criteria",
-  "timestamp": "2026-04-13T10:30:00Z",
-  "project": "NAA",
-  "data": {
-    "ticket_key": "NAA-XXXX",
-    "ticket_summary": "VIDEOS - El sistema de upload de videos no notifica el progreso",
-    "criteria": [
-      { "index": 1, "description": "El video se sube correctamente con formato MP4" },
-      { "index": 2, "description": "El modal muestra el progreso de la subida" },
-      { "index": 3, "description": "El video aparece en la grilla luego de la subida" }
-    ],
-    "source": "description_criteria",
-    "component": "Videos",
-    "assignee": {
-      "displayName": "Paula Valentina Rodriguez Roberto",
-      "accountId": "633b5c898b75455be4580f5b"
-    },
-    "epic_key": "NAA-1234"
-  }
-}
-```
-
-**OP-3 / extract_test_cases**
-```json
-{
-  "schema_version": "3.0",
-  "source_skill": "jira-reader",
-  "operation": "extract_test_cases",
-  "timestamp": "2026-04-13T10:30:00Z",
-  "project": "NAA",
-  "data": {
-    "ticket_key": "NAA-XXXX",
-    "ticket_summary": "...",
-    "validated_env": "master",
-    "assignee": { "displayName": "...", "accountId": "..." },
-    "test_cases": [
-      { "description": "El video se sube correctamente con formato MP4", "result": "✔" },
-      { "description": "El modal muestra el progreso de la subida", "result": "✔" }
-    ]
-  }
-}
-```
-
-**OP-1 / read_ticket**
-```json
-{
-  "schema_version": "3.0",
-  "source_skill": "jira-reader",
-  "operation": "read_ticket",
-  "timestamp": "2026-04-13T10:30:00Z",
-  "project": "NAA",
-  "data": {
-    "ticket_key": "NAA-XXXX",
-    "summary": "...",
-    "status": "Revisión",
-    "issuetype": "QA Bug - Front",
-    "priority": "Medium",
-    "assignee": { "displayName": "...", "accountId": "..." },
-    "component": "Videos",
-    "epic_key": "NAA-YYYY",
-    "comments_count": 3,
-    "issuelinks": []
-  }
-}
+Execution Context (pipeline-logs/active/<ticket>.json)
+        ↓
+  test-reporter (lee context, construye payload)
+        ↓
+  Skill({ skill: "jira-writer", args: JSON.stringify(payload) })
+        ↓
+  jira-writer (postea comentario ADF, transiciona, crea bugs)
+        ↓
+  Output → test-reporter escribe test_reporter_output en context
 ```
 
 ---
 
-## Input: qa-orchestrator → jira-writer
+## Input: test-reporter → jira-writer
 
 ### Campos obligatorios
 
 ```json
 {
   "schema_version": "3.0",
-  "source_agent": "selenium-runner",
+  "source_agent": "test-reporter",
   "operation": "validate_master",
   "ticket_key": "NAA-XXXX",
   "environment": "master",
@@ -150,20 +61,24 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
   "suite_summary": { "total": 5, "passed": 4, "failed": 1 },
   "assignee_hint": "frontend",
   "component": "Videos",
-  "epic_key": "NAA-XXXX",
+  "pipeline_id": "pipe-20260416-001",
+  "is_pipeline_test": false,
+  "idempotency": {
+    "already_reported": false,
+    "last_comment_id": null
+  },
   "jira_metadata": {
     "jiraSummary": "...",
     "ticketType": "Story - Back",
-    "ticketStatus": "In Progress",
-    "assignee": "...",
+    "ticketStatus": "Revisión",
+    "assignee": "Paula Valentina Rodriguez Roberto",
     "component": "Videos",
     "parentKey": "NAA-1751"
   }
 }
 ```
 
-> `jira_metadata` es provisto por `jira-reader OP-6` y sigue el contrato exacto de
-> `TestMetadata` en `src/core/wrappers/testWrapper.ts`.
+> `jira_metadata` es provisto por `ticket_analyst_output.jira_metadata` del Execution Context y sigue el contrato exacto de `TestMetadata` en `src/core/wrappers/testWrapper.ts`.
 
 ### test_result con error
 
@@ -175,29 +90,36 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
   "duration_ms": 15234,
   "error_message": "TimeoutError: Element not interactable",
   "stacktrace": "TimeoutError: Waiting for element to be visible\n  at UploadVideoModal.waitForProgressBar (UploadVideoModal.ts:45)",
-  "screenshot_path": "/tmp/screenshots/upload_modal_failure.png",
   "log_excerpt": "[WARN] waitForElement timeout after 10000ms — selector: .upload-progress-bar"
 }
 ```
 
-### Valores de `operation`
+---
+
+## Valores de `operation`
 
 | Valor | Qué hace jira-writer | Flujo en SKILL.md |
 |-------|----------------------|-------------------|
 | `validate_master` | Comenta resultado de validación en Master + transiciona | MODO B |
-| `validate_devsaas` | Lee casos del master (jira-reader OP-3), comenta Dev_SAAS + transiciona o crea bugs | MODO C → MODO D |
+| `validate_devsaas` | Lee casos del master (jira-reader OP-3 interno), comenta Dev_SAAS + transiciona o crea bugs | MODO C → MODO D |
+| `escalation_comment` | Postea comentario ADF de escalación, sin transición | MODO G |
 | `create_bug` | Crea un QA Bug ticket desde los datos del test fallido | MODO A |
-| `add_observation` | Agrega un comentario informativo sin cambiar el estado del ticket | — |
 
-### Valores de `environment`
+---
+
+## Valores de `environment`
 
 | Valor | Descripción |
 |-------|-------------|
 | `master` | Entorno de desarrollo (`.amplifyapp.com`) |
-| `dev_saas` | Pre-productivo. Requiere `prerelease_version`. |
+| `dev_saas` | Pre-productivo. **Requiere `prerelease_version`** en el payload. |
 | `[nombre-cliente]` | Entorno dedicado a un cliente. Usar el nombre literal. |
 
-### Valores de `assignee_hint`
+> `environment` en el payload refleja siempre el valor del Pipeline Trigger, nunca el `TARGET_ENV` interno de Jest.
+
+---
+
+## Valores de `assignee_hint`
 
 | Valor | Assignee resuelto | accountId |
 |-------|-------------------|-----------|
@@ -206,7 +128,9 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 | `editor` | Claudia Tobares | `5c1d65c775b0e95216e8e175` |
 | omitido | Inferir del componente o preguntar | — |
 
-### Output: jira-writer → qa-orchestrator
+---
+
+## Output: jira-writer → test-reporter
 
 ```json
 {
@@ -225,35 +149,21 @@ El qa-orchestrator invoca `jira-reader` y `jira-writer` como pasos distintos del
 
 ---
 
-## Ejemplo de flujo completo del orquestador
-
-### Etapa 1: Obtener criterios del ticket antes de ejecutar tests
+## Ejemplo de flujo completo — validate_master
 
 ```json
-// Input al orquestador
-{ "ticket_key": "NAA-4416", "action": "run_and_validate" }
-
-// Orquestador llama a jira-reader
-{ "schema_version": "3.0", "source_agent": "selenium-orchestrator", "operation": "extract_criteria", "ticket_key": "NAA-4416" }
-```
-
-### Etapa 2-3: Mapear criterios y ejecutar tests
-
-El orquestador mapea cada criterio con el test en `/sessions` que lo cubre, ejecuta la suite y colecta `test_results[]` con ✔/✘ por cada criterio.
-
-### Etapa 4: Enviar resultados a jira-writer
-
-```json
+// test-reporter construye y envía:
 {
   "schema_version": "3.0",
-  "source_agent": "selenium-runner",
+  "source_agent": "test-reporter",
   "operation": "validate_master",
   "ticket_key": "NAA-4416",
   "environment": "master",
   "test_suite": "UploadVideo",
-  "test_file": "sessions/UploadVideo.test.ts",
+  "test_file": "sessions/video/UploadVideo.test.ts",
   "component": "Videos",
   "assignee_hint": "frontend",
+  "pipeline_id": "pipe-20260416-001",
   "suite_summary": { "total": 3, "passed": 2, "failed": 1 },
   "test_results": [
     { "test_name": "should upload MP4 video successfully", "description": "El video se sube correctamente con formato MP4", "result": "✔" },
@@ -264,23 +174,49 @@ El orquestador mapea cada criterio con el test en `/sessions` que lo cubre, ejec
 
 ---
 
+## Payload de escalación — MODO G
+
+Cuando `escalation_mode: true` en el Execution Context, test-reporter construye este payload:
+
+```json
+{
+  "schema_version": "3.0",
+  "source_agent": "test-reporter",
+  "operation": "escalation_comment",
+  "ticket_key": "NAA-XXXX",
+  "environment": "master",
+  "escalation_reason": "No fue posible extraer criterios automatizables del ticket.",
+  "outcome": "human_escalation",
+  "criteria_attempted": [],
+  "manual_test_guide": [],
+  "idempotency": { "already_reported": false, "last_comment_id": null },
+  "pipeline_id": "pipe-20260416-001"
+}
+```
+
+---
+
 ## Notas de implementación
 
-- El orquestador debe pasar el payload completo de una vez — el skill no llama de vuelta para pedir más datos
-  (excepto si `prerelease_version` falta en `validate_devsaas`, donde sí pregunta antes de proceder)
+- test-reporter pasa el payload completo de una vez — jira-writer no hace callbacks para pedir más datos (excepto si `prerelease_version` falta en `validate_devsaas`, donde aborta con error)
 - El campo `test_file` permite al developer ir directamente al test fallido en el repo
 - El campo `log_excerpt` se incluye en la descripción de bugs bajo "Otra información"
 - Los stacktraces se truncan a las primeras 5-8 líneas para mantener el ticket legible
 - La MCP para Jira está configurada en `.mcp.json` del repositorio (`@sooperset/mcp-atlassian`)
 
+### Mapping de customfields de deploy
+
+Para el mapping completo de los campos custom de deploy (Cambios SQL, Cambios Librerías, Cambios TLD, Cambios VFS, Cambios Configuración, Comentarios Deploy) incluyendo los dos grupos históricos (Grupo A legacy `customfield_10036-10041` y Grupo B NAA activo `customfield_10066-10071`), ver:
+
+→ `.claude/skills/jira-writer/references/field-map.md` — sección "Campos de deploy (dos grupos históricos)"
+
+> Regla: siempre usar el Grupo B (`customfield_10066-10071`) en tickets nuevos. El Grupo A es legacy.
+
 ---
 
 ## Idempotencia del Execution Context
 
-El Execution Context incluye el campo `idempotency` para evitar que el pipeline
-postee comentarios duplicados en Jira ante reinicios o errores parciales.
-
-### Estructura
+El Execution Context incluye el campo `idempotency` para evitar que el pipeline postee comentarios duplicados ante reinicios o errores parciales.
 
 ```json
 "idempotency": {
@@ -289,17 +225,14 @@ postee comentarios duplicados en Jira ante reinicios o errores parciales.
 }
 ```
 
-### Comportamiento
-
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `already_reported` | boolean | `true` si el comentario de validación ya fue posteado en Jira |
+| `already_reported` | boolean | `true` si el comentario ya fue posteado en Jira (modo normal o escalación) |
 | `last_comment_id` | string \| null | ID del comentario Jira posteado, o `null` si aún no se posteó |
 
-### Ciclo de vida
-
+**Ciclo de vida:**
 - **ORC-1.3 (qa-orchestrator):** inicializa ambos campos en `false` / `null` al crear el Execution Context.
-- **TR-1 (test-reporter):** verifica `already_reported` antes de actuar. Si es `true` → `status: "skipped"` sin llamar a Jira.
-- **TR-6 (test-reporter):** tras postear exitosamente → `already_reported: true`, `last_comment_id: "<id>"`.
+- **TR-1 / TR-E.1 (test-reporter):** verifica `already_reported` antes de actuar. Si es `true` → `status: "skipped"`.
+- **TR-6 / TR-E.4 (test-reporter):** tras postear exitosamente → `already_reported: true`, `last_comment_id: "<id>"`.
 
-> Fuente de verdad: `.claude/agents/qa-orchestrator.md` (ORC-1.3) y `.claude/agents/test-reporter.md` (TR-1, TR-6).
+> Fuente de verdad: `.claude/agents/qa-orchestrator.md` (ORC-1.3) y `.claude/agents/test-reporter.md` (TR-1, TR-6, TR-E).

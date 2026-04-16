@@ -48,10 +48,17 @@ clickSafe(driver, ID, opts)
   ├─ waitClickable(driver, element, internalOpts)
   │    ├─ waitVisible(driver, element, opts)
   │    └─ waitEnabled(driver, element, opts)
-  └─ element.click()
+  ├─ element.click()
+  └─ si ElementClickInterceptedError →
+       handleUpdateModal(driver, { timeoutMs: 1500 })
+         ├─ modal detectado → click en btn-calendar-confirm → espera staleness
+         │    └─ lanza StaleElementReferenceError → retry() re-busca DOM y reintenta
+         └─ modal no detectado → el error sigue su camino normal
 ```
 
 Todo está envuelto en `retry()` con `supressRetry: true` para los llamados internos (evita reintentos anidados).
+
+**Nota sobre `ElementClickInterceptedError`:** al detectarlo, `clickSafe` consulta primero si es el modal de actualización del ambiente (`handleUpdateModal`). Si lo resuelve, fuerza un `StaleElementReferenceError` para que `retry()` rehaga el ciclo completo desde `waitFind`. Si no hay modal, el error se propaga normalmente.
 
 ---
 

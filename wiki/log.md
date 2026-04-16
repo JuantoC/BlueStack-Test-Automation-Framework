@@ -17,6 +17,64 @@ Tipos: `ingest` | `gap` | `update` | `fix`
 
 ## Entradas
 
+## [2026-04-16] fix | Issue 5 — HeaderNewContentBtn agregado al directorio de src/pages/README.md
+`HeaderNewContentBtn.ts` existía en `src/pages/` pero no figuraba en la tabla de directorio del README.
+Entrada agregada en la sección raíz, junto a `SidebarAndHeaderSection.ts` y `FooterActions.ts`, con link a `wiki/pages/_shared.md#headernewcontentbtn`.
+
+## [2026-04-16] fix | Issue 6 — Descripción de clickOnMultimediaFileBtn completada en wiki/pages/_shared.md
+La descripción del método omitía tres elementos del comportamiento real del código:
+- Toda la secuencia está dentro de `retry()`
+- La config interna usa `supressRetry: true` para evitar reintentos anidados
+- Hay un `waitVisible()` explícito sobre el elemento del submenú antes de clickear la opción
+Actualizada la tabla API y la sección "Navegación: directa vs multimedia" para reflejar el comportamiento real.
+
+## [2026-04-16] update | Issue 10 — Sección "deuda de cobertura" en wiki/index.md verificada
+Estado verificado al 2026-04-16: `comment_page/` y `user_profile_page/` continúan sin archivos `.ts`.
+La sección en wiki/index.md ya refleja el estado real — no se requirieron cambios.
+
+## [2026-04-16] update | Auditoría SSoT — referencias en SKILL.md apuntan a wiki/ (no a stubs en references/)
+
+Los tres `references/` auditados ya eran stubs desde 2026-04-14. Se completó la segunda parte: actualizar los SKILL.md para que referencien directamente a wiki/.
+
+- Issue 1 — `jira-writer/SKILL.md`: 3 menciones a `references/adf-format-guide.md` → reemplazadas por `../../../wiki/qa/adf-format-guide.md` (path relativo correcto desde `.claude/skills/jira-writer/`).
+- Issue 2 — `audit-logs/SKILL.md`: 4 menciones a `references/log-conventions.md` → reemplazadas por `wiki/core/logging.md` (referencia inline en texto y tabla de referencias).
+- Issue 3 — `skill-creator/SKILL.md`: 4 menciones a `references/bluestack-conventions.md` → reemplazadas por `wiki/development/skill-conventions.md`.
+
+Los archivos stub en `references/` se conservan — no duplican contenido, solo redirigen.
+
+## [2026-04-16] update | Consolidación SSoT convenciones — audit wiki Agente B
+Brecha cerrada: `wiki/patterns/conventions.md` carecía de la distinción de tiers del retry boundary (solo estaba detallada en `wiki/core/logging.md`). Agregada sección "Retry Boundary" con tabla y puntero a logging.md.
+Brecha cerrada: `driver.sleep()` solo aparecía en la tabla de anti-patrones sin regla ni ejemplos. Agregada sección autónoma con regla, ejemplos y alternativas.
+`CLAUDE.md` § Reglas de Código — regla de error handling reducida a una línea con dos punteros a wiki/ (conventions.md y logging.md). El detalle canónico vive en wiki/.
+
+## [2026-04-16] update | Retry Boundary Doctrine — nueva doctrina de logging por tiers
+`wiki/core/logging.md` actualizado: sección "Concepto: Retry Boundary", reglas 1a/1b/2 (reemplazó regla 1 monolítica), 3 nuevas filas en anti-patrones.
+`audit-logs/SKILL.md` actualizado: tabla de verificaciones split en Tier 1/2/3, bloque de detección de tiers.
+`CLAUDE.md` actualizado: regla "Nunca silenciar errores" matizada para distinguir rethrow-a-retry (válido) de silenciamiento real.
+5 archivos en `src/core/actions/` corregidos: `logger.error` → `logger.debug` dentro de lambdas de retry.
+
+## [2026-04-16] Auditoría EditorHeaderActions — Videos e Imágenes
+
+**Tipo:** update (locators + corrección de bugs)
+**Archivos modificados:** `videos_page/video_editor_page/EditorHeaderActions.ts`, `images_pages/images_editor_page/EditorHeaderActions.ts`
+
+### Locators actualizados (4 por archivo)
+- `SAVE_BTN`: `button.white-btn[data-testid="dropdown-action"]` → `[data-testid="btn-save"]`
+- `PUBLISH_BTN`: `button.btn-info[data-testid="dropdown-action"]` → `[data-testid="btn-publish"]`
+- `DROPDOWN_SAVE_CONTAINER`: `By.id('dropdown-save')` → `[data-testid="dropdown-toggle-save"]`
+- `DROPDOWN_PUBLISH_CONTAINER`: `By.id('dropdown-publish')` → `[data-testid="dropdown-toggle-publish"]`
+
+### Bugs corregidos (3 bugs de testids cruzados Save/Publish)
+- **Videos** — `PUBLISH_AND_EXIT_OPT` usaba `dropdown-item-guardar-y-salir` (testid de Save). Corregido a `dropdown-item-publicar-y-salir`
+- **Imágenes** — `SAVE_AND_EXIT_OPT` usaba `dropdown-item-publicar-y-salir` (testid de Publish). Corregido a `dropdown-item-guardar-y-salir`
+- **Imágenes** — `EXIT_WITHOUT_SAVING_OPT` usaba `dropdown-item-publicar-y-salir`. Corregido a `dropdown-item-salir`
+
+### Origen
+Input: HTML inspeccionado manualmente (F12 / outerHTML). Sin ticket Jira.
+Validación: `btn-save` (video) confirmado en grid real. Resto pendiente por expiración de sesión en ambiente `testing`.
+
+---
+
 [2026-04-15] migration | Migración a Custom Agents completada
 Los pipelines ticket-analyst, test-engine, test-reporter y qa-orchestrator fueron
 migrados a custom agents de Claude Code en `.claude/agents/`. Los PIPELINE.md en
@@ -200,8 +258,32 @@ Fix 4 — jira-writer/references/field-map.md: nota explícita de formato correc
   = array de strings planos ["AI"], no [{value:"AI"}] que era rechazado por la API NAA.
 Fix 5 — wiki/qa/validation-session-2026-04-15.md: creada con tabla de tickets, aliases, desvíos y decisiones.
 
+[2026-04-16] update | Auditoría EditorHeaderActions (note editor) — locators y patrones actualizados
+7 locators actualizados en src/pages/post_page/note_editor_page/EditorHeaderActions.ts:
+- SAVE_BTN: btn-genericsavetext
+- DROPDOWN_SAVE_CONTAINER: dropdown-toggle-genericsavetext (antes By.id('dropdown-save'))
+- DROPDOWN_PUBLISH_CONTAINER: dropdown-toggle-newnotepublishtext (antes By.id('dropdown-publish'))
+- PUBLISH_AND_EXIT_OPT: dropdown-item-publicar-y-salir (antes tenía testid del save — bug)
+- SCHEDULE_OPT: dropdown-item-programar (antes tenía testid del exit — bug)
+- MODAL_BACK_SAVE_AND_EXIT_BTN: selector compuesto wrapper + button interno btn-calendar-confirm
+- MODAL_BACK_DISCARD_EXIT_BTN: ídem con wrapper btn-cancel-newnote-get-out-anyway-text
+Nuevo patrón documentado: Patrón D en wiki/patterns/conventions.md — app-cmsmedios-button wrapper.
+NoteExitAction y mapa LOCATORS documentados en wiki/pages/post-page.md.
+
 [gap] pipeline: archivos binarios adjuntos (.webm, .mp4) en comentarios de dev —
 evaluar si el pipeline debería sugerir revisión manual antes de escalar criteria_source:none
+
+[2026-04-16] [gap] pipeline: test-generator (Fase 5) pendiente de implementación — el qa-orchestrator no tiene agente para generar sessions nuevas cuando no existen tests previos para el ticket (ORC-4 branch `sessions_found: false` sin implementar)
+
+[2026-04-16] update | pipeline-integration-schema.md — referencia a customfields de deploy agregada
+Sección "Mapping de customfields de deploy" agregada en "Notas de implementación".
+Apunta explícitamente a `.claude/skills/jira-writer/references/field-map.md` §Campos de deploy.
+Documenta los dos grupos (A legacy 10036-10041, B NAA activo 10066-10071) y la regla de usar Grupo B en tickets nuevos.
+
+[2026-04-16] update | Auditoría wiki — artefactos históricos y mapeo de campos deploy
+Issue 8: Verificados 6 PIPELINE.md. qa-orchestrator, test-engine, test-reporter, ticket-analyst ya tenían marca DEPRECATED. sync-docs y validate-ssot son pipelines activos (no migrados a custom agents) — no se marcaron como deprecated.
+Issue 9: Agregado [gap] test-generator (Fase 5) — ORC-4 branch sessions_found:false sin implementar.
+Issue 7: field-map.md completado con tabla completa de campos de deploy (grupos A y B): Cambios SQL, Librerías, TLD, VFS, Configuración, Comentarios Deploy — IDs 10036-10041 (legacy) y 10066-10071 (NAA activo).
 
 ---
 

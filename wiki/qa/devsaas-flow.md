@@ -5,6 +5,8 @@ last-updated: 2026-04-14
 
 # Flujo Dev_SAAS — Referencia completa
 
+> **Alcance de este documento:** describe el comportamiento **funcional** del flujo Dev_SAAS (qué se valida, cómo se construyen los comentarios, qué pasa ante errores). Para la invocación técnica de agentes, ver `.claude/agents/qa-orchestrator.md` y `.claude/agents/test-reporter.md`. La lectura del comentario master (equivalente a jira-reader OP-3) es manejada internamente por jira-writer cuando recibe `operation: "validate_devsaas"`.
+
 ## Qué es Dev_SAAS
 
 Dev_SAAS es el ambiente pre-productivo (réplica de producción) donde se validan los cambios
@@ -49,7 +51,7 @@ cambios lleguen a producción real.
   (Done)               ↓
                   Por cada ✘:
                   crear ticket nuevo
-                  linkear "Relates"
+                  linkear "is caused by"
                   comentar en original
 ```
 
@@ -146,10 +148,12 @@ transitionJiraIssue:
 
 ```json
 createIssueLink:
-  type: "Relates"
+  type: "is caused by"
   inwardIssue: { "key": "NAA-NUEVO" }
   outwardIssue: { "key": "NAA-ORIGINAL" }
 ```
+
+> **Tipo de link:** usar `"is caused by"` (no `"Relates"`). Esto es crítico para el check de duplicados — antes de crear un nuevo bug, `test-reporter` busca bugs linkeados al ticket original con type `"is caused by"`. Si se usa `"Relates"`, el check falla y se crean bugs duplicados.
 
 ---
 
@@ -195,20 +199,19 @@ Se creó el ticket NAA-4460 para su corrección.
   > En Dev_SAAS el enlace devuelve 404 cuando la noticia se copia a una publicación diferente.
   > Se reproduce en la preliberación 8.6.16.1.5 con cualquier noticia que se copie.
 ```
-→ El ticket original **no se transiciona**. Se crea NAA-4460 y se linkea con "Relates".
+→ El ticket original **no se transiciona**. Se crea NAA-4460 y se linkea con `"is caused by"`.
 
 ---
 
-## Uso desde el agente orquestador
+## Uso desde el agente test-reporter
 
-Cuando el qa-orchestrator envía `operation: "validate_devsaas"`:
+Cuando `test-reporter` envía `operation: "validate_devsaas"` a jira-writer:
 
-1. Invocar `jira-reader OP-3` sobre `ticket_key` para extraer los casos del comentario master
-2. Cruzar esos casos con los `test_results` del payload del orquestador
-3. Para cada test_result, determinar si el caso pasó ✔ o falló ✘
-4. Construir el comentario Dev_SAAS con los resultados actualizados
-5. Si todos ✔ → transicionar a Done
-6. Si hay ✘ → crear nuevos tickets (PASO D1) con los datos técnicos del orquestador
+1. **jira-writer** llama internamente a `jira-reader OP-3` para extraer los casos del comentario master — el orchestrator no hace esta llamada directamente.
+2. Cruza esos casos con los `test_results` del payload de test-reporter.
+3. Para cada test_result, determina si el caso pasó ✔ o falló ✘.
+4. Construye el comentario Dev_SAAS con los resultados actualizados.
+5. Si todos ✔ → transiciona a Done (id `"31"`).
+6. Si hay ✘ → crea nuevos tickets (PASO D1) linkeados con `"is caused by"`, sin transicionar el original.
 
-El qa-orchestrator puede proveer en cada `test_result` datos adicionales (`error_message`, `stacktrace`,
-`environment_url`) que enriquecen los tickets de error creados automáticamente.
+test-reporter puede proveer en cada `test_result` datos adicionales (`error_message`, `stacktrace`, `environment_url`) que enriquecen los tickets de error creados automáticamente.

@@ -1,6 +1,6 @@
 ---
 source: src/pages/post_page/MainPostPage.ts · PostTable.ts · NewNoteBtn.ts · note_editor_page/ · ai_note/
-last-updated: 2026-04-14
+last-updated: 2026-04-16
 ---
 
 # Pages: Post Page
@@ -37,7 +37,7 @@ Constructor: `constructor(driver: WebDriver, opts: RetryOptions)`
 | Método | Parámetros | Qué hace |
 |--------|------------|----------|
 | `fillFullNote(data)` | `data: PostData \| ListicleData \| LiveBlogData` | Llena todos los campos; lee `data.noteType` para bifurcar entre LISTICLE y LIVEBLOG |
-| `closeNoteEditor(action)` | `action: 'SAVE_AND_EXIT' \| 'PUBLISH_AND_EXIT'` | Cierra el editor con la acción indicada |
+| `closeNoteEditor(action)` | `action: NoteExitAction` | Cierra el editor delegando en `EditorHeaderActions.clickExitAction(action)` |
 
 ---
 
@@ -61,9 +61,57 @@ static readonly NOTE_TYPE_MAP = {
 } as const;
 ```
 
+### `NoteExitAction` (de `EditorHeaderActions.ts`)
+
+```typescript
+export type NoteExitAction = keyof typeof EditorHeaderActions.LOCATORS;
+// 'SAVE_ONLY' | 'SAVE_AND_EXIT' | 'EXIT_WITHOUT_SAVING' | 'PUBLISH_ONLY'
+// | 'PUBLISH_AND_EXIT' | 'SCHEDULE_AND_EXIT' | 'BACK_SAVE_AND_EXIT' | 'BACK_EXIT_DISCARD'
+```
+
+El tipo se deriva del mapa `LOCATORS` público — es la única fuente de verdad de las acciones válidas.
+Cada clave mapea al locator del primer elemento que se debe clickear (botón directo o toggle de dropdown).
+
 ### `PostRowActionType` (de `PostTable.ts`)
 
 Valores disponibles en `PostTable.ROW_ACTION_MAP` — verificar contra el archivo fuente para valores actuales.
+
+---
+
+## `EditorHeaderActions` — locators y mapa de acciones
+
+Sub-componente del editor de notas. Gestiona el header con guardado, publicación y navegación hacia atrás.
+
+### Locators actuales (2026-04-16)
+
+| Constante | Selector CSS |
+|-----------|-------------|
+| `SAVE_BTN` | `[data-testid="btn-genericsavetext"]` |
+| `PUBLISH_BTN` | `button[data-testid="btn-newnotepublishtext"]` |
+| `BACK_BTN` | `a[data-testid="btn-exit-note"]` |
+| `DROPDOWN_SAVE_CONTAINER` | `[data-testid="dropdown-toggle-genericsavetext"]` |
+| `DROPDOWN_PUBLISH_CONTAINER` | `[data-testid="dropdown-toggle-newnotepublishtext"]` |
+| `SAVE_AND_EXIT_OPT` | `[data-testid="dropdown-item-guardar-y-salir"]` |
+| `EXIT_WITHOUT_SAVING_OPT` | `[data-testid="dropdown-item-salir"]` |
+| `PUBLISH_AND_EXIT_OPT` | `[data-testid="dropdown-item-publicar-y-salir"]` |
+| `SCHEDULE_OPT` | `[data-testid="dropdown-item-programar"]` |
+| `MODAL_BACK_SAVE_AND_EXIT_BTN` | `[data-testid="btn-confirm-generic-saveexit-text"] button[data-testid="btn-calendar-confirm"]` |
+| `MODAL_BACK_DISCARD_EXIT_BTN` | `[data-testid="btn-cancel-newnote-get-out-anyway-text"] button[data-testid="btn-calendar-confirm"]` |
+
+### Mapa `LOCATORS` — primer click por acción
+
+| `NoteExitAction` | Locator inicial |
+|-----------------|----------------|
+| `SAVE_ONLY` | `SAVE_BTN` |
+| `SAVE_AND_EXIT` | `DROPDOWN_SAVE_CONTAINER` |
+| `EXIT_WITHOUT_SAVING` | `DROPDOWN_SAVE_CONTAINER` |
+| `PUBLISH_ONLY` | `PUBLISH_BTN` |
+| `PUBLISH_AND_EXIT` | `DROPDOWN_PUBLISH_CONTAINER` |
+| `SCHEDULE_AND_EXIT` | `DROPDOWN_PUBLISH_CONTAINER` |
+| `BACK_SAVE_AND_EXIT` | `BACK_BTN` |
+| `BACK_EXIT_DISCARD` | `BACK_BTN` |
+
+Ver `wiki/patterns/conventions.md` § Patrón D para el patrón de selector compuesto usado en los modales de back.
 
 ---
 

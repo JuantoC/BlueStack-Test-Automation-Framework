@@ -84,16 +84,39 @@ Usá `debug` para ruido de implementación. Usá `info` para lo que querés ver 
 
 ---
 
+## Concepto: Retry Boundary
+
+Un **retry boundary** es el punto donde `retry()` es la capa de manejo de errores más externa en un camino de ejecución. Determina qué catch block es responsable del log terminal.
+
+**Dentro del retry boundary** (dentro del lambda `async () => {` pasado a `retry()`):
+- El error es transitorio hasta que retry lo declare terminal.
+- El log terminal lo emite `retry` al agotar los reintentos o detectar un error FATAL.
+- El catch solo debe `throw` (obligatorio) y opcionalmente `logger.debug` (diagnóstico de intento).
+- `logger.error()` está **prohibido** aquí — dispara en cada intento fallido, generando falsos alarmas en terminal.
+
+**Fuera / en el borde del retry boundary** (el catch que envuelve a `retry()`, o cualquier catch sin retry):
+- El error es terminal. Si llega aquí, no hay reintento que lo resuelva.
+- `logger.error()` es **obligatorio** antes del throw.
+
+**Cómo detectar si un catch está dentro de un retry boundary:**
+1. ¿El archivo está en `src/core/actions/`? → Siempre dentro (todas las core actions son Tier 1).
+2. ¿El método en `src/pages/` abre con `return await retry(async () => {` o `await retry(async () => {` y el try/catch está adentro de ese lambda? → Tier 1.
+3. ¿El catch está FUERA del retry (envolviéndolo)? → Boundary externo → `logger.error` obligatorio.
+
+---
+
 ## Reglas estructurales (no negociables)
 
 | # | Regla | Racional |
 |---|-------|---------|
-| 1 | Todo `catch` DEBE tener `logger.error()` | CLAUDE.md: nunca silenciar errores |
-| 2 | `logger.error()` en catch DEBE incluir `error: getErrorMessage(error)` en metadata | Trazabilidad completa del error |
-| 3 | Todo log DEBE tener `{ label }` en metadata | Sin label, el log no es trazable a sesión |
-| 4 | Los Maestros NUNCA tienen `logger.debug()` | Los Maestros no tienen lógica interna; delegan |
-| 5 | Los sub-componentes NUNCA tienen `logger.info()` de negocio | El nivel de abstracción no corresponde |
-| 6 | `logger.warn()` solo para anomalías reales, no para estado normal | Evitar ruido de warn |
+| 1a | Todo `catch` DEBE re-lanzar la excepción | Silenciar = atrapar sin relanzar. Nunca atrapar y descartar. |
+| 1b | Un `catch` dentro del lambda de `retry()` **NO DEBE** usar `logger.error()`. Puede usar `logger.debug()`. | Un `logger.error()` dentro de retry dispara en cada intento fallido. `retry` es el dueño del log terminal — lo emite al agotar reintentos o detectar error FATAL. |
+| 2 | Un `catch` que **envuelve** `retry()` (boundary externo) o está en un método sin retry DEBE usar `logger.error()` | Este sí es el boundary final. Si llega aquí, retry ya agotó sus intentos. |
+| 3 | `logger.error()` en catch de boundary externo DEBE incluir `error: getErrorMessage(error)` en metadata | Trazabilidad completa del error |
+| 4 | Todo log DEBE tener `{ label }` en metadata | Sin label, el log no es trazable a sesión |
+| 5 | Los Maestros NUNCA tienen `logger.debug()` | Los Maestros no tienen lógica interna; delegan |
+| 6 | Los sub-componentes NUNCA tienen `logger.info()` de negocio | El nivel de abstracción no corresponde |
+| 7 | `logger.warn()` solo para anomalías reales, no para estado normal | Evitar ruido de warn |
 
 ---
 
@@ -101,10 +124,12 @@ Usá `debug` para ruido de implementación. Usá `info` para lo que querés ver 
 
 | Anti-patrón | Ejemplo incorrecto | Corrección |
 |-------------|-------------------|------------|
+| `error` dentro de lambda de retry | `catch (e) { logger.error('Error en clickSafe...'); throw e; }` (dentro del callback de `retry()`) | Cambiar a `logger.debug(...)` sin `error:` en metadata; el retry wrapper maneja el log terminal |
+| `catch` sin rethrow dentro de retry | `catch (e) { logger.debug(...); }` sin `throw e` | Agregar `throw e` — sin rethrow, retry interpreta el intento como exitoso |
+| Boundary externo sin logger.error | `catch (e) { throw e; }` envolviendo un `retry()` | Agregar `logger.error(...)` con `error: getErrorMessage(e)` — este catch SÍ es el boundary final |
 | `info` con detalle interno | `logger.info('Intentando hover sobre ancestro...')` | Cambiar a `debug` |
 | `debug` en un Maestro | `logger.debug('Iniciando flujo de login')` | Cambiar a `info` o mover al sub-componente |
-| `catch` sin log | `catch (e) { throw e; }` | Agregar `logger.error(...)` antes del throw |
-| `error` sin `getErrorMessage` | `logger.error('Falló', { label })` | Agregar `error: getErrorMessage(error)` |
+| `error` sin `getErrorMessage` (boundary externo) | `logger.error('Falló', { label })` | Agregar `error: getErrorMessage(error)` |
 | Log sin `{ label }` | `logger.info('Texto')` | Agregar `{ label: this.config.label }` |
 | `warn` para estado normal | `logger.warn('Botón clickeado')` | Cambiar a `debug` o `info` según contexto |
 | Log de UI-detail con `info` en sub-componente | `logger.info('Seteando valor del campo')` | Cambiar a `debug` |

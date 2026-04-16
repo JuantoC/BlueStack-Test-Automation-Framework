@@ -87,4 +87,10 @@ Este entorno corre en WSL2 sobre Windows — no hay display disponible.
 
 Al generar el eval viewer desde skill-creator:
 - Usar **siempre** `--static <output_path>` en lugar del servidor con `nohup`
-- El archivo HTML generado puede abrirse desde Windows con `explorer.exe <output_path>`
+- Para abrir el HTML desde Windows, **siempre convertir la ruta con `wslpath -w`**:
+
+```bash
+explorer.exe "$(wslpath -w /ruta/al/archivo.html)"
+```
+
+**Error frecuente:** `explorer.exe /tmp/archivo.html` falla silenciosamente — Windows no entiende rutas Linux directas. El comando retorna `opened` pero no abre el browser. Siempre usar `wslpath -w` para convertir la ruta antes de pasarla a `explorer.exe`.

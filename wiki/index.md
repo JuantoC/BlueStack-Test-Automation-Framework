@@ -37,13 +37,14 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [patterns/factory-api.md](patterns/factory-api.md) — `NoteDataFactory` · `VideoDataFactory` · `AINoteDataFactory` · `ImageDataFactory`
 
 ### Pages (`src/pages/`)
-- [pages/_shared.md](pages/_shared.md) — `SidebarAndHeaderSection` · `FooterActions` · tipos `SidebarOption` · `FooterActionType`
+- [pages/_shared.md](pages/_shared.md) — `SidebarAndHeaderSection` · `FooterActions` · `HeaderNewContentBtn` · tipos `SidebarOption` · `FooterActionType` · `HeaderNewContentType`
 - [pages/login-page.md](pages/login-page.md) — `MainLoginPage` · `passLoginAndTwoFA()` · `AuthCredentials`
 - [pages/post-page.md](pages/post-page.md) — `MainPostPage` · `NoteType` · editor de notas · sub-componentes editoriales
 - [pages/videos-page.md](pages/videos-page.md) — `MainVideoPage` · `uploadNewVideo()` · tipos de video · acciones inline
 - [pages/images-page.md](pages/images-page.md) — `MainImagePage` · `uploadNewImage()` · ⚠️ path: `images_pages/` (plural)
 - [pages/tags-page.md](pages/tags-page.md) — `MainTagsPage` · `createNewTag()` · filtros alfanuméricos · `TagFooterActions`
 - [pages/modals.md](pages/modals.md) — `PublishModal` · `CKEditorImageModal`
+- [pages/video-image-editors.md](pages/video-image-editors.md) — Editores de video e imagen: Header actions · Panel Info · diferencias · patrones AM (mat-slide-toggle, mat-select, timepicker)
 
 ### Sessions (`sessions/`)
 - [sessions/catalog.md](sessions/catalog.md) — Inventario de 14 tests: flujo, POs y factories de cada uno

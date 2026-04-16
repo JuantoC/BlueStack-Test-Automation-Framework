@@ -15,7 +15,7 @@ Actuás como un **Arquitecto de Control de Versiones Senior**. Analizás los cam
 - **NO usar** títulos vagos: "update files", "fix stuff", "changes", "WIP".
 - **NO omitir** el cuerpo del commit — el cuerpo es obligatorio siempre.
 - **NO inventar** funcionalidad no presente en los diffs.
-- **NO stagear** archivos generados automáticamente sin valor semántico: `*.log`, `node_modules/`, `dist/`, `.DS_Store`, lock files sin cambios funcionales.
+- **NO stagear** archivos generados automáticamente sin valor semántico: `*.log`, `node_modules/`, `dist/`, `.DS_Store`, lock files sin cambios funcionales, `.env`, `.claude/projects/` (memoria del agente).
 - **NO ejecutar** push si `--push` no fue proporcionado explícitamente.
 
 ---
@@ -105,7 +105,7 @@ Determinar el orden lógico de los commits (dependencias primero).
 
 ### Paso 5 — Redactar mensajes de commit
 
-Para cada grupo, redactar usando la estructura de `references/commit-format.md`.
+Para cada grupo, redactar usando la estructura definida en `wiki/development/commit-conventions.md`.
 
 Formato:
 ```
@@ -117,7 +117,7 @@ Escenarios: <flujos o casos cubiertos, separados por coma>
 Archivos clave: <lista de los archivos más relevantes>
 ```
 
-> Consultar `references/commit-format.md` para la tabla de tipos y la tabla módulo → impacto.
+> Consultar `wiki/development/commit-conventions.md` para la tabla de tipos y la tabla módulo → impacto.
 
 ---
 
@@ -145,9 +145,10 @@ Capturar el output de cada `git commit` para verificar ejecución correcta.
 
 ```bash
 git branch --show-current
-git push origin <rama>
+git push work main && git push personal main
 ```
 
+> La convención del proyecto es pushear siempre a ambos remotes (`work` y `personal`). Si se especificó `--branch <nombre>`, reemplazar `main` por ese nombre.
 > **Si el push falla:** ver `references/exceptions.md` → _Error en push_.
 
 ---
@@ -172,21 +173,23 @@ Ejecutá "generá el reporte de avance" cuando quieras el correo de avance.
 
 ---
 
-### Paso 9 — Auditoría documental automática (sync-docs)
+### Paso 9 — Sync Docs
 
-Después de confirmar los commits (Paso 8), ejecutar automáticamente `sync-docs`. No pedir confirmación.
+Leer `.claude/pipelines/sync-docs/PIPELINE.md` y ejecutar todos sus pasos en esta misma sesión.
 
-Leer `.claude/pipelines/sync-docs/PIPELINE.md` y ejecutar **todos sus pasos**.
+No pedir confirmación. Aplicar cambios JSDoc/`.md` automáticamente. Si hay cambios que aplicar, hacer el commit `docs(...)` con `--no-verify` tal como indica el Paso 6 de esa pipeline.
 
 ---
 
-### Paso 10 — Validación SSoT (validate-ssot)
+### Paso 10 — Validate SSoT
 
-Inmediatamente después de completar el Paso 9, ejecutar `validate-ssot`.
+Leer `.claude/pipelines/validate-ssot/PIPELINE.md` y ejecutar sus Pasos 1 a 5 en esta misma sesión.
 
-Leer `.claude/pipelines/validate-ssot/PIPELINE.md` y ejecutar todos sus pasos.
+No pedir confirmación. Aplicar correcciones automáticas (JSDoc/`.md`). Pausar solo si una corrección requiere modificar lógica funcional en un `.ts`.
 
-> **Nota:** si sync-docs completó su Paso 8 internamente, validate-ssot ya fue ejecutado. Este paso garantiza la validación incluso cuando sync-docs salió anticipadamente por no haber commits pendientes de revisión.
+Reportar al usuario el resultado final:
+- `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
+- O listado de violaciones con formato `[TIPO] archivo → Problema → Acción recomendada`
 
 ---
 

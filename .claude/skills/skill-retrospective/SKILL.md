@@ -162,3 +162,15 @@ Si el usuario confirma cambios del bloque ⚠️ (total o parcialmente):
 4. Confirmás qué se aplicó y qué se descartó
 
 Si el usuario rechaza, descartás sin más. No guardás memoria sobre rechazos de retrospectiva.
+
+---
+
+## Paso final obligatorio — Registrar ejecución
+
+**Siempre al terminar esta skill** (independientemente de si hubo hallazgos o no), ejecutar:
+
+```bash
+touch /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/.retro-marker
+```
+
+Esto actualiza el timestamp del marker file que usa el Stop hook (`check-retrospective.sh`) para verificar que la retrospectiva corrió después del último cambio de archivo en la sesión. Sin este paso, el hook bloqueará el cierre de sesión aunque la retrospectiva se haya ejecutado correctamente.

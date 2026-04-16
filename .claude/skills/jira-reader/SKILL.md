@@ -77,17 +77,17 @@ necesita metadata de adjuntos para OP-6.
 > no pedir `comment`. Solo escalar a OP-1-FULL si la descripción no tiene criterios
 > estructurados y se necesita inferir desde comentarios.
 
-> **Campos custom del equipo Bluestack** (IDs pendientes de discovery):
-> El proyecto NAA tiene campos custom creados por el equipo:
-> - **"deploy"** → descripción de los cambios desplegados en el ticket
-> - **"cambios SQL"** → scripts de base de datos asociados al ticket
-> - **"cambios VFS"** → archivos de configuración o assets modificados
+> **Campos custom del equipo Bluestack (Grupo B — NAA activo):**
+> El proyecto NAA tiene campos custom de deploy. Usar siempre el Grupo B:
+> - **Cambios SQL** → `customfield_10066`
+> - **Cambios VFS** → `customfield_10069`
+> - **Comentarios Deploy** → `customfield_10071` (notas y descripción del deploy)
+> - **Cambios Librerías** → `customfield_10067`
+> - **Cambios TLD** → `customfield_10068`
+> - **Cambios Configuración** → `customfield_10070`
 >
-> Para descubrir los IDs exactos: llamar `getJiraIssue` sobre un ticket con esos campos
-> completados (sin filtrar `fields`) y listar todos los `customfield_XXXXX` retornados.
-> Una vez conocidos, agregar sus IDs al array `fields` de OP-1 y OP-6.
-> Mientras no se descubran, incluir en el array el campo `"*all"` cuando se necesite
-> inferir criterios desde esos campos específicos.
+> IDs descubiertos vía GET /rest/api/3/field — 2026-04-15.
+> Referencia completa (incluyendo Grupo A legacy): `.claude/skills/jira-writer/references/field-map.md` § "Campos de deploy".
 
 ### OP-2: Buscar tickets por JQL
 
@@ -174,13 +174,13 @@ Input:  issueKey
 Output: lista de criterios de prueba estructurados con test_approach
 Tool:   getJiraIssue
 Campos: ["summary", "description", "comment", "customfield_10061", "customfield_10062",
-         "customfield_10021", "customfield_deploy", "customfield_sql_changes",
-         "customfield_vfs_changes"]
+         "customfield_10021", "customfield_10066", "customfield_10069", "customfield_10071"]
 ```
 
-> Los IDs exactos de los campos custom "deploy", "cambios SQL" y "cambios VFS" deben
-> descubrirse ejecutando OP-1 sobre un ticket real y observando todos los `customfield_*`
-> retornados. Usar `getJiraIssue` sin filtrar campos en esa discovery run.
+> Los campos `customfield_10066` (Cambios SQL), `customfield_10069` (Cambios VFS) y
+> `customfield_10071` (Comentarios Deploy) son los campos de deploy del Grupo B activo.
+> IDs confirmados el 2026-04-15. Ver `.claude/skills/jira-writer/references/field-map.md`
+> para la tabla completa incluyendo Grupo A legacy.
 
 **Principio central — derivación de criterios desde bugs:**
 
@@ -228,7 +228,7 @@ Para cada criterio:
 3. Si la assertion requiere percepción humana, entorno físico específico, o no hay propiedad DOM → `automatable: false`
 4. `reason_if_not` describe la razón fundamental (no keywords)
 
-Referencia completa del modelo de capacidades: `.claude/pipelines/ticket-analyst/references/agent-capabilities.md` (referencia activa — los agentes la consumen desde su ubicación en .claude/pipelines/)
+Referencia completa del modelo de capacidades: `.claude/pipelines/ticket-analyst/references/agent-capabilities.md` (referencia histórica — los agentes actuales están en `.claude/agents/`; ningún agente activo consume este archivo directamente)
 
 **Fuentes en orden de precedencia:**
 1. Lista explícita en descripción del ticket (bullets con pasos numerados)
@@ -424,7 +424,17 @@ Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) para el con
 
 ## Output contract (para integración multi-agente)
 
-Cuando jira-reader es invocado por otro agente, el output sigue este schema:
+> **Nota:** Este schema describe el output de jira-reader en **invocación interactiva**
+> (usuario → jira-reader directamente, o jira-reader siendo invocado por otro agente en forma puntual).
+> Es diferente del schema del pipeline automatizado.
+>
+> El schema del pipeline (test-reporter → jira-writer, schema v3.1) está en:
+> `wiki/qa/pipeline-integration-schema.md`
+>
+> En ese pipeline, jira-reader no es invocado directamente por test-reporter —
+> jira-writer lo usa internamente cuando lo necesita (ej. OP-3 en Dev_SAAS).
+
+Cuando jira-reader es invocado por otro agente en modo interactivo, el output sigue este schema:
 
 ```json
 {

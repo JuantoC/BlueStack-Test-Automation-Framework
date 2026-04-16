@@ -182,7 +182,7 @@ El comentario no tiene cierre (termina en el último bullet).
 - Todos ✔ → `addComment` + `transitionJiraIssue` `transition.id: "31"` (Done)
 - Algún ✘ → `addComment` sin transición + ir a MODO D por cada ✘
 
-Ver [`references/devsaas-flow.md`](references/devsaas-flow.md) para flujo completo y ejemplos.
+Ver [`wiki/qa/devsaas-flow.md`](../../../wiki/qa/devsaas-flow.md) para flujo completo y ejemplos.
 
 ---
 
@@ -202,7 +202,7 @@ Por cada bullet con ✘: crear ticket nuevo + linkear + comentar en el original.
 - Informar el hallazgo y el nuevo ticket creado
 - bullet con ✘ + blockquote con el detalle
 
-Ver [`references/devsaas-flow.md`](references/devsaas-flow.md) para pasos detallados.
+Ver [`wiki/qa/devsaas-flow.md`](../../../wiki/qa/devsaas-flow.md) para pasos detallados.
 
 ---
 
@@ -225,7 +225,7 @@ El agente test-reporter envía un JSON estructurado con resultados de tests del 
 (archivos en `/sessions`). Sin intervención humana. El skill parsea el objeto y ejecuta
 las operaciones Jira correspondientes.
 
-Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) para el schema completo de input/output.
+Ver [`wiki/qa/pipeline-integration-schema.md`](../../../wiki/qa/pipeline-integration-schema.md) para el schema completo de input/output.
 
 ### F1: Parsear y validar el payload
 Campos obligatorios mínimos: `operation`, `ticket_key`, `test_results[]`.
@@ -258,13 +258,20 @@ error después de que el comentario ya fue posteado, MODO F no duplica la escrit
 | `master` | `validate_master` | Flujo estándar de validación |
 | `dev_saas` | `validate_devsaas` | Requiere `prerelease_version` |
 | `[nombre-cliente]` | `validate_master` | Header usa el nombre del cliente |
-| `testing` | `add_observation` | Entorno de desarrollo: solo observación, sin transición. Marcar con `[PIPELINE TEST]` en el pie del comentario. |
+| `testing` | `add_observation` | Entorno de desarrollo: solo observación, sin transición. Ver nota abajo. |
 
 > **Regla testing:** El entorno `testing` es el entorno de desarrollo del framework, no de producción.
-> Los resultados en `testing` nunca transicionan el estado del ticket. Solo se postea comentario
-> informativo si `operation == "add_observation"` y el payload lo indica explícitamente.
-> Si el pipeline no envía `operation` explícito para testing, MODO F retorna `status: "skipped"` con
-> motivo `"environment=testing no requiere acción en Jira"`.
+> Los resultados en `testing` nunca transicionan el estado del ticket.
+>
+> **Flujo exacto para `environment=testing`:**
+> - Si el pipeline **no envía `operation` explícito** → MODO F retorna `status: "skipped"` con motivo
+>   `"environment=testing no requiere acción en Jira"`. No se postea ningún comentario.
+> - Si el pipeline envía `operation: "add_observation"` explícitamente → sí se postea comentario informativo, sin transición.
+>
+> **Nota sobre `_[PIPELINE TEST]_`:** Esta marca en el pie del comentario (definida en F3) se controla
+> mediante el campo `is_pipeline_test: true` en el payload, **no** por `environment=testing`.
+> Son dos mecanismos independientes: `environment` controla si se postea; `is_pipeline_test` controla
+> si el comentario lleva la marca `_[PIPELINE TEST]_` para distinguirlo de validaciones humanas reales.
 
 ### F2.5: Upload de attachments (condicional)
 
@@ -346,7 +353,7 @@ Prioridad automática: `High` si `environment == dev_saas` o cliente; `Medium` p
 
 ### F5: Output al pipeline
 Generar siempre el objeto de respuesta al terminar.
-Ver [`references/pipeline-schema.md`](references/pipeline-schema.md) → Output Schema.
+Ver [`wiki/qa/pipeline-integration-schema.md`](../../../wiki/qa/pipeline-integration-schema.md) → Output Schema.
 
 ### F6: Actualizar Execution Context (OBLIGATORIO al terminar)
 Después de ejecutar las acciones, el output de F5 debe ser escrito en el campo
@@ -409,9 +416,14 @@ Escribir el archivo completo con el campo actualizado (no solo el campo — rees
 
 ## Referencias
 
-- [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) → **[MANDATORIO]** Nodos ADF, ejemplos completos, checklist pre-envío
+### Datos de instancia (`references/` — específicos de esta skill)
 - [`references/field-map.md`](references/field-map.md) → issue types, prioridades, campos custom, accountIds, épicas
 - [`references/comment-examples.md`](references/comment-examples.md) → ejemplos reales (master, dev_saas, automation)
-- [`references/devsaas-flow.md`](references/devsaas-flow.md) → flujo Dev_SAAS completo, pasos D1-D3, ejemplos
-- [`references/pipeline-schema.md`](references/pipeline-schema.md) → schema input/output para integración automatizada
+
+### Doctrina project-wide (`wiki/` — fuentes canónicas)
+- [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) → **[MANDATORIO]** Nodos ADF, ejemplos completos, checklist pre-envío
+- [`wiki/qa/devsaas-flow.md`](../../../wiki/qa/devsaas-flow.md) → flujo Dev_SAAS completo, pasos D1-D3, ejemplos
+- [`wiki/qa/pipeline-integration-schema.md`](../../../wiki/qa/pipeline-integration-schema.md) → schema input/output para integración automatizada
+
+### Dependencias
 - **jira-reader** → skill de lectura del que depende este skill

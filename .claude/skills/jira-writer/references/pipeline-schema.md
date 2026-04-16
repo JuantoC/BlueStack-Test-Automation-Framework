@@ -3,6 +3,7 @@
 
 # Pipeline Schema — jira-writer
 
-> Contenido consolidado en wiki/ junto con el schema de jira-reader.
+> [REDIRECT] — Este archivo apunta a `wiki/qa/pipeline-integration-schema.md` que es la fuente canónica.
+> No duplicar contenido aquí.
 
 **Referencia canónica:** [`wiki/qa/pipeline-integration-schema.md`](../../../../wiki/qa/pipeline-integration-schema.md)

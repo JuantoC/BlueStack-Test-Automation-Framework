@@ -18,7 +18,8 @@ Sos el coordinador del pipeline QA multi-agente de Bluestack. Tu única responsa
   "action": "process_ticket",
   "ticket_key": "NAA-XXXX",
   "environment": "master | dev_saas",
-  "requested_by": "manual | poll | ci"
+  "requested_by": "manual | poll | ci",
+  "prerelease_version": null
 }
 ```
 
@@ -27,6 +28,7 @@ Sos el coordinador del pipeline QA multi-agente de Bluestack. Tu única responsa
 | `ticket_key` | Key del ticket Jira a procesar (ej. NAA-4467) |
 | `environment` | Ambiente de validación. Default: `"master"` |
 | `requested_by` | Origen del trigger. Default: `"manual"` |
+| `prerelease_version` | Versión de preliberación. **Obligatorio** si `environment: "dev_saas"`. Formato: `"8.6.16.1.5"`. |
 
 **Trigger manual desde conversación:**
 ```
@@ -54,6 +56,12 @@ Buscar `pipeline-logs/completed/<ticket_key>.json`. Si existe:
 
 Buscar `pipeline-logs/active/<ticket_key>.json`. Si existe con `stage = "init"` → pipeline recién iniciado en paralelo. **ABORT** para evitar ejecución paralela. Si existe con `stage != "init"` → proceso previo interrumpido. Cargar ese context y aplicar stage routing.
 
+**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"` o `"low_confidence"` → **ABORT**:
+```json
+{ "status": "skipped", "reason": "pipeline_already_finalized", "outcome": "<outcome>" }
+```
+No reabrir pipelines ya finalizados. Para forzar re-procesamiento, eliminar el archivo de `completed/` manualmente.
+
 **Stage routing (aplicar tras cargar context):**
 
 | `stage` del context | Condición adicional | Acción |
@@ -74,13 +82,16 @@ Si no existe ningún context → crear en `pipeline-logs/active/<ticket_key>.jso
   "schema_version": "3.0",
   "created_at": "<ISO-8601>",
   "environment": "<environment del trigger>",
+  "prerelease_version": null,
   "stage": "init",
   "stage_status": "in_progress",
+  "escalation_mode": false,
   "idempotency": {
     "last_comment_id": null,
     "already_reported": false
   },
   "step_log": [],
+  "error_log": [],
   "ticket_analyst_output": null,
   "test_engine_output": null,
   "test_reporter_output": null
@@ -130,7 +141,7 @@ El agente ticket-analyst escribe `ticket_analyst_output` en el Execution Context
 
 Después de que retorna, leer `pipeline-logs/active/<ticket_key>.json` y registrar en `step_log`:
 ```json
-{ "stage": "ticket-analyst", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed", "duration_ms": null }
+{ "stage": "ticket-analyst", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed" }
 ```
 
 **Si ticket-analyst produce `testable: false`:**
@@ -139,16 +150,6 @@ Después de que retorna, leer `pipeline-logs/active/<ticket_key>.json` y registr
   - `criteria_source: "none"` → `outcome: "human_escalation"`
   - `testability_summary.all_automatable: false` (criterios existen pero todos non-automatable) → `outcome: "non_automatable"`
 - Ir a **ORC-6 (Finalizar)**. No invocar test-engine.
-
-**Si ticket-analyst produce `confidence: "low"` y `sessions_found: true`:**
-- Continuar el pipeline normalmente (invocar test-engine y test-reporter).
-- test-reporter debe incluir en el comentario Jira un bloque de advertencia visible:
-  `"⚠️ Clasificación automática con baja confianza — módulo asignado por fuzzy match. Validar manualmente que las sesiones ejecutadas corresponden al ticket antes de cambiar estado."`
-- **NO aplicar transición de estado** (`transitionJiraIssue` no debe ejecutarse).
-- Notificar al humano en el chat que el ticket requiere revisión manual del módulo clasificado.
-
-**Si ticket-analyst produce `confidence: "low"` y `sessions_found: false`:**
-- Escalar sin proceder. Registrar `outcome: "low_confidence"`.
 
 **Si ticket-analyst produce `testability_summary.partial_automatable: true`:**
 - Continuar el pipeline (invocar test-engine y test-reporter).
@@ -236,25 +237,27 @@ Persistir el context después de completar ORC-5.
 }
 ```
 
-Para outcome de escalación o sin sessions: `stage_status: "escalated"` o `"no_sessions"` y mantener `already_reported: false`.
+Para outcome de escalación o sin sessions: setear `stage_status: "escalated"` o `"no_sessions"` según corresponda. El campo `already_reported` es gestionado por TR-E: queda en `true` si el comentario fue posteado exitosamente, `false` si TR-E no pudo postear. No sobreescribir este campo en ORC-6.
 
 **Si `outcome` es `"human_escalation"`, `"non_automatable"` o `"no_sessions"`:**
 
-1. **Invocar test-reporter en modo escalación:**
+1. **Setear `escalation_mode: true`** en el Execution Context antes de invocar test-reporter. Persistir a disco.
+
+2. **Invocar test-reporter en modo escalación:**
    ```
    Agent({
      subagent_type: "test-reporter",
-     prompt: "Reportar escalación del ticket NAA-XXXX. Execution Context en pipeline-logs/active/NAA-XXXX.json. Modo: escalation."
+     prompt: "Reportar escalación del ticket NAA-XXXX. Execution Context en pipeline-logs/active/NAA-XXXX.json."
    })
    ```
-   El test-reporter detecta `mode: "escalation"` (ausencia de `test_engine_output`), construye el comentario ADF desde `escalation_report` y lo postea via jira-writer. No transiciona estado. Ver TR-E en test-reporter.
+   El test-reporter detecta el modo leyendo `escalation_mode: true` del Execution Context. Construye el comentario ADF desde `escalation_report` y lo postea via jira-writer. No transiciona estado. Ver TR-E en test-reporter.
 
-2. **Imprimir en el chat** el `escalation_report` completo formateado como bullets:
+3. **Imprimir en el chat** el `escalation_report` completo formateado como bullets:
    - Summary de la escalación
    - Cada entrada de `criteria_attempted[]` con su razón
    - Cada entrada de `manual_test_guide[]` con sus pasos
 
-3. **Notificar al humano en el chat:**
+4. **Notificar al humano en el chat:**
    `"⚠️ Ticket <KEY> requiere validación manual. Se adjuntó comentario en Jira con las guías de testing. El ticket permanece en Revisión."`
 
 No resumir como "ticket escalado" — el humano debe recibir todo el trabajo de análisis aunque no haya test automático.

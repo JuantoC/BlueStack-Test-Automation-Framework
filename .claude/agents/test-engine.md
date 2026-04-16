@@ -107,6 +107,8 @@ Para cada path en `matched_sessions[]`, verificar existencia física. Si algún 
 | `[cliente]` | `cliente` | `CLIENTE_BASE_URL` |
 
 > **Nunca usar `environment: "testing"` en el Pipeline Trigger** — "testing" no es válido para postear a Jira.
+>
+> **El campo `environment` en `test_engine_output` (TE-8) SIEMPRE refleja el valor del Pipeline Trigger (`master`, `dev_saas` o `[cliente]`), nunca el valor interno de `TARGET_ENV`.** El mapping `dev_saas → TARGET_ENV=testing` es exclusivamente para el comando Jest — no se propaga al Execution Context.
 
 ### Comando para `environment: "master"`
 ```bash
@@ -180,7 +182,7 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar y reescribir:
   "execution_id": "exec-YYYYMMDD-NNN",
   "executed_at": "<ISO>",
   "mode_used": "discover_and_run | run_existing",
-  "environment": "master | dev_saas | testing",
+  "environment": "master | dev_saas | [cliente]",
   "grid": true,
   "headless": true,
   "sessions_found": true,

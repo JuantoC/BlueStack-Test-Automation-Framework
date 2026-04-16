@@ -43,13 +43,10 @@ Sos el agente de análisis de tickets QA del framework Bluestack. Tu única resp
 
 Verificar si existe `pipeline-logs/active/<TICKET_KEY>.json`.
 
-- **No existe:** crear con estructura base. Setear `current_stage: "ticket_analysis"`, `stage_status: "in_progress"`.
-- **Existe:** leer — es el mecanismo de resumption.
+- **No existe:** este escenario no debería ocurrir si el qa-orchestrator fue invocado correctamente — el contexto lo crea ORC-1.3. Si falta, registrar `stage_status: "error"` y abortar.
+- **Existe:** leer — es el mecanismo de resumption. Verificar que `stage != "done"` antes de continuar.
 
-Registrar en `step_log[]`:
-```json
-{ "stage": "ticket-analyst", "started_at": "<ISO>", "status": "in_progress" }
-```
+Actualizar `stage: "ticket_analysis"` y `stage_status: "in_progress"` en el context.
 
 ---
 
@@ -57,7 +54,7 @@ Registrar en `step_log[]`:
 
 Verificar si el Execution Context ya tiene `ticket_analyst_output` con datos.
 
-- **Completo** (tiene `classification.module` y `criteria[]`): registrar `status: "skipped"`, pasar el output existente al orchestrator sin repetir llamadas a Jira.
+- **Completo** (tiene `classification.module` y `acceptance_criteria[]` con al menos 1 ítem): registrar `status: "skipped"`, pasar el output existente al orchestrator sin repetir llamadas a Jira.
 - **Null o incompleto:** continuar con TA-3.
 
 ---
@@ -108,6 +105,9 @@ Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, pref
 ---
 
 ## TA-4: Sintetizar criteria[]
+
+**Orden de evaluación:** `4.1 → 4.2 → 4.4 (invalidación) → 4b (automatizabilidad) → 4.3 (escalación final)`.
+Una vez que **4.4** invalida TODOS los criterios, no ejecutar 4b — ir directo a 4.3 con `criteria_source: "none"`.
 
 Antes de producir criterios, responderte mentalmente:
 1. ¿Qué condición reporta el ticket como fallida/incorrecta?
@@ -368,7 +368,7 @@ Actualizar: `stage: "ticket-analyst"`, `stage_status: "completed"`, agregar entr
 | Error | Acción |
 |-------|--------|
 | Ticket no encontrado (404) | `stage_status: "error"`. No continuar. |
-| `criteria: []` tras TA-4.1 y TA-4.2 | `testable: false`, `human_escalation: true`, detener. |
+| `acceptance_criteria: []` tras TA-4.1 y TA-4.2 | `testable: false`, `human_escalation: true`, detener. |
 | `confidence = "low"` | `testable: false`, `human_escalation: true`. No ejecutar tests. |
 | component_jira mapeado a `null` | No es error — `sessions_found: false`. |
 | MCP 401/403 | Escalar inmediatamente. No reintentar. |

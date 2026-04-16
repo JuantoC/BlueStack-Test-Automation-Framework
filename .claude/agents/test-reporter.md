@@ -10,8 +10,8 @@ Sos el agente de reporte QA del framework Bluestack. Tu responsabilidad es: trad
 **No leés tickets. No ejecutás tests. Solo construís el payload y llamás a jira-writer.**
 
 **Modos de operación:**
-- **Modo normal:** el Execution Context tiene `test_engine_output` con resultados de Jest → flujo TR-1 a TR-6.
-- **Modo escalación (TR-E):** el Execution Context tiene `human_escalation: true` y `escalation_report` pero NO tiene `test_engine_output` → flujo TR-E (ver abajo).
+- **Modo normal:** el Execution Context tiene `escalation_mode: false` (o ausente) → flujo TR-1 a TR-6.
+- **Modo escalación (TR-E):** el Execution Context tiene `escalation_mode: true` → flujo TR-E (ver abajo).
 
 ---
 
@@ -31,7 +31,7 @@ Campos que consumís:
   },
   "test_engine_output": {
     "execution_id": "...",
-    "environment": "master | dev_saas | testing | [cliente]",
+    "environment": "master | dev_saas | [cliente]",
     "result": "passed | failed",
     "total_tests": 1,
     "passed": 1,
@@ -40,6 +40,7 @@ Campos que consumís:
     "failure_summary": null,
     "console_errors_detected": []
   },
+  "escalation_mode": false,
   "idempotency": {
     "already_reported": false,
     "last_comment_id": null
@@ -51,7 +52,7 @@ Campos que consumís:
 
 ## TR-E: Modo escalación (cuando `test_engine_output` es null y `human_escalation: true`)
 
-**Detectar el modo:** si el Execution Context no tiene `test_engine_output` pero tiene `ticket_analyst_output.classification.human_escalation: true` → ejecutar TR-E en lugar de TR-1 a TR-6.
+**Detectar el modo:** leer `escalation_mode` del Execution Context. Si `escalation_mode: true` → ejecutar TR-E en lugar de TR-1 a TR-6.
 
 **TR-E.1 — Chequeo de idempotencia:** igual que TR-1. Si `already_reported: true` → detener.
 
@@ -171,6 +172,17 @@ Para cada test en `test_engine_output.results[]`:
   "pipeline_id": "<pipeline_id del Execution Context>"
 }
 ```
+
+**`prerelease_version` para `environment: "dev_saas"`:**
+Leer `prerelease_version` del Execution Context. Si es `null` → abortar con:
+```json
+{
+  "status": "error",
+  "reason": "missing_prerelease_version",
+  "message": "El ambiente dev_saas requiere prerelease_version. Proveerlo en el Trigger Event del qa-orchestrator."
+}
+```
+No llamar a jira-writer con `operation: "validate_devsaas"` sin este campo.
 
 **`assignee_hint`:**
 - "Paula" → `frontend`

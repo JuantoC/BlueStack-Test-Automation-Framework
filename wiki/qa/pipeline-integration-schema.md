@@ -35,7 +35,7 @@ Execution Context (pipeline-logs/active/<ticket>.json)
 
 ```json
 {
-  "schema_version": "3.0",
+  "schema_version": "3.1",
   "source_agent": "test-reporter",
   "operation": "validate_master",
   "ticket_key": "NAA-XXXX",
@@ -146,6 +146,53 @@ Execution Context (pipeline-logs/active/<ticket>.json)
   "errors": []
 }
 ```
+
+---
+
+## Campos de multimedia (v3.1)
+
+Estos campos son opcionales y se incluyen solo cuando hay screenshots capturados por Allure.
+Si `attachments` está ausente en el input → comportamiento idéntico a v3.0.
+
+### Input adicional (test-reporter → jira-writer)
+
+```json
+"schema_version": "3.1",
+"attachments": [
+  {
+    "path": "allure-results/attachments/<uuid>.png",
+    "label": "Screenshot_<testName>",
+    "linkedTestName": "<testName>"
+  }
+]
+```
+
+### Output adicional (jira-writer → test-reporter)
+
+```json
+"attachment_results": [
+  {
+    "label": "Screenshot_X",
+    "attachmentId": "12345",
+    "filename": "abc123-uuid.png",
+    "contentUrl": "https://bluestack-cms.atlassian.net/rest/api/3/attachment/content/12345",
+    "status": "uploaded | failed",
+    "error": "string (solo si failed)"
+  }
+]
+```
+
+### Nodo ADF generado por jira-writer (si upload exitoso)
+
+```json
+{ "type": "inlineCard", "attrs": { "url": "<contentUrl>" } }
+```
+
+Renderiza como card clickeable nativa en Jira Cloud.
+
+### Especificación técnica completa
+
+Ver `docs/architecture/qa-pipeline/11-multimedia-attachments.md` — todas las decisiones (D-01 a D-10) y código de referencia.
 
 ---
 

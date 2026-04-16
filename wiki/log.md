@@ -17,6 +17,15 @@ Tipos: `ingest` | `gap` | `update` | `fix`
 
 ## Entradas
 
+## [2026-04-16] gap | Pipeline no cubre validación manual de datos persistidos por jobs de backend
+Caso: NAA-4465 — job de migración que escribe una property en el VFS de OpenCms para videos pre-existentes.
+El pipeline-run no tiene un flujo para tickets donde el trabajo ya fue ejecutado en producción (job corrido)
+y la validación consiste en verificar el estado de datos persistidos en backend, no en reproducir un flujo UI.
+Gaps concretos:
+- No deriva el ambiente desde el estado del ticket (Revisión → Master)
+- No genera borrador de comentario con casos de prueba cuando el criterio es `automatable: false` por razón de datos de backend
+- No distingue entre "no automatizable por UI" y "no automatizable porque la validación es sobre datos VFS/DB"
+
 ## [2026-04-16] fix | Issue 5 — HeaderNewContentBtn agregado al directorio de src/pages/README.md
 `HeaderNewContentBtn.ts` existía en `src/pages/` pero no figuraba en la tabla de directorio del README.
 Entrada agregada en la sección raíz, junto a `SidebarAndHeaderSection.ts` y `FooterActions.ts`, con link a `wiki/pages/_shared.md#headernewcontentbtn`.

@@ -11,6 +11,8 @@
 | CMS credentials (TESTING_URL, ADMIN_USER, ADMIN_PASS) | Variables de entorno | `.env` del repositorio (en .gitignore) |
 | BASIC_AUTH_USER / BASIC_AUTH_PASS | Variables de entorno | `.env` del repositorio |
 | Grid URL (para USE_GRID=true) | Variable de entorno | `.env` o default `http://localhost:4444` |
+| `JIRA_API_TOKEN` | Variable de entorno | `.env` (en `.gitignore`) — Token Personal Jira REST API (upload attachments) |
+| `JIRA_ATTACHMENT_MAX_MB` | Variable de entorno | `.env` — Cap de tamaño de attachments en MB (default: 10) |
 
 > El pipeline **no gestiona credenciales por sí mismo** — las lee del `.env` del repo y del contexto de sesión MCP ya configurado.
 

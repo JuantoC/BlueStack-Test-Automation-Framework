@@ -32,6 +32,13 @@
 ├── references/
 │   └── team-accounts.md        ← (en .gitignore — datos sensibles)
 │
+src/
+└── core/
+    └── jira/
+        ├── JiraApiClient.ts          ← Cliente HTTP base Jira REST API v3
+        ├── JiraAttachmentUploader.ts ← Upload PNG/MP4 a Jira (screenshots de fallos)
+        └── index.ts                  ← Re-exports del módulo
+
 scripts/
 └── sync-test-map.ts
 

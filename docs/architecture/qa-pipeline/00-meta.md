@@ -1,6 +1,16 @@
 # META: Estado del Documento — QA Automation Pipeline
 > Parte de: [docs/architecture/qa-pipeline/INDEX.md](INDEX.md)
 
+## v3.1 — 2026-04-16
+- **Integración multimedia:** módulo `src/core/jira/` (JiraApiClient + JiraAttachmentUploader)
+- test-engine output: campo `screenshots[]` (archivos Allure en fallos Jest)
+- test-reporter payload: campo `attachments[]` (schema v3.1)
+- jira-writer: Fase F2.5 — upload pre-comentario ADF con nodo `inlineCard`
+- `.env`: variables `JIRA_API_TOKEN`, `JIRA_ATTACHMENT_MAX_MB`
+- Especificación completa: `docs/architecture/qa-pipeline/11-multimedia-attachments.md`
+
+---
+
 ## Qué cambió de v3.0 a v4.0
 
 | # | Cambio | Sección afectada |

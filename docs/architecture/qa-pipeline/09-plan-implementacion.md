@@ -41,6 +41,13 @@
 ║  └──────────────────────────────────────────────────────────────────────────┘   ║
 ║                                       │                                          ║
 ╠══════════════════════════════════════ ▼ ═════════════════════════════════════════╣
+║  FASE 2.5 — Integración Multimedia ✅ COMPLETA  deps: Fase 2 + src/core/jira/    ║
+║  ┌──────────────────────────────────────────────────────────────────────────┐   ║
+║  │ JiraApiClient + JiraAttachmentUploader · JIRA_API_TOKEN en .env          │   ║
+║  │ Milestone: ✅ Completada 2026-04-16                                      │   ║
+║  └──────────────────────────────────────────────────────────────────────────┘   ║
+║                                       │                                          ║
+╠══════════════════════════════════════ ▼ ═════════════════════════════════════════╣
 ║  FASE 3 — test-reporter ✅ COMPLETA    deps: Fase 2 + jira-writer                 ║
 ║  ┌──────────────────────────────────────────────────────────────────────────┐   ║
 ║  │ DECISION-01 resuelta ✅ · Agent test-reporter implementado ✅             │   ║
@@ -176,6 +183,26 @@ scripts/sync-test-map.ts
    - Ejecutar ticket-analyst → test-engine sobre 3+ tickets con sessions existentes.
    - Verificar que el JSON de resultados es correcto.
    - Verificar que errores de infra (grid caído) se distinguen de errores de aplicación.
+
+---
+
+### Fase 2.5 — Integración Multimedia ✅ Completada (2026-04-16)
+
+**Scope:** Upload automático de screenshots Jest/Allure a Jira cuando tests fallan.
+
+**Checklist:**
+- [x] Crear `src/core/jira/JiraApiClient.ts`
+- [x] Crear `src/core/jira/JiraAttachmentUploader.ts`
+- [x] Crear `src/core/jira/index.ts`
+- [x] Crear `.env` con `JIRA_API_TOKEN` (completar manualmente)
+- [x] Actualizar `test-engine.md` — campo `screenshots[]` en output TE-8
+- [x] Actualizar `test-reporter.md` — campo `attachments[]` en TR-4, schema v3.1
+- [x] Actualizar `jira-writer/SKILL.md` — Fase F2.5 (upload pre-ADF)
+- [x] Actualizar schemas en `05-contratos-y-persistencia.md`
+- [ ] **Pendiente:** Completar `JIRA_API_TOKEN` en `.env` manualmente
+- [ ] **Pendiente:** Verificación E2E (ejecutar pipeline con ticket que falle)
+
+**Referencia técnica:** `docs/architecture/qa-pipeline/11-multimedia-attachments.md`
 
 ---
 
@@ -318,6 +345,8 @@ Fase     Entregable                                  Dependencia              Es
          Validado: NAA-4429, NAA-3964, NAA-4120
 2        Agent test-engine (discover + run)           test-map.json            ✅ COMPLETA
          Milestone E2E: NewLiveBlog 2026-04-14
+2.5      Integración multimedia (JiraApiClient        src/core/jira/           ✅ COMPLETA
+         + JiraAttachmentUploader · JIRA_API_TOKEN)
 3        Agent test-reporter                          jira-writer ✅           ✅ COMPLETA
          Milestone E2E: NAA-4467 comentario ADF + transición 2026-04-14
 4        Agent qa-orchestrator + poll-jira.ts         Fases 1-3                ⚠️ EN CURSO

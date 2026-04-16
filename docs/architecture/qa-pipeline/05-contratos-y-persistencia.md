@@ -18,6 +18,8 @@ Todos los mensajes inter-agente incluyen `pipeline_id` (campo legacy de v3.0 —
 }
 ```
 
+> **schema_version "3.1":** Cuando el payload de test-reporter → jira-writer incluye el campo `attachments[]`, se debe enviar `"schema_version": "3.1"`. El campo es opcional — si está ausente el comportamiento es idéntico a v3.0. Ver `docs/architecture/qa-pipeline/11-multimedia-attachments.md`.
+
 El `pipeline_id` vincula todos los mensajes de un mismo flujo para trazabilidad en `pipeline-logs/`.
 
 > **v2.0 → v3.0:** El envelope separado con `payload: {}` fue eliminado. El `pipeline_id` se agrega como campo directo en todos los schemas existentes. Esto simplifica la implementación sin perder trazabilidad.
@@ -118,7 +120,14 @@ pipeline-logs/completed/<ticket_key>.json   ← se mueve aquí al completar o es
       "sessions_run": ["NewAIPost"],
       "passed": 1,
       "failed": 0,
-      "screenshot_paths": []
+      "screenshot_paths": [],
+      "screenshots": [
+        {
+          "testName": "<testName>",
+          "path": "allure-results/attachments/<uuid>.png",
+          "capturedAt": "<ISO-8601>"
+        }
+      ]
     },
     "reporting": {
       "status": "completed",
@@ -126,7 +135,17 @@ pipeline-logs/completed/<ticket_key>.json   ← se mueve aquí al completar o es
       "env": "master",
       "comment_posted": true,
       "comment_id": "10045",
-      "transition_applied": "42"
+      "transition_applied": "42",
+      "attachment_results": [
+        {
+          "label": "Screenshot_X",
+          "attachmentId": "string",
+          "filename": "string",
+          "contentUrl": "string",
+          "status": "uploaded | failed",
+          "error": "string (solo si failed)"
+        }
+      ]
     }
   },
   "step_log": [

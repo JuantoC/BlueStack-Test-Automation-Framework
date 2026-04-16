@@ -226,9 +226,12 @@ Cada agente tiene **una responsabilidad única**, un **contrato de entrada/salid
   ],
   "failure_summary": null,
   "console_errors_detected": [],
-  "jest_output_path": "pipeline-logs/results-NAA-4429-exec-001.json"
+  "jest_output_path": "pipeline-logs/results-NAA-4429-exec-001.json",
+  "screenshots": []
 }
 ```
+
+> `screenshots[]` — capturas de pantalla generadas por Allure en fallos Jest (ver [11-multimedia-attachments.md](11-multimedia-attachments.md))
 
 > Cuando `sessions_found = false`, el orchestrator invoca `test-generator` (no test-engine).
 
@@ -259,10 +262,14 @@ Para `environment: "dev_saas"`: usar `TARGET_ENV=testing` (no `TARGET_ENV=master
 **Input (agente → jira-writer) — schema v2.0:**  
 Ver `.claude/skills/jira-writer/references/pipeline-schema.md` para el schema completo.
 
+> Si `test_engine_output.screenshots[]` no está vacío, incluir `attachments[]` en el payload (schema v3.1). Ver [11-multimedia-attachments.md](11-multimedia-attachments.md)
+
 **Mapeo resultado → acciones Jira:**
 
 | Resultado | `operation` → jira-writer | Transición | Tickets nuevos |
 |-----------|---------------------------|------------|----------------|
+> Fase F2.5 — Si el payload incluye `attachments[]`, ejecutar upload a Jira REST API antes de postear el comentario ADF. Ver [11-multimedia-attachments.md](11-multimedia-attachments.md)
+
 | Todos ✔, env=master | `validate_master` | `42` → A Versionar | — |
 | Algún ✘, env=master | `validate_master` | `2` → FEEDBACK | — |
 | Todos ✔, env=dev_saas | `validate_devsaas` | `31` → Done | — |

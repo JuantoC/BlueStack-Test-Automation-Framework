@@ -22,6 +22,7 @@ Este directorio documenta la arquitectura del pipeline QA end-to-end que conecta
 | Ver decisiones arquitecturales tomadas (DECISION-01, D-02..D-10) | [`00-meta.md`](00-meta.md) |
 | Entender visión general del sistema y estado actual de implementación | [`01-vision-y-estado.md`](01-vision-y-estado.md) |
 | Ver transiciones Jira y referencias cruzadas de skills | [`10-apendices.md`](10-apendices.md) |
+| Integrar upload de screenshots/videos al pipeline (JiraAttachmentUploader) | [`11-multimedia-attachments.md`](11-multimedia-attachments.md) |
 
 ---
 
@@ -40,3 +41,4 @@ Este directorio documenta la arquitectura del pipeline QA end-to-end que conecta
 | [`08-estructura-archivos.md`](08-estructura-archivos.md) | Árbol completo de directorios del sistema: pipelines, skills, references, scripts, pipeline-logs, con indicación de fase de creación para cada entregable nuevo. |
 | [`09-plan-implementacion.md`](09-plan-implementacion.md) | Flowchart visual de las 6 fases, checklist detallado de Fase 0, entregables y criterios de validación de cada fase (1-6), resumen de timeline con dependencias. |
 | [`10-apendices.md`](10-apendices.md) | Glosario de términos, datos de Jira Cloud (Cloud ID, transiciones por ID), tabla de referencias cruzadas de skills con operaciones, contratos de integración (pipeline-schema.md), DECISION-01 (resuelta). |
+| [`11-multimedia-attachments.md`](11-multimedia-attachments.md) | Especificación completa de integración multimedia: módulo `src/core/jira/`, upload de PNG y MP4 a Jira via REST API, Fase F2.5 de jira-writer, schema v3.1. Todas las decisiones resueltas. |

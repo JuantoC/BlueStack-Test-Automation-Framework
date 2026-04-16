@@ -80,13 +80,20 @@ En `run_existing`: saltar TE-4 y TE-5, ir directo a TE-6 con los paths provistos
 
 Leer `.claude/pipelines/test-engine/references/test-map.json`.
 
-**Precedencia de matching** (orden estricto):
-1. Exact module match: `classification.module` == key en `modules{}`
-2. Domain match: `classification.domain` == key en `modules{}`
-3. Keyword match: algún `test_hint` o `acceptance_criteria` contiene keyword del módulo
-4. Component match: `component_jira` matchea `component_jira` del módulo
+**Precedencia de matching** (orden estricto — se prueban de forma lineal, NO como fallback en cascada):
+1. **Exact module match:** `classification.module` == key en `modules{}`
+2. **Domain match:** `classification.domain` == key en `modules{}`
+3. **Keyword match:** algún `test_hint` o `acceptance_criteria` contiene keyword del módulo
+4. **Component match:** `component_jira` matchea `component_jira` del módulo
 
-Si ningún match → `sessions_found: false`. Saltar a TE-8.
+**Flujo de ejecución:**
+- Probar nivel 1. Si matchea → pasar a TE-5.
+- Si nivel 1 NO matchea → probar nivel 2. Si matchea → pasar a TE-5.
+- Si nivel 2 NO matchea → probar nivel 3. Si matchea → pasar a TE-5.
+- Si nivel 3 NO matchea → probar nivel 4. Si matchea → pasar a TE-5.
+- Si ninguno matchea → `sessions_found: false`. Saltar a TE-8.
+
+**Si TE-5 descarta todos los paths de un match:** setear `sessions_found: false` y saltar a TE-8 directamente. **NO reintentar con el siguiente nivel de precedencia** — la búsqueda es única por nivel.
 
 ---
 
@@ -100,11 +107,31 @@ Para cada path en `matched_sessions[]`, verificar existencia física. Si algún 
 
 ### Mapping environment → TARGET_ENV
 
-| Pipeline `environment` | `TARGET_ENV` | URL |
-|------------------------|--------------|-----|
-| `master` | `master` | `MASTER_BASE_URL` |
-| `dev_saas` | `testing` | `TESTING_BASE_URL` |
-| `[cliente]` | `cliente` | `CLIENTE_BASE_URL` |
+Ver tabla completa en [`wiki/qa/environments.md`](../../../wiki/qa/environments.md).
+
+**Resumen rápido:**
+- `master` → `TARGET_ENV=master` → `MASTER_BASE_URL`
+- `dev_saas` → `TARGET_ENV=testing` → `TESTING_BASE_URL`
+- `[cliente]` → `TARGET_ENV=cliente` → `CLIENTE_BASE_URL`
+
+### TE-6.0 — Validar variables de ambiente requeridas
+
+**Si `environment: "[cliente]"`:**
+Antes de construir el comando Jest, verificar que `CLIENTE_BASE_URL` esté configurada en `.env`:
+1. Leer el archivo `.env` con Read.
+2. Buscar una línea que comience con `CLIENTE_BASE_URL=` (sin `#` al inicio, y con un valor no vacío después del `=`).
+3. Si la línea no existe, está comentada (`#CLIENTE_BASE_URL`) o el valor está vacío → **abortar**:
+   ```json
+   {
+     "result": "error",
+     "error_type": "infra",
+     "sessions_found": false,
+     "stage_status": "failed"
+   }
+   ```
+   Con mensaje: `"CLIENTE_BASE_URL no configurada en .env — requerida para environment=[cliente]. Descomentar y asignar un valor válido."`
+   Ir directamente a TE-8 con estos valores. No ejecutar Jest.
+4. Si la variable está configurada correctamente → continuar con la construcción del comando.
 
 > **Nunca usar `environment: "testing"` en el Pipeline Trigger** — "testing" no es válido para postear a Jira.
 >
@@ -158,6 +185,12 @@ Para cada `assertionResult` en `testResults[*].testResults`:
 
 - `status: "error"` → Jest no pudo correr el archivo (error de sintaxis, import fallido).
 - `status: "fail"` → el test corrió pero una assertion falló.
+
+**`console_errors_detected[]` (pendiente de implementación):**
+El campo está reservado en el schema de `test_engine_output` pero la lógica de captura no está implementada. Opciones:
+- Opción A: Leer `testResults[*].console[]` del JSON de Jest (verificar disponibilidad en Jest v29.7.0 con `--json`).
+- Opción B: Capturar stderr del proceso Jest durante TE-6.
+Hasta confirmar el schema de Jest, producir siempre `console_errors_detected: []`.
 
 **Pre-computar `failure_summary`** (solo si `numFailedTests > 0`):
 ```json
@@ -226,6 +259,7 @@ Cuando `sessions_found: false`: escribir output con `sessions_found: false`, `re
 | Jest retorna `numFailedTests > 0` | `failed` | `app` | Parsear y escribir failure_summary |
 | `outputFile` no creado tras ejecución | `error` | `infra` | Jest no corrió — reportar con stderr |
 | Execution Context no encontrado | — | — | Fallar con error explícito |
+| `CLIENTE_BASE_URL` ausente o comentada en `.env` con `environment=[cliente]` | `error` | `infra` | Abortar antes de ejecutar Jest — ver TE-6.0 |
 
 ---
 

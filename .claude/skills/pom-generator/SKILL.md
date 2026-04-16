@@ -28,30 +28,7 @@ Antes de generar cualquier código, inspeccioná archivos POM existentes en `src
 
 # TIPOS DE INPUT ACEPTADOS
 
-El usuario puede proveer uno o más de los siguientes inputs para describir la UI a modelar. Cada tipo tiene un nivel de confianza diferente para la generación:
-
-| Input | Qué extraer | Confianza en locators |
-|---|---|---|
-| **Descripción textual** | Estructura de la página, secciones, acciones posibles, flujos | Baja — usar placeholders TODO |
-| **Screenshot / imagen de UI** | Layout visual, secciones, botones, elementos interactivos, jerarquía visual | Baja — usar placeholders TODO |
-| **Fragmento de DOM HTML** | Estructura real del DOM, clases CSS, data-testid, atributos, jerarquía | Alta — extraer selectores reales cuando existan atributos identificables |
-| **DOM HTML completo de la página** | Todo lo anterior + contexto completo de la página | Alta — extraer selectores reales, identificar secciones naturales del DOM |
-
-Cuando el input sea **DOM HTML** (fragmento o completo):
-- Priorizá atributos `data-testid`, `data-test`, `id`, `name` y `aria-label` como selectores.
-- Si no existen atributos identificables, usá selectores CSS semánticos basados en la estructura del DOM pero marcalos como `// FRAGILE: selector sin identificador estable`.
-- Identificá las secciones naturales del DOM para proponer la división en subcomponentes.
-
-Cuando el input sea **imagen**:
-- Describí qué ves en la imagen antes de generar código.
-- Listá las secciones, elementos interactivos y flujos que identificás.
-- Pedí confirmación al usuario si la interpretación es ambigua.
-
-Cuando el input sea **descripción textual**:
-- Extraé la lista de secciones, elementos y acciones.
-- Si la descripción es vaga, hacé preguntas concretas antes de generar (ver Paso 1).
-
-Combinaciones válidas: El usuario puede proveer texto + imagen, texto + DOM, o las tres cosas. En caso de conflicto, priorizá DOM > imagen > texto.
+Ver `references/input-types.md` para la tabla completa de tipos de input, reglas por tipo y orden de prioridad en caso de conflicto.
 
 ---
 
@@ -75,7 +52,13 @@ Antes del Paso 0, determiná qué modo operar:
 
 ## Paso 0 — Cargar contexto del repositorio
 
-Antes de cualquier otra cosa, leé código TypeScript existente en `src/pages/` del módulo más cercano al que se va a generar. Este es el input primario — la fuente de verdad de las convenciones reales del proyecto:
+Antes de cualquier otra cosa, leé la especificación autoritativa de la capa POM:
+
+```
+Leer: src/pages/README.md   ← ESPECIFICACIÓN AUTORITATIVA de la capa (arquitectura, naming, tipos, contratos)
+```
+
+Luego leé código TypeScript existente en `src/pages/` del módulo más cercano al que se va a generar. Este es el input primario para las convenciones reales del proyecto:
 
 ```
 Leer: src/pages/<módulo-más-cercano>/*.ts   ← INPUT PRIMARIO (código real)

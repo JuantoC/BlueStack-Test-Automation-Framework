@@ -1,218 +1,73 @@
 # Ejemplos de Referencia — Clases POM del Repositorio
 
-> Código extraído de `src/pages/videos_page/` y `src/pages/modals/`.
-> Fuente canónica: código TypeScript. Wiki de referencia: [wiki/pages/videos-page.md](../../../wiki/pages/videos-page.md) · [wiki/pages/modals.md](../../../wiki/pages/modals.md)
+> Código extraído de `src/pages/tags_page/` y `src/pages/videos_page/`.
+> Fuente canónica: código TypeScript. Wiki de referencia: [wiki/patterns/conventions.md](../../../wiki/patterns/conventions.md) · [wiki/pages/tags-page.md](../../../wiki/pages/tags-page.md)
 
-Este archivo contiene ejemplos reales del repositorio que funcionan como gold standard. Usá estos ejemplos para calibrar el estilo, nivel de detalle y patrones al generar nuevas clases.
+Estos ejemplos son gold standard del repositorio. Usá estas secciones para calibrar estilo, nivel de detalle y patrones al generar nuevas clases POM. Cada sección es referenciable por número (ej: `examples.md § 2`).
 
 ---
 
 ## Índice
 
-1. [Clase Maestro — MainVideoPage](#1-clase-maestro--mainvideopage)
-2. [Subcomponente Modal — PublishModal](#2-subcomponente-modal--publishmodal)
+1. [Sub-componente focalizado — NewTagBtn](#1-sub-componente-focalizado--newtagbtn)
+2. [Maestro con composición — MainTagsPage](#2-maestro-con-composición--maintagspage)
 3. [Patrones clave extraídos](#3-patrones-clave-extraídos)
+4. [Extend Mode — Adición a `post_page`](#4-extend-mode--adición-a-post_page)
 
 ---
 
-## 1. Clase Maestro — MainVideoPage
+## 1. Sub-componente focalizado — NewTagBtn
 
-Este es el patrón canónico de un Orquestador. Observá:
-- Cómo importa y compone subcomponentes propios + compartidos.
-- Cómo cada método orquestador usa `step()` + `attachment()` de Allure.
-- Cómo delega toda lógica granular a subcomponentes.
-- Cómo verifica banners después de acciones destructivas o de creación.
-- Cómo expone `table` como `public readonly` para acceso desde tests.
+**Fuente:** `src/pages/tags_page/NewTagBtn.ts`
+
+Sub-componente mínimo que encapsula una sola acción atómica. Es el patrón base de cualquier sub-componente. Observá:
+
+- `private static readonly` para todos los locators — nunca en el Maestro.
+- Constructor con `private readonly driver` como parameter property (TypeScript shorthand).
+- `resolveRetryConfig(opts, "NombreClase")` en el constructor para label de trazabilidad.
+- Método público con JSDoc, `logger.debug` pre-acción, `logger.error` en catch, rethrow obligatorio.
+- Sin `step()` — los sub-componentes nunca usan `step()`.
+- Imports siempre con extensión `.js`.
 
 ```typescript
+import { By, Locator, WebDriver } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { WebDriver, WebElement } from "selenium-webdriver";
-import { UploadVideoBtn } from "./UploadVideoBtn.js";
-import { UploadVideoModal } from "./UploadVideoModal.js";
-import { VideoTable } from "./VideoTable.js";
-import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
-import { VideoData } from "../../interfaces/data.js";
-import { ActionType, VideoActions } from "./VideoActions.js";
-import { FooterActions } from "../FooterActions.js";
-import { CKEditorImageModal } from "../modals/CKEditorImageModal.js";
-import { Banners } from "../modals/Banners.js";
+import { clickSafe } from "../../core/actions/clickSafe.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
 
 /**
- * Page Object Maestro para la sección de Videos del CMS.
- * Actúa como Orquestador central que coordina las sub-secciones de videos.
- * Es el punto de entrada para cualquier flujo de pruebas que involucre la creación,
- * edición, publicación o interacción con videos en la tabla multimedia.
+ * Page Object que representa el botón "Nuevo Tag" ubicado en la barra lateral del CMS.
+ * Encapsula la lógica de espera y click para abrir el modal de creación de tags.
+ * Utilizado por `MainTagsPage` como primer paso del flujo de creación de un tag.
  *
  * @example
- * const page = new MainVideoPage(driver, { timeoutMs: 10000 });
- * await page.uploadNewVideo(videoData);
+ * const btn = new NewTagBtn(driver, opts);
+ * await btn.clickNewTag();
  */
-export class MainVideoPage {
-  private config: RetryOptions;
+export class NewTagBtn {
+  private readonly config: RetryOptions; // ← config se deriva de opts + label
 
-  private readonly uploadBtn: UploadVideoBtn
-  private readonly uploadModal: UploadVideoModal
-  public readonly table: VideoTable
-  private readonly actions: VideoActions
-  private readonly footer: FooterActions
-  private readonly image: CKEditorImageModal;
-  private readonly banner: Banners;
+  // ↓ Locators: private static readonly, SCREAMING_SNAKE_CASE, solo en sub-componentes
+  private static readonly NEW_TAG_BTN: Locator = By.css('button.btn-create-note');
 
-  constructor(driver: WebDriver, opts: RetryOptions) {
-    this.config = resolveRetryConfig(opts, "MainVideoPage")
-
-    this.uploadBtn = new UploadVideoBtn(driver, this.config);
-    this.uploadModal = new UploadVideoModal(driver, this.config);
-    this.table = new VideoTable(driver, this.config);
-    this.actions = new VideoActions(driver, this.config);
-    this.footer = new FooterActions(driver, this.config)
-    this.image = new CKEditorImageModal(driver, this.config)
-    this.banner = new Banners(driver, this.config);
+  // ↓ Constructor: parameter property "private readonly driver" — no repetir en el body
+  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
+    this.config = resolveRetryConfig(opts, "NewTagBtn"); // ← "NewTagBtn" = label de trazabilidad
   }
 
   /**
-   * Orquesta el flujo completo de subida de un nuevo video.
-   * Selecciona el tipo de video, rellena todos los campos del modal, dispara la subida
-   * y espera a que el nuevo video aparezca en la primera posición de la tabla.
-   * Para videos de tipo `NATIVO`, también verifica la barra de progreso de carga.
-   *
-   * @param videoData - Datos completos del video a subir, incluyendo tipo, título, URL o ruta de archivo.
+   * Hace click sobre el botón "Nuevo Tag" del sidebar para abrir el modal de creación.
+   * La espera e interacción son gestionadas internamente por `clickSafe`.
    */
-  async uploadNewVideo(videoData: VideoData): Promise<any> {
-    await step(`Subiendo nuevo video con datos dinámicos`, async (stepContext) => {
-      attachment(`${videoData.videoType} Data`, JSON.stringify(videoData, null, 2), "application/json");
-      videoData.videoType && stepContext.parameter("Video Type", videoData.videoType)
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
-      try {
-        logger.debug(`Abriendo modal de subida para videos: ${videoData.videoType}`, { label: this.config.label })
-        await this.uploadBtn.selectVideoType(videoData.videoType)
-
-        logger.info(`Iniciando llenado dinámico de campos presentes en data`, { label: this.config.label });
-        await this.uploadModal.fillAll(videoData);
-
-        logger.info(`Llenado finalizado, comenzando subida...`, { label: this.config.label });
-        await this.uploadModal.clickOnUploadBtn();
-
-        const isError = await this.banner.checkBanners(false);
-        if (isError) {
-          return
-        }
-
-        if (videoData.videoType === 'NATIVO') {
-          await this.uploadModal.checkProgressBar()
-        }
-
-        await this.table.waitForNewVideoAtIndex0(videoData.title);
-        await this.table.skipInlineTitleEdit();
-
-        logger.info(`Subida finalizada`, { label: this.config.label });
-
-      } catch (error: unknown) {
-        logger.error(`Fallo en la subida de nuevo video: ${videoData.videoType} ${getErrorMessage(error)}`, {
-          label: this.config.label,
-          error: getErrorMessage(error)
-        });
-        throw error;
-      }
-    });
-  }
-
-  /**
-   * Ejecuta el cambio de título inline de un video a partir de su contenedor ya localizado.
-   * Delega la edición en `VideoTable.changeVideoTitle` y verifica el resultado con `Banners`.
-   *
-   * @param videoContainer - Contenedor WebElement del video a modificar.
-   */
-  async changeVideoTitle(videoContainer: WebElement): Promise<any> {
-    await step(`Cambiando título del video`, async () => {
-      try {
-        logger.debug("Ejecutando el cambio de titulo.", { label: this.config.label })
-        await this.table.changeVideoTitle(videoContainer);
-        await this.banner.checkBanners(true);
-        logger.info('Cambio de titulo del video ejecutado correctamente', { label: this.config.label })
-      } catch (error: unknown) {
-        logger.error(`Error al cambiar el titulo del video: ${getErrorMessage(error)}`, {
-          label: this.config.label,
-          error: getErrorMessage(error)
-        })
-        throw error;
-      }
-    });
-  }
-
-  /**
-   * Ejecuta una acción del menú desplegable sobre un video.
-   * Delega la interacción con el menú en `VideoActions.clickOnAction`.
-   *
-   * @param videoContainer - Contenedor WebElement del video sobre el que se ejecuta la acción.
-   * @param action - Tipo de acción a ejecutar (EDIT, DELETE, UNPUBLISH).
-   */
-  async clickOnActionVideo(videoContainer: WebElement, action: ActionType): Promise<any> {
-    await step(`Clickeando en la acción: "${action}" sobre el video`, async (stepContext) => {
-      stepContext.parameter("Acción", action);
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
-      try {
-        logger.debug(`Ejecutando el click en el boton de ${action}`, { label: this.config.label })
-        await this.actions.clickOnAction(videoContainer, action);
-        await this.banner.checkBanners(false)
-        logger.info(`Click en la accion: "${action}" completado.`, { label: this.config.label })
-      } catch (error: unknown) {
-        logger.error(`Error al clickear la accion: "${action}" en el video: ${getErrorMessage(error)}`, {
-          label: this.config.label,
-          action,
-          error: getErrorMessage(error)
-        })
-        throw error;
-      }
-    });
-  }
-
-  /**
-   * Selecciona uno o varios videos y los publica mediante la acción del footer.
-   *
-   * @param Videos - Array de contenedores WebElement de los videos a publicar.
-   */
-  async selectAndPublishFooter(Videos: WebElement[]): Promise<any> {
-    await step("Seleccionar y publicar Videos", async (stepContext) => {
-      stepContext.parameter("Cantidad", Videos.length.toString());
-      stepContext.parameter("Timeout", `${this.config.timeoutMs}ms`);
-
-      try {
-        logger.debug('Seleccionando el/los Videos enviados...', { label: this.config.label })
-        for (const video of Videos) {
-          await this.table.selectVideo(video);
-        }
-        logger.debug('Video/s seleccionados correctamente, procediendo a su publicacion...', { label: this.config.label })
-        await this.footer.clickFooterAction('PUBLISH_ONLY')
-        logger.info('Video/s publicados exitosamente', { label: this.config.label })
-
-      } catch (error: unknown) {
-        logger.error(`Error al seleccionar y publicar Videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
-        throw error;
-      }
-    });
-  }
-
-  /**
-   * Obtiene un array de contenedores WebElement de los primeros N videos de la tabla.
-   *
-   * @param NumberOfVideos - Cantidad de videos a recuperar desde la parte superior de la tabla.
-   * @returns {Promise<WebElement[]>} Array con los contenedores DOM de los videos solicitados.
-   */
-  async getVideoContainers(NumberOfVideos: number): Promise<WebElement[]> {
+  async clickNewTag(): Promise<void> {
     try {
-      let videos = []
-      for (let i = 0; i < NumberOfVideos; i++) {
-        const video = await this.table.getVideoContainerByIndex(i);
-        videos.push(video)
-      }
-      return videos
+      logger.debug('Clickeando en "Nuevo Tag"...', { label: this.config.label });
+      await clickSafe(this.driver, NewTagBtn.NEW_TAG_BTN, this.config); // ← acción delegada a core
+      logger.debug('Click en "Nuevo Tag" ejecutado.', { label: this.config.label });
     } catch (error: unknown) {
-      logger.error(`Error al obtener los ultimos ${NumberOfVideos} videos: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      // ↓ Boundary externo: logger.error obligatorio + rethrow siempre
+      logger.error(`Error al clickear "Nuevo Tag": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }
@@ -221,100 +76,125 @@ export class MainVideoPage {
 
 ---
 
-## 2. Subcomponente Modal — PublishModal
+## 2. Maestro con composición — MainTagsPage
 
-Este es el patrón canónico de un subcomponente modal. Observá:
-- Override de timeout en el constructor (`timeoutMs: 10000`).
-- Locators como `private static readonly`.
-- Métodos `private` de utilidad (`waitUntilIsReady`).
-- Polling custom con `driver.wait()` para condiciones asíncronas.
-- JSDoc indicando que es consumido internamente y no desde tests.
+**Fuente:** `src/pages/tags_page/MainTagsPage.ts`
+
+Orquestador que compone múltiples sub-componentes y expone workflows de alto nivel. Observá:
+
+- No tiene locators propios — todo se delega.
+- Constructor: `resolveRetryConfig(opts, "MainTagsPage")` y luego `new SubComp(driver, this.config)` para cada sub-componente.
+- `public readonly table` — el único sub-componente que los tests acceden directamente.
+- Todo método público envuelto en `step()` de `allure-js-commons`.
+- `stepContext.parameter(...)` para parámetros visibles en el reporte Allure.
+- Logging: `logger.debug` antes de delegar, `logger.info` al confirmar éxito, `logger.error` en catch.
+- `attachment(...)` para datos estructurados (JSON) en el reporte.
 
 ```typescript
-import { By, Locator, WebDriver, WebElement } from "selenium-webdriver";
 import { resolveRetryConfig, RetryOptions } from "../../core/config/defaultConfig.js";
-import { clickSafe } from "../../core/actions/clickSafe.js";
+import { WebDriver, WebElement } from "selenium-webdriver";
+import { attachment, step } from "allure-js-commons";
 import logger from "../../core/utils/logger.js";
-import { waitFind } from "../../core/actions/waitFind.js";
-import { waitEnabled } from "../../core/actions/waitEnabled.js";
-import { waitVisible } from "../../core/actions/waitVisible.js";
 import { getErrorMessage } from "../../core/utils/errorUtils.js";
+import { TagTable } from "./TagTable.js";
+import { TagActions } from "./TagActions.js";
+import type { TagActionType } from "./TagActions.js";
+import { TagAlphaFilter } from "./TagAlphaFilter.js";
+import { NewTagBtn } from "./NewTagBtn.js";
+import { NewTagModal } from "./NewTagModal.js";
+import { TagFooterActions } from "./TagFooterActions.js";
+import type { TagFooterActionType } from "./TagFooterActions.js";
+import type { TagData } from "../../interfaces/data.js";
 
 /**
- * Sub-componente modal que gestiona la confirmación de publicación de notas y videos en el CMS.
- * Espera a que el resumen generado por IA desaparezca antes de habilitar
- * el botón de confirmar, evitando clics prematuros durante la generación del contenido IA.
- * Consumido internamente por `FooterActions` y `EditorHeaderActions`; no debe invocarse desde tests.
+ * Page Object Maestro para la sección Gestión de Tags del CMS.
+ * Actúa como orquestador central que coordina todos los sub-componentes del Gestor de Tags.
+ * Es el único punto de entrada para cualquier flujo de pruebas sobre esta sección.
+ *
+ * @example
+ * const page = new MainTagsPage(driver, { timeoutMs: 10000 });
+ * await page.createNewTag({ title: 'Gaming', estado: 'Aprobados' });
  */
-export class PublishModal {
+export class MainTagsPage {
   private readonly config: RetryOptions;
 
-  private static readonly PUBLISH_CONFIRM_BTN: Locator = By.css('div.button-primary__four button[data-testid="btn-calendar-confirm"]');
-  private static readonly PUBLISH_CANCEL_BTN: Locator
-  private static readonly CKEDITOR_LOAD_SUMMARY: Locator = By.css('div.loadSummary')
+  // ↓ Sub-componentes: private salvo table que los tests acceden directamente
+  private readonly newTagBtn: NewTagBtn;
+  private readonly newTagModal: NewTagModal;
+  public readonly table: TagTable;         // ← public: los tests lo usan para leer filas
+  private readonly actions: TagActions;
+  private readonly alphaFilter: TagAlphaFilter;
+  private readonly footer: TagFooterActions;
 
-  constructor(private readonly driver: WebDriver, opts: RetryOptions) {
-    this.config = resolveRetryConfig({ ...opts, timeoutMs: 10000 }, "PublishModal")
+  // ↓ Constructor: resolveRetryConfig primero, luego instanciar sub-componentes con this.config
+  constructor(driver: WebDriver, opts: RetryOptions) {
+    this.config = resolveRetryConfig(opts, "MainTagsPage");
+
+    this.newTagBtn   = new NewTagBtn(driver, this.config);
+    this.newTagModal = new NewTagModal(driver, this.config);
+    this.table       = new TagTable(driver, this.config);
+    this.actions     = new TagActions(driver, this.config);
+    this.alphaFilter = new TagAlphaFilter(driver, this.config);
+    this.footer      = new TagFooterActions(driver, this.config);
   }
 
   /**
-   * Espera a que el resumen IA termine de generarse y hace click en confirmar publicación.
+   * Orquesta el flujo completo de creación de un nuevo tag.
+   * Abre el modal, llena los campos con los datos provistos y confirma la creación.
+   *
+   * @param tagData - Datos del tag a crear. `title` es obligatorio; el resto son opcionales.
    */
-  async clickOnPublishBtn(): Promise<void> {
-    try {
-      logger.debug('Intentando clickar en el boton de publicar...', { label: this.config.label })
-      await this.waitUntilAISummaryGenerated()
-      await clickSafe(this.driver, PublishModal.PUBLISH_CONFIRM_BTN, this.config)
-      logger.debug('Clickado el boton de publicar', { label: this.config.label })
-    } catch (error: unknown) {
-      logger.error(`Error clickeando el boton de publicar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
-      throw error;
-    }
+  async createNewTag(tagData: TagData): Promise<void> {
+    // ↓ step() obligatorio en todo método público de Maestro
+    await step(`Crear nuevo tag: "${tagData.title}"`, async (stepContext) => {
+      attachment('Tag Data', JSON.stringify(tagData, null, 2), 'application/json'); // ← datos en reporte
+      stepContext.parameter('Título', tagData.title);    // ← parámetros visibles en Allure
+      stepContext.parameter('Timeout', `${this.config.timeoutMs}ms`);
+
+      try {
+        logger.debug(`Abriendo modal de nuevo tag para: "${tagData.title}"`, { label: this.config.label });
+        await this.newTagBtn.clickNewTag();               // ← delegación a sub-componente
+
+        logger.debug('Modal abierto. Llenando campos...', { label: this.config.label });
+        await this.newTagModal.fillAndCreate(tagData);    // ← delegación a sub-componente
+
+        logger.info(`Tag "${tagData.title}" creado exitosamente.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error al crear el tag "${tagData.title}": ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error; // ← rethrow siempre
+      }
+    });
   }
 
   /**
-   * Hace click en el botón de cancelar del modal de publicación.
+   * Selecciona uno o varios tags por índice y ejecuta una acción masiva desde el footer.
+   *
+   * @param indices - Array de índices de los tags a seleccionar (base 0).
+   * @param action - Acción del footer a ejecutar sobre la selección (APPROVE, DISAPPROVE, DELETE).
    */
-  async clickOnCancelBtn(): Promise<void> {
-    try {
-      logger.debug('Intentando clickar en el boton de cancelar...', { label: this.config.label })
-      const elementToClick = await this.waitUntilIsReady(PublishModal.PUBLISH_CANCEL_BTN)
-      await clickSafe(this.driver, elementToClick, this.config)
-      logger.debug('Clickado el boton de cancelar', { label: this.config.label })
-    } catch (error: unknown) {
-      logger.error(`Error clickeando el boton de cancelar: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
-      throw error;
-    }
-  }
+  async selectAndExecuteFooterAction(indices: number[], action: TagFooterActionType): Promise<void> {
+    await step(`Seleccionar ${indices.length} tags y ejecutar "${action}"`, async (stepContext) => {
+      stepContext.parameter('Cantidad', indices.length.toString());
+      stepContext.parameter('Acción', action);
+      stepContext.parameter('Timeout', `${this.config.timeoutMs}ms`);
 
-  /**
-   * Aguarda hasta que el indicador de generación del resumen IA desaparezca del DOM.
-   * Hace polling hasta que `div.loadSummary` ya no esté presente, con timeout de 30 segundos.
-   */
-  async waitUntilAISummaryGenerated(): Promise<any> {
-    try {
-      logger.debug('Esperando a que se genere el resumen por IA...', { label: this.config.label })
-      await this.driver.wait(async () => {
-        const summaryLoading = await this.driver.findElements(PublishModal.CKEDITOR_LOAD_SUMMARY)
-        if (summaryLoading.length === 0) {
-          logger.debug('Resumen por IA generado', { label: this.config.label })
-          return true;
+      try {
+        logger.debug(`Seleccionando ${indices.length} tags para acción: "${action}"`, { label: this.config.label });
+        for (const index of indices) {           // ← iteración sobre múltiples elementos
+          await this.table.selectTagByIndex(index);
         }
-        return false;
-      }, 30000)
-    } catch (error: unknown) {
-      logger.error(`Error esperando a que se genere el resumen por IA: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) })
-      throw error;
-    }
+
+        logger.debug(`Tags seleccionados. Ejecutando "${action}" en footer...`, { label: this.config.label });
+        await this.footer.clickFooterAction(action);
+        logger.info(`Acción de footer "${action}" ejecutada sobre ${indices.length} tag/s.`, { label: this.config.label });
+      } catch (error: unknown) {
+        logger.error(`Error en selectAndExecuteFooterAction: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+        throw error;
+      }
+    });
   }
 
-  private async waitUntilIsReady(locator: Locator): Promise<WebElement> {
-    logger.debug(`Esperando a que el elemento ${JSON.stringify(locator)} este listo`, { label: this.config.label })
-    const element = await waitFind(this.driver, locator, this.config)
-    await waitEnabled(this.driver, element, this.config)
-    await waitVisible(this.driver, element, this.config)
-    return element
-  }
+  // ... (otros métodos: clickOnTagAction, filterTagsByLetter, searchTag, getTagContainers)
 }
 ```
 
@@ -322,40 +202,48 @@ export class PublishModal {
 
 ## 3. Patrones clave extraídos
 
-### Patrón: Flujo orquestado con step() de Allure
-Usado en clases Maestro. Envuelve un flujo completo en `step()` para reporting.
+| # | Patrón | Dónde aplica | Señal en el código |
+|---|---|---|---|
+| A | Constructor con parameter property | Sub-componentes | `constructor(private readonly driver: WebDriver, opts: RetryOptions)` |
+| B | `resolveRetryConfig` en constructor | Todo POM | `this.config = resolveRetryConfig(opts, "NombreClase")` |
+| C | Locator `private static readonly` | Solo sub-componentes | `private static readonly NOMBRE: Locator = By.css(...)` |
+| D | `step()` en métodos públicos | Solo Maestros | `await step("descripción", async (stepContext) => { ... })` |
+| E | Sin `step()` en sub-componentes | Sub-componentes | Ausencia de `step()` — nunca usarlo ahí |
+| F | `attachment()` para datos estructurados | Maestros | `attachment('Label', JSON.stringify(data), 'application/json')` |
+| G | `stepContext.parameter()` | Maestros | Para valores visibles en el reporte Allure |
+| H | `logger.debug` pre-acción | Todos | Antes de delegar a subcomponente o core |
+| I | `logger.error` + rethrow en catch | Todos | Boundary externo — nunca silenciar |
+| J | Iteración sobre elementos | Maestros | `for (const item of items) { await this.sub.accion(item); }` |
+| K | `public readonly table` | Maestros | Para sub-componentes que los tests leen directamente |
+| L | Imports con `.js` | Todos | `import { X } from "./X.js"` — requisito ESM |
+
+### Flujo típico de método de Maestro
+
 ```
-step(descripción) → attachment(data) → parameters → try { delegación a subcomponentes → banner check → log } catch { log error → throw }
+step(descripción)
+  → attachment(data JSON)
+  → stepContext.parameter(clave, valor)
+  → try {
+      logger.debug(antes de delegar)
+      await this.subComp.metodoAtomic(...)
+      logger.info(éxito)
+    } catch {
+      logger.error(mensaje + error)
+      throw error
+    }
 ```
 
-### Patrón: Método simple de subcomponente
-Usado en subcomponentes. Una acción atómica.
-```
-try { log debug → acción con clickSafe/waitFind/etc → log info } catch { log error → throw }
-```
+### Flujo típico de método de Sub-componente
 
-### Patrón: Iteración sobre WebElements
-Usado cuando se opera sobre múltiples elementos (ej: seleccionar varios videos).
 ```
-for (const item of items) { await this.subcomp.accion(item); }
-```
-
-### Patrón: Verificación post-acción con Banners
-Después de acciones que pueden fallar en el server:
-```typescript
-const isError = await this.banner.checkBanners(false); // false = no esperamos éxito obligatorio
-if (isError) return;
-```
-Después de acciones que deben ser exitosas:
-```typescript
-await this.banner.checkBanners(true); // true = esperamos banner de éxito
-```
-
-### Patrón: Getters de contenedores para tests
-Métodos que retornan WebElements para que los tests operen sobre ellos:
-```typescript
-async getContainerByIndex(index: number): Promise<WebElement> { ... }
-async getContainerByTitle(title: string): Promise<WebElement> { ... }
+try {
+  logger.debug(antes de la acción)
+  await clickSafe / waitFind / waitVisible / etc.
+  logger.debug(éxito)
+} catch {
+  logger.error(mensaje + error)
+  throw error
+}
 ```
 
 ---
@@ -374,7 +262,7 @@ El usuario provee DOM con un botón de eliminar y un dropdown de filtro de estad
   Locators definidos:
     PostTable: POST_TABLE_BODY, POST_TITLE_LABEL, POST_TITLE_INPUT,
                POST_EDIT_BTN, CHECKBOX, LOADING_CONTAINER
-    NewNoteBtn: NEW_NOTE_DROPDOWN_BTN, DROPDOWN_COMBO_MODAL, LABELS_OF_NOTE_TYPES
+    NewNoteBtn: NEW_NOTE_DROPDOWN_BTN, DROPDOWN_COMBO_MODAL, NOTE_TYPE_TESTID_MAP
   Métodos definidos:
     PostTable: selectPost(), getPostContainerByTitle(), changePostTitle(),
                clickEditorButton(), readCurrentTitle(), activateInlineTitleEdit(),
@@ -394,7 +282,7 @@ El usuario provee DOM con un botón de eliminar y un dropdown de filtro de estad
 | btn-edit-post | Sí (`POST_EDIT_BTN`) | Sí (`clickEditorButton()`) | — (no tocar) |
 | btn-delete-post | No | No | Locator + método en PostTable |
 | dropdown-status-filter | No | No | Locator + método en PostTable |
-| deletePost() orquestador | — | No | Método en MainPostPage |
+| deletePost() orquestador | — | No | Método nuevo en MainPostPage |
 
 ### Output generado (Paso 3E)
 

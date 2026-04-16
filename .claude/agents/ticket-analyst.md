@@ -89,6 +89,19 @@ Agregar `comment` y `attachment` al request.
 
 Extraer y registrar en memoria de trabajo: `summary`, `status.name`, `issuetype.name`, `priority.name`, `assignee.displayName`, `component_jira` (de `customfield_10061.value`), `parent.key`, `linkedIssues[]`, `fixVersions[].name`, `labels[]`, `comments[]`, campos custom de deploy/SQL/VFS.
 
+Extraer también `attachments[]` desde todos los contextos disponibles. Para cada adjunto registrar:
+```json
+{ "filename": "...", "mediaType": "...", "origin": "comment | ticket" }
+```
+Si el adjunto está embebido en un comentario → `origin: "comment"`. Si viene del campo `attachment` del ticket raíz → `origin: "ticket"`.
+
+**Nota:** La API REST de Jira no retorna attachments asociados a la descripción como campo separado. Si un adjunto está referenciado en el texto de la descripción, se mapea a `origin: "ticket"` (viene de `issue.fields.attachment[]`). El valor `"description"` no es un origen válido.
+
+**Detección de mediaType:** Leer `attachment.mimeType` de la respuesta MCP. Si es `null` o `application/octet-stream` → inferir desde extensión del `filename`:
+- `.webm`, `.mp4`, `.mov`, `.avi`, `.mkv` → `video/*`
+- `.mp3`, `.wav`, `.m4a`, `.flac` → `audio/*`
+- Si la extensión no está en la lista → ignorar el adjunto (no incluir en `attachments[]`).
+
 **Mapeo de customfields deploy (descubiertos 2026-04-15):**
 
 | Campo | ID (grupo A — Jira legacy) | ID (grupo B — NAA activo) |
@@ -101,6 +114,8 @@ Extraer y registrar en memoria de trabajo: `summary`, `status.name`, `issuetype.
 | Comentarios - Deploy | `customfield_10038` | `customfield_10071` |
 
 Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, preferir grupo B (10066-10071).
+
+> Ver definición completa en `.claude/pipelines/ticket-analyst/references/customfield-mapping.json`.
 
 ---
 
@@ -126,6 +141,7 @@ Después de 4.1 o 4.2, ANTES de declarar el listado final: leer el hilo de comen
 - **"se trabaja en otro ticket" / "ya se está trabajando" / ticket linkeado `is blocked by` sin resolver** → ese criterio fue delegado. Excluirlo del listado.
 - **"evaluar y definir" / "pendiente de decisión" / "a definir" / "falta definir"** → la implementación no está confirmada. El criterio no tiene base verificable. Excluirlo.
 - **Confirmación de implementación en comentario de dev/autor** ("ya está hecho", "deploy incluye", "listo en master") → el criterio tiene respaldo → mantener válido.
+- **`attachments[]` contiene items con `mediaType: video/* | audio/*` (`.webm`, `.mp4`, `.mov`) y `origin: "comment"`** → registrar `attachment_hint: true` y `attachment_files: [lista de filenames]` en el resultado parcial. Esta señal **no invalida criterios por sí sola** — solo se propaga al output final.
 
 Si todos los criterios quedan invalidados tras este paso:
 - `criteria_source: "none"`, `testable: false`, `human_escalation: true`
@@ -134,6 +150,28 @@ Si todos los criterios quedan invalidados tras este paso:
 
 **4.3 — Escalación (source: "none"):**
 Si después de 4.1 y 4.2 no hay ≥ 1 criterio accionable:
+
+Si `attachment_hint: true` (hay adjuntos visuales en comentarios de dev), ajustar el escalation_reason para mencionarlos y recomendar revisión manual antes de escalar sin contexto:
+```json
+{
+  "criteria": [],
+  "source": "none",
+  "testable": false,
+  "human_escalation": true,
+  "attachment_hint": true,
+  "attachment_files": ["video1.webm", "..."],
+  "escalation_reason": "Ticket sin criterios extraíbles ni inferibles. Se detectaron adjuntos visuales en comentarios de dev ([lista de archivos]) que podrían mostrar el comportamiento esperado — revisar manualmente antes de escalar sin contexto.",
+  "escalation_report": {
+    "summary": "No fue posible extraer ni inferir criterios automatizables. Adjuntos visuales disponibles para revisión manual.",
+    "visual_attachments_available": true,
+    "attachment_files": ["video1.webm", "..."],
+    "criteria_attempted": [],
+    "manual_test_guide": []
+  }
+}
+```
+
+Si `attachment_hint: false` o no detectado:
 ```json
 {
   "criteria": [],
@@ -171,10 +209,24 @@ Schema de cada criterio:
     "assertion": "... (observable en DOM)"
   },
   "criterion_type": "field_validation | functional_flow | state_transition | error_handling | visual_check | responsive | performance",
+  "criterion_scope": "ui | backend_data | api | vfs",
   "automatable": true,
   "reason_if_not": null
 }
 ```
+
+**`criterion_scope` — valores válidos:**
+- `"ui"` (default): comportamiento visible en el navegador, verificable con Selenium.
+- `"vfs"`: verificar propiedades persistidas en el VFS de OpenCms (requiere acceso al servidor).
+- `"backend_data"`: verificar datos persistidos en DB/backend por un job (sin VFS).
+- `"api"`: validar respuesta de API directamente, sin navegar por el CMS.
+
+**Inferencia de `criterion_scope` desde customfields (aplicar en TA-4.2):**
+- Si el ticket tiene `customfield_10040` o `customfield_10069` (Cambios VFS) con valor non-null/non-empty → inferir `criterion_scope: "vfs"` para criterios que no especifiquen explícitamente qué verificar en UI.
+- Si el ticket tiene `customfield_10036` o `customfield_10066` (Cambios SQL) con valor non-null/non-empty → inferir `criterion_scope: "backend_data"` para criterios que no especifiquen qué verificar en UI.
+- Si ambas señales están presentes → aplicar `"vfs"` con precedencia (VFS implica cambio estructural más verificable).
+
+**Condición de guarda — UI keywords prevalecen sobre customfields:** Antes de asignar `criterion_scope: "vfs"` o `"backend_data"` por customfield, verificar que la descripción del criterio NO mencione elementos UI explícitos. Si el criterio contiene cualquiera de las siguientes keywords: "pantalla", "visible", "DOM", "navegador", "elemento", "botón", "click", "modal", "formulario" → mantener `criterion_scope: "ui"` aunque el customfield VFS/SQL esté populado. La presencia de un customfield de deploy indica que hubo cambios en esa capa, pero no determina el scope del criterio de prueba si este es verificable en UI.
 
 ---
 
@@ -182,6 +234,14 @@ Schema de cada criterio:
 
 Para cada criterio: preguntarte "¿Puedo escribir una assertion Selenium que falle si este criterio no se cumple y pase si sí se cumple?"
 - Si la assertion requiere percepción humana o entorno físico → `automatable: false`.
+
+**Rama especial para `criterion_scope: "vfs"` o `"backend_data"`:**
+- Forzar `automatable: false` independientemente de cualquier otra evaluación.
+- Usar `reason_if_not: "backend_data_validation"` (no usar `"server_access"` — ese valor era genérico y no distingue el origen del bloqueo).
+- Generar `manual_test_guide` con pasos backend-específicos:
+  - Para `criterion_scope: "vfs"`: "Acceder al VFS de OpenCms (Menú → VFS), navegar al nodo del recurso, verificar que la propiedad `<nombre>` tiene el valor `<esperado>`."
+  - Para `criterion_scope: "backend_data"`: "Verificar en DB/backend (o vía API de administración) que el registro fue persistido correctamente por el job — campo `<campo>` = `<valor>`."
+- NO generar pasos de tipo "click X → observar Y en pantalla" para estos criterios; la verificación no es visual.
 
 Calcular `testability_summary`:
 ```json
@@ -237,7 +297,7 @@ Leer `.claude/pipelines/ticket-analyst/references/component-to-module.json`.
 
 **Paso 1 — component_jira en el mapa:** `component_jira` puede ser un string o un array.
 - Si es array → iterar por TODOS los valores y colectar los módulos non-null que matcheen en el JSON.
-- Si hay múltiples matches → aplicar regla de desempate: el módulo más específico gana (`ai-post` > `post` > `video` > `images` > `auth`). Usar el ganador como módulo final.
+- Si hay múltiples matches → aplicar regla de desempate: el módulo más específico gana (`ai-post` > `post` > `cross` > `video` > `images` > `auth` > `stress`). Usar el ganador como módulo final.
 - Si hay al menos 1 match → **NO ir a Paso 2 ni Paso 3** (fuzzy).
 - Si algún valor mapea a `null` → ignorarlo para el match; `null` no cuenta como "no match".
 - Si ningún valor tiene match en el JSON → ir al Paso 2.
@@ -333,12 +393,38 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` c
     "confidence_reason": "...",
     "criteria_source": "extracted | inferred | none",
     "human_escalation": false,
+    "attachment_hint": false,
     "test_hints": [...]
   },
-  "testability_summary": { ... },
-  "acceptance_criteria": [...],
+  "testability_summary": {
+    "total_criteria": 0,
+    "automatable_count": 0,
+    "non_automatable_count": 0,
+    "all_automatable": false,
+    "partial_automatable": false,
+    "human_escalation_needed": false,
+    "escalation_reasons": [],
+    "action": "full_run | partial_run_and_escalate | generate_tests | escalate_all"
+  },
+  "acceptance_criteria": [
+    {
+      "criterion_id": 1,
+      "description": "...",
+      "test_approach": { "precondition": "...", "action": "...", "assertion": "..." },
+      "criterion_type": "...",
+      "criterion_scope": "ui | vfs | backend_data | api",
+      "automatable": true,
+      "reason_if_not": null,
+      "coverage": {
+        "covered_by_existing_session": false,
+        "session_file": "...",
+        "gap_description": "..."
+      }
+    }
+  ],
   "master_validation": null,
   "linked_tickets": [],
+  "escalation_report": null,
   "jira_metadata": {
     "jiraSummary": "...",
     "ticketType": "...",

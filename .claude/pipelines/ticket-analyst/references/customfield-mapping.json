@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "description": "Mapeo de customfields de deploy Jira. Grupos A (legacy) y B (NAA activo). Descubiertos 2026-04-15.",
+  "resolution_rule": "Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, preferir grupo B (10066-10071).",
+  "fields": [
+    { "name": "Cambios SQL - Deploy",           "group_a": "customfield_10036", "group_b": "customfield_10066" },
+    { "name": "Cambios Librerias - Deploy",      "group_a": "customfield_10037", "group_b": "customfield_10067" },
+    { "name": "Cambios TLD - Deploy",            "group_a": "customfield_10039", "group_b": "customfield_10068" },
+    { "name": "Cambios VFS - Deploy",            "group_a": "customfield_10040", "group_b": "customfield_10069" },
+    { "name": "Cambios configuración - Deploy",  "group_a": "customfield_10041", "group_b": "customfield_10070" },
+    { "name": "Comentarios - Deploy",            "group_a": "customfield_10038", "group_b": "customfield_10071" }
+  ]
+}

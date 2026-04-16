@@ -41,6 +41,7 @@ Campos que consumís:
     "console_errors_detected": []
   },
   "escalation_mode": false,
+  "partial_coverage": false,
   "idempotency": {
     "already_reported": false,
     "last_comment_id": null
@@ -107,6 +108,8 @@ Verificar `idempotency.already_reported`.
 | `[cliente]` | `passed` | `validate_master` | Comentario ✔ con header de cliente |
 | `[cliente]` | `failed` | `validate_master` | Comentario ✘ con header de cliente |
 
+> **IDs de transición:** `42` = A Versionar, `2` = FEEDBACK, `31` = Done. Ver `.claude/skills/jira-writer/references/transition-ids.md` para definición completa y contexto.
+
 > **Entorno `testing`:** Es el entorno de desarrollo del framework. Los resultados son informativos, nunca transicionan el ticket.
 
 ### Spec de `create_bug` (dev_saas + failed)
@@ -170,7 +173,6 @@ Para cada test en `test_engine_output.results[]`:
   },
   "is_pipeline_test": false,
   "pipeline_id": "<pipeline_id del Execution Context>",
-  "schema_version": "3.1",
   "attachments": [
     {
       "path": "allure-results/attachments/<uuid>.png",
@@ -198,10 +200,8 @@ Leer `prerelease_version` del Execution Context. Si es `null` → abortar con:
 No llamar a jira-writer con `operation: "validate_devsaas"` sin este campo.
 
 **`assignee_hint`:**
-- "Paula" → `frontend`
-- "Verónica" → `backend`
-- "Claudia" → `editor`
-- Ambiguo → omitir
+Ver `wiki/qa/pipeline-integration-schema.md` § "Valores de `assignee_hint`" para el mapeo de nombres de asignados a roles (`frontend`, `backend`, `editor`).
+- Si el nombre no está en el mapeo → omitir `assignee_hint`.
 
 **`is_pipeline_test: true`** solo durante Fase 0 (testing del pipeline mismo). En producción siempre `false`.
 
@@ -209,14 +209,25 @@ No llamar a jira-writer con `operation: "validate_devsaas"` sin este campo.
 
 ## Regla de transición condicional (TR-4b)
 
-Aplicar después de construir el payload. Determina si se ejecuta `transitionJiraIssue` o no:
+Aplicar después de construir el payload. Determina si se ejecuta `transitionJiraIssue` o no.
+
+**Paso previo a TR-4b — Resolver `confidence`:**
+Antes de evaluar las condiciones de la tabla, leer:
+```
+context.ticket_analyst_output.classification.confidence
+```
+Usar ese valor para evaluar la condición `confidence: "low"`. **No incluir `confidence` en el payload enviado a jira-writer** — es una decisión interna de test-reporter.
 
 | Condición | Transición | Acción |
 |---|---|---|
-| Todos ✔ + `confidence: high/medium` + `all_automatable: true` | "A Versionar" (id `"42"`) | Normal |
-| Todos ✔ + `confidence: "low"` | ⛔ NO transicionar | Agregar ⚠️ al pie del comentario |
+| Todos ✔ + `classification.confidence: "high"/"medium"` + `all_automatable: true` + `partial_coverage: false` | "A Versionar" (id `"42"`) | Normal |
+| Todos ✔ + `classification.confidence: "low"` | ⛔ NO transicionar | Agregar ⚠️ al pie del comentario |
 | Algunos ✘ | "FEEDBACK" (id `"2"`) | Normal |
-| Todos ✔ + `partial_automatable: true` | ⛔ NO transicionar | Agregar ⚠️ al pie del comentario |
+| Todos ✔ + `partial_coverage: true` (context) | ⛔ NO transicionar | Agregar ⚠️ al pie del comentario |
+
+> `confidence` se lee de `context.ticket_analyst_output.classification.confidence` — no está en el payload de jira-writer.
+>
+> `partial_coverage` es seteado por el qa-orchestrator en ORC-2 cuando `testability_summary.partial_automatable: true`. TR-4b lee este campo del Execution Context (no de `ticket_analyst_output` directamente) para respetar la separación de responsabilidades: la decisión es del orquestador, no del test-reporter.
 
 Cuando NO se transiciona por warning, agregar al pie del comentario Jira:
 

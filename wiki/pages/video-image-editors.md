@@ -73,7 +73,7 @@ El panel contiene metadatos del video. Todos los campos tienen `data-testid`.
 
 Tipo exportado: `ImageExitAction`
 
-Misma estructura visual que el editor de video, pero **sin** la opción "Salir sin guardar" — solo existe "Publicar y Salir".
+Misma estructura visual que el editor de video. Incluye la opción "Salir" (`EXIT_WITHOUT_SAVING_OPT`) con testid `dropdown-item-salir`.
 
 | Acción | Selector | Testid / CSS |
 |---|---|---|

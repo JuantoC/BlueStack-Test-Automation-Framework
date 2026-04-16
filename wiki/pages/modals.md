@@ -64,8 +64,6 @@ Cuando el ambiente pre-productivo se despliega, al ingresar post-login aparece u
 | Elemento | Selector |
 |----------|----------|
 | Overlay (pane) | `[data-testid="overlay-update"]` |
-| Backdrop | `[data-testid="backdrop-update"]` |
-| Contenedor del modal | `[data-testid="modal-update"]` |
 | Botón de recarga | `button[data-testid="btn-calendar-confirm"]` |
 
 **Flujo de recuperación:**

@@ -64,6 +64,8 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [qa/adf-format-guide.md](qa/adf-format-guide.md) — Formato ADF JSON para contenido rich text en Jira: nodos, marks, ejemplos completos
 - [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde el agente orquestador
 - [qa/environments.md](qa/environments.md) — Mapping de ambientes: `.env TARGET_ENV` ↔ agente `environment` ↔ Jira (testing=dev_saas, master=master)
+- [qa/manual-test-validation.md](qa/manual-test-validation.md) — Procedimiento para habilitar tests auto-generados por `test-generator` tras revisión manual (`@validated: false → true`)
+- [qa/multimedia-attachment-integration.md](qa/multimedia-attachment-integration.md) — *(redirect)* → `docs/architecture/qa-pipeline/11-multimedia-attachments.md`
 - [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo agente test-reporter ↔ jira-reader/jira-writer: inputs, outputs, operaciones
 - [qa/validation-session-2026-04-15.md](qa/validation-session-2026-04-15.md) — Hallazgos sesión real: aliases de componentes, fuzzy matching, decisión confidence:low, bug customfield_10061
 
@@ -84,6 +86,8 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 | Arquitectura del pipeline QA multi-agente | [docs/architecture/qa-pipeline/INDEX.md](../docs/architecture/qa-pipeline/INDEX.md) |
 | Levantar Docker Grid / comandos Jest en WSL2 | [core/docker-grid.md](core/docker-grid.md) |
 | Comandos de ejecución completos | [.claude/references/COMMANDS.md](../.claude/references/COMMANDS.md) |
+| Generar ADF JSON para comentarios Jira | [qa/adf-format-guide.md](qa/adf-format-guide.md) |
+| Habilitar test auto-generado tras revisión manual | [qa/manual-test-validation.md](qa/manual-test-validation.md) |
 
 ---
 

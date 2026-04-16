@@ -17,6 +17,55 @@ Tipos: `ingest` | `gap` | `update` | `fix`
 
 ## Entradas
 
+[gap] Execution Context v3.0: documentar todos los campos de primer nivel del context (partial_coverage, escalation_mode, etc.) en wiki/pipelines/ o wiki/qa/
+
+## [2026-04-16] fix | agent-auditor — 8 inconsistencias de contrato corregidas en 5 agentes QA
+
+**Fix 1** — `test-reporter.md` TR-4: `schema_version: "3.1"` duplicado eliminado. Quedó solo `"3.0"` como única declaración en el payload.
+
+**Fix 2** — `test-reporter.md` Input esperado: `partial_coverage: false` agregado. ORC-3 seteaba el flag pero test-reporter no lo declaraba en su contrato de entrada.
+
+**Fix 3** — `test-reporter.md` TR-2: IDs de transición (`42`, `2`, `31`) referenciados en nuevo archivo `transition-ids.md`. Contenido externalizad de magic numbers inline.
+
+**Fix 4** — `test-reporter.md` TR-4: `assignee_hint` hardcodeado (Paula/Verónica/Claudia) reemplazado por puntero a `field-map.md`. Sección `assignee_hint` agregada a `field-map.md`.
+
+**Fix 5** — `qa-orchestrator.md` ORC-1.2: stage `"test_generation"` agregado al routing table (faltaba cobertura).
+
+**Fix 6** — `ticket-analyst.md` TA-9: schema expandido con `testability_summary` completo (incluye `action`), `acceptance_criteria[].coverage`, y `escalation_report: null` como field de primer orden.
+
+**Fix 7** — `test-engine.md` TE-6: tabla `environment→TARGET_ENV` deduplicada — reemplazada por puntero a `wiki/qa/environments.md` (canónica). TE-4: lógica de fallback del discovery aclarada (lineal, no cascada).
+
+**Fix 8** — `test-generator.md` TG-2/TG-5: instrucción para `pom_paths` vacío + instrucción de merge en test-map.json. Sección de habilitación humana movida a `wiki/qa/manual-test-validation.md`.
+
+**Archivos nuevos:** `customfield-mapping.json`, `transition-ids.md`, `wiki/qa/manual-test-validation.md`.
+
+## [2026-04-16] fix | wiki-audit scope:all — 4 issues corregidos
+
+**Issue 1** — `wiki/pages/video-image-editors.md` línea 76: contradicción eliminada.
+La descripción del editor de imágenes decía "sin la opción 'Salir sin guardar'" pero la tabla inmediatamente siguiente documentaba `EXIT_WITHOUT_SAVING_OPT`. El código define el locator (línea 32 de `EditorHeaderActions.ts` en images_editor_page) y la auditoría del 2026-04-16 ya lo corrigió con testid `dropdown-item-salir`. Texto actualizado para reflejar que la opción existe.
+
+**Issue 2** — `wiki/pages/modals.md`: selectores `backdrop-update` y `modal-update` eliminados de la tabla de `handleUpdateModal`.
+El código solo usa `overlay-update` y `btn-calendar-confirm` (líneas 17-18 de `src/core/helpers/handleUpdateModal.ts`). Las dos filas eliminadas referenciaban selectores que el handler nunca busca.
+
+**Issue 3** — `wiki/index.md`: `wiki/qa/manual-test-validation.md` agregado a la sección QA y a la tabla de referencias rápidas. Página existente pero huérfana del índice.
+
+**Issue 4** — `wiki/index.md`: `wiki/qa/multimedia-attachment-integration.md` (stub redirect) agregado a la sección QA. + 2 entradas nuevas en "Referencias rápidas": ADF JSON y habilitación de tests auto-generados.
+
+## [2026-04-16] fix | Gap-5 cerrado — test-generator (Fase 5) implementado y conectado en ORC-4
+Creado `.claude/agents/test-generator.md` con pasos TG-1 a TG-6:
+- TG-1: validación de input (acceptance_criteria, domain, Execution Context)
+- TG-2: verificación de POMs — invoca pom-generator si alguno falta
+- TG-3: invocación de create-session con cabecera @auto-generated, criterios vfs/backend_data como comentarios MANUAL
+- TG-4: dry-run obligatorio (`node node_modules/.bin/jest`) — resultados NO van a Jira
+- TG-5: actualización provisional de test-map.json con `validated: false`
+- TG-6: escritura del output en Execution Context
+ORC-4 actualizado en `.claude/agents/qa-orchestrator.md`:
+- Reemplazado placeholder `sessions_found: false → ORC-6 (no_sessions)` por ORC-4.1 (invocar test-generator) y ORC-4.2 (evaluar resultado).
+- Si `auto_generated + dry_run:pass` → continuar a ORC-5.
+- Si `auto_generated + dry_run:fail` → escalar con `outcome: "auto_generated_dry_run_failed"`.
+- Si `failed` → escalar con `outcome: "no_sessions"` (comportamiento anterior).
+Guard de reapertura y milestone_notes actualizados para incluir los nuevos outcomes.
+
 ## [2026-04-16] gap | Pipeline no cubre validación manual de datos persistidos por jobs de backend
 Caso: NAA-4465 — job de migración que escribe una property en el VFS de OpenCms para videos pre-existentes.
 El pipeline-run no tiene un flujo para tickets donde el trabajo ya fue ejecutado en producción (job corrido)
@@ -279,8 +328,7 @@ Fix 5 — wiki/qa/validation-session-2026-04-15.md: creada con tabla de tickets,
 Nuevo patrón documentado: Patrón D en wiki/patterns/conventions.md — app-cmsmedios-button wrapper.
 NoteExitAction y mapa LOCATORS documentados en wiki/pages/post-page.md.
 
-[gap] pipeline: archivos binarios adjuntos (.webm, .mp4) en comentarios de dev —
-evaluar si el pipeline debería sugerir revisión manual antes de escalar criteria_source:none
+[gap cerrado 2026-04-16] pipeline: adjuntos visuales en criteria_source:none — ticket-analyst ahora extrae attachments[] con origin, detecta video/audio en comentarios de dev (attachment_hint:true) y ajusta escalation_reason y escalation_report para recomendar revisión manual antes de escalar sin contexto.
 
 [2026-04-16] [gap] pipeline: test-generator (Fase 5) pendiente de implementación — el qa-orchestrator no tiene agente para generar sessions nuevas cuando no existen tests previos para el ticket (ORC-4 branch `sessions_found: false` sin implementar)
 
@@ -289,10 +337,85 @@ Sección "Mapping de customfields de deploy" agregada en "Notas de implementaci�
 Apunta explícitamente a `.claude/skills/jira-writer/references/field-map.md` §Campos de deploy.
 Documenta los dos grupos (A legacy 10036-10041, B NAA activo 10066-10071) y la regla de usar Grupo B en tickets nuevos.
 
+[2026-04-16] fix | Gap-3 cerrado — pipeline distingue validación UI vs datos persistidos por backend
+
+Cambios aplicados en `.claude/agents/ticket-analyst.md` y `.claude/agents/qa-orchestrator.md`:
+- **Schema `acceptance_criteria[]`**: campo `criterion_scope` agregado (`"ui"` default | `"vfs"` | `"backend_data"` | `"api"`).
+- **TA-4.2 (inferencia)**: si `customfield_10040/10069` (VFS) tiene valor → inferir `criterion_scope: "vfs"`; si `customfield_10036/10066` (SQL) tiene valor → inferir `criterion_scope: "backend_data"`.
+- **TA-4b (automatizabilidad)**: nueva rama para `criterion_scope: "vfs"` y `"backend_data"` — fuerza `automatable: false`, `reason_if_not: "backend_data_validation"` y genera `manual_test_guide` con pasos backend-específicos (sin pasos de tipo click→observar).
+- **ORC-1.0 (nuevo paso)**: derivación automática de `environment` cuando no viene en el trigger. Estado `"Revisión"` → `"master"`; estado `"Done"` → `"dev_saas"`; otro estado → error explícito pidiendo `environment` explícito.
+
 [2026-04-16] update | Auditoría wiki — artefactos históricos y mapeo de campos deploy
 Issue 8: Verificados 6 PIPELINE.md. qa-orchestrator, test-engine, test-reporter, ticket-analyst ya tenían marca DEPRECATED. sync-docs y validate-ssot son pipelines activos (no migrados a custom agents) — no se marcaron como deprecated.
 Issue 9: Agregado [gap] test-generator (Fase 5) — ORC-4 branch sessions_found:false sin implementar.
 Issue 7: field-map.md completado con tabla completa de campos de deploy (grupos A y B): Cambios SQL, Librerías, TLD, VFS, Configuración, Comentarios Deploy — IDs 10036-10041 (legacy) y 10066-10071 (NAA activo).
+
+[2026-04-16] gap | test-generator (Fase 5) — 3 bloqueantes identificados en auditoría post-implementación
+La implementación inicial de `.claude/agents/test-generator.md` y los cambios en ORC-4 de
+`qa-orchestrator.md` tienen tres problemas bloqueantes que impiden el funcionamiento real del agente.
+Se documenta acá para retomar en próxima sesión.
+
+**Bloqueante 1 — `test_hints` tipo incorrecto en ORC-4.1**
+ORC-4.1 (qa-orchestrator.md) pasa `classification.test_hints` al input de test-generator.
+`classification.test_hints` es un ARRAY de objetos (con campos `description`, `automatable`,
+`criterion_type`, etc.) según el schema de TA-7 en ticket-analyst.md.
+test-generator.md TG-1 espera un STRING de descripción breve del flujo.
+Tipos incompatibles — test-generator recibiría un array donde espera texto plano.
+Fix: en ORC-4.1, extraer el campo `description` del primer elemento del array de test_hints
+(o concatenar todos los `description` separados por "; ") antes de pasarlo a test-generator.
+
+**Bloqueante 2 — `pom_paths` siempre vacío, lógica no implementada**
+ORC-4.1 pasa `"pom_paths": []` siempre, con un comentario "se deriva de test-map.json"
+pero SIN código que implemente esa derivación.
+La lógica correcta es:
+1. Leer `.claude/pipelines/test-engine/references/test-map.json`
+2. Buscar `modules[classification.module].page_objects[]`
+3. Si existe → usar como `pom_paths`
+4. Si no existe → `pom_paths: []` (aceptable — TG-2 invocará pom-generator)
+Sin esto, create-session genera un test sin referencias a Page Objects reales.
+Fix: implementar esta lógica en ORC-4.1 antes de construir el input de test-generator.
+
+**Bloqueante 3 — TG-5 escribe a schema equivocado de test-map.json**
+test-generator.md TG-5 intenta agregar esta estructura al test-map.json:
+  `{ "module": "post", "sessions": [{ "file": "...", "validated": false, "auto_generated": true, "ticket": "NAA-XXXX" }] }`
+Pero el archivo real tiene estructura completamente diferente:
+  `{ "version": "1.0", "modules": { "post": { "sessions": ["NewPost", ...], "paths": [...], "page_objects": [...], "validated": true } } }`
+Los arrays `sessions[]` y `paths[]` son arrays de STRINGS (nombres y rutas), no objetos.
+No existen campos `auto_generated`, `ticket`, `generated_at` en el schema real.
+TG-5 fallará al intentar escribir o corromperá el archivo.
+Fix: reescribir TG-5 para que:
+  1. Lea el JSON actual correctamente
+  2. Si `modules[domain]` existe: agregar el filename a `sessions[]` y la ruta a `paths[]`
+  3. Si `modules[domain]` no existe: crear la entrada con estructura correcta
+  4. Marcar el módulo con `"validated": false` (no el objeto de sesión)
+  Archivo de referencia: `.claude/pipelines/test-engine/references/test-map.json`
+
+**Problemas adicionales (no bloqueantes)**
+- Falta `escalation_report` en el output de test-generator para el outcome
+  `auto_generated_dry_run_failed`. ORC-6 lo necesita cuando invoca test-reporter en modo escalación.
+- Ambigüedad en ORC-4.2 sobre qué modo debe usar test-engine al continuar con auto-generated test:
+  ¿`discover_and_run` (default) o `run_existing` con el path del test generado?
+  test-engine.md distingue estos dos modos (línea 73-75) pero ORC-4.2 no especifica cuál usar.
+
+Archivos a modificar para el fix completo (próxima sesión):
+- `.claude/agents/qa-orchestrator.md` — ORC-4.1: lógica de pom_paths + conversión test_hints
+- `.claude/agents/test-generator.md` — TG-5: reescribir con schema correcto; agregar escalation_report para dry_run_failed
+- `.claude/pipelines/test-engine/references/test-map.json` — verificar schema antes de modificar
+
+---
+
+[2026-04-16] fix | ORC-4.1: conversión de test_hints array→string + ORC-1.0b: validación de CLIENTE_BASE_URL
+- ORC-4.1: el valor de `test_hints` pasado a test-generator cambia de `classification.test_hints` (array de objetos) a la concatenación de los campos `description` de cada elemento unidos por ` | ` (string). Fix al Bloqueante 1 del gap documentado el 2026-04-16.
+- ORC-1.0b (nuevo paso): si `environment == "[cliente]"`, verificar que `CLIENTE_BASE_URL` esté definida y no comentada en `.env` antes de continuar. Si falta, abortar con `outcome: "missing_env_config"` e ir a ORC-6 sin invocar sub-agentes.
+- Tabla Input — Trigger Event: nota agregada indicando prerequisito de `CLIENTE_BASE_URL` para ambiente `[cliente]`.
+
+[gap] Transformación de campos inter-agente en ORC-4.1: documentar en wiki/pipelines/ la política de adaptación de tipos entre ticket-analyst y test-generator
+
+[gap] wiki/qa/environments.md: documentar prerequisito de CLIENTE_BASE_URL para ambiente [cliente] — variable debe estar configurada en .env antes de ejecutar el pipeline
+
+[gap] console_errors_detected[] no implementado: test-engine produce el campo como array vacío [] pero no hay lógica de captura documentada ni implementada. El campo aparece con valores reales en pipeline-logs/completed/E2E-MILESTONE-FASE2.json y NAA-4429.json, pero esos valores fueron escritos manualmente durante ejecuciones E2E — no por lógica automática del agente. Verificar si Jest v29.7.0 expone consoleMsgs en el JSON output (campo testResults[*].console[]) antes de implementar. Referencia: decisión pendiente de escalación #5 de auditoría 2026-04-16.
+
+[gap] wiki/pipelines/ o wiki/qa/: documentar el comportamiento de --passWithNoTests en el dry-run de test-generator y por qué es necesario parsear stderr para errores TS
 
 ---
 

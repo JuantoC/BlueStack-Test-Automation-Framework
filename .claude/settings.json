@@ -80,7 +80,9 @@
       "Bash(mkdir -p /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/eval-2-skills-scope/with_skill/outputs)",
       "Bash(explorer.exe /tmp/wiki-audit-review.html)",
       "Bash(wc -l /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/*.md /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines/*/*.md)",
-      "Edit(/.claude/skills/jira-writer/**)"
+      "Edit(/.claude/skills/jira-writer/**)",
+      "Bash([ ! -f \"$MAIN/.env\" ])",
+      "Bash(git -C /home/jutoc/proyectos/BlueStack-Test-Automation-Framework status --short)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",

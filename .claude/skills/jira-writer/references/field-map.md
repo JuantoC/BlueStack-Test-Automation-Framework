@@ -32,6 +32,20 @@
 > - `dev_saas` o ambiente de cliente → `High` mínimo
 > - `master` → `Medium` por defecto
 
+## Fix Version
+
+Campo nativo de Jira: `fixVersions` (array de objetos `{ "name": "..." }`).
+
+**Regla:** siempre que el usuario mencione una versión del bug (ej. "versión 8.6.16.2.2", "está en la 8.6.x"), setear `fixVersions` con ese valor.
+
+```json
+"fixVersions": [{ "name": "8.6.16.2.2" }]
+```
+
+> Si la versión no se menciona explícitamente, omitir el campo — no asumir ni inventar.
+
+---
+
 ## Campos custom
 
 | Campo | fieldId | Tipo | Descripción |

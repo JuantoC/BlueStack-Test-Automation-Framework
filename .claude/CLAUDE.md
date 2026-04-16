@@ -58,7 +58,7 @@ Acción recomendada: [tu recomendación]
 - **Firmas TypeScript o tipos modificados** → preguntar: *"¿Querés que actualice el JSDoc correspondiente y revise si hay `.md` relacionados que necesiten ajuste?"*
 - **Nuevo test en `/sessions`** → activar skill `create-session`. El `.test.ts` generado es fuente de verdad del flujo.
 - **El usuario declara una convención explícita** (frases: "de ahora en más", "de ahora en adelante", "siempre que", "la convención es", "nunca más", "acordamos que", "usá siempre X", "a partir de ahora") → capturar **inmediatamente** en memoria SIN esperar al cierre de ninguna skill. Luego evaluar si es project-wide y proponer actualización a `wiki/patterns/conventions.md` según la regla en `.claude/rules/memory-wiki-bridge.md`.
-- **Al finalizar cualquier skill activa** → aplicar internamente el proceso `skill-retrospective` antes de cerrar la respuesta. Excepciones: `skill-retrospective`, `skill-creator`, `senior-prompt-engineer`.
+- **Al finalizar cualquier skill activa** → aplicar internamente el proceso `skill-retrospective` antes de cerrar la respuesta. Excepciones: `skill-retrospective`, `skill-creator`, `senior-prompt-engineer`. *(Enforcement externo: Stop hook en `settings.json` verifica ejecución via `.claude/.retro-marker`. Al finalizar skill-retrospective, siempre ejecutar `touch .claude/.retro-marker` — esto está definido como paso final en la skill misma.)*
 - **Al finalizar cualquier turno donde se editaron archivos `.ts`/`.md`** → aplicar internamente el proceso `skill-retrospective` para Lente 3 y Lente 4 aunque no haya corrido ninguna skill.
 
 ---

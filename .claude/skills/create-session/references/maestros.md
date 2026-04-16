@@ -1,6 +1,7 @@
 # Maestros — Catálogo de Page Objects disponibles
 
 > Solo importar Maestros (`Main*` y `SidebarAndHeader`) en tests. Nunca sub-components directamente.
+> Excepción: en modo debug (M2 de SKILL.md), instanciar sub-component directamente si el Maestro no expone el método públicamente.
 > Paths asumen `sessions/<subfolder>/Test.test.ts` (dos niveles arriba = `../../`).
 
 ---
@@ -61,7 +62,7 @@ Para los valores exactos de cada tipo, ver [`wiki/interfaces/data-types.md`](../
 
 | Tipo | Valores conocidos |
 |---|---|
-| `NoteType` | `'POST'` · `'LISTICLE'` · `'LIVEBLOG'` |
+| `NoteType` | `'POST'` · `'LISTICLE'` · `'LIVEBLOG'` · `'AI_POST'` |
 | `VideoType` | `'YOUTUBE'` · `'NATIVO'` · `'EMBEDDED'` |
 | `AuthorType` | `'INTERNAL'` · `'ANONYMOUS'` · `'MANUAL'` |
 

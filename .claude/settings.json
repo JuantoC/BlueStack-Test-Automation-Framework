@@ -82,12 +82,51 @@
       "Bash(wc -l /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/*.md /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines/*/*.md)",
       "Edit(/.claude/skills/jira-writer/**)",
       "Bash([ ! -f \"$MAIN/.env\" ])",
-      "Bash(git -C /home/jutoc/proyectos/BlueStack-Test-Automation-Framework status --short)"
+      "Bash(git -C /home/jutoc/proyectos/BlueStack-Test-Automation-Framework status --short)",
+      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/core/jira/JiraApiClient.ts)",
+      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/core/jira/JiraAttachmentUploader.ts)",
+      "Bash(awk '/^### OP-/ {print NR\": \"$0}; /^###/ {sec=1} sec && /^---/ {print NR\": \"$0; sec=0}' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-reader/SKILL.md)",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/jira-writer/references -type f -name \"*.md\" -exec wc -l {} +)",
+      "Bash(wc -l /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/*.md)",
+      "Edit(/.claude/skills/smart-commit/**)",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude -name \"*.md\" -exec grep -l \"wiki-gap-planner\" {} \\\\;)",
+      "Edit(/.claude/skills/agent-auditor/**)",
+      "Edit(/.claude/skills/create-session/**)",
+      "Bash(chmod +x /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/hooks/check-retrospective.sh)",
+      "Bash(bash /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/hooks/check-retrospective.sh)",
+      "Bash(echo \"Exit code: $?\")",
+      "Edit(/.claude/skills/jira-reader/**)",
+      "Bash(awk '/## TA-9/,/## Manejo de errores/' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/ticket-analyst.md)",
+      "Bash(grep -oE 'outcome[\"\\\\s:]*[\"\\\\']?[a-z_]+' /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/qa-orchestrator.md | sed 's/outcome[\"\\\\s:]*//' | sort -u)",
+      "Bash(find /home/jutoc/proyectos/BlueStack-Test-Automation-Framework -name \"*.md\" -path \"*/.claude/*\" ! -path \"*worktrees*\" -exec grep -l \"pom_paths.*vacío\\\\|pom_paths.*empty\" {} \\\\;)",
+      "Bash(python3 -c \"import json; f=open\\('.claude/settings.json'\\); d=json.load\\(f\\); print\\('hooks.Stop[0].command:', d['hooks']['Stop'][0]['hooks'][0]['command']\\)\")",
+      "Bash(wc -l /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/wiki/**/*.md)",
+      "Bash(ls -1 wiki/qa/*.md)",
+      "Bash(xargs basename *)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/update-testids",
-      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit"
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/pom-generator",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude",
+      "/tmp"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/hooks/check-retrospective.sh",
+            "timeout": 10,
+            "statusMessage": "Verificando skill-retrospective..."
+          }
+        ]
+      }
     ]
   }
 }

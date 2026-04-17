@@ -1,0 +1,253 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40432",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T00:01:00.000Z",
+      "completed_at": "2026-04-17T00:02:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "escalate_all",
+      "routing_decision": "ORC-6",
+      "timestamp": "2026-04-17T00:02:01.000Z"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T17:45:00.000Z",
+      "completed_at": "2026-04-17T17:45:49.000Z",
+      "status": "completed"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-2765",
+    "summary": "Re:[## 31005 ##] Modulo AI mejoras de gramática y ortografía",
+    "issue_type": "Story - Back",
+    "status": "Revisión",
+    "priority": "Medium",
+    "component_jira": ["IA"],
+    "classification": {
+      "domain": "content",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "high",
+      "confidence_reason": "component_jira=['IA'] → match directo en component-to-module.json → 'ai-post'",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "attachment_hint": false,
+      "test_data_hints": [
+        {
+          "type": "example_content",
+          "label": "Prompt ortografía actualizado (customfield_10070)",
+          "content": "Rol: Editor Senior. Tarea: Corregir gramática y ortografía en Título, Subtítulo y Cuerpo. En 'número-párrafo' usar: 'Título', 'Subtítulo' o número de párrafo del cuerpo (empezando en 1). Salida: JSON con { correcciones: [{ 'número-párrafo': '', 'Oración-Corregida': '', 'Errores': [] }] }"
+        },
+        {
+          "type": "example_content",
+          "label": "Prompt gramática actualizado (customfield_10070)",
+          "content": "Objetivo: analizar el Título, el Subtítulo y el Cuerpo de una nota. En 'número-párrafo' usar: 'Título', 'Subtítulo' o número de párrafo del cuerpo (empezando en 1). Salida: JSON con { correcciones: [{ 'número-párrafo': '', 'Oración-Corregida': '', 'Errores': [] }] }"
+        }
+      ],
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "Activar 'Mejoras de gramática' en panel Asistencia IA sobre un post con título y subtítulo, y verificar que la respuesta incluye entradas para 'Título' y 'Subtítulo'",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Abrir panel robotito → seleccionar 'Mejoras de gramática' → esperar respuesta JSON",
+          "specific_assertion": "JSON de respuesta contiene entradas con número-párrafo: 'Título' y 'Subtítulo'",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe POM para el panel Asistencia IA — AIAssistantPanel bloqueado desde NAA-4248"
+        },
+        {
+          "hint_id": 2,
+          "description": "Activar 'Mejoras de ortografía' en panel Asistencia IA y verificar que la respuesta también incluye entradas para 'Título' y 'Subtítulo'",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Abrir panel robotito → seleccionar 'Mejoras de ortografía' → esperar respuesta JSON",
+          "specific_assertion": "JSON de respuesta contiene entradas con número-párrafo: 'Título' y 'Subtítulo'",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe POM para el panel Asistencia IA"
+        },
+        {
+          "hint_id": 3,
+          "description": "Verificar que el cuerpo de la nota sigue recibiendo correcciones normalmente en ambas asistencias (regresión)",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Misma sesión — revisar que párrafos del cuerpo aparecen numerados a partir de 1 en la respuesta",
+          "specific_assertion": "Entradas con número-párrafo numérico (1, 2, ...) presentes junto a Título y Subtítulo",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe POM para el panel Asistencia IA"
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 3,
+      "automatable_count": 0,
+      "non_automatable_count": 3,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "Panel Asistencia IA (robotito → modal opciones → modal respuesta) sin POM en src/pages/. Bloqueado desde NAA-4248 (AutoGenerated_NAA-4248.test.ts arroja TODO-POM en todos los pasos)."
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "Extender la funcionalidad de mejora de gramática y ortografía para incluir el título del artículo y la bajada/subtítulo",
+        "test_approach": {
+          "precondition": "Post en editor con título y subtítulo completados con texto con errores gramaticales/ortográficos",
+          "action": "Abrir panel Asistencia IA → seleccionar 'Mejoras de gramática' → esperar respuesta → inspeccionar el JSON devuelto",
+          "assertion": "La respuesta JSON contiene entradas con 'número-párrafo': 'Título' y 'número-párrafo': 'Subtítulo' además de las del cuerpo"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "requires_screenshot": false,
+        "use_specific_test_data": true,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "NewAIPost cubre creación de nota IA, no el asistente de gramática/ortografía. AutoGenerated_NAA-4248 cubre labels del panel pero está bloqueado por POM gap."
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "Mantener el comportamiento actual en el cuerpo del contenido sin cambios en el front",
+        "test_approach": {
+          "precondition": "Misma sesión que criterio 1 — post con cuerpo con errores",
+          "action": "En la misma respuesta del asistente, verificar que las entradas para los párrafos del cuerpo siguen presentes y numeradas a partir de 1",
+          "assertion": "La respuesta JSON incluye entradas con 'número-párrafo': '1', '2', etc. para el cuerpo"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "requires_screenshot": false,
+        "use_specific_test_data": true,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para el panel de respuesta de asistencia IA"
+        }
+      },
+      {
+        "criterion_id": 3,
+        "description": "Actualizar ambas asistencias — mejoras de gramática y mejoras de ortografía — para incluir Título y Subtítulo",
+        "test_approach": {
+          "precondition": "Misma sesión — el mismo post con título, subtítulo y cuerpo",
+          "action": "Repetir el flujo con 'Mejoras de ortografía': abrir panel → seleccionar ortografía → esperar respuesta",
+          "assertion": "La respuesta JSON de ortografía también contiene entradas para 'Título' y 'Subtítulo', igual que la de gramática"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "requires_screenshot": false,
+        "use_specific_test_data": true,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para el panel Asistencia IA"
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": {
+      "summary": "Los 3 criterios del ticket son automatizables conceptualmente, pero el framework no puede ejecutarlos porque el panel Asistencia IA no tiene POM implementado. Bloqueado desde NAA-4248.",
+      "criteria_attempted": [
+        {
+          "criterion_id": 1,
+          "description": "Verificar que gramática ahora cubre Título y Subtítulo",
+          "reason_not_automatable": "pom_gap — no existe AIAssistantPanel ni métodos en src/pages/"
+        },
+        {
+          "criterion_id": 2,
+          "description": "Verificar regresión del cuerpo",
+          "reason_not_automatable": "pom_gap — mismo bloqueo"
+        },
+        {
+          "criterion_id": 3,
+          "description": "Verificar que ortografía también fue actualizada",
+          "reason_not_automatable": "pom_gap — misma causa raíz"
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "Ambas asistencias (gramática + ortografía) ahora procesan Título y Subtítulo",
+          "precondition": "Logueado como editor en Master. Nota en edición con Título con error, Subtítulo con texto, Cuerpo con al menos 2 párrafos.",
+          "steps": [
+            "1. Abrir la nota en el editor del CMS.",
+            "2. Hacer click en el botón del robotito (ícono IA en el header del editor).",
+            "3. Seleccionar 'Mejoras de gramática' y esperar la respuesta.",
+            "4. Verificar entrada para 'Título' con corrección aplicada.",
+            "5. Verificar entrada para 'Subtítulo' con corrección aplicada.",
+            "6. Verificar que párrafos del cuerpo siguen numerados (1, 2, ...).",
+            "7. Repetir con 'Mejoras de ortografía'.",
+            "8. Verificar las mismas condiciones para ortografía."
+          ],
+          "assertion": "Ambas respuestas incluyen 'Título' y 'Subtítulo'. Cuerpo numerado. Front sin cambios visuales.",
+          "reason_not_automatable": "pom_gap — AIAssistantPanel sin implementar. Ver NAA-4248."
+        }
+      ]
+    },
+    "jira_metadata": {
+      "jiraSummary": "Re:[## 31005 ##] Modulo AI mejoras de gramática y ortografía",
+      "ticketType": "Story - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": "IA",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": "8.6.16.2.2",
+      "priority": "Medium",
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "config_deploy_changes": "Se modifica cmsmedios.xml — param-groups 'ortografia' y 'gramatica': prompts extendidos para incluir Título, Subtítulo y Cuerpo con JSON de salida estructurado."
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T17:45:49.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      "addCommentToJiraIssue — comment_id: 40432"
+    ],
+    "errors": [],
+    "comment_id": "40432",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-2765",
+    "outcome": "non_automatable",
+    "executed_at": "2026-04-17T17:45:49.000Z",
+    "stages_completed": ["ticket-analyst", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

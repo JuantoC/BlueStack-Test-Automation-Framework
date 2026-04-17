@@ -130,7 +130,13 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('stage'\\), d.get\\('stage_status'\\), d.get\\('outcome',''\\)\\)\")",
       "Bash(git rm *)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(e['hash'], e['commitMessage'][:80]\\) for e in d['entries']]\")",
-      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/pages/FooterActions.ts)"
+      "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path src/pages/FooterActions.ts)",
+      "Bash(grep -A 5 \"^\\\\`\\\\`\\\\`json\" /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents/qa-orchestrator.md)",
+      "Bash(mkdir -p /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1)",
+      "Bash(cp -r /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/skill-snapshot)",
+      "Bash(bash /tmp/check_orphans.sh)",
+      "Bash(wslpath -w /tmp/wiki-audit-eval.html)",
+      "Edit(/.claude/skills/senior-prompt-engineer/**)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",
@@ -139,7 +145,13 @@
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/pom-generator",
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills",
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude",
-      "/tmp"
+      "/tmp",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/tc1-lookup-retry-boundary/old_skill/outputs",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/tc3-pipeline-flow-coverage/with_skill/outputs",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/tc2-density-metrics/with_skill/outputs",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/tc2-density-metrics/old_skill/outputs",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/iteration-1/tc3-pipeline-flow-coverage/old_skill/outputs",
+      "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/senior-prompt-engineer"
     ]
   },
   "hooks": {

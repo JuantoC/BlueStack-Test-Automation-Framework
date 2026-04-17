@@ -1,0 +1,222 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T10:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40437",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T10:00:00.000Z",
+      "completed_at": "2026-04-17T10:02:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "generate_tests",
+      "routing_decision": "ORC-4.1",
+      "timestamp": "2026-04-17T10:02:00.000Z"
+    },
+    {
+      "stage": "test-generator",
+      "started_at": "2026-04-17T10:02:00.000Z",
+      "completed_at": "2026-04-17T10:03:00.000Z",
+      "status": "escalated",
+      "dry_run": null,
+      "notes": "POM gap detectado: sin métodos para plugins CKEditor (Instagram, Twitter, TikTok, Pinterest, Trivias, Audios, Encuestas). Requiere confirmación de locators antes de invocar pom-generator."
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T18:00:00.000Z",
+      "completed_at": "2026-04-17T18:01:00.000Z",
+      "status": "completed",
+      "mode": "escalation"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-3897",
+    "summary": "ADMIN - pedidos cancelados en carga async de componentes del ckeditor",
+    "issue_type": "Bug - Front",
+    "status": "Revisión",
+    "priority": "Lowest",
+    "component_jira": null,
+    "classification": {
+      "domain": "cms-admin",
+      "module": "post",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "medium",
+      "confidence_reason": "Fuzzy: 'ckeditor' en summary → keyword 'editor' en módulo post. Reforzado por criterios de Claudia: 'cuando creas nota' y 'cuando entras a editar'.",
+      "criteria_source": "inferred",
+      "human_escalation": false,
+      "attachment_hint": false,
+      "test_data_hints": [],
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "Verificar que los plugins CKEditor (Imágenes, Instagram, Encuestas, Twitter, TikTok, Pinterest, Trivias, Audios) cargan correctamente al crear una nota nueva",
+          "automatable": true,
+          "criterion_type": "functional_flow",
+          "specific_action": "Abrir editor de nueva nota, insertar cada plugin CKEditor desde la toolbar, verificar que el elemento renderiza en el DOM sin estado de error",
+          "specific_assertion": "El elemento del plugin (iframe o widget CKEditor) está presente y visible, sin clase de error ni mensaje de cancelación",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para insertar/verificar 7 de los 8 plugins. Imágenes tiene EditorImagesSection.ts parcialmente."
+        },
+        {
+          "hint_id": 2,
+          "description": "Verificar que al abrir una nota existente en edición, el contenido de los plugins CKEditor carga correctamente",
+          "automatable": true,
+          "criterion_type": "functional_flow",
+          "specific_action": "Abrir nota existente con plugins en modo edición, verificar que los bloques renderizan",
+          "specific_assertion": "Bloques de plugins visibles en el DOM del editor sin errores de carga",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para verificar estado de plugins en modo edición."
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 2,
+      "automatable_count": 2,
+      "non_automatable_count": 0,
+      "all_automatable": true,
+      "partial_automatable": false,
+      "human_escalation_needed": false,
+      "escalation_reasons": [],
+      "action": "generate_tests"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "Al crear una nota, los plugins CKEditor (Imágenes, Instagram, Encuestas, Twitter, TikTok, Pinterest, Trivias, Audios) cargan sin errores/cancelaciones",
+        "test_approach": {
+          "precondition": "CMS abierto en master, usuario autenticado",
+          "action": "Abrir editor nueva nota, insertar cada plugin desde toolbar",
+          "assertion": "Cada bloque de plugin renderiza en el DOM sin estado de error"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "POM gap: sin métodos para Instagram, Twitter, TikTok, Pinterest, Trivias, Audios, Encuestas en src/pages/"
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "Al editar nota existente con plugins CKEditor, el contenido de esos plugins carga correctamente",
+        "test_approach": {
+          "precondition": "Nota existente con contenido de plugins, usuario autenticado",
+          "action": "Abrir en modo edición",
+          "assertion": "Bloques de plugins renderizan en el editor sin errores"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "POM gap: sin locators para verificar estado de plugins en modo edición"
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": {
+      "summary": "Criterios automatable pero POM gap crítico: no existen métodos en src/pages/post_page/ para insertar ni verificar los plugins CKEditor (Instagram, Twitter, TikTok, Pinterest, Trivias, Audios, Encuestas). Se necesita confirmar data-testid o selectores CSS en DevTools antes de generar el test.",
+      "pom_gap": true,
+      "missing_components": [
+        { "component": "CKEditor plugin Instagram", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertInstagramBlock()", "verifyInstagramBlockLoaded()"] },
+        { "component": "CKEditor plugin Twitter", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertTwitterBlock()", "verifyTwitterBlockLoaded()"] },
+        { "component": "CKEditor plugin TikTok", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertTikTokBlock()", "verifyTikTokBlockLoaded()"] },
+        { "component": "CKEditor plugin Pinterest", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertPinterestBlock()", "verifyPinterestBlockLoaded()"] },
+        { "component": "CKEditor plugin Trivias", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertTriviasBlock()", "verifyTriviasBlockLoaded()"] },
+        { "component": "CKEditor plugin Audios", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertAudioBlock()", "verifyAudioBlockLoaded()"] },
+        { "component": "CKEditor plugin Encuestas", "suggested_path": "src/pages/post_page/note_editor_page/EditorCkPlugins.ts", "required_methods": ["insertEncuestaBlock()", "verifyEncuestaBlockLoaded()"] }
+      ],
+      "criteria_attempted": [
+        { "criterion": "Plugins CKEditor cargan al crear nota", "reason_not_generated": "No hay métodos POM para insertar ni verificar los 7 plugins (Instagram, Twitter, TikTok, Pinterest, Trivias, Audios, Encuestas) en el CKEditor desde src/pages/" },
+        { "criterion": "Plugins CKEditor cargan al editar nota", "reason_not_generated": "Mismo POM gap — sin locators confirmados para el estado de carga de plugins en modo edición" }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "Plugins cargan sin cancelaciones al crear nota",
+          "precondition": "Sesión activa en master. DevTools abierto (tab Network).",
+          "steps": ["Ir a Contenidos → Nueva Nota", "En el CKEditor, hacer click en cada botón de plugin de la toolbar (Imágenes, Instagram, Encuestas, Twitter, TikTok, Pinterest, Trivias, Audios)", "Para cada plugin: verificar que el bloque se inserta en el editor", "En DevTools Network: verificar que no hay requests con status 'cancelled' para los recursos del plugin"],
+          "assertion": "Todos los bloques de plugins visibles en el editor. Cero requests cancelados en Network DevTools.",
+          "reason_not_automatable": "POM gap — sin locators confirmados para los botones de plugin en la toolbar del CKEditor ni para los bloques renderizados"
+        },
+        {
+          "criterion": "Contenido de plugins carga al editar nota existente",
+          "precondition": "Nota existente en master con al menos uno de los 8 tipos de plugin insertado. Sesión activa.",
+          "steps": ["Buscar una nota que contenga bloques de los plugins mencionados", "Hacer click en Editar", "Esperar que el CKEditor cargue completamente", "Verificar que los bloques de cada plugin tipo se renderizan correctamente (no muestran error ni estado vacío)", "Abrir DevTools Network y verificar ausencia de requests cancelados"],
+          "assertion": "Bloques de plugins visibles y renderizados. Cero requests cancelados.",
+          "reason_not_automatable": "POM gap — sin locators para el estado de carga de plugins en modo edición"
+        }
+      ],
+      "next_step_to_unblock": "Abrir DevTools en master, inspeccionar el CKEditor toolbar para identificar los data-testid o selectores CSS de los botones de cada plugin. Compartir los selectores → invocar pom-generator para EditorCkPlugins.ts → el test se puede generar."
+    },
+    "jira_metadata": {
+      "jiraSummary": "ADMIN - pedidos cancelados en carga async de componentes del ckeditor",
+      "ticketType": "Bug - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Claudia Tobares",
+      "assignee_account_id": "5c1d65c775b0e95216e8e175",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": "Lowest",
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "last_comment_id": "40279",
+      "validation_url_from_dev": null,
+      "key_comment": "Claudia Tobares (40278, 2026-04-16): Se corrigieron plugins Imágenes, Instagram, Encuestas, Twitter, TikTok, Pinterest, Trivias, Audios. Validar al crear nota y al editar."
+    }
+  },
+  "test_engine_output": null,
+  "test_generator_output": {
+    "status": "failed",
+    "test_path": null,
+    "dry_run_result": null,
+    "test_map_updated": false,
+    "notes": "POM gap: sin métodos para 7 de los 8 plugins CKEditor. Escalando a humano para confirmar locators antes de invocar pom-generator."
+  },
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T18:01:00.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["addCommentToJiraIssue — comment id: 40437"],
+    "errors": [],
+    "comment_id": "40437",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-3897",
+    "outcome": "no_sessions",
+    "executed_at": "2026-04-17T18:01:00.000Z",
+    "stages_completed": ["ticket-analyst", "test-generator (escalated)", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

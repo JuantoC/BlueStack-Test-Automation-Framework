@@ -1,0 +1,86 @@
+{
+  "skill_name": "senior-prompt-engineer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tengo este prompt para la skill create-session: 'Generá un archivo .test.ts en sessions/ para el flujo que describe el ticket. Usá faker para los datos. Importá los POMs necesarios.' El problema es que los tests generados siempre terminan con inline selectors en lugar de usar los métodos del POM. Mejorá el prompt.",
+      "expected_output": "Prompt evolucionado que prohíbe explícitamente inline selectors, refuerza el uso de métodos POM, y cierra con los bloques de Validación final y Output para el auditor. Al final de la respuesta de la skill: resumen con complejidad detectada (simple), cambios respecto al original, y confirmación de bloques inyectados.",
+      "assertions": [
+        {
+          "name": "prohibe_inline_selectors",
+          "description": "El prompt evolucionado debe prohibir explícitamente By.css, driver.findElement u otros inline selectors"
+        },
+        {
+          "name": "incluye_bloque_validacion",
+          "description": "El prompt generado incluye el bloque ## Validación final con checklist"
+        },
+        {
+          "name": "incluye_bloque_output_auditor_en_prompt",
+          "description": "El prompt generado incluye el bloque ## Output para el auditor"
+        },
+        {
+          "name": "skill_produce_resumen_propio",
+          "description": "La skill cierra su respuesta con el bloque ## Resumen del prompt evolucionado"
+        },
+        {
+          "name": "complejidad_detectada_simple",
+          "description": "La skill detecta esta tarea como SIMPLE y no agrega fases ni sub-agentes"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Este es el prompt que le paso al orquestador del pipeline QA cuando corre para un ticket: 'Leé el ticket de Jira. Analizá los criterios de aceptación. Generá los tests. Ejecutalos en el grid. Escribí el comentario en Jira con el resultado.' El pipeline se queda sin contexto a mitad de camino. Mejorá el prompt.",
+      "expected_output": "Prompt evolucionado dividido en fases numeradas, con instrucción explícita de usar sub-agentes para las fases independientes (análisis, generación, ejecución, reporte), contratos de input/output entre fases, lazy loading para Jira. La skill detecta complejidad COMPLEJO. Bloques de validación y output para auditor incluidos.",
+      "assertions": [
+        {
+          "name": "fases_numeradas",
+          "description": "El prompt evolucionado tiene fases numeradas explícitas (Fase 1, Fase 2, etc.)"
+        },
+        {
+          "name": "instruccion_subagentes",
+          "description": "El prompt incluye instrucción explícita de usar múltiples sub-agentes para fases independientes"
+        },
+        {
+          "name": "lazy_loading_jira",
+          "description": "El prompt menciona OP-1-LIGHT o lazy loading para las operaciones de Jira"
+        },
+        {
+          "name": "complejidad_detectada_complejo",
+          "description": "La skill detecta esta tarea como COMPLEJO en su resumen de cierre"
+        },
+        {
+          "name": "incluye_bloque_validacion",
+          "description": "El prompt generado incluye el bloque ## Validación final"
+        },
+        {
+          "name": "skill_produce_resumen_propio",
+          "description": "La skill cierra su respuesta con el bloque ## Resumen del prompt evolucionado"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "La descripción de la skill jira-writer no se activa cuando le digo 'escribí el comentario del QA en el ticket'. Acá está el frontmatter actual: 'Crea tickets y escribe comentarios de validación QA en Jira. Usar cuando el usuario quiera crear un bug o escribir validación.' Mejorá la description para que dispare mejor.",
+      "expected_output": "Descripción revisada con frases coloquiales reales en español ('escribí el comentario', 'tirá el comentario', 'abrí un bug', 'reportá el bug'), mínimo 5-6 triggers concretos cubriendo variantes informales. La skill detecta tarea SIMPLE. Resumen de cierre explicando qué cambió en el frontmatter y por qué.",
+      "assertions": [
+        {
+          "name": "triggers_coloquiales",
+          "description": "La descripción revisada incluye frases coloquiales en español que Juanto usaría"
+        },
+        {
+          "name": "minimo_cinco_triggers",
+          "description": "La descripción revisada tiene al menos 5 frases de trigger distintas"
+        },
+        {
+          "name": "complejidad_detectada_simple",
+          "description": "La skill detecta esta tarea como SIMPLE"
+        },
+        {
+          "name": "skill_produce_resumen_propio",
+          "description": "La skill cierra con el bloque ## Resumen del prompt evolucionado indicando cambios en frontmatter"
+        }
+      ]
+    }
+  ]
+}

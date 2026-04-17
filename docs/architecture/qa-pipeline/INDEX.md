@@ -1,6 +1,9 @@
 # QA Automation Pipeline — Arquitectura Multi-Agente
 
-> Entry point para agentes IA. Leer solo el archivo correspondiente al tema, no todo el directorio.
+> **HISTORIAL DE DISEÑO** — Este directorio contiene el historial de planificación y decisiones arquitecturales del pipeline QA.
+> El conocimiento operacional actualizado vive en `wiki/qa/`. **Los agentes NO deben consumir este directorio en runtime** — usar siempre `wiki/` como fuente de verdad.
+
+> Entry point para lectura humana. Leer solo el archivo correspondiente al tema, no todo el directorio.
 
 Este directorio documenta la arquitectura del pipeline QA end-to-end que conecta el framework de automatización Selenium/Jest con el proyecto Jira NAA de Bluestack. El pipeline corre íntegramente dentro de Claude Code y coordina 5 sub-agentes (ticket-analyst, test-engine, test-reporter, test-generator, qa-orchestrator) para cerrar el ciclo completo: ticket → interpretación → pruebas → feedback → resolución.
 

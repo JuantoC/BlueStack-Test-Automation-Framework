@@ -4,6 +4,32 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 
 ---
 
+## Filosofía de la wiki
+
+Esta wiki es una herramienta de contexto para **agentes IA**, no una wiki para humanos.
+
+**Para qué sirve:**
+- Brindar al agente el contexto que necesita en un solo lugar, con pocas lecturas
+- Reducir tokens consumidos: una página wiki compacta reemplaza abrir 3-5 archivos `.ts`
+- Ser el único lugar donde el agente busca convenciones, firmas públicas y ejemplos del equipo
+
+**Para qué NO sirve:**
+- No es la fuente de verdad del comportamiento del código — eso son los archivos TypeScript
+- No define tipos, interfaces ni lógica funcional — eso va en `.ts`, nunca en `.md`
+- No reemplaza leer el código cuando la wiki no cubre lo que se necesita
+
+**Cómo usarla:**
+1. Leer `wiki/index.md` (este archivo) como entry point
+2. Navegar a la página relevante usando el índice o la tabla de referencias rápidas
+3. Solo abrir el `.ts` fuente si la wiki no cubre lo que se necesita — y registrar el gap en `wiki/log.md`
+
+**Cómo contribuir:**
+- Decision tree de dónde va cada tipo de documento: `.claude/rules/doc-organization.md`
+- Un concepto técnico = un archivo canónico en `wiki/`. Nunca duplicar
+- Toda página wiki nueva debe quedar referenciada en `wiki/index.md` antes de hacer commit
+
+---
+
 ## Protocolo wiki-first
 
 1. Leer esta página.
@@ -54,9 +80,15 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 ### Agents (`.claude/agents/`)
 5 agentes personalizados de Claude Code con roles y herramientas definidas: ticket-analyst · test-engine · test-reporter · qa-orchestrator · test-generator (Fase 5)
 
-- [docs/architecture/qa-pipeline/INDEX.md](../docs/architecture/qa-pipeline/INDEX.md) — Arquitectura multi-agente QA: tabla de decisión por tema → ticket-analyst · test-engine · test-reporter · qa-orchestrator · contratos JSON · flujos · plan de implementación
+Los agentes consumen `wiki/qa/` como fuente canónica de contratos y schemas en runtime.
+
+- [qa/execution-context-schema.md](qa/execution-context-schema.md) — Execution Context: schema completo, persistencia `pipeline-logs/`, resumption, idempotencia
+- [qa/ticket-analyst-output-schema.md](qa/ticket-analyst-output-schema.md) — Schema del `ticket_analyst_output` que ticket-analyst escribe en el Execution Context
+- [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato test-reporter ↔ jira-writer: inputs, outputs, operaciones, multimedia v3.1
+- [qa/pipeline-routing.md](qa/pipeline-routing.md) — Routing por `criterion_scope` y `testability_summary.action` (ORC-2.5)
 - **Nota:** los agentes en `.claude/agents/` reemplazan el modelo pipelines-as-prompts; el `qa-orchestrator` los invoca via `Agent` tool con `subagent_type`.
-- **Referencias activas** de los agentes (component-to-module.json, test-map.json) permanecen en `.claude/pipelines/*/references/` — no se migraron para no romper rutas hardcoded en los agentes.
+- **Referencias activas** de los agentes (component-to-module.json, test-map.json) permanecen en `.claude/pipelines/*/references/`.
+- **Historia de diseño:** `docs/architecture/qa-pipeline/` — historial arquitectural, no consumir en runtime.
 
 ### Development
 - [development/commit-conventions.md](development/commit-conventions.md) — Formato de commits semánticos: tipos, estructura, tabla módulo → impacto
@@ -67,12 +99,15 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [qa/devsaas-flow.md](qa/devsaas-flow.md) — Flujo de validación Dev_SAAS: pasos C1-D3, ejemplos reales, uso desde el agente orquestador
 - [qa/environments.md](qa/environments.md) — Mapping de ambientes: `.env TARGET_ENV` ↔ agente `environment` ↔ Jira (testing=dev_saas, master=master)
 - [qa/manual-test-validation.md](qa/manual-test-validation.md) — Procedimiento para habilitar tests auto-generados por `test-generator` tras revisión manual (`@validated: false → true`)
-- [qa/multimedia-attachment-integration.md](qa/multimedia-attachment-integration.md) — *(redirect)* → `docs/architecture/qa-pipeline/11-multimedia-attachments.md`
+- [qa/multimedia-attachment-integration.md](qa/multimedia-attachment-integration.md) — Integración multimedia: `JiraAttachmentUploader`, Fase F2.5, schema v3.1 (`attachments[]`, `screenshots[]`)
+- [qa/execution-context-schema.md](qa/execution-context-schema.md) — Execution Context: schema, persistencia `pipeline-logs/`, resumption, idempotencia
+- [qa/ticket-analyst-output-schema.md](qa/ticket-analyst-output-schema.md) — Schema completo del `ticket_analyst_output` en el Execution Context
 - [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo agente test-reporter ↔ jira-reader/jira-writer: inputs, outputs, operaciones
 - [qa/validation-session-2026-04-15.md](qa/validation-session-2026-04-15.md) — Hallazgos sesión real: aliases de componentes, fuzzy matching, decisión confidence:low, bug customfield_10061
 - [qa/validation-url-pattern.md](qa/validation-url-pattern.md) — Patrón: URL de validación provista por dev (Basic Auth, extracción de casos de prueba, pipeline de procesamiento)
 - [qa/comment-invalidation.md](qa/comment-invalidation.md) — Mecanismo TA-4.4: señales que invalidan criterios antes de correr tests
 - [qa/visual-validation.md](qa/visual-validation.md) — Doctrina de screenshots: regla central para `visual_check`, cómo capturar con Selenium, uso de `test_data_hints[]`, flujo del pipeline
+- [qa/pipeline-routing.md](qa/pipeline-routing.md) — Lookup de routing QA: `criterion_scope` (ui/vfs/backend_data/api), `testability_summary.action` y tabla ORC-2.5
 
 ---
 
@@ -88,11 +123,15 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 | Navegar entre secciones del CMS | [pages/_shared.md](pages/_shared.md) |
 | Ver qué tests existen | [sessions/catalog.md](sessions/catalog.md) |
 | Cuándo usar cada nivel de log | [core/logging.md](core/logging.md) |
-| Arquitectura del pipeline QA multi-agente | [docs/architecture/qa-pipeline/INDEX.md](../docs/architecture/qa-pipeline/INDEX.md) |
+| Arquitectura del pipeline QA multi-agente | [qa/execution-context-schema.md](qa/execution-context-schema.md) · [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) |
 | Levantar Docker Grid / comandos Jest en WSL2 | [core/docker-grid.md](core/docker-grid.md) |
 | Comandos de ejecución completos | [.claude/references/COMMANDS.md](../.claude/references/COMMANDS.md) |
 | Generar ADF JSON para comentarios Jira | [qa/adf-format-guide.md](qa/adf-format-guide.md) |
 | Habilitar test auto-generado tras revisión manual | [qa/manual-test-validation.md](qa/manual-test-validation.md) |
+| Routing por criterion_scope / testability_summary.action | [qa/pipeline-routing.md](qa/pipeline-routing.md) |
+| Validar criterio visual_check (screenshots) | [qa/visual-validation.md](qa/visual-validation.md) |
+| Invalidación de criterios por comentario QA (TA-4.4) | [qa/comment-invalidation.md](qa/comment-invalidation.md) |
+| Mapping de ambientes master / dev_saas / cliente | [qa/environments.md](qa/environments.md) |
 
 ---
 

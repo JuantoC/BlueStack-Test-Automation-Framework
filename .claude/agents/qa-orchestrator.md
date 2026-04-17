@@ -96,19 +96,25 @@ Listar `pipeline-logs/completed/` y `pipeline-logs/active/` y contar los executi
 ### ORC-1.2 — Verificar idempotencia y stage routing
 
 Buscar `pipeline-logs/completed/<ticket_key>.json`. Si existe:
-- Si `already_reported: true` → **ABORT**:
+- Si `already_reported: true` y `requested_by != "manual"` → **ABORT**:
   ```json
   { "status": "skipped", "reason": "already_reported", "comment_id": "<last_comment_id>" }
   ```
+- Si `already_reported: true` y `requested_by == "manual"` → **RE-RUN**:
+  - Cargar el context previo para obtener `last_comment_id` y `outcome` anterior.
+  - Leer los comentarios del ticket en Jira posteriores a `last_comment_id` via MCP (`getJiraIssue` con comentarios).
+  - Resumir en el chat qué cambió: feedbacks recibidos, correcciones mencionadas, nuevos criterios.
+  - Crear un nuevo Execution Context (nuevo `pipeline_id`) con `prior_run_comment_id: "<last_comment_id>"` y `rerun: true`.
+  - Continuar desde **ORC-2** normalmente. test-reporter posteará un **nuevo** comentario (no edita el anterior).
 - Si `already_reported: false` y `stage_status != "completed"` → cargar ese context y aplicar stage routing (ver abajo).
 
 Buscar `pipeline-logs/active/<ticket_key>.json`. Si existe con `stage = "init"` → pipeline recién iniciado en paralelo. **ABORT** para evitar ejecución paralela. Si existe con `stage != "init"` → proceso previo interrumpido. Cargar ese context y aplicar stage routing.
 
-**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"`, `"low_confidence"` o `"auto_generated_dry_run_failed"` → **ABORT**:
+**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"`, `"low_confidence"` o `"auto_generated_dry_run_failed"` y `requested_by != "manual"` → **ABORT**:
 ```json
 { "status": "skipped", "reason": "pipeline_already_finalized", "outcome": "<outcome>" }
 ```
-No reabrir pipelines ya finalizados. Para forzar re-procesamiento, eliminar el archivo de `completed/` manualmente.
+Si `requested_by == "manual"`, ignorar el guard y re-procesar igualmente.
 
 **Stage routing (aplicar tras cargar context):**
 
@@ -209,6 +215,27 @@ Después de que retorna, leer `pipeline-logs/active/<ticket_key>.json` y registr
 - Notificar al humano en el chat: qué criterios se probaron y cuáles quedan pendientes de validación manual.
 
 Persistir el context después de completar ORC-2.
+
+---
+
+## ORC-2.5: Routing por `testability_summary.action`
+
+Después de que ticket-analyst completa, leer `ticket_analyst_output.testability_summary.action` del Execution Context:
+
+| `action` | Siguiente paso |
+|---|---|
+| `"full_run"` | → **ORC-3** (invocar test-engine con sessions existentes) |
+| `"generate_tests"` | → **ORC-4.1** directamente (invocar test-generator, saltear test-engine) |
+| `"partial_run_and_escalate"` | → **ORC-3** (test-engine para criterios cubiertos), luego **ORC-6** con `escalation_mode: true` para criterios no cubiertos |
+| `"escalate_all"` | → **ORC-6** directamente con `outcome: "non_automatable"` |
+| null o ausente | → **ORC-3** (comportamiento legacy, no interrumpir) |
+
+**Rationale:** `testability_summary.action` es el output del análisis de cobertura del ticket-analyst. Si dice `"generate_tests"`, significa que ninguna session existente cubre los criterios del ticket — ejecutar sessions del módulo produciría resultados irrelevantes para el ticket. El pipeline debe ir directo a test-generator para crear el test correcto.
+
+**Registro en step_log:**
+```json
+{ "stage": "routing", "action_evaluated": "<action>", "routing_decision": "<ORC-X>", "timestamp": "<ISO>" }
+```
 
 ---
 
@@ -422,6 +449,12 @@ ORC-1: Inicialización
 ORC-2: Agent(ticket-analyst)
   │  Lee ticket, clasifica, extrae criterios
   │  Si testable: false → ORC-6 (escalated)
+  │
+  ▼
+ORC-2.5: Routing por testability_summary.action
+  │  generate_tests → ORC-4.1 directo
+  │  full_run → ORC-3
+  │  escalate_all → ORC-6
   │
   ▼
 ORC-3: Agent(test-engine)

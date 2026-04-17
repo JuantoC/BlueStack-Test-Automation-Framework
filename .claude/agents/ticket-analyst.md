@@ -97,6 +97,19 @@ Si el adjunto está embebido en un comentario → `origin: "comment"`. Si viene 
 
 **Nota:** La API REST de Jira no retorna attachments asociados a la descripción como campo separado. Si un adjunto está referenciado en el texto de la descripción, se mapea a `origin: "ticket"` (viene de `issue.fields.attachment[]`). El valor `"description"` no es un origen válido.
 
+**Extracción de `test_data_hints[]` desde la descripción:**
+Si la descripción contiene secciones como "Prompts de ejemplo", "Ejemplo de input", "Datos de prueba", bloques de código con ejemplos, o cualquier texto que constituya datos de entrada concretos para reproducir el comportamiento — extraerlos como `test_data_hints[]`:
+```json
+[
+  {
+    "type": "prompt | input_data | example_content",
+    "label": "descripción breve de qué es",
+    "content": "el texto exacto, copiado literalmente de la descripción"
+  }
+]
+```
+**Regla:** si el dev dejó datos de prueba en la descripción, son la fuente de verdad de qué usar en el test — no datos random de factory. Extraerlos es obligatorio para criterios `visual_check` y recomendado para `functional_flow`.
+
 **Detección de mediaType:** Leer `attachment.mimeType` de la respuesta MCP. Si es `null` o `application/octet-stream` → inferir desde extensión del `filename`:
 - `.webm`, `.mp4`, `.mov`, `.avi`, `.mkv` → `video/*`
 - `.mp3`, `.wav`, `.m4a`, `.flac` → `audio/*`
@@ -119,6 +132,42 @@ Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, pref
 
 ---
 
+## TA-3b: Leer tickets relacionados para enriquecer contexto
+
+Si el ticket tiene `linkedIssues[]` con tipo `"Relates"`, `"is parent of"` o `"is blocked by"`:
+
+1. Leer el ticket padre (`parent.key`) si existe y tiene descripción con criterios que el hijo referencia.
+2. Leer el ticket relacionado más relevante (tipicamente el que tiene tipo `"Relates"` y status `"In Progress"` o `"Done"`) via `mcp__claude_ai_Atlassian__getJiraIssue`.
+3. Extraer de ese ticket: descripción, criterios, comentarios de dev que den contexto sobre el comportamiento esperado.
+
+**Cuándo es obligatorio:** cuando la descripción del ticket actual tiene criterios vagos o el campo `customfield_10061` es null y el ticket es Task-Back.
+
+**Cuándo es opcional:** cuando el ticket tiene criterios completos y autosuficientes en la descripción.
+
+El contexto extraído de tickets relacionados enriquece TA-4 pero no reemplaza los criterios del ticket principal.
+
+---
+
+## TA-3c: Acceder a URL de validación provista por dev
+
+Si en la descripción, comentarios o `jira_metadata.validation_url_from_dev` se detecta una URL de prueba externa:
+
+1. Registrar la URL en `jira_metadata.validation_url_from_dev`.
+2. Si en el trigger context hay credenciales `basic_auth_user` / `basic_auth_pass`: construir el header `Authorization: Basic <base64(user:pass)>` y acceder a la URL via `curl -u user:pass <url>`.
+3. Parsear el contenido devuelto por la página:
+   - Extraer los casos de prueba documentados (tabs, secciones, instrucciones de validación)
+   - Identificar qué tags JSP, campos, ordenamientos o comportamientos se validan en esa página
+   - Mapear cada sección de la página a un criterio de aceptación del ticket
+4. Usar el contenido extraído para enriquecer los `acceptance_criteria[]` en TA-4 con pasos concretos y assertions específicas que el dev ya diseñó.
+
+**Regla crítica:** los casos de prueba que el dev preparó en la URL de validación son la fuente más fidedigna de qué y cómo probar. Deben reflejarse en el `manual_test_guide[]` del escalation_report.
+
+**Si el acceso falla** (sin credenciales, error de red, timeout): registrar en `error_log` pero continuar — la URL es contexto enriquecedor, no bloqueante.
+
+**Si las credenciales no fueron provistas:** registrar `validation_url_from_dev` en el output y mencionarlo en el escalation_report para que el QA humano lo acceda manualmente.
+
+---
+
 ## TA-4: Sintetizar criteria[]
 
 **Orden de evaluación:** `4.1 → 4.2 → 4.4 (invalidación) → 4b (automatizabilidad) → 4.3 (escalación final)`.
@@ -136,8 +185,22 @@ Buscar "Criterios de aceptación" o "Casos de prueba" en la descripción. Si tie
 Si extracción retorna vacío, inferir desde: comentarios de devs/QA, campos custom (deploy, SQL, VFS), título + resumen ejecutivo (`customfield_10062`).
 
 **4.4 — Validar criterios contra comentarios (invalidación):**
-Después de 4.1 o 4.2, ANTES de declarar el listado final: leer el hilo de comentarios cronológicamente y detectar señales de invalidación:
+Después de 4.1 o 4.2, ANTES de declarar el listado final: leer el hilo de comentarios cronológicamente y detectar señales de invalidación.
 
+> La invalidación se aplica criterio por criterio. Si 2 de 3 criterios quedan invalidados, el pipeline continúa con el criterio válido restante. Solo si TODOS quedan invalidados → `criteria_source: "none"`.
+
+**Señal de confianza máxima — comentarista QA:**
+Cuando el comentario proviene de un miembro del equipo QA o del autor del ticket (reconocible por accountId `712020:59e4ac7b-f44f-45cb-a444-44746cecec49` = Juan Tomas Caldera / jtcaldera@bluestack.la), y el comentario CLASIFICA o REDIRIGE los criterios del ticket hacia otros tickets → tratar como señal de invalidación de máxima confianza. El QA que conoce el sistema está diciendo explícitamente dónde se trabaja cada criterio. Esta clasificación tiene precedencia sobre cualquier otra inferencia positiva sobre los criterios.
+
+**Señal de máxima prioridad — "Criterio delegado a ticket específico":**
+Cuando un comentario menciona que un criterio "ya tiene creado un ticket NAA-XXXX", "está siendo trabajado en NAA-XXXX", "ya lo tenemos reportado en NAA-XXXX", "tiene su propio ticket NAA-XXXX", o cualquier variante que asocie el criterio a un ticket de Jira con número concreto:
+1. Verificar el estado de ese ticket via `mcp__claude_ai_Atlassian__getJiraIssue`. Si está en cualquier estado que NO sea `Done` o `Cerrado` → el criterio fue delegado → EXCLUIR.
+2. Esta señal tiene PRECEDENCIA ABSOLUTA sobre cualquier señal de confirmación. No puede ser contrarrestada.
+
+**Señal — "Criterio incierto / especulativo":**
+Cuando el comentario usa frases como "puede que esté haciendo referencia a", "eso interpreto", "podría ser que", "habría que evaluar", "no estoy seguro si", "se puede evaluar y definir" referidas a un criterio → el criterio no tiene base verificable. Excluirlo.
+
+**Señales de invalidación adicionales:**
 - **"se trabaja en otro ticket" / "ya se está trabajando" / ticket linkeado `is blocked by` sin resolver** → ese criterio fue delegado. Excluirlo del listado.
 - **"evaluar y definir" / "pendiente de decisión" / "a definir" / "falta definir"** → la implementación no está confirmada. El criterio no tiene base verificable. Excluirlo.
 - **Confirmación de implementación en comentario de dev/autor** ("ya está hecho", "deploy incluye", "listo en master") → el criterio tiene respaldo → mantener válido.
@@ -234,6 +297,30 @@ Schema de cada criterio:
 
 Para cada criterio: preguntarte "¿Puedo escribir una assertion Selenium que falle si este criterio no se cumple y pase si sí se cumple?"
 - Si la assertion requiere percepción humana o entorno físico → `automatable: false`.
+
+**Regla especial para `criterion_type: "visual_check"`:**
+Un visual_check es `automatable: true` **únicamente si** el test puede capturar una screenshot como evidencia del estado visual. Sin screenshot, el pipeline no puede afirmar que algo "se ve bien".
+
+Para cada criterio con `criterion_type: "visual_check"`:
+1. Setear `requires_screenshot: true` en el test_hint correspondiente.
+2. Si hay `test_data_hints[]` con prompts o contenido concreto — setear `use_specific_test_data: true` y referenciar el hint.
+3. La assertion del test no es "el flujo completó sin error" sino "la screenshot capturada muestra el estado visual esperado". Si el framework no puede asistir esa afirmación → escalar a humano.
+
+Un test que ejecuta un flujo completo sin screenshot **no valida un visual_check**. Declararlo como "pasado" sin evidencia es un falso positivo.
+
+**Sub-caso `reason_if_not: "timezone_display_check"` (visual_check no automatizable):**
+Cuando el criterio requiere verificar que un timestamp mostrado en pantalla coincide con la timezone local del servidor (ej. "la hora al despublicar debe mostrar la hora de Argentina, no UTC"):
+- `automatable: false`
+- `reason_if_not: "timezone_display_check"`
+- La assertion no puede ser determinista sin controlar la hora del servidor. Aunque Selenium puede leer el texto del timestamp, no puede garantizar que el valor esperado sea correcto sin conocer la timezone configurada en el servidor en el momento del test.
+- Generar `manual_test_guide` con: anotar hora local → ejecutar acción → comparar hora mostrada contra hora local.
+
+**Sub-caso `reason_if_not: "pom_gap_clipboard"` (clipboard testing sin POM):**
+Cuando el criterio requiere verificar qué texto fue copiado al presionar un botón de copia en la UI:
+- Si el componente UI tiene POM con locators del campo origen Y del botón copiar → `automatable: true`. Estrategia: leer campo origen, click botón, sendKeys(Ctrl+V) en campo editable del body, leer campo y comparar.
+- Si el componente UI NO tiene POM mapeado → `automatable: false`, `reason_if_not: "pom_gap_clipboard"`.
+- **NUNCA usar `reason_if_not: "clipboard_access_restricted"`** — los browsers modernos en Docker Grid permiten Ctrl+V via sendKeys si el foco está en un campo editable. El bloqueo es siempre el POM, no el clipboard.
+- Generar `manual_test_guide` con la estrategia: click Copiar → pegar en editor externo → verificar texto pegado.
 
 **Rama especial para `criterion_scope: "vfs"` o `"backend_data"`:**
 - Forzar `automatable: false` independientemente de cualquier otra evaluación.
@@ -351,10 +438,13 @@ Leer `.claude/pipelines/ticket-analyst/references/component-to-module.json`.
 
 | Condición | action |
 |---|---|
-| Todos automatable + todos con `covered_by_existing_session: true` | `"full_run"` |
-| Mezcla automatable/no, los automatable con `covered_by_existing_session: true` | `"partial_run_and_escalate"` |
-| Todos/algunos automatable pero ≥1 con `covered_by_existing_session: false` | `"generate_tests"` |
+| Todos automatable Y todos con `covered_by_existing_session: true` | `"full_run"` |
+| Todos automatable Y ≥1 con `covered_by_existing_session: false` | `"generate_tests"` |
+| Algunos automatable, los automatables todos con `covered_by_existing_session: true` | `"partial_run_and_escalate"` |
+| Algunos automatable, ≥1 automatable con `covered_by_existing_session: false` | `"generate_tests"` |
 | Ninguno automatable | `"escalate_all"` |
+
+> **Importante:** `"full_run"` solo aplica cuando TODOS los criterios automatable tienen cobertura en sessions existentes. Si algún criterio automatable no tiene session que lo cubra, usar `"generate_tests"` — no `"full_run"`.
 
 ---
 
@@ -394,6 +484,13 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` c
     "criteria_source": "extracted | inferred | none",
     "human_escalation": false,
     "attachment_hint": false,
+    "test_data_hints": [
+      {
+        "type": "prompt | input_data | example_content",
+        "label": "...",
+        "content": "..."
+      }
+    ],
     "test_hints": [...]
   },
   "testability_summary": {
@@ -415,6 +512,8 @@ Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` c
       "criterion_scope": "ui | vfs | backend_data | api",
       "automatable": true,
       "reason_if_not": null,
+      "requires_screenshot": false,
+      "use_specific_test_data": false,
       "coverage": {
         "covered_by_existing_session": false,
         "session_file": "...",

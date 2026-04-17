@@ -153,6 +153,22 @@ NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=testing USE_GRID=true IS_HEA
 
 > **WSL2:** NUNCA usar `npx jest` ni `npm run`. Siempre `node node_modules/.bin/jest`.
 
+### TE-6.1 — Screenshots para criterios `visual_check` (OBLIGATORIO)
+
+Si `ticket_analyst_output` tiene algún criterio con `requires_screenshot: true` o `criterion_type: "visual_check"`:
+
+1. **El test debe incluir una captura explícita** del estado visual relevante (no solo el screenshot automático de fallo de Allure).
+2. **Usar `test_data_hints[]`** si están disponibles en `ticket_analyst_output.classification.test_data_hints`: pasar el contenido concreto al campo correspondiente del test en lugar de datos random del factory.
+3. **Después de ejecutar el test**, listar archivos nuevos en `allure-results/attachments/` con timestamp dentro del rango de la ejecución y registrarlos en `test_engine_output.screenshots[]`.
+4. **Si el test no puede capturar screenshot** (limitación del test existente, POM no expone el elemento) → setear `sessions_found: false` con nota: `"visual_check requiere screenshot — session existente no la captura"` y continuar a ORC-4.1 (test-generator) para generar un test que sí la incluya.
+
+**Comando para listar screenshots generados durante la ejecución:**
+```bash
+find allure-results/attachments/ -name "*.png" -newer pipeline-logs/results-{ticket}-{execution_id}.json
+```
+
+**Importante:** Un test que completa sin error pero sin screenshot **no valida un visual_check**. Reportarlo como "pasado" es un falso positivo.
+
 **Resolución de {TestName}:** nombre del archivo de session sin path ni extensión.
 
 | Session file | TestName |

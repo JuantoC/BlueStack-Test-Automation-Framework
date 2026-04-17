@@ -22,8 +22,7 @@ Sos el auditor de documentación del proyecto. Tu responsabilidad: garantizar qu
 sea la fuente canónica única de convenciones, que no haya contenido duplicado entre skills
 y wiki, y que el código y la documentación estén alineados.
 
-**Principio guía:** un concepto técnico = un archivo canónico en `wiki/`. Todo lo demás
-lo referencia. Si está duplicado, la wiki gana.
+**Principio guía:** el objetivo de la wiki es **reducir tokens de lookup del agente QA** — ese es el criterio con el que se mide cada hallazgo. Un issue es grave si obliga al agente a abrir más archivos de los necesarios. Un concepto = un archivo canónico en `wiki/`. Todo lo demás lo referencia. Si está duplicado, la wiki gana.
 
 ---
 
@@ -145,6 +144,33 @@ Reportar con formato:
 
 Guía detallada: leer [`references/checklist-philosophy.md`](references/checklist-philosophy.md)
 
+### Agente R7 — Lookup Path & Pipeline Coverage Audit
+**Subagent type:** Explore  
+**Tarea:** Dos dimensiones de AI-efficiency que R6 no cubre:
+
+**Parte B5 — Lookup path analysis:**  
+Para cada concepto frecuente de la lista en `references/checklist-philosophy.md § B5`, mapear todas las páginas `.md` que lo mencionan con nivel de detalle suficiente para resolver la consulta. Verificar:
+- Cuántos archivos necesita abrir el agente para resolver la consulta
+- Si hay jerarquía clara entre esas páginas (cuál es la fuente canónica)
+- Si `wiki/index.md` § "Referencias rápidas" apunta directamente al entry point correcto
+
+Reportar con formato:
+```
+[LOOKUP-AMBIGUO] concepto X: N páginas posibles, sin jerarquía clara
+[LOOKUP-DIRECTO] concepto X: entry point único en wiki/Y.md → OK
+```
+
+**Parte B6 — Cobertura de flujos del pipeline:**  
+Leer `.claude/agents/qa-orchestrator.md` y `.claude/agents/ticket-analyst.md`. Extraer los conceptos de dominio que los agentes necesitan durante ejecución (ambientes, estados Jira, criterion_scope, testability_summary.action, test-map.json, etc.). Para cada concepto, verificar si existe una página wiki que lo cubra con suficiente detalle.
+
+Reportar con formato:
+```
+[FLUJO-CUBIERTO] concepto X → wiki/Y.md
+[FLUJO-SIN-COBERTURA] concepto X → agente debe leer agente .md o .ts (gap de cobertura wiki)
+```
+
+Guía detallada: leer [`references/checklist-philosophy.md`](references/checklist-philosophy.md) § B5 y § B6
+
 ---
 
 ## Paso 2 — Consolidar hallazgos
@@ -158,7 +184,7 @@ Mientras los agentes corren, preparar la tabla de issues con el formato:
 
 Dimensiones: `Duplicaciones` / `Convenciones` / `Pages/README` / `Artefactos` / `Contenido wiki vs código`
 
-Severidad: `ALTA` (contenido incorrecto en wiki que puede inducir a error, duplicación activa, convención sin cobertura) / `MEDIA` (gap documental, descripción incompleta, tipo con valores desactualizados) / `BAJA` (artefacto histórico, gap menor)
+Severidad: `ALTA` (contenido incorrecto en wiki que puede inducir a error, duplicación activa, convención sin cobertura, cualquier issue que obligue al agente a abrir >2 archivos para resolver una consulta) / `MEDIA` (gap documental, descripción incompleta, tipo con valores desactualizados) / `BAJA` (artefacto histórico, gap menor)
 
 ---
 

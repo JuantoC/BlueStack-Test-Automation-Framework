@@ -64,6 +64,66 @@
           "type": "qualitative"
         }
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "Auditá la wiki con foco en si un agente puede encontrar la convención de retry boundary con una sola lectura, sin ambigüedad.",
+      "expected_output": "Análisis de lookup paths para retry boundary. Reporte que identifica todas las páginas wiki que mencionan retry boundary, evalúa la jerarquía entre ellas, determina cuál es la fuente canónica, y reporta si hay ambigüedad que requiera múltiples lecturas. Incluye evidencia de que se ejecutó análisis de lookup paths equivalente a R7.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "La skill identifica cuántas páginas wiki mencionan retry boundary con detalle suficiente y si hay jerarquía clara entre ellas",
+          "type": "qualitative"
+        },
+        {
+          "text": "El reporte indica explícitamente cuál página es la fuente canónica para retry boundary",
+          "type": "qualitative"
+        },
+        {
+          "text": "El reporte menciona o evidencia que el análisis de lookup paths fue ejecutado (R7 o análisis equivalente)",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Auditá la wiki y reportá qué páginas bloquean el lookup de un agente por densidad o falta de estructura.",
+      "expected_output": "Auditoría de densidad de contenido wiki. Reporta páginas densas con line count concreto, verifica presencia/ausencia de resumen ejecutivo al inicio, e incluye estimación del impacto en tokens de hacer lookup en esas páginas. Identifica cuáles son bloqueadores críticos para agentes.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "El reporte incluye el número de líneas de al menos una página densa identificada",
+          "type": "qualitative"
+        },
+        {
+          "text": "El reporte incluye alguna estimación o mención del costo en tokens de hacer lookup en páginas densas",
+          "type": "qualitative"
+        },
+        {
+          "text": "El reporte verifica explícitamente si las páginas densas tienen resumen ejecutivo al inicio",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Auditá si la wiki cubre los flujos más frecuentes que usa el agente QA durante una ejecución de pipeline.",
+      "expected_output": "Análisis cross-domain que cruza los flujos de qa-orchestrator y ticket-analyst con la cobertura wiki actual. Reporta explícitamente qué conceptos del pipeline están documentados, cuáles no, e identifica gaps de cobertura que pueden causar fallos o ineficiencias en el agente.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "La skill leyó o referencia explícitamente los agentes del pipeline (qa-orchestrator o ticket-analyst) en su análisis",
+          "type": "qualitative"
+        },
+        {
+          "text": "El reporte lista al menos un flujo o concepto del pipeline sin cobertura wiki suficiente",
+          "type": "qualitative"
+        },
+        {
+          "text": "El análisis cruza explícitamente los conceptos de dominio de los agentes con las páginas wiki existentes",
+          "type": "qualitative"
+        }
+      ]
     }
   ]
 }

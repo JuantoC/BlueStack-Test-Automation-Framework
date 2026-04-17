@@ -131,6 +131,51 @@ Señales de alerta:
 - El mismo tipo exportado documentado en `interfaces/data-types.md` Y en una `pages/*.md`
 - La misma convención de código en `patterns/conventions.md` Y en `development/skill-conventions.md`
 
+#### B5 — Lookup path analysis
+
+Para cada concepto frecuente de la lista siguiente, mapear cuántos archivos `.md` lo mencionan con detalle suficiente para resolver una consulta:
+- retry boundary
+- PO constructor (Maestro vs sub-componente)
+- NoteType (valores válidos)
+- SidebarOption / navegación CMS
+- ambientes master vs dev_saas
+- manejo de errores / rethrow
+- `testability_summary.action` (enum de routing del pipeline)
+- `criterion_scope` (ui, vfs, backend_data, api)
+- test-map.json y coverage gap analysis
+
+Para cada concepto:
+1. Verificar si `wiki/index.md` § "Referencias rápidas" tiene entry point directo
+2. Contar cuántas páginas wiki lo cubren con suficiente detalle
+3. Verificar si hay jerarquía clara entre esas páginas (cuál es la canónica)
+
+Reportar:
+- `[LOOKUP-AMBIGUO]` concepto X: N páginas posibles, sin jerarquía clara entre ellas
+- `[LOOKUP-DIRECTO]` concepto X: entry point único en wiki/Y.md — OK
+
+#### B6 — Cobertura de flujos críticos del pipeline
+
+Fuentes a leer: `.claude/agents/qa-orchestrator.md` · `.claude/agents/ticket-analyst.md`
+Extraer los conceptos de dominio que los agentes referencian durante su ejecución.
+Para cada concepto, verificar si existe una página wiki que lo cubra con suficiente detalle.
+
+Flujos críticos a verificar (mínimo):
+- ORC-1: derivación de environment desde estado Jira
+- ORC-1.2: stage routing e idempotencia
+- ORC-2.5: routing decision por `testability_summary.action`
+- TA-3: lazy loading de ticket (3A vs 3B)
+- TA-4.2: inferencia de `criterion_scope` desde customfields
+- TA-4.4: invalidación de criterios por comentario QA
+- TA-4b: sub-casos de automatizabilidad (visual_check, clipboard, ckeditor, timezone)
+- TA-5b: coverage gap analysis y test-map.json lookup
+- ORC-5/6: test-reporter, ADF, transición Jira, escalación
+
+Formato de reporte:
+- `[FLUJO-CUBIERTO]` concepto X → `wiki/Y.md`
+- `[FLUJO-SIN-COBERTURA]` concepto X → agente debe leer `.md` del agente o `.ts` (gap)
+
+Severidad: `[FLUJO-SIN-COBERTURA]` = MEDIA si el concepto es simple / ALTA si es complejo (>1 archivo involucrado o es un enum/tabla de routing crítica).
+
 ---
 
 ## Acciones por caso
@@ -142,3 +187,5 @@ Señales de alerta:
 | `[REFS-RAPIDAS-GAP]` | MEDIA | Agregar fila en la tabla `## Referencias rápidas` de `wiki/index.md` |
 | `[PAGINA-DENSA]` | MEDIA | Agregar resumen ejecutivo de 3-5 líneas al inicio de la página |
 | `[DUPLICACION-FILOSOFIA]` | MEDIA | Comprimir la página secundaria a una referencia: "Ver X en wiki/Y.md" |
+| `[LOOKUP-AMBIGUO]` | ALTA | Definir jerarquía explícita entre páginas: una es canónica, las demás la referencian con link |
+| `[FLUJO-SIN-COBERTURA]` | MEDIA/ALTA | Crear o actualizar página wiki para cubrir el concepto; registrar gap en `wiki/log.md` |

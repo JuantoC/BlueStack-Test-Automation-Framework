@@ -322,6 +322,15 @@ Cuando el criterio requiere verificar qué texto fue copiado al presionar un bot
 - **NUNCA usar `reason_if_not: "clipboard_access_restricted"`** — los browsers modernos en Docker Grid permiten Ctrl+V via sendKeys si el foco está en un campo editable. El bloqueo es siempre el POM, no el clipboard.
 - Generar `manual_test_guide` con la estrategia: click Copiar → pegar en editor externo → verificar texto pegado.
 
+**Sub-caso `reason_if_not: "ckeditor_plugin_interaction_not_supported"` (plugins CKEditor no automatizables):**
+Cuando el criterio requiere insertar, cargar, verificar o interactuar con plugins de la toolbar CKEditor (Instagram embed, Twitter embed, TikTok embed, Pinterest embed, Trivias, Audios, Encuestas, o cualquier plugin del enriquecedor de texto):
+- `automatable: false`
+- `reason_if_not: "ckeditor_plugin_interaction_not_supported"`
+- El framework actualmente solo puede pegar/borrar texto en campos CKEditor. No puede acceder ni controlar la toolbar ni los plugins. Esta es una limitación estructural del framework, no un POM gap.
+- Palabras clave que activan este sub-caso: "ckeditor plugin", "plugin toolbar", "instagram embed", "twitter embed", "tiktok embed", "pinterest embed", "trivias", "encuesta ckeditor", "audio ckeditor", "pedidos cancelados ckeditor", "carga async componentes ckeditor", "enriquecedor de texto", "async carga plugin".
+- Generar `manual_test_guide` con: abrir nota en edición → verificar en DevTools Network que no hay requests cancelados al cargar cada plugin → verificar que el bloque del plugin renderiza en el editor.
+- **Nota hacia el futuro:** registrar en el `escalation_report.next_step_to_unblock` que la integración CKEditor está planificada — cuando se implemente, este criterio se vuelve automatizable.
+
 **Rama especial para `criterion_scope: "vfs"` o `"backend_data"`:**
 - Forzar `automatable: false` independientemente de cualquier otra evaluación.
 - Usar `reason_if_not: "backend_data_validation"` (no usar `"server_access"` — ese valor era genérico y no distingue el origen del bloqueo).

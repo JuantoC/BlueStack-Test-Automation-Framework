@@ -24,6 +24,15 @@
           "ticket": "NAA-782",
           "generated_at": "2026-04-17T00:00:00.000Z"
         }
+      ],
+      "not_automatable_components": [
+        {
+          "component": "CKEditor plugins — toolbar de enriquecimiento de texto (Instagram, Twitter, TikTok, Pinterest, Trivias, Audios, Encuestas, embeds de redes sociales)",
+          "reason": "ckeditor_plugin_interaction_not_supported",
+          "status": "manual_only",
+          "note": "El framework solo puede pegar/borrar texto en campos CKEditor. No puede interactuar con la toolbar ni con los plugins enriquecedores. Tickets que soliciten validar la carga, inserción o renderizado de plugins CKEditor → clasificar non_automatable directamente. Integración CKEditor planificada para el futuro.",
+          "keywords": ["ckeditor plugin", "plugin toolbar", "instagram embed", "twitter embed", "tiktok embed", "pinterest embed", "trivias ckeditor", "encuesta ckeditor", "audio ckeditor", "pedidos cancelados ckeditor", "carga async componentes ckeditor", "enriquecedor texto", "plugins ckeditor", "async carga plugin"]
+        }
       ]
     },
     "ai-post": {

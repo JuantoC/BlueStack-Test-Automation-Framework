@@ -367,6 +367,28 @@ El patrón `TODO_placeholder_name` debe buscarse en el SKILL.md (`pom-generator`
 
 ---
 
+## Rol de los archivos `.test.ts` en `sessions/`
+
+Los archivos `.test.ts` son **solo orquestación**. Su contenido válido se limita a:
+
+- Instanciar Page Objects Maestros (`new MainPostPage(...)`, etc.)
+- Llamar a métodos públicos de esos Maestros
+- Usar `log` y `step` de `allure-js-commons` para trazabilidad
+
+**NUNCA** deben contener:
+
+| Prohibido | Alternativa correcta |
+|-----------|---------------------|
+| `By.css(...)`, `By.id(...)`, `By.xpath(...)` | Declarar el locator como `private static readonly` en el sub-componente POM |
+| `driver.findElement(...)`, `driver.findElements(...)` | Crear un método en el sub-componente que encapsule la interacción |
+| `waitFind(...)`, `waitVisible(...)` en el test | El Maestro o sub-componente hace la espera internamente |
+| `clickSafe(...)`, `writeSafe(...)` directamente | El sub-componente expone un método semántico (`fillTitle`, `clickSave`, etc.) |
+| Cualquier selector CSS/XPath hardcodeado | Ningún string de selector fuera de `src/pages/` |
+
+**Regla de oro:** si un flujo requiere interacción con un elemento DOM que no está cubierto por ningún método POM existente → **crear o actualizar el POM antes de escribir el test**. Si el POM no existe y los locators son desconocidos → escalar al humano, confirmar locators vía DevTools, invocar `pom-generator`, y solo entonces generar el `.test.ts`.
+
+---
+
 ## Anti-patrones explícitos
 
 | Qué evitar | Por qué |
@@ -379,3 +401,4 @@ El patrón `TODO_placeholder_name` debe buscarse en el SKILL.md (`pom-generator`
 | `catch` sin log y rethrow | Silencia errores → imposible debuggear |
 | `private driver: WebDriver;` + `this.driver = driver;` en sub-componentes | Redundante — usar parameter property `private driver` en el constructor |
 | Guardar `driver` como propiedad en Maestros | Los Maestros no usan `driver` en métodos — pasarlo como parámetro local al constructor |
+| Selectores inline en `.test.ts` de `sessions/` | Viola el Facade Pattern — toda lógica DOM pertenece a `src/pages/` |

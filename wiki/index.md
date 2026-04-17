@@ -45,6 +45,7 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [pages/tags-page.md](pages/tags-page.md) — `MainTagsPage` · `createNewTag()` · filtros alfanuméricos · `TagFooterActions`
 - [pages/modals.md](pages/modals.md) — `PublishModal` · `CKEditorImageModal`
 - [pages/video-image-editors.md](pages/video-image-editors.md) — Editores de video e imagen: Header actions · Panel Info · diferencias · patrones AM (mat-slide-toggle, mat-select, timepicker)
+- [pages/ai-note.md](pages/ai-note.md) — Módulo AI Note: flujo prompt texto · Panel Asistencia IA (pom_gap) · Upload PDF (manual only) · reglas ticket-analyst
 
 ### Sessions (`sessions/`)
 - [sessions/catalog.md](sessions/catalog.md) — Inventario de 14 tests: flujo, POs y factories de cada uno
@@ -68,6 +69,9 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [qa/multimedia-attachment-integration.md](qa/multimedia-attachment-integration.md) — *(redirect)* → `docs/architecture/qa-pipeline/11-multimedia-attachments.md`
 - [qa/pipeline-integration-schema.md](qa/pipeline-integration-schema.md) — Contrato completo agente test-reporter ↔ jira-reader/jira-writer: inputs, outputs, operaciones
 - [qa/validation-session-2026-04-15.md](qa/validation-session-2026-04-15.md) — Hallazgos sesión real: aliases de componentes, fuzzy matching, decisión confidence:low, bug customfield_10061
+- [qa/validation-url-pattern.md](qa/validation-url-pattern.md) — Patrón: URL de validación provista por dev (Basic Auth, extracción de casos de prueba, pipeline de procesamiento)
+- [qa/comment-invalidation.md](qa/comment-invalidation.md) — Mecanismo TA-4.4: señales que invalidan criterios antes de correr tests
+- [qa/visual-validation.md](qa/visual-validation.md) — Doctrina de screenshots: regla central para `visual_check`, cómo capturar con Selenium, uso de `test_data_hints[]`, flujo del pipeline
 
 ---
 

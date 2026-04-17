@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession(
   "Creación de Nota IA, guardado y publicación",
   async ({ driver, opts, log }) => {

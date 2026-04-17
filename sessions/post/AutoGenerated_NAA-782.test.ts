@@ -1,3 +1,4 @@
+// @default-role: editor
 // @auto-generated: true
 // @ticket: NAA-782
 // @validated: false  // cambiar a true después de revisión manual

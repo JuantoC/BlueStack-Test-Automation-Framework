@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Mass Publish Images — Subida Nativa", async ({ driver, opts, log }) => {
 
   description(`

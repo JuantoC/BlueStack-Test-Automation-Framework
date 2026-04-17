@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession(
   "Post & Video YT y Edición y Publicación",
   async ({ driver, opts, log }) => {

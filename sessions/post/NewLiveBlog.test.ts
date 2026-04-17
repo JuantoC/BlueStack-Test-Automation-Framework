@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Nota LiveBlog exitosamente", async ({ driver, opts, log }) => {
     description(`
 ### Test: Crear LiveBlog, entrar y publicar.

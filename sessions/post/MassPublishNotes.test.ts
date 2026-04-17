@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Mass Publish Notes",
   async ({ driver, opts, log }) => {
     description(`

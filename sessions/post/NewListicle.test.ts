@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Nota Listicle exitosamente", async ({ driver, opts, log }) => {
 
   description(`

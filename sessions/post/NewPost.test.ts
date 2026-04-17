@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession('Nota Post Exitosamente', async ({ driver, opts, log }) => {
 
   description(`

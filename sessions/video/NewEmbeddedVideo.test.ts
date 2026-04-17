@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession(
   "Creación de Embedded, edicion y publicacion",
   async ({ driver, opts, log }) => {

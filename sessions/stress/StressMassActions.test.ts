@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Stress Mass Actions",
   async ({ driver, opts, log }) => {
     description(`

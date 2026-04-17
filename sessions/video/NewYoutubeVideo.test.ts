@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession(
   "Creación de Youtube, edicion y publicacion",
   async ({ driver, opts, log }) => {

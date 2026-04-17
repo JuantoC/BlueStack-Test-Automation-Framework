@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession("Debug — Video Editor Header Actions", async ({ driver, opts, log }) => {
 
   description(`

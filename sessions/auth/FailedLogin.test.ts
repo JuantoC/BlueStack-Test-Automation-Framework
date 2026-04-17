@@ -1,3 +1,4 @@
+// @default-role: editor
 runSession('Login Fallido Reiterado y Exitoso', async ({ driver, opts, log }) => {
 
   description(`

@@ -183,3 +183,25 @@ await editor.fillFullNote(liveBlogData);
 **`changePostTitle`** maneja staleness automáticamente: guarda el `id` del contenedor y lo re-fetchea si el DOM se refresca tras el ENTER.
 
 **Listicle y LiveBlog:** `fillFullNote` detecta `data.noteType` internamente y activa la sección correspondiente (`ListicleStrategy` o `LiveBlogEventSection`).
+
+---
+
+## API pública de `EditorTextSection`
+
+Métodos de escritura (fill):
+| Método | Descripción |
+|--------|-------------|
+| `fillAll(data)` | Rellena todos los campos no vacíos del objeto `NoteData` |
+| `fillField(field, value)` | Rellena un campo específico por nombre |
+| `clickAddNewTitleBtn()` | Click en botón de agregar título |
+| `getAddNewTitleItems()` | Retorna WebElements del dropdown de título |
+
+Métodos getter (lectura de contenido actual):
+| Método | Retorno | Estrategia |
+|--------|---------|------------|
+| `getTitle()` | `Promise<string>` | `.getAttribute('value')` — textarea |
+| `getSecondaryTitle()` | `Promise<string>` | `.getAttribute('value')` — textarea |
+| `getHalfTitle()` | `Promise<string>` | `.getAttribute('value')` — input |
+| `getSubTitle()` | `Promise<string>` | `.getText()` — CKEditor editable |
+| `getBody()` | `Promise<string>` | `.getText()` — CKEditor editable |
+| `getSummary()` | `Promise<string>` | `.getText()` — CKEditor editable |

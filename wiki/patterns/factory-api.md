@@ -124,6 +124,20 @@ const image = ImageDataFactory.create();
 
 ---
 
+## Patrón de override de campos
+
+Cuando un test necesita que **un campo específico tenga un valor hardcodeado** en vez del generado por el factory, sobrescribir directamente sobre el objeto retornado. Nunca construir el objeto completo a mano solo por eso.
+
+```typescript
+const aiData = AINoteDataFactory.create();
+// El factory generó task, context, section, tone, etc. — solo sobrescribimos 'task'
+aiData.task = "Generá una nota con headers, bullets, tabla y texto en negrita.";
+```
+
+Aplica a cualquier factory del framework: `PostDataFactory`, `AINoteDataFactory`, `YoutubeVideoDataFactory`, etc. El resto de los campos permanece generado aleatoriamente por el factory.
+
+---
+
 ## Notas de uso
 
 - Todos los factories usan faker-js con pools **en español** — los datos generados son texto en castellano.

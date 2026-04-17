@@ -71,6 +71,19 @@ La regla going-forward: **el Pipeline Trigger siempre usa la terminología de Ji
 
 ---
 
+## Roles por entorno
+
+Los roles disponibles son los mismos en todos los entornos: `editor` | `admin` | `basic`.  
+Las credenciales por rol y entorno están en `.env` (prefijo `{ENV}_EDITOR_USER`, `{ENV}_ADMIN_USER`, etc.).
+
+**Default del framework:** `editor` + `testing`.  
+**Override de rol:** `TEST_ROLE=<rol>` como env var inline al comando Jest.  
+**Override de entorno:** `TARGET_ENV=<env>` como env var inline.  
+
+> Omitir `TEST_ROLE` cuando el rol es `editor` — es el default implícito de todas las sessions y el test-engine no lo incluye en el comando para mantener el log limpio.
+
+---
+
 ## Referencias
 
 - [`.env`](../../.env) — variables de ambiente del framework

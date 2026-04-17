@@ -117,6 +117,20 @@ TARGET_ENV=master TEST_ROLE=admin npm run test:grid -- FailedLogin
 
 `TARGET_ENV` inválido lanza error inmediato con la lista de valores válidos antes de iniciar cualquier test.
 
+### Parametrización dinámica desde comando o pipeline
+
+| Quiero...                           | Cómo                                                              |
+|-------------------------------------|-------------------------------------------------------------------|
+| Correr con rol default (editor)     | No hacer nada — es el default de todas las sessions               |
+| Cambiar rol en ejecución manual     | `TEST_ROLE=admin node node_modules/.bin/jest TestName`            |
+| Cambiar entorno en ejecución manual | `TARGET_ENV=master node node_modules/.bin/jest TestName`          |
+| Pipeline: cambiar rol               | Campo `role` en el Execution Context del trigger                  |
+| Pipeline: cambiar entorno           | Campo `environment` en el Pipeline Trigger                        |
+
+**Anotaciones en sessions:**
+- `// @default-role: editor` — rol default de la session (leído por test-engine para detectar overrides)
+- `// @target-env: master` — entorno en el que debe correr la session por defecto
+
 ---
 
 ## `getAuthUrl(baseUrl, username, password)` — URL con Basic Auth

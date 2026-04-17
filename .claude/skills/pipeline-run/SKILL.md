@@ -19,8 +19,12 @@ Extraer del mensaje:
 |---|---|---|
 | `ticket_key` | Patrón `NAA-\d+` en el mensaje | obligatorio — preguntar si falta |
 | `environment` | "master" / "dev_saas" / "dev saas" | `"master"` |
+| `basic_auth_user` | Línea "USER: ..." en el mensaje | null |
+| `basic_auth_pass` | Línea "PASS: ..." en el mensaje | null |
 
 Si `ticket_key` no está: `"¿Cuál es el número del ticket? (ej. NAA-4467)"`
+
+**Credenciales de acceso:** Si el usuario provee USER/PASS (para Basic Auth de Apache u otro servidor externo), capturarlas y pasarlas al qa-orchestrator en el prompt. Son necesarias para acceder a URLs de validación que el dev adjunta al ticket.
 
 ---
 
@@ -38,16 +42,47 @@ No esperar confirmación. Ejecutar directamente.
 
 ---
 
-## PR-3: Invocar qa-orchestrator
+## PR-3: Ejecutar el pipeline
+
+**Importante — limitación del Agent tool:** Los agentes personalizados definidos en `.claude/agents/` (qa-orchestrator, ticket-analyst, test-engine, test-reporter) NO están disponibles como `subagent_type`. Solo funcionan los tipos built-in de Claude Code. Intentar invocarlos falla con `Agent type 'qa-orchestrator' not found`.
+
+### Intento original (referencia — fallará en este entorno)
 
 ```
 Agent({
   subagent_type: "qa-orchestrator",
-  prompt: "Ejecutar el qa-orchestrator para el ticket [ticket_key] en ambiente [environment]. requested_by: manual."
+  prompt: "Ejecutar el qa-orchestrator para el ticket [ticket_key] en ambiente [environment]. requested_by: manual. [Si hay credenciales: basic_auth_user: <user>, basic_auth_pass: <pass>]"
 })
 ```
 
-El orquestador maneja toda la lógica interna: idempotencia, sub-agentes, execution context, reporte en Jira.
+### Ejecución inline (camino correcto)
+
+Cuando el Agent call falla con `Agent type 'qa-orchestrator' not found`:
+- No reintentar con otro `subagent_type`.
+- Ejecutar el pipeline **inline**: leer `.claude/agents/qa-orchestrator.md` y seguir sus pasos directamente en este contexto.
+
+**Flujo de ejecución inline:**
+
+1. Leer `.claude/agents/qa-orchestrator.md` (siempre al inicio).
+2. Seguir ORC-1 → ORC-2.5 → ORC-3/ORC-4.1 → ORC-5 → ORC-6 directamente.
+3. Para cada sub-agente (ticket-analyst, test-engine, test-reporter): leer su archivo en `.claude/agents/<nombre>.md` y ejecutar sus pasos con las herramientas disponibles (MCP Jira, Bash, Read, Write, Skill).
+4. Persistir el Execution Context en `pipeline-logs/active/<ticket>.json` después de cada stage completado.
+
+**Herramientas usadas en ejecución inline:**
+- `mcp__claude_ai_Atlassian__getJiraIssue` — leer tickets
+- `Bash` — ejecutar Jest, verificar grid, leer resultados
+- `Read/Write` — Execution Context
+- `Skill({ skill: "jira-writer", ... })` — postear comentarios y transicionar
+
+**Grid check (TE-1) — endpoint correcto en WSL2:**
+
+El endpoint es `/wd/hub/status`, NO `/status`:
+```bash
+curl -s http://localhost:4444/wd/hub/status | python3 -c "import sys,json; d=json.load(sys.stdin); print('ready' if d['value']['ready'] else 'not_ready')"
+```
+Si el grid no está disponible: `docker compose up -d --wait`.
+
+Si se capturaron credenciales Basic Auth en PR-1, incluirlas al ejecutar los pasos del ticket-analyst para que pueda acceder a URLs de validación externas.
 
 ---
 
@@ -164,7 +199,24 @@ Informar: `"Este ticket ya fue procesado anteriormente (already_reported: true).
 
 Ejecutar en todo ciclo que no sea `wrong_status` ni `skipped`.
 
-### PR-6.1 — Preguntar
+### PR-6.0 — Auto-documentar aprendizajes de la ejecución (PROACTIVO)
+
+**Antes de preguntar al usuario**, identificar y documentar automáticamente lo que esta ejecución enseñó al sistema. No esperar input del usuario para esto.
+
+Evaluar:
+
+| Señal detectada durante la ejecución | Acción proactiva |
+|---|---|
+| Accedí a una URL de validación del dev y extraje casos de prueba | Guardar memoria `reference_validation_url_<modulo>.md` con el patrón y cómo procesarlo |
+| Leí tickets relacionados para enriquecer criterios | Guardar en `wiki/log.md` con nota del enriquecimiento |
+| El ticket tenía credenciales de acceso provistas por el usuario | Guardar en memoria que este tipo de ticket requiere credenciales de acceso |
+| El pipeline escaló un ticket que en realidad tenía URL de validación procesable | Registrar gap — el ticket-analyst no detectó la URL a tiempo |
+| El comentario Jira fue corregido por el usuario (foco equivocado, estructura incorrecta) | Guardar `feedback_jira_comment_<aspecto>.md` y actualizar la directiva en test-reporter |
+| El usuario corrigió la clasificación del módulo | Actualizar `component-to-module.json` o proponer la corrección |
+
+Si hay aprendizajes proactivos para guardar → hacerlo **sin confirmar**, salvo que implique cambiar un archivo de código (`.ts`) o un agente.
+
+### PR-6.1 — Preguntar al usuario
 
 ```
 📚 Aprendizajes de esta ejecución
@@ -180,7 +232,7 @@ Ejecutar en todo ciclo que no sea `wrong_status` ni `skipped`.
   → Respondé o decí "nada" para cerrar.
 ```
 
-### PR-6.2 — Procesar feedback
+### PR-6.2 — Procesar feedback del usuario
 
 Si el usuario provee algo:
 1. Convención de código/POM → memoria `feedback_*.md`

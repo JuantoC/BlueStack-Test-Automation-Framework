@@ -102,6 +102,20 @@ await driver.get(authUrl);
 
 > `ENV_CONFIG` resuelve automáticamente las credenciales y la URL del entorno activo (`TARGET_ENV`). No hay que cambiar nada en el test para correrlo contra otro ambiente — es un parámetro externo de invocación.
 
+**3b. Cuando el invocador especifica `Ambiente destino`** (ej: invocación desde `test-generator`):
+
+Si el input incluye `Ambiente destino: <valor>`, agregar la siguiente línea en la cabecera del archivo (después de `@validated`):
+
+```typescript
+// @target-env: master  // ejecutar con TARGET_ENV=master
+```
+
+El valor de `@target-env` mapea al `TARGET_ENV` del `.env` así:
+- `"master"` → `TARGET_ENV=master`
+- `"dev_saas"` → `TARGET_ENV=testing`
+
+> Esta anotación es solo documentativa — no modifica el runtime. El operador que ejecute el test debe setear `TARGET_ENV` en consecuencia. Ver `wiki/qa/environments.md` para la tabla completa de equivalencias.
+
 **4.** Instanciar solo los POs que se usan. Firma base: `(driver, opts)`. Con tipo de nota: `(driver, 'POST', opts)`.
 
 **5. Login siempre primer paso:** `await login.passLoginAndTwoFA({ username: user, password: pass });`

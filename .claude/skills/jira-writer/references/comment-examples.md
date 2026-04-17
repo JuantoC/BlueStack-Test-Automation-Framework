@@ -120,6 +120,48 @@ Version: 8.7.1
 
 ---
 
+## Escalación automática — criterios no automatizables (NAA-3851, autor: pipeline)
+
+Generado por el pipeline cuando `outcome: "non_automatable"` — criterios de tipo `visual_check`.
+Header fijo: `⚠️ Validación automática no disponible`. No hay transición de estado.
+
+Estructura ADF validada (probada en NAA-3851, 2026-04-16 — "mensaje perfecto"):
+
+```
+⚠️ Validación automática no disponible
+
+Los criterios de este ticket son de tipo `visual_check` (...). Ninguno es automatizable
+con Selenium. Se requiere validación manual.
+
+### Criterios intentados
+* **[Criterio]** — [razón concreta por la que no es automatizable con Selenium]
+* ...
+
+### Guía de testing manual
+
+#### 1. [Nombre del criterio]
+**Precondición:** [estado inicial necesario]
+1. [Paso 1]
+2. [Paso 2]
+...
+**✔ Resultado esperado:** [qué observar para dar por válido]
+
+#### 2. ...
+
+_⚠️ El ticket permanece en **Revisión** — validación manual requerida antes de transicionar._
+```
+
+**Reglas específicas de este modo:**
+- La sección "Criterios intentados" usa `bulletList` con la razón de por qué cada uno no es automatizable
+- La guía de testing usa `heading level 4` por criterio + `orderedList` para pasos + párrafo de resultado esperado
+- El cierre es siempre el párrafo `_⚠️ El ticket permanece en Revisión..._` en cursiva
+- **No se transiciona el estado** — `transition_applied: null`
+- El `blockquote` no aplica en este modo (no hay errores de tests)
+
+→ Acción post-comentario: ninguna transición. `comment_id` guardado en Execution Context.
+
+---
+
 ## Reglas tipográficas del estilo Juanto
 
 | Regla | Correcto | Incorrecto |

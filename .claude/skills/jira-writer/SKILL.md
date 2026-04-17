@@ -250,6 +250,7 @@ error después de que el comentario ya fue posteado, MODO F no duplica la escrit
 | `validate_devsaas` | MODO C + MODO D | Leer casos master vía jira-reader OP-3 primero |
 | `create_bug` | MODO A | Poblar descripción con datos técnicos del test |
 | `add_observation` | Solo comentar | Sin transición de estado |
+| `escalation_comment` | MODO G | Comentario de escalación — ticket permanece en Revisión. Ver MODO G abajo. |
 
 ### F2.1: Entornos y routing por `environment`
 
@@ -382,6 +383,43 @@ Campos obligatorios en `test_reporter_output`:
 }
 ```
 Escribir el archivo completo con el campo actualizado (no solo el campo — reescribir el JSON completo).
+
+---
+
+## MODO G — Comentario de escalación (operation: "escalation_comment")
+
+### Cuándo usar
+test-reporter envía `operation: "escalation_comment"` cuando el pipeline no puede automatizar los criterios del ticket (`outcome: "non_automatable"`, `"human_escalation"`, `"no_sessions"`).
+
+### G1: Chequeo de idempotencia
+Igual que F1.5. Si `idempotency.already_reported: true` → retornar `status: "skipped"`.
+
+### G2: Construir comentario ADF
+
+Header fijo:
+```
+⚠️ Validación automática no disponible
+```
+
+Estructura del comentario:
+1. Párrafo con header en negrita
+2. Párrafo explicando el motivo general (del campo `escalation_reason`)
+3. Heading h3 "Criterios evaluados" + bulletList con cada `criteria_attempted[i]` (nombre + "— no automatizable")
+4. Blockquote hermano del bulletList con el `reason_not_automatable` del primer criterio (o motivo general)
+5. Heading h3 "Guía de validación manual" por cada entrada en `manual_test_guide[]`:
+   - Párrafo `criterion` en negrita
+   - Párrafo `precondition` en negrita
+   - orderedList con `steps[]`
+   - Párrafo `assertion` en negrita
+6. Párrafo final en cursiva: "El ticket permanece en **Revisión** para validación manual."
+
+### G3: Postear y registrar
+- `addCommentToJiraIssue` con `contentFormat: "adf"`
+- **NO transicionar estado** — el ticket permanece en su estado actual
+- Registrar `comment_id` en el output (F5 / F6)
+
+### G4: Output
+Mismo formato que F5/F6. `transition_applied: null` siempre.
 
 ---
 

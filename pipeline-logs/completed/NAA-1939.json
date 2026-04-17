@@ -1,0 +1,179 @@
+{
+  "pipeline_id": "pipe-20260416-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-16T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40280",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-16T21:00:10.000Z",
+      "completed_at": "2026-04-16T21:00:30.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "escalate_all",
+      "routing_decision": "ORC-6",
+      "timestamp": "2026-04-16T21:00:31.000Z"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-16T21:58:00.000Z",
+      "completed_at": "2026-04-16T21:58:03.000Z",
+      "status": "completed"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260416-001",
+    "ticket_key": "NAA-1939",
+    "summary": "Error desplublicar: muestra una hora menos de lo que deberia",
+    "issue_type": "Bug - Front",
+    "status": "Revisión",
+    "priority": "Low",
+    "component_jira": null,
+    "classification": {
+      "domain": "post",
+      "module": "post",
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "low",
+      "confidence_reason": "component_jira vacío. Fuzzy match: 'despublicar' ≈ 'publicar' (1 keyword) → confidence low por regla TA-8. Además: todos los criterios son non-automatable (visual_timezone_check).",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "attachment_hint": false,
+      "test_hints": []
+    },
+    "testability_summary": {
+      "total_criteria": 2,
+      "automatable_count": 0,
+      "non_automatable_count": 2,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "C1: Verificar que la hora mostrada al despublicar coincide con la hora local de la redacción — requiere comparar timestamp dinámico contra valor timezone-dependiente; no se puede crear una assertion Selenium determinista sin controlar la hora del servidor.",
+        "C2: Verificar la conversión GMT0 → hora de redacción — equivalente a C1 desde el ángulo de implementación; misma limitación."
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "La hora mostrada al despublicar una noticia debe coincidir con la hora local de la redacción.",
+        "test_approach": {
+          "precondition": "Existe una noticia publicada en el CMS.",
+          "action": "Hacer clic en 'Despublicar' sobre la noticia.",
+          "assertion": "La hora que muestra el sistema tras despublicar debe coincidir con la hora local de la redacción (timezone Argentina, UTC-3), no con UTC."
+        },
+        "criterion_type": "visual_check",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "timezone_display_check",
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe session que valide timezone display al despublicar."
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "Implementar el formato que convierta la hora de GMT0 a la hora de redacción.",
+        "test_approach": {
+          "precondition": "Existe una noticia publicada en el CMS.",
+          "action": "Hacer clic en 'Despublicar'.",
+          "assertion": "La hora mostrada tras despublicar debe ser la hora local de Argentina (UTC-3), no UTC ni UTC-1."
+        },
+        "criterion_type": "visual_check",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "timezone_display_check",
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe session que valide conversión de timezone al despublicar."
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": {
+      "summary": "Ticket NAA-1939 no automatizable. Los 2 criterios requieren verificar que la hora mostrada al despublicar corresponde a la timezone local de la redacción (Argentina UTC-3). No es posible crear assertions Selenium deterministas para comparación de timestamps timezone-dependientes sin controlar la hora del servidor.",
+      "criteria_attempted": [
+        {
+          "criterion_id": 1,
+          "description": "Hora mostrada al despublicar = hora local redacción",
+          "reason_not_automatable": "timezone_display_check"
+        },
+        {
+          "criterion_id": 2,
+          "description": "Conversión GMT0 → hora de redacción implementada",
+          "reason_not_automatable": "timezone_display_check"
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "La hora al despublicar una noticia muestra la hora local de la redacción (Argentina, UTC-3)",
+          "precondition": "Hay al menos una noticia publicada en el CMS. Conocer la hora local actual en Argentina.",
+          "steps": [
+            "1. Ingresar al CMS en master.",
+            "2. Ir al listado de noticias publicadas.",
+            "3. Anotar la hora local exacta del sistema (ej. 15:47 Argentina).",
+            "4. Hacer clic en 'Despublicar' sobre cualquier noticia publicada.",
+            "5. Confirmar la acción si aparece un modal de confirmación.",
+            "6. Observar la hora que muestra el sistema en el registro de la despublicación."
+          ],
+          "assertion": "La hora mostrada debe coincidir con la hora local Argentina (UTC-3), no con UTC.",
+          "reason_not_automatable": "timezone_display_check"
+        }
+      ]
+    },
+    "jira_metadata": {
+      "jiraSummary": "Error desplublicar: muestra una hora menos de lo que deberia",
+      "ticketType": "Bug - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": "Low",
+      "jiraLabels": [],
+      "jiraAttachments": [
+        { "filename": "Captura de pantalla 2026-04-15 123535.png", "mediaType": "image/png", "origin": "ticket" },
+        { "filename": "image (44).png", "mediaType": "image/png", "origin": "ticket" },
+        { "filename": "image-20260415-202430.png", "mediaType": "image/png", "origin": "comment" },
+        { "filename": "Screenshot 2024-04-10 at 4.48.25 PM.png", "mediaType": "image/png", "origin": "ticket" }
+      ]
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-16T21:58:03.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["posted_escalation_comment"],
+    "errors": [],
+    "comment_id": "40280",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260416-001",
+    "ticket_key": "NAA-1939",
+    "outcome": "non_automatable",
+    "executed_at": "2026-04-16T21:58:03.000Z",
+    "stages_completed": ["ticket-analyst", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

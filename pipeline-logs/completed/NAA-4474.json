@@ -1,0 +1,231 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40395",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T13:40:00.000Z",
+      "completed_at": "2026-04-17T13:41:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "escalate_all",
+      "routing_decision": "ORC-6",
+      "timestamp": "2026-04-17T13:41:00.000Z"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T13:42:00.000Z",
+      "completed_at": "2026-04-17T13:42:38.000Z",
+      "status": "completed"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-4474",
+    "summary": "ASISTENCIA IA - Botón copiar toma el texto incorrecto y ausencia de autocompletado en corrección de gramática y ortografía",
+    "issue_type": "QA Bug  - Front",
+    "status": "Revisión",
+    "priority": "Medium",
+    "component_jira": null,
+    "classification": {
+      "domain": "cms",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "medium",
+      "confidence_reason": "Fuzzy match: 'asistencia IA' en summary matchea keyword 'asistencia IA' del módulo ai-post",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "attachment_hint": true,
+      "attachment_files": ["Grabación de pantalla desde 16-04-26 18:50:51.webm"],
+      "test_data_hints": [],
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "Verificar que el botón copiar de cada bloque copia el texto corregido (no la descripción del error)",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Click botón Copiar en bloque de gramática/ortografía",
+          "specific_assertion": "Contenido del portapapeles == texto corregido (sección principal del bloque)",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Clipboard no accesible via Selenium en Docker grid. POM del panel Asistencia IA inexistente."
+        },
+        {
+          "hint_id": 2,
+          "description": "Verificar que la descripción del error inferior del bloque no es copiada al presionar Copiar",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Click botón Copiar → pegar en campo externo",
+          "specific_assertion": "Texto pegado != descripción del error ortográfico",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Mismo bloqueo: clipboard y POM ausente"
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 2,
+      "automatable_count": 0,
+      "non_automatable_count": 2,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "Criterios 1 y 4 requieren acceso a portapapeles del sistema, no accesible via Selenium en Docker Grid",
+        "POM del panel Asistencia IA (botón copiar por bloque) inexistente — requiere DevTools para mapear locators",
+        "Criterios 2 y 3 (botón Aplicar / autocompletado) invalidados por TA-4.4: delegados a NAA-4487 (estado: To Do)"
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "El botón de copiar en cada bloque de respuesta de gramática/ortografía copia exclusivamente el texto con las correcciones aplicadas.",
+        "test_approach": {
+          "precondition": "Estar en editor de nota con panel Asistencia IA abierto, opción Gramática y ortografía ejecutada con al menos un bloque de resultado visible",
+          "action": "Click en botón Copiar del primer bloque de resultado",
+          "assertion": "Contenido del portapapeles == texto de la sección principal del bloque (texto corregido), NO la descripción inferior del error"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "clipboard_access_restricted",
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No hay POM para el panel Asistencia IA ni métodos para leer el portapapeles del sistema en el Docker Grid Selenium"
+        }
+      },
+      {
+        "criterion_id": 4,
+        "description": "La descripción del error (texto inferior del bloque) no es copiada ni aplicada en ningún caso al cuerpo de la nota.",
+        "test_approach": {
+          "precondition": "Mismo estado que criterio 1",
+          "action": "Click en botón Copiar y pegar en un campo de texto visible",
+          "assertion": "El texto pegado no contiene la descripción del error ortográfico (texto inferior del bloque)"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "clipboard_access_restricted",
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Mismo bloqueo que criterio 1"
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [
+      {
+        "key": "NAA-4487",
+        "summary": "Añadir boton de aplicar a los resultados de gramatica en asistencia IA",
+        "status": "To Do",
+        "relation": "criteria_delegated",
+        "criteria_delegated": ["Botón Aplicar reemplaza bloque de texto directamente", "Redactor no necesita copiar y pegar manualmente"]
+      }
+    ],
+    "escalation_report": {
+      "summary": "Los 2 criterios activos del bug fix no son automatizables: requieren acceso al portapapeles del sistema (no disponible en Docker Selenium Grid) y el panel Asistencia IA no tiene POM mapeado. 2 criterios de mejora (botón Aplicar / autocompletado) fueron delegados por la dev a NAA-4487 (To Do) y están excluidos.",
+      "visual_attachments_available": true,
+      "attachment_files": ["Grabación de pantalla desde 16-04-26 18:50:51.webm"],
+      "criteria_attempted": [
+        {
+          "criterion_id": 1,
+          "description": "Botón copiar copia texto corregido (no la descripción del error)",
+          "reason_not_automatable": "Selenium no puede leer el portapapeles del sistema en Docker Grid. Alternativa de paste-into-field requiere un campo editable y locator del botón copiar, que no existe en ningún POM del módulo ai-post."
+        },
+        {
+          "criterion_id": 4,
+          "description": "Descripción del error no es copiada",
+          "reason_not_automatable": "Mismo bloqueo que criterio 1. Verificar el negativo (qué NO se copió) es aún menos factible sin clipboard access."
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "El botón de copiar copia el texto corregido (sección principal del bloque)",
+          "precondition": "Ingresar al editor de una nota. Abrir panel Asistencia IA (botón robotito). Seleccionar 'Gramática y ortografía'. Ingresar un fragmento de texto con errores ortográficos y ejecutar. Esperar que aparezcan los bloques de resultado.",
+          "steps": [
+            "1. Identificar un bloque de resultado con texto corregido en la sección principal y descripción del error en la parte inferior",
+            "2. Hacer click en el botón 'Copiar' asociado a ese bloque",
+            "3. Abrir un editor de texto externo (ej. Notepad, Google Docs)",
+            "4. Pegar el contenido (Ctrl+V)",
+            "5. Verificar qué texto fue pegado"
+          ],
+          "assertion": "El texto pegado debe ser exactamente el texto corregido que aparece en la SECCIÓN PRINCIPAL del bloque, no la descripción del error que aparece debajo",
+          "reason_not_automatable": "Acceso a portapapeles del sistema no disponible en Selenium/Docker Grid. POM del panel Asistencia IA (gramática) no existe."
+        },
+        {
+          "criterion": "La descripción del error NO es copiada",
+          "precondition": "Mismo estado que el test anterior",
+          "steps": [
+            "1. Tomar nota del texto que aparece en la DESCRIPCIÓN INFERIOR de un bloque (ej. 'El término «X» estaba mal escrito')",
+            "2. Click en botón Copiar del mismo bloque",
+            "3. Pegar en editor externo",
+            "4. Verificar que el texto pegado NO contiene la descripción del error"
+          ],
+          "assertion": "El texto pegado NO debe contener frases descriptivas del error ortográfico. Solo debe aparecer el texto con la corrección aplicada.",
+          "reason_not_automatable": "Verificar el negativo (que algo NO esté en el clipboard) requiere leer el clipboard, que no es accesible en Docker Grid Selenium."
+        }
+      ]
+    },
+    "jira_metadata": {
+      "jiraSummary": "ASISTENCIA IA - Botón copiar toma el texto incorrecto y ausencia de autocompletado en corrección de gramática y ortografía",
+      "ticketType": "QA Bug  - Front",
+      "ticketStatus": "Revisión",
+      "assignee": "Paula Valentina Rodriguez Roberto",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": ["NAA-4487"],
+      "fixVersion": null,
+      "priority": "Medium",
+      "jiraLabels": [],
+      "jiraAttachments": [
+        {
+          "filename": "Grabación de pantalla desde 16-04-26 18:50:51.webm",
+          "mediaType": "video/webm",
+          "origin": "comment"
+        }
+      ]
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T13:42:38.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["addCommentToJiraIssue (MODO G)"],
+    "errors": [],
+    "comment_id": "40395",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-4474",
+    "outcome": "non_automatable",
+    "executed_at": "2026-04-17T13:42:38.000Z",
+    "stages_completed": ["ticket-analyst", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

@@ -1,64 +1,173 @@
 {
-  "pipeline_id": "pipe-20260415-001",
+  "pipeline_id": "pipe-20260416-001",
   "schema_version": "3.0",
-  "created_at": "2026-04-15T00:00:00.000Z",
+  "created_at": "2026-04-16T00:00:00.000Z",
   "environment": "master",
-  "stage": "completed",
-  "stage_status": "done",
-  "idempotency": { "last_comment_id": "39713", "already_reported": true },
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "completed",
+  "escalation_mode": false,
+  "rerun": true,
+  "prior_run_comment_id": "39713",
+  "idempotency": {
+    "last_comment_id": "40282",
+    "already_reported": true
+  },
   "step_log": [
-    { "step": "ORC-1:init", "status": "completed", "ts": "2026-04-15T00:00:01.000Z", "note": "pipeline_id=pipe-20260415-001, no duplicate context found" },
-    { "step": "ORC-2:ticket-analyst", "status": "completed", "ts": "2026-04-15T04:33:00.000Z", "note": "Ticket leído. component_jira=['IA','NotaLista'] → módulo ai-post vía component-to-module.json" },
-    { "step": "ORC-3:test-engine:grid-check", "status": "completed", "ts": "2026-04-15T04:33:10.000Z", "note": "Grid ready en localhost:4444" },
-    { "step": "ORC-3:test-engine:run", "status": "completed", "ts": "2026-04-15T04:34:00.000Z", "note": "NewAIPost ejecutado. Resultado: FAILED. 1 test, 0 passed, 1 failed. 27.8s" },
-    { "step": "ORC-5:test-reporter", "status": "completed", "ts": "2026-04-15T04:34:24.000Z", "note": "Comentario ADF posteado en NAA-4458. comment_id=39713" },
-    { "step": "ORC-6:finalize", "status": "completed", "ts": "2026-04-15T04:34:30.000Z", "note": "Context movido a completed/" }
+    { "stage": "ticket-analyst", "started_at": "2026-04-16T00:00:01.000Z", "completed_at": "2026-04-16T00:00:30.000Z", "status": "completed" },
+    { "stage": "routing", "action_evaluated": "full_run", "routing_decision": "ORC-3", "timestamp": "2026-04-16T00:00:31.000Z" },
+    { "stage": "test-engine", "started_at": "2026-04-16T18:58:08.000Z", "completed_at": "2026-04-16T19:00:20.000Z", "status": "completed", "duration_ms": 135215 },
+    { "stage": "test-reporter", "started_at": "2026-04-16T19:01:47.000Z", "completed_at": "2026-04-16T19:02:00.000Z", "status": "completed" },
+    { "stage": "ORC-6:finalize", "status": "completed", "ts": "2026-04-16T19:02:10.000Z", "note": "Context movido a completed/" }
   ],
+  "error_log": [],
   "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260416-001",
     "ticket_key": "NAA-4458",
     "summary": "NOTAS IA - Renderizado de Markdown en preview del modal de creación de nota",
-    "issuetype": "Subtarea",
+    "issue_type": "Subtarea",
     "status": "Revisión",
     "priority": "High",
-    "assignee": "Paula Valentina Rodriguez Roberto",
-    "component_jira": ["IA", "NotaLista"],
-    "module": "ai-post",
-    "classification_method": "component-to-module.json (exact match: 'IA' → 'ai-post')",
-    "testable": true,
+    "component_jira": [],
+    "classification": {
+      "domain": "ai-post",
+      "module": "ai-post",
+      "action_type": "retest",
+      "testable": true,
+      "confidence": "high",
+      "confidence_reason": "Keyword match 'NOTAS IA' en título → ai-post. Confirmado por run previo con misma clasificación.",
+      "criteria_source": "extracted",
+      "human_escalation": false,
+      "attachment_hint": false,
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "Preview del modal de creación de nota IA debe renderizar caracteres HTML correctamente",
+          "automatable": true,
+          "criterion_type": "visual_check",
+          "specific_action": "Generar nota IA con prompt que incluya markdown (bullets, sub-bullets, negritas, tablas)",
+          "specific_assertion": "Verificar que el preview muestra el contenido renderizado, incluyendo bullets y sub-bullets correctamente indentados",
+          "covered_by_existing_session": true,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": "Run previo falló por selector obsoleto en selectNoteType. Paula publicó fix el 2026-04-15 20:01."
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 2,
+      "automatable_count": 2,
+      "non_automatable_count": 0,
+      "all_automatable": true,
+      "partial_automatable": false,
+      "human_escalation_needed": false,
+      "escalation_reasons": [],
+      "action": "full_run"
+    },
     "acceptance_criteria": [
-      "Actualizar el preview para que soporte caracteres de HTML",
-      "Asegurarse de que el contenido no se rompa al utilizar HTML en notas comunes y en notas listas"
+      {
+        "criterion_id": 1,
+        "description": "Actualizar el preview para que soporte caracteres de HTML",
+        "test_approach": {
+          "precondition": "Docker Grid disponible, sesión activa en master",
+          "action": "Crear nota IA con prompt que genere markdown (bullets, negritas, tablas, links)",
+          "assertion": "El preview del modal muestra los elementos HTML renderizados correctamente, sin texto raw"
+        },
+        "criterion_type": "visual_check",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "coverage": {
+          "covered_by_existing_session": true,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": null
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "Asegurarse de que el contenido no se rompa al utilizar HTML en notas comunes y en notas listas",
+        "test_approach": {
+          "precondition": "Docker Grid disponible, sesión activa en master",
+          "action": "Ejecutar flujo NewAIPost incluyendo nota lista, verificar preview",
+          "assertion": "El contenido se muestra íntegro sin errores de renderizado; sub-bullets correctamente indentados"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "coverage": {
+          "covered_by_existing_session": true,
+          "session_file": "sessions/post/NewAIPost.test.ts",
+          "gap_description": null
+        }
+      }
     ],
-    "testability_summary": "Ticket testable. Existe session NewAIPost.test.ts que cubre el flujo de creación de nota IA en master. El último comentario del dev (Paula, 2026-04-14) indica que los cambios están en master con commit 28af21ccd84f73cda94f3b9b636d68c8267f6a69."
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": null,
+    "jira_metadata": {
+      "jiraSummary": "NOTAS IA - Renderizado de Markdown en preview del modal de creación de nota",
+      "ticketType": "Subtarea",
+      "ticketStatus": "Revisión",
+      "assignee": "Paula Valentina Rodriguez Roberto",
+      "component": "",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": "High",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
   },
   "test_engine_output": {
-    "grid_available": true,
+    "pipeline_id": "pipe-20260416-001",
+    "ticket_key": "NAA-4458",
+    "execution_id": "exec-20260416-001",
+    "executed_at": "2026-04-16T18:58:08.000Z",
+    "mode_used": "discover_and_run",
+    "environment": "master",
+    "grid": true,
+    "headless": true,
     "sessions_found": true,
-    "session": "NewAIPost",
-    "session_path": "sessions/post/NewAIPost.test.ts",
-    "execution_id": "exec-001",
-    "result": "FAILED",
-    "num_total": 1,
-    "num_passed": 0,
-    "num_failed": 1,
-    "duration_s": 27.8,
-    "failure_summary": "El menú se abrió, pero no se encontraron labels con el selector: By(css selector, div[data-testid=\"dropdown-item\"] label)",
-    "failure_origin": "NewNoteBtn.ts:103 → selectNoteType → MainPostPage.ts:135",
-    "results_file": "pipeline-logs/results-NAA-4458-exec-001.json"
+    "result": "passed",
+    "total_tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "results": [
+      {
+        "session_file": "sessions/post/NewAIPost.test.ts",
+        "session_name": "NewAIPost",
+        "status": "pass",
+        "duration_ms": 132142,
+        "failure_messages": [],
+        "mapped_to_hint": 1
+      }
+    ],
+    "failure_summary": null,
+    "console_errors_detected": [],
+    "jest_output_path": "pipeline-logs/results-NAA-4458-exec-20260416-001.json",
+    "screenshots": []
   },
   "test_reporter_output": {
-    "comment_id": "39713",
-    "posted_at": "2026-04-15T04:34:24.000Z",
-    "outcome": "reported_failure",
-    "prefix_present": true,
-    "transition_applied": false
+    "executed_at": "2026-04-16T19:01:47.000Z",
+    "operation": "validate_master",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      { "action": "addComment", "comment_id": "40282", "status": "success" },
+      { "action": "transitionIssue", "to_status": "A Versionar", "transition_id": "42", "status": "success" }
+    ],
+    "errors": [],
+    "comment_id": "40282",
+    "transition_applied": "A Versionar"
   },
   "milestone_notes": {
-    "pipeline_id": "pipe-20260415-001",
+    "pipeline_id": "pipe-20260416-001",
     "ticket_key": "NAA-4458",
     "outcome": "success",
-    "executed_at": "2026-04-15T04:34:30.000Z",
+    "executed_at": "2026-04-16T19:02:10.000Z",
     "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
-    "total_duration_note": "Ver step_log"
+    "total_duration_note": "Ver step_log para tiempos por stage"
   }
 }

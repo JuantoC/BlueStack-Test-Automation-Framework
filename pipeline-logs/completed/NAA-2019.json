@@ -1,0 +1,219 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40358",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T00:01:00.000Z",
+      "completed_at": "2026-04-17T00:02:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "escalate_all",
+      "routing_decision": "ORC-6",
+      "timestamp": "2026-04-17T00:02:01.000Z"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T00:03:00.000Z",
+      "completed_at": "2026-04-17T11:03:16.000Z",
+      "status": "completed",
+      "mode": "escalation"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-2019",
+    "summary": "Busqueda avanzada error de cantidad de notas",
+    "issue_type": "Bug - Back",
+    "status": "Revisión",
+    "priority": null,
+    "component_jira": "busqueda",
+    "classification": {
+      "domain": "admin-search",
+      "module": null,
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "low",
+      "confidence_reason": "Solo 1 keyword match ('notas'→'nota' en módulo post). El componente Jira 'busqueda' mapea a null en component-to-module.json. No existe módulo ni sesión para búsqueda avanzada del admin. Fix es en backend Java/Lucene (webservice news/refactor/get) — sin POM para la pantalla de búsqueda avanzada del nuevo admin.",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "attachment_hint": false,
+      "test_data_hints": [],
+      "test_hints": []
+    },
+    "testability_summary": {
+      "total_criteria": 3,
+      "automatable_count": 0,
+      "non_automatable_count": 3,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "confidence: low — 1 sola keyword match, sin módulo clasificado",
+        "No existe POM para la pantalla de búsqueda avanzada del nuevo admin",
+        "Fix es en backend Java/Lucene — criterion_scope: api, sin cobertura Selenium"
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "Los resultados devueltos deben coincidir con la cantidad solicitada, siempre que haya suficientes notas disponibles.",
+        "test_approach": {
+          "precondition": "Admin con notas publicadas en el rango de fechas a buscar.",
+          "action": "Abrir la búsqueda avanzada del nuevo admin, configurar un rango de fechas con N notas disponibles, solicitar una cantidad M ≤ N.",
+          "assertion": "La respuesta del webservice devuelve exactamente M notas."
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "api",
+        "automatable": false,
+        "reason_if_not": "no_pom_for_admin_search",
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe sesión ni POM para la búsqueda avanzada del nuevo admin."
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "Si hay 44 notas en el rango de fechas, se deben mostrar 32 cuando se solicita esa cantidad (caso concreto del bug).",
+        "test_approach": {
+          "precondition": "Existir al menos 44 notas publicadas en el rango de fechas consultado.",
+          "action": "Llamar al webservice admin news/refactor/get con size=32 y rango de 15 días con ≥44 notas.",
+          "assertion": "La respuesta contiene exactamente 32 documentos, no 31 ni otro valor."
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "api",
+        "automatable": false,
+        "reason_if_not": "no_pom_for_admin_search",
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe sesión ni POM para la búsqueda avanzada del nuevo admin."
+        }
+      },
+      {
+        "criterion_id": 3,
+        "description": "El error aplica solo al nuevo administrador — el news-list no debe verse afectado.",
+        "test_approach": {
+          "precondition": "Conocer la URL del news-list y del webservice admin.",
+          "action": "Verificar que el news-list sigue devolviendo los mismos resultados que antes del fix.",
+          "assertion": "El comportamiento del news-list no cambió."
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "api",
+        "automatable": false,
+        "reason_if_not": "no_pom_for_admin_search",
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "No existe sesión de regresión para el news-list en este contexto."
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": {
+      "summary": "Ticket NAA-2019 no automatizable con el framework actual. Fix en backend Java/Lucene (LuceneNewsCollector.java + webservice news/refactor/get). Sin POM para la pantalla de búsqueda avanzada del nuevo admin. Módulo no mapeado en test-map.json. URL de validación del dev (requiere credenciales): https://dev.cms-medios.com/ISSUES/news/jspPruebaIssues.jsp",
+      "validation_url_from_dev": "https://dev.cms-medios.com/ISSUES/news/jspPruebaIssues.jsp",
+      "criteria_attempted": [
+        {
+          "criterion": "Resultados coinciden con cantidad solicitada",
+          "reason_not_automatable": "Criterio de API/backend — el fix es en el webservice Java. Sin POM para la búsqueda avanzada del admin."
+        },
+        {
+          "criterion": "Caso concreto: 44 notas disponibles → 32 mostradas al solicitar 32",
+          "reason_not_automatable": "Requiere control de datos en BD de testing; sin session ni POM."
+        },
+        {
+          "criterion": "El news-list no debe verse afectado (regression)",
+          "reason_not_automatable": "Sin session de regresión del news-list en el framework."
+        }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "Verificar que la búsqueda avanzada devuelve la cantidad correcta",
+          "precondition": "Acceder al nuevo admin CMS en master con notas publicadas en el rango de fechas a consultar.",
+          "steps": [
+            "1. Abrir la URL de validación del dev: https://dev.cms-medios.com/ISSUES/news/jspPruebaIssues.jsp",
+            "2. Revisar los casos de prueba documentados en esa página.",
+            "3. Alternativamente: En el nuevo admin, ir a Búsqueda avanzada.",
+            "4. Configurar un rango de fechas de ~15 días y solicitar 32 notas.",
+            "5. Verificar que se devuelven exactamente 32 resultados (no 31 ni otro valor).",
+            "6. Repetir variando la cantidad para confirmar consistencia."
+          ],
+          "assertion": "La cantidad de resultados mostrados coincide exactamente con la cantidad solicitada.",
+          "reason_not_automatable": "Sin POM para la búsqueda avanzada del admin. Requiere control de datos en BD."
+        },
+        {
+          "criterion": "Verificar que el news-list no fue modificado",
+          "precondition": "URL del news-list en master conocida.",
+          "steps": [
+            "1. Abrir la URL del news-list en el navegador.",
+            "2. Verificar que la cantidad de noticias devueltas es la misma que antes del fix.",
+            "3. El dev dejó el JSP de prueba: https://dev.cms-medios.com/ISSUES/news/jspPruebaIssues.jsp para verificar también este punto."
+          ],
+          "assertion": "El news-list devuelve la misma cantidad de noticias que antes del fix.",
+          "reason_not_automatable": "Sin session de regresión del news-list en el framework."
+        }
+      ]
+    },
+    "jira_metadata": {
+      "jiraSummary": "Busqueda avanzada error de cantidad de notas",
+      "ticketType": "Bug - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": "busqueda",
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": null,
+      "linkedIssues": [],
+      "fixVersion": null,
+      "priority": null,
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "validation_url_from_dev": "https://dev.cms-medios.com/ISSUES/news/jspPruebaIssues.jsp",
+      "dev_comments_summary": "Verónica Tarletta implementó fix en LuceneNewsCollector.java (fetchbuffer parameter) y en news/refactor/get. Solicita validación y deja URL de prueba."
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T11:03:16.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      "addCommentToJiraIssue — comment_id: 40358"
+    ],
+    "errors": [],
+    "comment_id": "40358",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-2019",
+    "outcome": "non_automatable",
+    "executed_at": "2026-04-17T11:03:16.000Z",
+    "stages_completed": ["ticket-analyst", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

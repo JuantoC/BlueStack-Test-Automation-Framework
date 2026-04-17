@@ -1,0 +1,219 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40430",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T17:30:00.000Z",
+      "completed_at": "2026-04-17T17:31:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "escalate_all",
+      "routing_decision": "ORC-6",
+      "timestamp": "2026-04-17T17:31:00.000Z"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T17:31:00.000Z",
+      "completed_at": "2026-04-17T17:35:19.000Z",
+      "status": "completed",
+      "mode": "escalation_comment"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-4475",
+    "summary": "CREACION NOTA IA - PDF específico falla la carga de transcripción con errores engañosos (modelo / 429)",
+    "issue_type": "QA Bug - Back",
+    "status": "Revisión",
+    "priority": "Medium",
+    "component_jira": "AI",
+    "classification": {
+      "domain": "ai-post",
+      "module": "ai-post",
+      "action_type": "regression_test",
+      "testable": false,
+      "confidence": "high",
+      "confidence_reason": "component_jira='AI' mapea directamente a módulo 'ai-post' en component-to-module.json",
+      "criteria_source": "extracted",
+      "human_escalation": true,
+      "attachment_hint": false,
+      "test_data_hints": [],
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "Subir el PDF adjunto (con contenido Markdown) al panel AI → verificar que el sistema lo rechaza con error FILE_PROCESSING (021.010) descriptivo, no error de modelo ni 429",
+          "automatable": false,
+          "criterion_type": "error_handling",
+          "specific_action": "Crear nota IA → subir PDF con Markdown → cargar transcripción",
+          "specific_assertion": "Error muestra mensaje descriptivo sobre tipo de contenido problemático, NO error de modelo ni 429",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para el componente upload PDF del panel AI Assistant (pom_gap)"
+        },
+        {
+          "hint_id": 2,
+          "description": "Subir un PDF normal (sin Markdown) → verificar que la transcripción se carga y la nota IA se genera sin errores",
+          "automatable": false,
+          "criterion_type": "functional_flow",
+          "specific_action": "Crear nota IA → subir PDF normal → cargar transcripción → generar nota",
+          "specific_assertion": "Transcripción carga correctamente, nota IA se genera sin errores",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para el flujo completo de upload PDF en panel AI Assistant"
+        },
+        {
+          "hint_id": 3,
+          "description": "Después del error con PDF problemático, verificar que el flujo no se rompe (el componente sigue funcional)",
+          "automatable": false,
+          "criterion_type": "error_handling",
+          "specific_action": "Subir PDF problemático → recibir error → intentar subir otro PDF",
+          "specific_assertion": "El formulario permanece usable después del error, no hay estado roto",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sin POM para el componente upload PDF del panel AI Assistant (pom_gap)"
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 4,
+      "automatable_count": 0,
+      "non_automatable_count": 4,
+      "all_automatable": false,
+      "partial_automatable": false,
+      "human_escalation_needed": true,
+      "escalation_reasons": [
+        "Todos los criterios requieren interacción con el panel AI de carga de PDF (subir archivo, verificar respuesta de error), para el cual no existe POM en el framework (pom_gap)."
+      ],
+      "action": "escalate_all"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "Detección de PDFs con contenido Markdown → rechazo con error 021.010 FILE_PROCESSING",
+        "test_approach": {
+          "precondition": "Acceso al CMS en master. PDF adjunto del ticket descargado.",
+          "action": "Crear nueva nota IA → subir PDF adjunto → cargar transcripción",
+          "assertion": "Error 021.010 FILE_PROCESSING con mensaje descriptivo (Markdown detectado)"
+        },
+        "criterion_type": "error_handling",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "coverage": { "covered_by_existing_session": false, "session_file": null }
+      },
+      {
+        "criterion_id": 2,
+        "description": "El error devuelto al usuario debe ser representativo del problema real (no error de modelo ni 429)",
+        "test_approach": {
+          "precondition": "PDF con contenido Markdown disponible.",
+          "action": "Subir PDF con Markdown → observar mensaje de error",
+          "assertion": "Mensaje NO dice 'error de modelo' ni '429'. Es descriptivo sobre el contenido del archivo."
+        },
+        "criterion_type": "error_handling",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "coverage": { "covered_by_existing_session": false, "session_file": null }
+      },
+      {
+        "criterion_id": 3,
+        "description": "PDF parseable → transcripción cargada y nota generada correctamente",
+        "test_approach": {
+          "precondition": "PDF normal disponible.",
+          "action": "Crear nota IA → subir PDF normal → cargar transcripción → generar nota",
+          "assertion": "Transcripción visible, nota generada sin errores"
+        },
+        "criterion_type": "functional_flow",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "coverage": { "covered_by_existing_session": false, "session_file": null }
+      },
+      {
+        "criterion_id": 4,
+        "description": "Si el contenido no puede procesarse, error claro sin romper el flujo",
+        "test_approach": {
+          "precondition": "PDF problemático disponible.",
+          "action": "Subir PDF problemático → recibir error → verificar estado del panel",
+          "assertion": "Panel sigue funcional post-error, no hay estado roto"
+        },
+        "criterion_type": "error_handling",
+        "criterion_scope": "ui",
+        "automatable": false,
+        "reason_if_not": "pom_gap",
+        "coverage": { "covered_by_existing_session": false, "session_file": null }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": {
+      "summary": "Todos los criterios requieren interacción con el panel AI de carga de PDF (IAcreate/uploadFile). El framework no tiene POM para este componente.",
+      "criteria_attempted": [
+        { "criterion_id": 1, "description": "Detección de PDFs con Markdown → error 021.010", "reason_not_automatable": "pom_gap — sin locators para componente upload PDF panel AI" },
+        { "criterion_id": 2, "description": "Mensaje de error representativo", "reason_not_automatable": "pom_gap — sin locators para mensajes de error GenAI" },
+        { "criterion_id": 3, "description": "PDF parseable → flujo completo funciona", "reason_not_automatable": "pom_gap — flujo PDF no cubierto por NewAIPost (usa texto, no PDF)" },
+        { "criterion_id": 4, "description": "Error claro sin romper flujo", "reason_not_automatable": "pom_gap — sin locators para estado post-error del panel AI" }
+      ],
+      "manual_test_guide": [
+        {
+          "criterion": "Test 1 — PDF con Markdown (Criterios 1, 2 y 4)",
+          "precondition": "PDF adjunto del ticket descargado. Acceso al CMS en master.",
+          "steps": ["Crear nueva nota IA", "Subir PDF adjunto del ticket", "Click 'Cargar transcripción'", "Observar mensaje de error"],
+          "assertion": "Error descriptivo (021.010 FILE_PROCESSING), NO error de modelo ni 429. Panel funcional post-error.",
+          "reason_not_automatable": "pom_gap"
+        },
+        {
+          "criterion": "Test 2 — PDF normal (Criterio 3)",
+          "precondition": "PDF normal disponible. Acceso al CMS en master.",
+          "steps": ["Crear nueva nota IA", "Subir PDF normal", "Cargar transcripción", "Generar nota IA"],
+          "assertion": "Transcripción carga, nota se genera sin errores.",
+          "reason_not_automatable": "pom_gap"
+        }
+      ]
+    },
+    "jira_metadata": {
+      "jiraSummary": "CREACION NOTA IA - PDF específico falla la carga de transcripción con errores engañosos (modelo / 429)",
+      "ticketType": "QA Bug - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Verónica Tarletta",
+      "component": "AI",
+      "priority": "Medium",
+      "jiraLabels": [],
+      "jiraAttachments": []
+    }
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T17:35:19.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": ["addCommentToJiraIssue NAA-4475 — comment_id: 40430"],
+    "attachment_results": [],
+    "errors": [],
+    "comment_id": "40430",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-4475",
+    "outcome": "non_automatable",
+    "executed_at": "2026-04-17T17:35:19.000Z",
+    "stages_completed": ["ticket-analyst", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

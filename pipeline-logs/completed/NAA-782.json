@@ -1,0 +1,219 @@
+{
+  "pipeline_id": "pipe-20260417-001",
+  "schema_version": "3.0",
+  "created_at": "2026-04-17T00:00:00.000Z",
+  "environment": "master",
+  "prerelease_version": null,
+  "stage": "done",
+  "stage_status": "escalated",
+  "escalation_mode": true,
+  "idempotency": {
+    "last_comment_id": "40360",
+    "already_reported": true
+  },
+  "step_log": [
+    {
+      "stage": "ticket-analyst",
+      "started_at": "2026-04-17T00:00:00.000Z",
+      "completed_at": "2026-04-17T00:01:00.000Z",
+      "status": "completed"
+    },
+    {
+      "stage": "routing",
+      "action_evaluated": "generate_tests",
+      "routing_decision": "ORC-4.1",
+      "timestamp": "2026-04-17T00:01:30.000Z"
+    },
+    {
+      "stage": "test-generator",
+      "started_at": "2026-04-17T00:01:30.000Z",
+      "completed_at": "2026-04-17T00:03:00.000Z",
+      "status": "completed",
+      "dry_run": "fail"
+    },
+    {
+      "stage": "test-reporter",
+      "started_at": "2026-04-17T11:08:00.000Z",
+      "completed_at": "2026-04-17T11:08:09.000Z",
+      "status": "completed"
+    }
+  ],
+  "error_log": [],
+  "ticket_analyst_output": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-782",
+    "summary": "Mejora CKEDITOR: Galeria de imagenes y video- mejorar la paginación",
+    "issue_type": "Task - Back",
+    "status": "Revisión",
+    "priority": "Low",
+    "component_jira": null,
+    "classification": {
+      "domain": "post",
+      "module": "post",
+      "action_type": "regression_test",
+      "testable": true,
+      "confidence": "medium",
+      "confidence_reason": "Fuzzy match por keyword 'CKEditor' en summary → módulo 'post'. Múltiples keywords (imagenes, video) también presentes pero 'post' gana por desempate. No hay component_jira explícito.",
+      "criteria_source": "inferred",
+      "human_escalation": false,
+      "attachment_hint": false,
+      "test_data_hints": [],
+      "test_hints": [
+        {
+          "hint_id": 1,
+          "description": "En galería CKEditor, el primer ítem solo debe mostrar flecha derecha (no izquierda)",
+          "automatable": true,
+          "criterion_type": "state_transition",
+          "specific_action": "Abrir post con galería de imágenes/video en CKEditor, verificar estado de flechas en primer ítem",
+          "specific_assertion": "Flecha izquierda ausente/oculta, flecha derecha visible",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Ninguna session del módulo post testea el comportamiento de navegación de galería CKEditor"
+        },
+        {
+          "hint_id": 2,
+          "description": "En ítems intermedios de la galería, deben mostrarse ambas flechas (izquierda y derecha)",
+          "automatable": true,
+          "criterion_type": "state_transition",
+          "specific_action": "Navegar al segundo ítem (o posterior no-último) de la galería",
+          "specific_assertion": "Ambas flechas (izquierda y derecha) visibles",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Ninguna session del módulo post testea el comportamiento de navegación de galería CKEditor"
+        },
+        {
+          "hint_id": 3,
+          "description": "En el último ítem de la galería, solo debe mostrarse flecha izquierda (no derecha)",
+          "automatable": true,
+          "criterion_type": "state_transition",
+          "specific_action": "Navegar al último ítem de la galería",
+          "specific_assertion": "Flecha derecha ausente/oculta, flecha izquierda visible",
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Ninguna session del módulo post testea el comportamiento de navegación de galería CKEditor"
+        }
+      ]
+    },
+    "testability_summary": {
+      "total_criteria": 3,
+      "automatable_count": 3,
+      "non_automatable_count": 0,
+      "all_automatable": true,
+      "partial_automatable": false,
+      "human_escalation_needed": false,
+      "escalation_reasons": [],
+      "action": "generate_tests"
+    },
+    "acceptance_criteria": [
+      {
+        "criterion_id": 1,
+        "description": "En el primer ítem de la galería CKEditor, solo se muestra la flecha de navegación derecha",
+        "test_approach": {
+          "precondition": "Post con galería CKEditor de al menos 2 ítems. Editor abierto, galería visible.",
+          "action": "Verificar estado de botones en primer ítem",
+          "assertion": "Flecha izquierda ausente/hidden. Flecha derecha presente y visible."
+        },
+        "criterion_type": "state_transition",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Sessions de módulo 'post' no testean galería CKEditor"
+        }
+      },
+      {
+        "criterion_id": 2,
+        "description": "En ítems intermedios de la galería CKEditor, ambas flechas están visibles",
+        "test_approach": {
+          "precondition": "Galería con ≥3 ítems, navegado al segundo.",
+          "action": "Click en flecha derecha desde primer ítem, verificar estado",
+          "assertion": "Ambos botones (izquierda y derecha) presentes y visibles."
+        },
+        "criterion_type": "state_transition",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Ninguna session valida estado de navegación de galería CKEditor"
+        }
+      },
+      {
+        "criterion_id": 3,
+        "description": "En el último ítem de la galería CKEditor, solo se muestra la flecha izquierda",
+        "test_approach": {
+          "precondition": "Galería con N ítems, navegado al último.",
+          "action": "Navegar al último ítem, verificar estado",
+          "assertion": "Flecha derecha ausente/hidden. Flecha izquierda visible. Sin ciclo infinito."
+        },
+        "criterion_type": "state_transition",
+        "criterion_scope": "ui",
+        "automatable": true,
+        "reason_if_not": null,
+        "requires_screenshot": false,
+        "use_specific_test_data": false,
+        "coverage": {
+          "covered_by_existing_session": false,
+          "session_file": null,
+          "gap_description": "Ninguna session valida comportamiento de fin de galería CKEditor"
+        }
+      }
+    ],
+    "master_validation": null,
+    "linked_tickets": [],
+    "escalation_report": null,
+    "jira_metadata": {
+      "jiraSummary": "Mejora CKEDITOR: Galeria de imagenes y video- mejorar la paginación",
+      "ticketType": "Task - Back",
+      "ticketStatus": "Revisión",
+      "assignee": "Claudia Tobares",
+      "component": null,
+      "sprint": null,
+      "executiveSummary": null,
+      "parentKey": "NAA-15",
+      "linkedIssues": [],
+      "fixVersion": "8.6.16.2.3",
+      "priority": "Low",
+      "jiraLabels": [],
+      "jiraAttachments": [],
+      "vfs_path": "/system/modules/com.tfsla.diario.webservices/ckeditor/gallery",
+      "validation_comment": "Claudia Tobares (2026-04-16): '@Juan Tomas Caldera se puede validar en master.'"
+    }
+  },
+  "test_generator_output": {
+    "status": "auto_generated",
+    "test_path": "sessions/post/AutoGenerated_NAA-782.test.ts",
+    "dry_run_result": "fail",
+    "fail_reason": "todo_pom_runtime",
+    "test_map_updated": true,
+    "notes": "TypeScript compila sin error TS. Falla en runtime por TODO-POM throws (esperado). Requiere CKEditorGallerySection en src/pages/post_page/note_editor_page/ con locators DevTools."
+  },
+  "test_engine_output": null,
+  "test_reporter_output": {
+    "executed_at": "2026-04-17T11:08:09.000Z",
+    "operation": "escalation_comment",
+    "environment": "master",
+    "status": "success",
+    "actions_taken": [
+      "addCommentToJiraIssue — comment_id: 40360"
+    ],
+    "errors": [],
+    "comment_id": "40360",
+    "transition_applied": null
+  },
+  "milestone_notes": {
+    "pipeline_id": "pipe-20260417-001",
+    "ticket_key": "NAA-782",
+    "outcome": "auto_generated_dry_run_failed",
+    "executed_at": "2026-04-17T11:08:09.000Z",
+    "stages_completed": ["ticket-analyst", "test-generator", "test-reporter"],
+    "total_duration_note": "Ver step_log para tiempos por stage"
+  }
+}

@@ -243,7 +243,7 @@ Este inventario es la línea base inmutable. Nada de lo listado se toca.
 ## Paso 1E — Gap Analysis
 
 Comparar el inventario contra el input del usuario (screenshot, DOM, texto).
-Formato de la tabla de brechas → ver `wiki/patterns/conventions.md` (sección "Modo Extensión — Gap Analysis").
+Formato de la tabla de brechas → ver `references/pom-formats.md` (sección "Modo Extensión — Gap Analysis").
 
 Presentar la tabla. No generar código antes de recibir confirmación.
 
@@ -264,7 +264,7 @@ Esperá confirmación antes de proceder.
 
 ## Paso 3E — Generación Aditiva
 
-Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `wiki/patterns/conventions.md` (sección "Modo Extensión — Formatos de Output"). Ejemplo concreto → `examples.md § 4`.
+Para **archivos existentes**: salida siempre en bloques de inserción. Formato → `references/pom-formats.md` (sección "Modo Extensión — Formatos de Output"). Ejemplo concreto → `examples.md § 4`.
 
 Cuando el archivo usa un **map de acciones + switch coordinado** (ej: `ACTIONS` map y `switch(action)`):
 - Agregar el nuevo entry en el map Y el nuevo case en el switch en el mismo bloque de inserción.
@@ -317,4 +317,4 @@ Modificar `wiki/patterns/conventions.md`. El SKILL.md no contiene convenciones h
 Agregar ejemplos en `examples.md` (esta carpeta) con una sección dedicada y referencia cruzada desde `wiki/patterns/conventions.md`.
 
 ## Cambiar el formato de los placeholders TODO
-Buscar `TODO_placeholder_name` en este archivo y en `wiki/patterns/conventions.md`. Modificar el patrón en ambos lugares.
+Buscar `TODO_placeholder_name` en este archivo y en `references/pom-formats.md`. Modificar el patrón en ambos lugares.

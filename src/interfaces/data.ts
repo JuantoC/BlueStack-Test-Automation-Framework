@@ -165,10 +165,11 @@ export interface EmbeddedVideoData extends VideoData {
 /**
  * Datos para la generación asistida por IA de notas.
  * Parámetros de contexto y tono que controlan el asistente IA del CMS.
- * `noteType` fijado como `'AI_POST'` para consistencia con el patrón de datos del framework.
+ * `noteType` es requerido y siempre `'AI_POST'` — igual que `PostData.noteType: 'POST'`.
+ * `generateNewAINote()` recibe `Partial<AIDataNote>`, por lo que internamente sigue siendo opcional al pasar al modal.
  */
 export interface AIDataNote {
-  noteType?: 'AI_POST';
+  noteType: 'AI_POST';
   task?: string;
   context?: string;
   section?: number;

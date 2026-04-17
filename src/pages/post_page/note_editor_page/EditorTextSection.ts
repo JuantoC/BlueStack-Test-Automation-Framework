@@ -1,6 +1,7 @@
 import { WebDriver, By, Locator, WebElement } from "selenium-webdriver";
 import { writeSafe } from "../../../core/actions/writeSafe.js";
 import { clickSafe } from "../../../core/actions/clickSafe.js";
+import { waitFind } from "../../../core/actions/waitFind.js";
 import { RetryOptions, resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import logger from "../../../core/utils/logger.js";
 import { NoteData } from "../../../interfaces/data.js";
@@ -134,6 +135,98 @@ export class EditorTextSection {
       return await this.driver.findElements(EditorTextSection.ADD_NEW_TITLE_ITEM);
     } catch (error: unknown) {
       logger.error(`Error en getAddNewTitleItems: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  // ========== GETTERS — Lectura de contenido actual ==========
+
+  /**
+   * Lee el valor actual del campo título principal.
+   *
+   * @returns {Promise<string>} Contenido actual del textarea de título.
+   */
+  public async getTitle(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.title, this.config);
+      return await el.getAttribute('value');
+    } catch (error: unknown) {
+      logger.error(`Error en getTitle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el valor actual del campo título secundario.
+   *
+   * @returns {Promise<string>} Contenido actual del textarea de título secundario.
+   */
+  public async getSecondaryTitle(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.secondaryTitle, this.config);
+      return await el.getAttribute('value');
+    } catch (error: unknown) {
+      logger.error(`Error en getSecondaryTitle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el texto actual del campo copete (subtítulo CKEditor).
+   *
+   * @returns {Promise<string>} Contenido actual del editor enriquecido de copete.
+   */
+  public async getSubTitle(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.subTitle, this.config);
+      return await el.getText();
+    } catch (error: unknown) {
+      logger.error(`Error en getSubTitle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el valor actual del campo volanta (medio título).
+   *
+   * @returns {Promise<string>} Contenido actual del input de volanta.
+   */
+  public async getHalfTitle(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.halfTitle, this.config);
+      return await el.getAttribute('value');
+    } catch (error: unknown) {
+      logger.error(`Error en getHalfTitle: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el texto actual del campo cuerpo (body CKEditor).
+   *
+   * @returns {Promise<string>} Contenido actual del editor enriquecido de cuerpo.
+   */
+  public async getBody(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.body, this.config);
+      return await el.getText();
+    } catch (error: unknown) {
+      logger.error(`Error en getBody: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
+      throw error;
+    }
+  }
+
+  /**
+   * Lee el texto actual del campo resumen.
+   *
+   * @returns {Promise<string>} Contenido actual del editor enriquecido de resumen.
+   */
+  public async getSummary(): Promise<string> {
+    try {
+      const el = await waitFind(this.driver, EditorTextSection.LOCATORS.summary, this.config);
+      return await el.getText();
+    } catch (error: unknown) {
+      logger.error(`Error en getSummary: ${getErrorMessage(error)}`, { label: this.config.label, error: getErrorMessage(error) });
       throw error;
     }
   }

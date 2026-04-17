@@ -1,0 +1,10 @@
+{
+  "eval_id": 3,
+  "eval_name": "tc1-lookup-retry-boundary",
+  "prompt": "Auditá la wiki con foco en si un agente puede encontrar la convención de retry boundary con una sola lectura, sin ambigüedad.",
+  "assertions": [
+    "La skill identifica cuántas páginas wiki mencionan retry boundary con detalle suficiente y si hay jerarquía clara entre ellas",
+    "El reporte indica explícitamente cuál página es la fuente canónica para retry boundary",
+    "El reporte menciona o evidencia que el análisis de lookup paths fue ejecutado (R7 o análisis equivalente)"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "eval_id": 1,
+  "eval_name": "tc1-lookup-retry-boundary",
+  "config": "old_skill",
+  "expectations": [
+    {
+      "text": "La skill identifica cuántas páginas wiki mencionan retry boundary con detalle suficiente y si hay jerarquía clara entre ellas",
+      "passed": true,
+      "evidence": "H1 tabla con 3 páginas y contenido; H5 'Test de lectura única' con tabla por punto de entrada. Sin embargo, la conclusión dice 'sin jerarquía clara' — el reporte detecta la dispersión y analiza niveles de accesibilidad por página"
+    },
+    {
+      "text": "El reporte indica explícitamente cuál página es la fuente canónica para retry boundary",
+      "passed": true,
+      "evidence": "H4: 'Para un agente que necesita entender cómo aplicar la regla, logging.md es el documento canónico'. También en conclusión: 'logging.md tiene el detalle' y 'DUPLICACION-FILOSOFIA: La sección en conventions.md es un resumen; la de logging.md es el detalle'"
+    },
+    {
+      "text": "El reporte menciona o evidencia que el análisis de lookup paths fue ejecutado (R7 o análisis equivalente)",
+      "passed": false,
+      "evidence": "El reporte explícitamente declara lo opuesto: 'Lo que NO hacía (o hacía de forma limitada): ❌ Analizar lookup paths explícitamente (cuántas lecturas requiere encontrar un concepto)'. Aunque H3 describe escenarios de lookup (Opción A/B/C), esto no es el análisis estructurado R7/B5."
+    }
+  ],
+  "pass_rate": 0.6667
+}

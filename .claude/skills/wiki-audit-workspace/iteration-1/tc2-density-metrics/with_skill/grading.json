@@ -1,0 +1,23 @@
+{
+  "eval_id": 2,
+  "eval_name": "tc2-density-metrics",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "El reporte incluye el número de líneas de al menos una página densa identificada",
+      "passed": true,
+      "evidence": "Tabla 'Páginas por densidad (líneas)' incluye: conventions.md=404, adf-format-guide.md=326, log.md=~474, pipeline-integration-schema.md=285, devsaas-flow.md=217, post-page.md=185, logging.md=175, data-types.md=210, factory-api.md=133, run-session.md=124"
+    },
+    {
+      "text": "El reporte incluye alguna estimación o mención del costo en tokens de hacer lookup en páginas densas",
+      "passed": true,
+      "evidence": "Columna 'Tokens estimados' en tabla principal (conventions.md ~2,424 tokens); bloque B5 con 'Costo estimado de lookup fallido: ~1,050 tokens'; sección 'Factor de ineficiencia: 40x'; y total 'Tokens potencialmente desperdiciados por lookup ineficiente: ~5,400'"
+    },
+    {
+      "text": "El reporte verifica explícitamente si las páginas densas tienen resumen ejecutivo al inicio",
+      "passed": true,
+      "evidence": "Sección 'Criterio B3 — Resumen ejecutivo (Parte A)': '✅ PASS: Todas las páginas >100 líneas tienen resumen ejecutivo claramente identificable en las primeras 15 líneas.' Con columna 'Resumen ejecutivo (primeras 15L)' en tabla por página."
+    }
+  ],
+  "pass_rate": 1.0
+}

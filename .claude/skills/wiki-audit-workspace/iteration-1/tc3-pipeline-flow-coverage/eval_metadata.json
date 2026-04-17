@@ -1,0 +1,10 @@
+{
+  "eval_id": 5,
+  "eval_name": "tc3-pipeline-flow-coverage",
+  "prompt": "Auditá si la wiki cubre los flujos más frecuentes que usa el agente QA durante una ejecución de pipeline.",
+  "assertions": [
+    "La skill leyó o referencia explícitamente los agentes del pipeline (qa-orchestrator o ticket-analyst) en su análisis",
+    "El reporte lista al menos un flujo o concepto del pipeline sin cobertura wiki suficiente",
+    "El análisis cruza explícitamente los conceptos de dominio de los agentes con las páginas wiki existentes"
+  ]
+}

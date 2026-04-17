@@ -1,0 +1,23 @@
+{
+  "eval_id": 3,
+  "eval_name": "tc3-pipeline-flow-coverage",
+  "config": "old_skill",
+  "expectations": [
+    {
+      "text": "La skill leyó o referencia explícitamente los agentes del pipeline (qa-orchestrator o ticket-analyst) en su análisis",
+      "passed": false,
+      "evidence": "El reporte es un análisis R6 de filosofía/densidad wiki. No menciona qa-orchestrator.md ni ticket-analyst.md en ninguna parte. Los flujos de pipeline se mencionan genéricamente ('Flujos críticos de pipeline QA cubiertos') pero no se leyeron los archivos agent como fuente de análisis."
+    },
+    {
+      "text": "El reporte lista al menos un flujo o concepto del pipeline sin cobertura wiki suficiente",
+      "passed": true,
+      "evidence": "Sección 'Flujos críticos NO en referencias rápidas': '✗ Entender errores y retry [GAP-1]', '✗ Validar en ambientes [GAP-2]', '✗ Flujo Dev_SAAS [GAP-3]', '✗ Componentes modales [GAP-4]', '✗ Cómo reportar gaps [GAP-5]'"
+    },
+    {
+      "text": "El análisis cruza explícitamente los conceptos de dominio de los agentes con las páginas wiki existentes",
+      "passed": false,
+      "evidence": "El análisis no parte de los agentes como fuente de verdad. El cruce que hace es: tabla de referencias rápidas actual vs. flujos que el analista considera frecuentes. No hay matriz agent-concept × wiki-page como sí tiene with_skill."
+    }
+  ],
+  "pass_rate": 0.3333
+}

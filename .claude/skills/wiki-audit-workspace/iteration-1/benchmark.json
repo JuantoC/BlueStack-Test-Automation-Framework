@@ -1,0 +1,38 @@
+{
+  "skill_name": "wiki-audit",
+  "iteration": 1,
+  "summary": {
+    "with_skill": {"pass_rate": 1.0, "passed": 9, "total": 9},
+    "old_skill": {"pass_rate": 0.5556, "passed": 5, "total": 9},
+    "delta": 0.4444
+  },
+  "by_eval": [
+    {
+      "eval_id": 1,
+      "eval_name": "tc1-lookup-retry-boundary",
+      "with_skill_pass_rate": 1.0,
+      "old_skill_pass_rate": 0.6667,
+      "delta": 0.3333
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "tc2-density-metrics",
+      "with_skill_pass_rate": 1.0,
+      "old_skill_pass_rate": 0.6667,
+      "delta": 0.3333
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "tc3-pipeline-flow-coverage",
+      "with_skill_pass_rate": 1.0,
+      "old_skill_pass_rate": 0.3333,
+      "delta": 0.6667
+    }
+  ],
+  "analyst_observations": [
+    "La assertion que más discrimina entre versiones es 'análisis de lookup paths ejecutado (R7)': with_skill pasa porque tiene una sección dedicada [LOOKUP-AMBIGUO] con métricas estructuradas; old_skill explícitamente autodeclara que NO hacía este análisis.",
+    "TC3 es el test case con mayor delta (0.67): old_skill nunca leyó los archivos agent (.claude/agents/), por lo que no pudo cruzar conceptos de dominio con cobertura wiki. with_skill parte de los agentes como fuente de verdad y construye una matriz de cobertura de 16 conceptos.",
+    "El único patrón común entre versiones es la detección de líneas de páginas densas (assertion TC2-A1) y la identificación de la fuente canónica para retry boundary (assertion TC1-A2): ambas versiones pasan estos checks, sugiriendo que son capacidades básicas de cualquier auditoría wiki.",
+    "La assertion de estimación de tokens (TC2-A2) es la más diferenciadora en TC2: with_skill incluye columna de tokens, factor de ineficiencia 40x y total de tokens desperdiciados; old_skill omite completamente el análisis de costo de lookup."
+  ]
+}

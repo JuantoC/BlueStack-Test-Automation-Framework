@@ -136,7 +136,8 @@
       "Bash(cp -r /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/wiki-audit-workspace/skill-snapshot)",
       "Bash(bash /tmp/check_orphans.sh)",
       "Bash(wslpath -w /tmp/wiki-audit-eval.html)",
-      "Edit(/.claude/skills/senior-prompt-engineer/**)"
+      "Edit(/.claude/skills/senior-prompt-engineer/**)",
+      "Edit(/.claude/skills/senior-prompt-engineer-workspace/**)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",

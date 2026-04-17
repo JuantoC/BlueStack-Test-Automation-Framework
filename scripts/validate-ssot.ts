@@ -96,7 +96,9 @@ function checkJsDocSync() {
 // Uso válido: skills que auditan o generan .md como objeto de trabajo (audit-docs, generate-readme, validate-ssot).
 // Violación real: skill que usa un .md externo para decidir el comportamiento SIN leer el código primero.
 async function checkSkillDependencies() {
-  const skillFiles = await glob(".claude/skills/**/*.md");
+  const skillFiles = await glob(".claude/skills/**/*.md", {
+    ignore: [".claude/skills/**-workspace/**"],
+  });
 
   // Skills cuyo propósito ES operar sobre .md — no es violación
   const mdOperatorSkills = [

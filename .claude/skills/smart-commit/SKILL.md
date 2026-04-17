@@ -123,6 +123,10 @@ Archivos clave: <lista de los archivos más relevantes>
 
 ### Paso 6 — Ejecutar staging y commits
 
+**Antes de cada `git add`:** verificar que cada archivo del grupo exista en disco con `git status --short`. Si un archivo aparece en el plan pero no en `git status --short`, excluirlo del staging silenciosamente y registrarlo como "no encontrado — excluido".
+
+> Razón: `git add` sobre un path inexistente retorna exit code 128 (`fatal: pathspec ... did not match any files`), lo cual aborta el batch. Verificar existencia evita el error.
+
 Para cada commit en el orden del Paso 4:
 
 ```bash
@@ -153,23 +157,23 @@ git push work main && git push personal main
 
 ---
 
-### Paso 8 — Confirmar al usuario
+### Paso 8 — Progreso intermedio (NO es el cierre)
+
+Mostrar el resumen de commits ejecutados **sin el banner de cierre** — el flujo continúa obligatoriamente hacia los Pasos 9 y 10:
 
 ```
-✅ Commits ejecutados exitosamente.
+📦 Commits ejecutados — continuando con sync-docs y validate-ssot...
 
 Commits generados: {N}
 Archivos commiteados: {total}
 Push ejecutado: [Sí → origin/<rama> / No]
 
---- RESUMEN ---
 {hash corto} feat(posts): implementar handler de publicación masiva
 {hash corto} docs(skills): agregar skill smart-commit
 ...
-
-Estos commits están listos para ser procesados por `commit-report`.
-Ejecutá "generá el reporte de avance" cuando quieras el correo de avance.
 ```
+
+⚠️ **El flujo NO termina aquí.** Los Pasos 9 y 10 son obligatorios e inmediatos. No esperar input del usuario.
 
 ---
 
@@ -187,9 +191,20 @@ Leer `.claude/pipelines/validate-ssot/PIPELINE.md` y ejecutar sus Pasos 1 a 5 en
 
 No pedir confirmación. Aplicar correcciones automáticas (JSDoc/`.md`). Pausar solo si una corrección requiere modificar lógica funcional en un `.ts`.
 
-Reportar al usuario el resultado final:
-- `✅ Modelo SSoT íntegro. No se detectaron violaciones.`
-- O listado de violaciones con formato `[TIPO] archivo → Problema → Acción recomendada`
+---
+
+### Paso 11 — Cierre definitivo
+
+Solo después de completar los Pasos 9 y 10, mostrar el banner de cierre real:
+
+```
+✅ smart-commit completado.
+
+Commits: {N} | Push: [Sí/No] | Sync Docs: [OK / {N} cambios aplicados] | SSoT: [✅ íntegro / ⚠️ {N} violaciones]
+
+Estos commits están listos para ser procesados por `commit-report`.
+Ejecutá "generá el reporte de avance" cuando quieras el correo de avance.
+```
 
 ---
 

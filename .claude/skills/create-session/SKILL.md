@@ -108,6 +108,7 @@ Si el input incluye `Ambiente destino: <valor>`, agregar la siguiente línea en 
 
 ```typescript
 // @target-env: master  // ejecutar con TARGET_ENV=master
+// @default-role: editor
 ```
 
 El valor de `@target-env` mapea al `TARGET_ENV` del `.env` así:
@@ -115,6 +116,20 @@ El valor de `@target-env` mapea al `TARGET_ENV` del `.env` así:
 - `"dev_saas"` → `TARGET_ENV=testing`
 
 > Esta anotación es solo documentativa — no modifica el runtime. El operador que ejecute el test debe setear `TARGET_ENV` en consecuencia. Ver `wiki/qa/environments.md` para la tabla completa de equivalencias.
+
+> Cuando `@target-env` y `@default-role` están presentes, `@default-role` va inmediatamente después de `@target-env` (línea 2 de la cabecera).
+
+**3c. Anotación `@default-role` (obligatoria):**  
+Agregar `// @default-role: <rol>` como primera línea del archivo (o segunda, si hay `@target-env`).  
+El rol debe coincidir exactamente con el que se pasa a `getCredentials()` en el cuerpo del test.  
+Roles válidos: `editor` | `admin` | `basic`. Default del proyecto: `editor`.
+
+Ejemplo (sin `@target-env`):
+```typescript
+// @default-role: editor
+runSession('Nombre del test', async ({ driver, opts, log }) => {
+  const { user, pass } = ENV_CONFIG.getCredentials('editor');
+```
 
 **4.** Instanciar solo los POs que se usan. Firma base: `(driver, opts)`. Con tipo de nota: `(driver, 'POST', opts)`.
 
@@ -153,6 +168,38 @@ description(`
 > API completa: [`wiki/patterns/factory-api.md`](../../../wiki/patterns/factory-api.md).
 
 Caso especial AI Post: usar `AINoteDataFactory` — ver wiki para el contrato de `AIDataNote`.
+
+### Patrón de override de campos de factory
+
+Cuando el usuario pide que un campo específico NO use el valor del factory sino uno hardcodeado (o generado de otra forma), sobrescribir el campo directamente sobre el objeto retornado:
+
+```typescript
+const aiData = AINoteDataFactory.create();
+// Sobrescribir solo el campo 'task' — el resto viene del factory
+aiData.task = "Instrucción específica hardcodeada para este test";
+```
+
+Aplica a cualquier factory del framework. Los demás campos siguen siendo generados por el factory normalmente. Nunca construir el objeto entero a mano solo porque un campo necesita ser distinto.
+
+### Convenciones para sessions de exploración / log empírico
+
+Cuando la session NO hace asserts funcionales sino que captura información para revisión manual:
+
+1. **Leer campos desde el POM, nunca desde APIs del browser:** Para obtener el título de la nota usar `editor.text.getTitle()`, nunca `driver.getTitle()` (que devuelve el título del tab, no el campo del CMS).
+
+2. **Siempre guardar antes de que el driver cierre:** Si la session abre el editor de notas, debe ejecutar `await editor.closeNoteEditor('SAVE_AND_EXIT')` (o `PUBLISH_AND_EXIT`) antes de terminar. Si no se guarda, la nota no persiste y el test no sirve para nada.
+
+3. **Orden correcto para sessions empíricas con editor:**
+   ```typescript
+   // 1. Leer datos que necesito ANTES de salir del editor
+   const noteTitle = await editor.text.getTitle();
+   const editorUrl = await driver.getCurrentUrl();
+   // 2. Guardar (el driver cierra después de esto)
+   await editor.closeNoteEditor('SAVE_AND_EXIT');
+   // 3. Loguear lo capturado
+   log.info(`📋 Título: ${noteTitle}`);
+   log.info(`🔗 URL del editor: ${editorUrl}`);
+   ```
 
 ---
 

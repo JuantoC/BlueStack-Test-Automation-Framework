@@ -1,0 +1,12 @@
+{
+  "_description": "Lista de cuentas Jira de confianza máxima para el agente ticket-analyst. Usado en TA-4.4 para detectar señales de invalidación de criterios con precedencia sobre cualquier otra inferencia. Para agregar/quitar una cuenta: editar este array y actualizar ticket-analyst.md si el displayName o role cambia.",
+  "trusted_accounts": [
+    {
+      "accountId": "712020:59e4ac7b-f44f-45cb-a444-44746cecec49",
+      "role": "qa_engineer",
+      "displayName": "Juan Tomas Caldera",
+      "email": "jtcaldera@bluestack.la",
+      "note": "QA del equipo Bluestack. Sus comentarios que clasifican o redirigen criterios de un ticket hacia otros tickets son señal de invalidación de máxima confianza — el QA conoce el sistema y está diciendo explícitamente dónde se trabaja cada criterio."
+    }
+  ]
+}

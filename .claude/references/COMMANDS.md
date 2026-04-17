@@ -133,8 +133,14 @@ for f in sorted(custom, key=lambda x: x['id']):
 | Levantar Selenium Grid | `docker compose up -d --wait` |
 | Bajar Selenium Grid | `docker compose down` |
 | Reiniciar Grid | `docker compose down && docker compose up -d --wait` |
-| Verificar estado | `curl -s http://localhost:4444/status \| python3 -c "import sys,json; d=json.load(sys.stdin); print('ready:', d['value']['ready'], '\| nodes:', len(d['value']['nodes']))"` |
+| Verificar estado | Ver comando extendido debajo |
 
 `docker-compose.yml` en la raíz del repo. El grid escucha en `http://localhost:4444`.
 > `npm run infra:up` falla en WSL2 (npm resuelve al binario de Windows). Usar `docker compose` directo.
 > Ver detalles: `wiki/core/docker-grid.md`.
+
+```bash
+# Verificar estado del Selenium Grid (WSL2 — usar /wd/hub/status, NO /status)
+# NOTA: En WSL2, /status da exit code 56. El endpoint válido es /wd/hub/status
+curl -s http://localhost:4444/wd/hub/status | python3 -c "import sys,json; d=json.load(sys.stdin); print('ready' if d['value']['ready'] else 'not_ready')"
+```

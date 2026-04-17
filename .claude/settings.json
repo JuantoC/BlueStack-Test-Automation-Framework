@@ -144,7 +144,11 @@
       "Bash(python3 .claude/skills/skill-creator/eval-viewer/generate_review.py .claude/skills/senior-prompt-engineer-workspace/iteration-1 --skill-name \"senior-prompt-engineer\" --static /tmp/senior-prompt-engineer-review.html)",
       "Bash(cp /tmp/senior-prompt-engineer-review.html /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/senior-prompt-engineer-workspace/iteration-1/review.html)",
       "Bash(wslpath -w /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/senior-prompt-engineer-workspace/iteration-1/review.html)",
-      "Bash(python3 -c \"import os; base = '/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents'; resolved = os.path.normpath\\(os.path.join\\(base, '../../wiki/qa/environments.md'\\)\\); print\\('Resolved:', resolved\\); print\\('Exists:', os.path.exists\\(resolved\\)\\)\")"
+      "Bash(python3 -c \"import os; base = '/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents'; resolved = os.path.normpath\\(os.path.join\\(base, '../../wiki/qa/environments.md'\\)\\); print\\('Resolved:', resolved\\); print\\('Exists:', os.path.exists\\(resolved\\)\\)\")",
+      "Bash(NODE_OPTIONS='--experimental-vm-modules' ./node_modules/.bin/tsx scripts/validate-ssot.ts)",
+      "Bash(TARGET_ENV=master NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true node node_modules/.bin/jest MarkdownValidationAINote --testTimeout=120000)",
+      "Bash(TARGET_ENV=master NODE_OPTIONS='--experimental-vm-modules' USE_GRID=true IS_HEADLESS=true node node_modules/.bin/jest MarkdownValidationAINote)",
+      "Bash(echo \"EXIT:$?\")"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",

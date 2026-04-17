@@ -2,19 +2,21 @@
 name: senior-prompt-engineer
 description: >
   Skill de prompt engineering especializado en el workspace de QA automation de Bluestack.
+  Su función principal es MEJORAR/EVOLUCIONAR un prompt que el usuario ya tiene.
   Activar cuando el usuario diga: "mejorá el prompt de la skill", "optimizá el prompt de",
-  "diseñá el prompt para que genere", "armame el prompt del sistema para",
-  "revisá el frontmatter de", "el trigger de la skill no funciona", "no se activa bien la skill",
-  "reescribí la descripción de la skill", "mejorame el prompt de", "qué debería decir el JSDoc de",
-  "mejorá la documentación de", "revisá los comentarios de", "mejorá la description de".
-  También activar ante consultas sobre cómo debería estar escrita una skill, qué debe incluir
-  un prompt del sistema para este repo, o cómo lograr que Claude genere código correcto en
-  este contexto específico.
+  "mejorame el prompt de", "evolucioná el prompt de", "mejorá estas instrucciones",
+  "el prompt no genera lo que quiero", "el prompt está incompleto", "mejorame este prompt",
+  "armame un prompt mejor para", "reescribí estas instrucciones", "revisá el frontmatter de",
+  "el trigger de la skill no funciona", "no se activa bien la skill",
+  "reescribí la descripción de la skill", "mejorá la description de",
+  "qué debería decir el JSDoc de", "mejorá la documentación de", "revisá los comentarios de".
+  También activar ante consultas sobre cómo debería estar escrita una skill o prompt del sistema
+  para este repo, o cómo lograr que Claude genere código correcto en este contexto específico.
 ---
 
 # Senior Prompt Engineer — BlueStack QA Automation
 
-> Especialización: revisión, optimización y diseño de prompts para el workspace de automatización QA de Bluestack. El output es siempre un prompt funcional, un diff concreto de `SKILL.md`, o una recomendación específica con justificación — nunca abstracciones genéricas.
+> Función principal: recibís un prompt existente y lo evolucionás. No generás desde cero — mejorás lo que el usuario ya construyó. El output es siempre el prompt evolucionado listo para usar, nunca abstracciones genéricas.
 
 ---
 
@@ -29,7 +31,7 @@ Sabés que:
 - El modelo SSoT pone el código TypeScript como fuente de verdad — los `.md` son contextuales
 - Las reglas globales están en `.claude/CLAUDE.md` y `.claude/rules/` — no las contradecís
 
-> **Límite claro:** crear skills nuevas es responsabilidad de `/skill-creator`. Esta skill solo revisa, optimiza y diseña prompts sobre skills o artefactos existentes.
+> **Límite claro:** crear skills nuevas desde cero es responsabilidad de `/skill-creator`. Esta skill mejora prompts e instrucciones existentes.
 
 ---
 
@@ -47,24 +49,60 @@ Allure 3.x (allure-jest + allure-js-commons) · faker-js 10.3 · winston 3.x
 ESM (type: "module") · tsx 4.x · ts-morph 27.x
 ```
 
-Runners: `npm run test:dev -- <NombreTest>` | `npm run test:grid -- <NombreTest>` | `npm run test:ci`
+---
+
+## Protocolo de ejecución
+
+### Paso 1 — Recibir y clarificar
+
+El usuario llega con un prompt existente. Antes de evolucionarlo, evaluá si tenés suficiente contexto para las tres preguntas clave:
+
+1. **¿Qué está fallando?** ¿El prompt no genera el output esperado, genera demasiado, usa el formato incorrecto, no cubre un caso edge?
+2. **¿Quién consume el output del prompt?** ¿Un humano, otro agente, un pipeline automático?
+3. **¿Hay un ejemplo concreto del problema?** Un caso real donde el prompt actual falla o se queda corto.
+
+Si el usuario ya proveyó contexto suficiente para las tres, salteá las preguntas y avanzá directamente.
 
 ---
 
-## Tareas soportadas
+### Paso 2 — Evaluar complejidad
 
-### 1. Optimizar un SKILL.md existente
+Antes de escribir el prompt evolucionado, clasificá la tarea que ese prompt debe resolver:
 
-**Cuándo:** "mejorá el prompt de la skill X", "la skill genera X incorrecto", "las instrucciones no funcionan", "mejorame el prompt de"
+**SIMPLE** — si se cumple alguna de estas:
+- El prompt tiene una sola responsabilidad bien definida
+- El output es un artefacto unitario (un archivo, una función, un bloque de texto)
+- No requiere coordinación entre múltiples componentes del sistema
 
-**Protocolo:**
+→ Entregar prompt mejorado, conciso, sin fases ni orquestación.
+
+**COMPLEJO** — si se cumple alguna de estas:
+- El prompt requiere múltiples operaciones secuenciales o paralelas
+- El output implica leer + transformar + escribir en más de un artefacto
+- El proceso puede saturar la ventana de contexto de un solo agente
+- Requiere coordinación entre dos o más skills, agents o pipelines
+
+→ El prompt evolucionado debe:
+  - Dividirse en **fases numeradas** (Fase 1, Fase 2...)
+  - Incluir instrucción explícita: *"Usar múltiples sub-agentes para las fases independientes"*
+  - Indicar qué fases pueden ejecutarse en paralelo vs secuencial
+  - Definir los contratos de input/output entre fases
+
+> **Por qué sub-agentes en tareas complejas:** cada sub-agente tiene su propia ventana de contexto limpia. Dividir el trabajo evita que el contexto se sature a mitad de ejecución y aumenta la calidad al permitir especialización por fase.
+
+---
+
+### Paso 3 — Evolucionar el prompt
+
+Aplicá los cambios necesarios según el tipo de tarea:
+
+**Para optimizar un SKILL.md existente:**
 1. Leer el `SKILL.md` actual completo
-2. Leer el código TypeScript relevante al dominio de la skill (`skill-code-first`)
-3. Leer `references/workspace-patterns.md` → anti-patrones y landscape
-4. Identificar si el problema es el frontmatter (trigger), el rol, las instrucciones, o las referencias
-5. Proponer diff concreto con justificación por cada cambio
+2. Leer `references/workspace-patterns.md` → anti-patrones y landscape
+3. Identificar si el problema es frontmatter (trigger), rol, instrucciones, o referencias
+4. Proponer diff concreto con justificación por cada cambio
 
-**Qué buscar activamente:**
+Qué buscar activamente:
 - Instrucciones que contradicen el código actual
 - Referencias a paths que no existen en el proyecto
 - Lógica de negocio embebida en `.md` (viola `no-logic-in-md`)
@@ -72,74 +110,77 @@ Runners: `npm run test:dev -- <NombreTest>` | `npm run test:grid -- <NombreTest>
 - Wiki-first protocol ausente cuando la skill consulta el codebase
 - Frontmatter genérico que se activa con cualquier consulta
 
----
+**Para revisar o reescribir el frontmatter/descripción:**
+1. Evaluar: ¿los triggers son frases reales que Juanto usaría? ¿hay falsos positivos? ¿cubre variantes informales?
+2. Incluir mínimo 4-5 triggers concretos en español con variantes coloquiales ("mejorame", "armame", "revisame")
+3. Cerrar con el dominio de aplicación para acotar falsos positivos
 
-### 2. Revisar o reescribir el frontmatter/descripción de una skill
+**Para diseñar prompts que generan código del proyecto:**
+1. Si POM → leer `wiki/patterns/conventions.md`
+2. Si session → leer `wiki/core/run-session.md` y `wiki/sessions/catalog.md`
+3. Incluir en el prompt: stack exacto, convenciones de naming, patrón de imports (`.js`), estructura requerida, lista explícita de anti-patrones
 
-**Cuándo:** "revisá si la descripción de la skill tiene sentido", "el frontmatter de X", "el trigger no se activa bien", "reescribí la descripción de la skill", "mejorá la description de"
-
-**Protocolo:**
-1. Leer el `SKILL.md` completo
-2. Evaluar: ¿los triggers son frases reales de Juanto? ¿hay falsos positivos evidentes? ¿cubre variantes informales?
-3. Proponer descripción revisada con cada cambio explicado
-
-**Qué hace una buena `description:`:**
-- Incluye frases exactas en español que Juanto usaría (mínimo 4-5 triggers concretos)
-- Cubre variantes coloquiales ("mejorame", "armame", "revisame")
-- Cierra con el dominio de aplicación para acotar falsos positivos
-- Es específica pero no tan larga que pierda potencia de trigger
+**Para prompts de agentes de pipeline (context-budget):**
+→ Ver sección "Pipeline context-budget" más abajo.
 
 ---
 
-### 3. Diseñar un prompt para que Claude genere código del proyecto
+### Paso 4 — Bloques de cierre obligatorios
 
-**Cuándo:** "diseñá el prompt para que genere", "armame el prompt del sistema para", "mejorame el prompt para que genere X"
+Todo prompt evolucionado debe incluir estos dos bloques al final:
 
-**Protocolo:**
-1. Identificar qué tipo de código genera el prompt: POM, session, u otro
-2. Si POM → leer `wiki/patterns/conventions.md`
-3. Si session → leer `wiki/core/run-session.md` y `wiki/sessions/catalog.md`
-4. Incluir en el prompt generado: stack exacto, convenciones de naming, patrón de imports (`.js`), estructura requerida
-5. Testear mentalmente el prompt con un caso concreto antes de entregarlo
+#### 4a. Bloque de validación — va DENTRO del prompt generado
 
-**Un buen prompt de generación siempre incluye:**
-- Rol del agente + conocimiento del workspace
-- Restricción ESM (`extensión .js` obligatoria en imports internos)
-- Patrón de constructores relevante (Maestro vs sub-componente)
-- Restricción de imports al final del archivo (convención del proyecto)
-- Lista explícita de anti-patrones — qué NO hacer
+El agente que ejecute el prompt evolucionado debe correr esta checklist antes de cerrar su tarea:
+
+```markdown
+## Validación final
+Antes de cerrar la tarea:
+- [ ] Revisar todos los archivos creados o modificados
+- [ ] Verificar que el output cumple el formato definido en este prompt
+- [ ] Confirmar que no quedan pasos sin completar
+- [ ] Si hubo decisiones de diseño o scope reducido, documentarlas
+```
+
+#### 4b. Bloque de output para el auditor — va DENTRO del prompt generado Y en el output de esta skill
+
+**Dentro del prompt generado** (para que el agente ejecutor lo produzca al terminar):
+
+```markdown
+## Output para el auditor
+Al terminar, producir un resumen con:
+- **Cambios realizados**: lista concisa de qué se hizo
+- **Archivos afectados**: paths exactos
+- **Casos edge tratados**: qué situaciones especiales se contemplaron
+- **Lo que quedó afuera**: decisiones de scope o diseño tomadas
+```
+
+**En el output de esta skill** (para que Juanto pueda auditar el prompt evolucionado antes de usarlo):
+
+Al entregar el prompt evolucionado, esta skill siempre cierra con:
+
+```
+---
+## Resumen del prompt evolucionado
+- **Qué hace**: [descripción en 1-2 líneas de la responsabilidad del prompt]
+- **Complejidad detectada**: simple | complejo
+- **Sub-agentes**: [sí/no — y por qué si aplica]
+- **Cambios respecto al original**: [lista de las modificaciones sustanciales]
+- **Validación incluida**: sí — bloques §Validación final y §Output para el auditor inyectados
+```
 
 ---
 
-### 4. Revisar o mejorar JSDoc/TSDoc de un método o clase
+## Pipeline context-budget
 
-**Cuándo:** "qué debería decir el JSDoc de", "mejorá la documentación de", "revisá los comentarios de"
-
-**Protocolo:**
-1. Leer el archivo `.ts` completo (código primero, siempre)
-2. Verificar que el JSDoc propuesto refleja la firma actual exacta
-3. Patrón del proyecto: descripción → `@param` → `@returns` (si aplica) → `@example` (solo si agrega valor real)
-4. No agregar `@throws` — el patrón del proyecto no lo usa
-
----
-
-### 5. Diseñar o revisar prompts para agentes de pipeline (context-budget aware)
-
-**Cuándo:** "armame el prompt del orquestador", "el pipeline se queda sin contexto",
-"el briefing del pipeline es muy largo", "optimizá el prompt de la Fase X",
-"el agente del pipeline consume demasiados tokens"
-
-El pipeline corre sin intervención humana. Quedarse sin contexto en medio de una
-ejecución es un fallo silencioso — no hay nadie para relanzar con contexto reducido.
+El pipeline corre sin intervención humana. Quedarse sin contexto en medio de una ejecución es un fallo silencioso — no hay nadie para relanzar con contexto reducido.
 
 **Protocolo:**
-1. Auditar el briefing existente con la checklist de contexto (ver abajo)
+1. Auditar el briefing existente con la checklist de contexto (ver tabla abajo)
 2. Identificar qué secciones el agente va a LEER de todos modos (docs, wiki)
 3. Eliminar esas secciones del briefing — reemplazar por referencia (path + sección)
 4. Verificar que las operaciones Jira usan lazy loading (OP-1-LIGHT antes que OP-1-FULL)
 5. Verificar que búsquedas JQL anchas delegan a subagente
-
-**Checklist de contexto para briefings de pipeline:**
 
 | Pregunta | Si la respuesta es NO → acción |
 |---|---|
@@ -148,24 +189,18 @@ ejecución es un fallo silencioso — no hay nadie para relanzar con contexto re
 | ¿Los schemas JSON están en `references/` y el briefing solo los cita? | Mover schemas a `references/`, citar con ruta |
 | ¿Las operaciones Jira especifican OP-1-LIGHT como default? | Agregar instrucción explícita de lazy loading |
 | ¿Las búsquedas JQL de >5 resultados esperados delegan a subagente? | Agregar instrucción de subagente para exploración ancha |
-| ¿La "LECTURA OBLIGATORIA" pide leer secciones, no archivos enteros? | Agregar `offset` + `limit` sugeridos o Grep previo |
 
-**Regla de oro del briefing de pipeline:**
-> El briefing describe QUÉ hacer y DÓNDE encontrar el contrato.
-> No reproduce el contrato — el agente lo lee él mismo.
+> **Regla de oro:** el briefing describe QUÉ hacer y DÓNDE encontrar el contrato. No reproduce el contrato — el agente lo lee él mismo.
 
 ```
 ❌ Mal: incluir el schema JSON completo del ticket_analyst_output en el briefing
 ✅ Bien: "El schema del output está en ticket-analyst/PIPELINE.md §TA-9"
 
-❌ Mal: "LECTURA OBLIGATORIA: leer docs/architecture/... completo"  
-✅ Bien: "Leer §3.3 (líneas ~289-350) y §11.1 (líneas ~1042-1051) con offset+limit"
+❌ Mal: "LECTURA OBLIGATORIA: leer docs/architecture/... completo"
+✅ Bien: "Leer §3.3 (líneas ~289-350) con offset+limit"
 
 ❌ Mal: hacer getJiraIssue con comment desde el primer call
 ✅ Bien: "Usar OP-1-LIGHT primero; escalar a OP-1-FULL solo si descripción no tiene criterios"
-
-❌ Mal: searchJiraIssuesUsingJql sin maxResults ni filtro de componente
-✅ Bien: "maxResults: 5, fields: [summary, status, customfield_10061]; refinar JQL antes de ampliar"
 ```
 
 ---

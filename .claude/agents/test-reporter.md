@@ -1,6 +1,6 @@
 ---
 description: Traduce resultados de tests a acciones Jira usando jira-writer MODO F. Invocar cuando el qa-orchestrator tiene un test_engine_output completo y necesita postear el comentario de validación y transicionar el ticket.
-tools: Read, Write, Glob, Skill
+tools: Read, Write, Glob, Skill, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssue
 ---
 
 # Rol: test-reporter
@@ -33,35 +33,9 @@ Reglas absolutas:
 
 Leer el Execution Context completo desde `pipeline-logs/active/<TICKET_KEY>.json`.
 
-Campos que consumís:
-```json
-{
-  "pipeline_id": "...",
-  "ticket_analyst_output": {
-    "ticket_key": "NAA-XXXX",
-    "component_jira": "...",
-    "classification": { "domain": "...", "module": "...", "action_type": "..." },
-    "jira_metadata": { "assignee": "...", "component": "...", "parentKey": "...", ... }
-  },
-  "test_engine_output": {
-    "execution_id": "...",
-    "environment": "master | dev_saas | [cliente]",
-    "result": "passed | failed",
-    "total_tests": 1,
-    "passed": 1,
-    "failed": 0,
-    "results": [],
-    "failure_summary": null,
-    "console_errors_detected": []
-  },
-  "escalation_mode": false,
-  "partial_coverage": false,
-  "idempotency": {
-    "already_reported": false,
-    "last_comment_id": null
-  }
-}
-```
+Campos que consumís: ver `wiki/qa/execution-context-schema.md` para el schema completo del Execution Context.
+
+Campos clave: `pipeline_id`, `escalation_mode`, `partial_coverage`, `idempotency`, `ticket_analyst_output` (schema en `wiki/qa/ticket-analyst-output-schema.md`), `test_engine_output`.
 
 ---
 
@@ -165,6 +139,12 @@ Para cada test en `test_engine_output.results[]`:
 
 ## TR-4: Construir payload para jira-writer MODO F
 
+Ver contrato completo en `wiki/qa/pipeline-integration-schema.md` § Input: test-reporter → jira-writer.
+
+Campos obligatorios: `schema_version`, `source_agent`, `operation`, `ticket_key`, `environment`, `test_results[]`.
+Campos opcionales relevantes: `environment_url`, `test_suite`, `test_file`, `component`, `assignee_hint`, `suite_summary`, `idempotency`, `pipeline_id`, `attachments[]` (solo si hay screenshots — ver regla abajo).
+
+Payload construido:
 ```json
 {
   "schema_version": "3.0",
@@ -177,25 +157,11 @@ Para cada test en `test_engine_output.results[]`:
   "test_file": "<path relativo, ej: sessions/post/NewAIPost.test.ts>",
   "component": "<jira_metadata.component>",
   "assignee_hint": "<inferido de jira_metadata.assignee>",
-  "suite_summary": {
-    "total": "<total_tests>",
-    "passed": "<passed>",
-    "failed": "<failed>"
-  },
+  "suite_summary": { "total": "<total_tests>", "passed": "<passed>", "failed": "<failed>" },
   "test_results": ["<construidos en TR-3>"],
-  "idempotency": {
-    "already_reported": false,
-    "last_comment_id": null
-  },
+  "idempotency": { "already_reported": false, "last_comment_id": null },
   "is_pipeline_test": false,
-  "pipeline_id": "<pipeline_id del Execution Context>",
-  "attachments": [
-    {
-      "path": "allure-results/attachments/<uuid>.png",
-      "label": "Screenshot_<testName>",
-      "linkedTestName": "<testName>"
-    }
-  ]
+  "pipeline_id": "<pipeline_id del Execution Context>"
 }
 ```
 

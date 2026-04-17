@@ -115,20 +115,11 @@ Si la descripción contiene secciones como "Prompts de ejemplo", "Ejemplo de inp
 - `.mp3`, `.wav`, `.m4a`, `.flac` → `audio/*`
 - Si la extensión no está en la lista → ignorar el adjunto (no incluir en `attachments[]`).
 
-**Mapeo de customfields deploy (descubiertos 2026-04-15):**
+**Mapeo de customfields deploy:**
 
-| Campo | ID (grupo A — Jira legacy) | ID (grupo B — NAA activo) |
-|---|---|---|
-| Cambios SQL - Deploy | `customfield_10036` | `customfield_10066` |
-| Cambios Librerias - Deploy | `customfield_10037` | `customfield_10067` |
-| Cambios TLD - Deploy | `customfield_10039` | `customfield_10068` |
-| Cambios VFS - Deploy | `customfield_10040` | `customfield_10069` |
-| Cambios configuración - Deploy | `customfield_10041` | `customfield_10070` |
-| Comentarios - Deploy | `customfield_10038` | `customfield_10071` |
+> Ver `.claude/pipelines/ticket-analyst/references/customfield-mapping.json` — fuente canónica con los dos grupos (A legacy y B NAA activo).
 
 Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, preferir grupo B (10066-10071).
-
-> Ver definición completa en `.claude/pipelines/ticket-analyst/references/customfield-mapping.json`.
 
 ---
 
@@ -190,7 +181,9 @@ Después de 4.1 o 4.2, ANTES de declarar el listado final: leer el hilo de comen
 > La invalidación se aplica criterio por criterio. Si 2 de 3 criterios quedan invalidados, el pipeline continúa con el criterio válido restante. Solo si TODOS quedan invalidados → `criteria_source: "none"`.
 
 **Señal de confianza máxima — comentarista QA:**
-Cuando el comentario proviene de un miembro del equipo QA o del autor del ticket (reconocible por accountId `712020:59e4ac7b-f44f-45cb-a444-44746cecec49` = Juan Tomas Caldera / jtcaldera@bluestack.la), y el comentario CLASIFICA o REDIRIGE los criterios del ticket hacia otros tickets → tratar como señal de invalidación de máxima confianza. El QA que conoce el sistema está diciendo explícitamente dónde se trabaja cada criterio. Esta clasificación tiene precedencia sobre cualquier otra inferencia positiva sobre los criterios.
+Cuando el comentario proviene de un miembro del equipo QA o del autor del ticket (reconocible por cualquier `accountId` listado en `.claude/pipelines/ticket-analyst/references/trusted-accounts.json`), y el comentario CLASIFICA o REDIRIGE los criterios del ticket hacia otros tickets → tratar como señal de invalidación de máxima confianza. El QA que conoce el sistema está diciendo explícitamente dónde se trabaja cada criterio. Esta clasificación tiene precedencia sobre cualquier otra inferencia positiva sobre los criterios.
+
+> Para verificar si un comentarista es de confianza: leer `trusted-accounts.json` y comparar el `accountId` del autor del comentario contra el array `trusted_accounts[].accountId`.
 
 **Señal de máxima prioridad — "Criterio delegado a ticket específico":**
 Cuando un comentario menciona que un criterio "ya tiene creado un ticket NAA-XXXX", "está siendo trabajado en NAA-XXXX", "ya lo tenemos reportado en NAA-XXXX", "tiene su propio ticket NAA-XXXX", o cualquier variante que asocie el criterio a un ticket de Jira con número concreto:
@@ -474,82 +467,7 @@ Reglas adicionales:
 
 Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar `ticket_analyst_output` completo y reescribir:
 
-```json
-"ticket_analyst_output": {
-  "pipeline_id": "...",
-  "ticket_key": "NAA-XXXX",
-  "summary": "...",
-  "issue_type": "...",
-  "status": "...",
-  "priority": "...",
-  "component_jira": "...",
-  "classification": {
-    "domain": "...",
-    "module": "...",
-    "action_type": "regression_test | retest | new_feature",
-    "testable": true,
-    "confidence": "high | medium | low",
-    "confidence_reason": "...",
-    "criteria_source": "extracted | inferred | none",
-    "human_escalation": false,
-    "attachment_hint": false,
-    "test_data_hints": [
-      {
-        "type": "prompt | input_data | example_content",
-        "label": "...",
-        "content": "..."
-      }
-    ],
-    "test_hints": [...]
-  },
-  "testability_summary": {
-    "total_criteria": 0,
-    "automatable_count": 0,
-    "non_automatable_count": 0,
-    "all_automatable": false,
-    "partial_automatable": false,
-    "human_escalation_needed": false,
-    "escalation_reasons": [],
-    "action": "full_run | partial_run_and_escalate | generate_tests | escalate_all"
-  },
-  "acceptance_criteria": [
-    {
-      "criterion_id": 1,
-      "description": "...",
-      "test_approach": { "precondition": "...", "action": "...", "assertion": "..." },
-      "criterion_type": "...",
-      "criterion_scope": "ui | vfs | backend_data | api",
-      "automatable": true,
-      "reason_if_not": null,
-      "requires_screenshot": false,
-      "use_specific_test_data": false,
-      "coverage": {
-        "covered_by_existing_session": false,
-        "session_file": "...",
-        "gap_description": "..."
-      }
-    }
-  ],
-  "master_validation": null,
-  "linked_tickets": [],
-  "escalation_report": null,
-  "jira_metadata": {
-    "jiraSummary": "...",
-    "ticketType": "...",
-    "ticketStatus": "...",
-    "assignee": "...",
-    "component": "...",
-    "sprint": "...",
-    "executiveSummary": "...",
-    "parentKey": "...",
-    "linkedIssues": [],
-    "fixVersion": "...",
-    "priority": "...",
-    "jiraLabels": [],
-    "jiraAttachments": []
-  }
-}
-```
+Ver schema completo en `wiki/qa/ticket-analyst-output-schema.md`
 
 Actualizar: `stage: "ticket-analyst"`, `stage_status: "completed"`, agregar entry en `step_log[]`.
 
@@ -574,4 +492,5 @@ Actualizar: `stage: "ticket-analyst"`, `stage_status: "completed"`, agregar entr
 
 - `.claude/pipelines/ticket-analyst/references/component-to-module.json`
 - `.claude/pipelines/ticket-analyst/references/classification-rules.md`
+- `.claude/pipelines/ticket-analyst/references/trusted-accounts.json` — cuentas Jira de confianza máxima (señal de invalidación TA-4.4)
 - `.claude/pipelines/test-engine/references/test-map.json`

@@ -110,7 +110,7 @@ Buscar `pipeline-logs/completed/<ticket_key>.json`. Si existe:
 
 Buscar `pipeline-logs/active/<ticket_key>.json`. Si existe con `stage = "init"` → pipeline recién iniciado en paralelo. **ABORT** para evitar ejecución paralela. Si existe con `stage != "init"` → proceso previo interrumpido. Cargar ese context y aplicar stage routing.
 
-**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"`, `"low_confidence"` o `"auto_generated_dry_run_failed"` y `requested_by != "manual"` → **ABORT**:
+**Guard de reapertura:** si el context cargado tiene `stage: "done"` y `outcome` es `"human_escalation"`, `"non_automatable"`, `"wrong_status"`, `"no_sessions"` o `"auto_generated_dry_run_failed"` y `requested_by != "manual"` → **ABORT**:
 ```json
 { "status": "skipped", "reason": "pipeline_already_finalized", "outcome": "<outcome>" }
 ```
@@ -150,6 +150,7 @@ Si no existe ningún context → crear en `pipeline-logs/active/<ticket_key>.jso
   "error_log": [],
   "ticket_analyst_output": null,
   "test_engine_output": null,
+  "test_generator_output": null,
   "test_reporter_output": null
 }
 ```
@@ -305,15 +306,16 @@ Después de que retorna, leer el context y registrar en `step_log`:
 
 | `test_generator_output.status` | `dry_run_result` | Acción |
 |-------------------------------|------------------|--------|
-| `"auto_generated"` | `"pass"` | → **ORC-5** con el nuevo `test_path` |
+| `"auto_generated"` | `"pass"` | → **ORC-3** (test-engine) con el nuevo `test_path`, luego **ORC-5** |
 | `"auto_generated"` | `"fail"` | → **ORC-6** con `outcome: "auto_generated_dry_run_failed"` |
 | `"auto_generated"` | `"infra_error"` | → **ORC-6** con `outcome: "auto_generated_dry_run_failed"` |
 | `"failed"` | cualquiera | → **ORC-6** con `outcome: "no_sessions"` |
 
 Si el resultado es `status: "auto_generated"` con `dry_run_result: "pass"`:
-- Actualizar el Execution Context con el nuevo `test_path` para que test-engine lo use en ORC-5.
+- Actualizar el Execution Context con el nuevo `test_path`.
 - Registrar en el context: `"auto_generated_test": "<test_path>"`.
-- Continuar a **ORC-5** (test-reporter) — en este caso ORC-5 recibe el resultado del test generado tras su ejecución en el contexto de test-generator (dry-run solo).
+- Continuar a **ORC-3** (test-engine), pasando el `test_path` del test auto-generado para que lo ejecute con Jest en el ambiente real.
+- Después de ORC-3, continuar a **ORC-5** (test-reporter) con el `test_engine_output` real.
 
 > **Nota:** el test auto-generado tiene `validated: false` en test-map.json. El pipeline reporta en Jira con una nota indicando que el test fue generado automáticamente y requiere revisión manual. No aplica transición de estado (igual que `partial_coverage: true`).
 
@@ -463,7 +465,7 @@ ORC-3: Agent(test-engine)
   ▼
 ORC-4: Decisión
   │  sessions_found: false → ORC-4.1: Agent(test-generator)
-  │    auto_generated + dry_run:pass → ORC-5
+  │    auto_generated + dry_run:pass → ORC-3 → ORC-5
   │    auto_generated + dry_run:fail → ORC-6 (auto_generated_dry_run_failed)
   │    failed → ORC-6 (no_sessions)
   │  sessions_found: true  → ORC-5

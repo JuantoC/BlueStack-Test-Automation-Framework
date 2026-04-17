@@ -28,7 +28,7 @@ Campos que consumís:
       "testable": true,
       "confidence": "high"
     },
-    "test_hints": [],
+    "test_hints": [],        // presente en el context pero no usado directamente por test-engine
     "acceptance_criteria": []
   }
 }
@@ -107,7 +107,7 @@ Para cada path en `matched_sessions[]`, verificar existencia física. Si algún 
 
 ### Mapping environment → TARGET_ENV
 
-Ver tabla completa en [`wiki/qa/environments.md`](../../../wiki/qa/environments.md).
+Ver tabla completa en [`wiki/qa/environments.md`](../../wiki/qa/environments.md).
 
 **Resumen rápido:**
 - `master` → `TARGET_ENV=master` → `MASTER_BASE_URL`

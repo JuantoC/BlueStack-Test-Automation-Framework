@@ -36,6 +36,24 @@ TARGET_ENV=staging npm run test:dev -- NewPost
 # ✗ [envConfig] TARGET_ENV="staging" inválido. Valores válidos: testing, master, cliente
 ```
 
+## Override rol + entorno — forma directa WSL2
+
+```bash
+# Cambiar entorno solamente
+TARGET_ENV=master NODE_OPTIONS='--experimental-vm-modules' \
+  USE_GRID=true IS_HEADLESS=true \
+  node node_modules/.bin/jest TestName
+
+# Cambiar rol solamente (omitir TEST_ROLE si es 'editor' — es el default)
+TEST_ROLE=admin NODE_OPTIONS='--experimental-vm-modules' \
+  node node_modules/.bin/jest TestName
+
+# Cambiar entorno + rol
+TARGET_ENV=master TEST_ROLE=admin NODE_OPTIONS='--experimental-vm-modules' \
+  USE_GRID=true IS_HEADLESS=true \
+  node node_modules/.bin/jest TestName
+```
+
 ### Forma directa (cuando npm falla en WSL2)
 
 > **Causa raíz documentada:** `npm` y `npx` en este entorno resuelven al binario de **Windows**

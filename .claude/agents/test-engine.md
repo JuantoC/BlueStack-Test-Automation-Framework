@@ -30,11 +30,14 @@ Campos que consumís:
     },
     "test_hints": [],        // presente en el context pero no usado directamente por test-engine
     "acceptance_criteria": []
-  }
+  },
+  "role": "editor"           // opcional — default "editor". Valores válidos: "editor" | "admin" | "basic"
 }
 ```
 
 Si `classification.testable = false` → saltar a TE-8 con `sessions_found: false`.
+
+Si `role` no está presente, usar `editor` como default. No incluir `TEST_ROLE` en el comando si `role === 'editor'` (es el default del framework — evitar ruido en el log).
 
 ---
 
@@ -137,19 +140,28 @@ Antes de construir el comando Jest, verificar que `CLIENTE_BASE_URL` esté confi
 >
 > **El campo `environment` en `test_engine_output` (TE-8) SIEMPRE refleja el valor del Pipeline Trigger (`master`, `dev_saas` o `[cliente]`), nunca el valor interno de `TARGET_ENV`.** El mapping `dev_saas → TARGET_ENV=testing` es exclusivamente para el comando Jest — no se propaga al Execution Context.
 
-### Comando para `environment: "master"`
+### TE-6.role — Resolución de TEST_ROLE antes de construir el comando
+
+Antes de construir el comando, leer la primera línea del archivo `.test.ts` de la session y extraer la anotación `@default-role` con regex. Si existe y difiere del campo `role` del input del pipeline → usar el `role` del pipeline (el input tiene precedencia). Loguear el override con `logger.info('TEST_ROLE override: pipeline role={role} differs from session @default-role={sessionRole}')`.
+
+Incluir `TEST_ROLE={role}` SOLO si `role !== 'editor'`. Omitirlo cuando es el default para mantener el log limpio.
+
+### Comando — Variante A: `role === 'editor'` (default, sin TEST_ROLE)
 ```bash
-NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=master USE_GRID=true IS_HEADLESS=true \
+NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV={environment} USE_GRID=true IS_HEADLESS=true \
   node node_modules/.bin/jest {TestName} \
   --json --outputFile=pipeline-logs/results-{ticket}-{execution_id}.json
 ```
 
-### Comando para `environment: "dev_saas"`
+### Comando — Variante B: `role !== 'editor'` (TEST_ROLE requerido)
 ```bash
-NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=testing USE_GRID=true IS_HEADLESS=true \
+NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV={environment} USE_GRID=true IS_HEADLESS=true \
+  TEST_ROLE={role} \
   node node_modules/.bin/jest {TestName} \
   --json --outputFile=pipeline-logs/results-{ticket}-{execution_id}.json
 ```
+
+**Valores de `{environment}`** (según mapping de la tabla de arriba): `master` → `master`; `dev_saas` → `testing`; `[cliente]` → `cliente`.
 
 > **WSL2:** NUNCA usar `npx jest` ni `npm run`. Siempre `node node_modules/.bin/jest`.
 

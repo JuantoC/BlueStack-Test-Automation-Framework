@@ -88,6 +88,8 @@ Campos que consumís:
 }
 ```
 
+> **Regla @mention en escalación:** NO incluir `assignee_display_name` ni `assignee_account_id` en este payload. El comentario de escalación es para el QA, no para el dev. El @mention al dev solo va en el payload de `validate_master` / `validate_devsaas` (TR-4).
+
 **TR-E.3 — Llamar a jira-writer:**
 ```
 Skill({ skill: "jira-writer", args: JSON.stringify(payload) })

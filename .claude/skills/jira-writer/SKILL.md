@@ -411,12 +411,15 @@ Estructura del comentario:
    - Párrafo `precondition` en negrita
    - orderedList con `steps[]`
    - Párrafo `assertion` en negrita
-6. Párrafo final en cursiva: "El ticket permanece en **Revisión** para validación manual."
+6. Párrafo final en cursiva: `"El ticket permanece en **Revisión** para validación manual del QA."`
+   — **NO agregar párrafo de @mention al dev.** El comentario de escalación no menciona al asignado.
 
 ### G3: Postear y registrar
 - `addCommentToJiraIssue` con `contentFormat: "adf"`
 - **NO transicionar estado** — el ticket permanece en su estado actual
 - Registrar `comment_id` en el output (F5 / F6)
+
+> **Regla @mention:** El comentario de escalación NO menciona al dev. La mención al dev solo va en comentarios de resultado final (MODO B / MODO C). En escalación, el ticket queda en Revisión esperando que el QA (jtcaldera@bluestack.la) valide manualmente.
 
 ### G4: Output
 Mismo formato que F5/F6. `transition_applied: null` siempre.

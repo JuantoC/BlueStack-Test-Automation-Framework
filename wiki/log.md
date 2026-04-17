@@ -17,6 +17,19 @@ Tipos: `ingest` | `gap` | `update` | `fix`
 
 ## Entradas
 
+[2026-04-17][gap][deuda técnica] Panel Asistencia IA (editor de notas) — TODA la funcionalidad del panel no está contenida en el framework
+El panel Asistencia IA ("robotito") del editor de notas (botón ícono IA en el header → modal de opciones → modal de respuesta) no tiene implementación en src/pages/. Esto incluye:
+- Mejoras de gramática
+- Mejoras de ortografía
+- Resumen / Abstract
+- Cualquier otra opción del panel
+TODOS los tickets que refieran a estas funcionalidades serán non_automatable hasta que se cree el POM correspondiente.
+El POM se va a agregar en el corto plazo. Cuando se agregue: crear AIAssistantPanel (o similar) en src/pages/post_page/note_editor_page/, confirmar locators con DevTools, y actualizar test-map.json módulo ai-post.
+NO agregar lógica de workaround en el pipeline — solo clasificar como non_automatable y escalar al QA.
+Tickets conocidos afectados: NAA-4248, NAA-4474, NAA-3851, NAA-2765, NAA-4475.
+
+---
+
 [2026-04-17] gap | AI response modal — estructura sin documentar y sin POM
 Modal de respuesta IA (panel gramática/ortografía): campo principal (texto corregido) + descripción inferior (qué se corrigió) + botón Copiar por bloque. Estructura de 3 capas: botón robotito → modal opciones → modal respuesta. Locators desconocidos — requiere DevTools en src/pages/post_page/ (probablemente note_editor_page/ o ai_note/).
 

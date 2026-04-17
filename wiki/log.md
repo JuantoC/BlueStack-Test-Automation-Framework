@@ -15,6 +15,11 @@ Tipos: `ingest` | `gap` | `update` | `fix`
 
 ---
 
+[2026-04-17] training-run | NAA-3897 — outcome: no_sessions (pom_gap → reclasificado como non_automatable)
+Tickets de carga/inserción de plugins CKEditor son non_automatable estructural. Documentado en wiki/pages/ckeditor-limitations.md. Actualizado test-map.json (post.not_automatable_components) y ticket-analyst.md (TA-4b). reason_if_not: ckeditor_plugin_interaction_not_supported.
+
+---
+
 ## Entradas
 
 [2026-04-17][gap][deuda técnica] Panel Asistencia IA (editor de notas) — TODA la funcionalidad del panel no está contenida en el framework

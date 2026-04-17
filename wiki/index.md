@@ -46,6 +46,7 @@ Entry point del conocimiento compilado del framework. Leer este archivo antes de
 - [pages/modals.md](pages/modals.md) — `PublishModal` · `CKEditorImageModal`
 - [pages/video-image-editors.md](pages/video-image-editors.md) — Editores de video e imagen: Header actions · Panel Info · diferencias · patrones AM (mat-slide-toggle, mat-select, timepicker)
 - [pages/ai-note.md](pages/ai-note.md) — Módulo AI Note: flujo prompt texto · Panel Asistencia IA (pom_gap) · Upload PDF (manual only) · reglas ticket-analyst
+- [pages/ckeditor-limitations.md](pages/ckeditor-limitations.md) — Limitaciones del framework con CKEditor: qué puede/no puede hacer · keywords `non_automatable` · `reason: ckeditor_plugin_interaction_not_supported` · estado futuro
 
 ### Sessions (`sessions/`)
 - [sessions/catalog.md](sessions/catalog.md) — Inventario de 14 tests: flujo, POs y factories de cada uno

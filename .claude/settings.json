@@ -137,7 +137,14 @@
       "Bash(bash /tmp/check_orphans.sh)",
       "Bash(wslpath -w /tmp/wiki-audit-eval.html)",
       "Edit(/.claude/skills/senior-prompt-engineer/**)",
-      "Edit(/.claude/skills/senior-prompt-engineer-workspace/**)"
+      "Edit(/.claude/skills/senior-prompt-engineer-workspace/**)",
+      "Bash(cd /home/jutoc/proyectos/BlueStack-Test-Automation-Framework ./node_modules/.bin/tsx scripts/skills/pending-docs-reader.ts --status pending)",
+      "Bash(cd /home/jutoc/proyectos/BlueStack-Test-Automation-Framework NODE_OPTIONS='--experimental-vm-modules' ./node_modules/.bin/tsx scripts/validate-ssot.ts)",
+      "Bash(python .claude/skills/skill-creator/eval-viewer/generate_review.py .claude/skills/senior-prompt-engineer-workspace/iteration-1 --skill-name \"senior-prompt-engineer\" --static /tmp/senior-prompt-engineer-review.html)",
+      "Bash(python3 .claude/skills/skill-creator/eval-viewer/generate_review.py .claude/skills/senior-prompt-engineer-workspace/iteration-1 --skill-name \"senior-prompt-engineer\" --static /tmp/senior-prompt-engineer-review.html)",
+      "Bash(cp /tmp/senior-prompt-engineer-review.html /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/senior-prompt-engineer-workspace/iteration-1/review.html)",
+      "Bash(wslpath -w /home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/skills/senior-prompt-engineer-workspace/iteration-1/review.html)",
+      "Bash(python3 -c \"import os; base = '/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/agents'; resolved = os.path.normpath\\(os.path.join\\(base, '../../wiki/qa/environments.md'\\)\\); print\\('Resolved:', resolved\\); print\\('Exists:', os.path.exists\\(resolved\\)\\)\")"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",

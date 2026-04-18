@@ -19,6 +19,8 @@ Campo de cada `acceptance_criteria[]`. Define en qué capa se verifica el criter
 | `"backend_data"` | Dato persistido en DB/backend por un job | Fuerza `automatable: false` — `reason_if_not: "backend_data_validation"` |
 | `"api"` | Respuesta de API directa (sin navegar el CMS) | Fuerza `automatable: false` — `reason_if_not: "backend_data_validation"` |
 
+→ Ver [wiki/qa/criterion-types-and-scopes.md](criterion-types-and-scopes.md) para la definición completa de cada valor.
+
 **Inferencia automática (TA-4.2):**
 - `customfield_10040` o `customfield_10069` (Cambios VFS) con valor → `criterion_scope: "vfs"`
 - `customfield_10036` o `customfield_10066` (Cambios SQL) con valor → `criterion_scope: "backend_data"`

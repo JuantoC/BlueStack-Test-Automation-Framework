@@ -61,6 +61,7 @@ Esta wiki es una herramienta de contexto para **agentes IA**, no una wiki para h
 ### Patterns
 - [patterns/conventions.md](patterns/conventions.md) — Arquitectura 2 capas · constructores · locators · `step()` · imports `.js` · anti-patrones
 - [patterns/factory-api.md](patterns/factory-api.md) — `NoteDataFactory` · `VideoDataFactory` · `AINoteDataFactory` · `ImageDataFactory`
+- [patterns/test-generation-conventions.md](patterns/test-generation-conventions.md) — Convenciones project-wide para generación de sessions: naming, estructura, assertions, patrones POM
 
 ### Pages (`src/pages/`)
 - [pages/_shared.md](pages/_shared.md) — `SidebarAndHeaderSection` · `FooterActions` · `HeaderNewContentBtn` · tipos `SidebarOption` · `FooterActionType` · `HeaderNewContentType`
@@ -108,6 +109,22 @@ Los agentes consumen `wiki/qa/` como fuente canónica de contratos y schemas en 
 - [qa/comment-invalidation.md](qa/comment-invalidation.md) — Mecanismo TA-4.4: señales que invalidan criterios antes de correr tests
 - [qa/visual-validation.md](qa/visual-validation.md) — Doctrina de screenshots: regla central para `visual_check`, cómo capturar con Selenium, uso de `test_data_hints[]`, flujo del pipeline
 - [qa/pipeline-routing.md](qa/pipeline-routing.md) — Lookup de routing QA: `criterion_scope` (ui/vfs/backend_data/api), `testability_summary.action` y tabla ORC-2.5
+- [qa/test-engine-output-schema.md](qa/test-engine-output-schema.md) — Schema del output de test-engine en el Execution Context
+- [qa/test-generator-schema.md](qa/test-generator-schema.md) — Input/output schema del agente test-generator
+- [qa/qa-orchestrator-trigger-schema.md](qa/qa-orchestrator-trigger-schema.md) — Schema del Trigger Event que inicia el pipeline
+- [qa/error-handling-catalog.md](qa/error-handling-catalog.md) — Catálogo de 17 casos de error del pipeline con acciones
+- [qa/comment-validation-style.md](qa/comment-validation-style.md) — Reglas tipográficas de comentarios de validación en Jira
+- [qa/jira-customfields.md](qa/jira-customfields.md) — Mapeo de customfields Jira: grupos A (legacy) y B (NAA activo), con nombres, IDs y semántica
+- [qa/domains-and-modules.md](qa/domains-and-modules.md) — Mapa component_jira → módulo de cobertura (usado en TA-6)
+- [qa/pipeline-outcomes.md](qa/pipeline-outcomes.md) — Enum de 7 outcomes del pipeline (`milestone_notes.outcome`), ciclos PR-5/PR-6 y quién los escribe
+- [qa/context-resumption.md](qa/context-resumption.md) — Stage routing para resumption (ORC-1.2): tabla de entrada por `stage` + `stage_status`
+- [qa/criterion-automatizability.md](qa/criterion-automatizability.md) — Sub-casos de `reason_if_not`: backend_data_validation, timezone_display_check, pom_gap_clipboard, ckeditor_plugin_interaction_not_supported
+- [qa/criterion-types-and-scopes.md](qa/criterion-types-and-scopes.md) — Enum completo de `criterion_type` (7 valores) y `criterion_scope` (4 valores) con reglas de guarda
+- [qa/jira-operations-and-transitions.md](qa/jira-operations-and-transitions.md) — Tabla de operaciones Jira del pipeline (validate_master, validate_devsaas, escalation, create_bug) con IDs de transición
+- [qa/test-roles.md](qa/test-roles.md) — Roles válidos (`editor`, `admin`, `basic`), resolución de `TEST_ROLE` desde `@default-role` en la session
+- [qa/transition-logic.md](qa/transition-logic.md) — Lógica de transición condicional TR-4b: tabla de decisión, cuándo transicionar y cuándo no
+- [qa/test-map-schema.md](qa/test-map-schema.md) — Schema de `test-map.json`: estructura por módulo, campos `auto_generated_sessions[]`, quién lee/escribe
+- [qa/component-to-module-schema.md](qa/component-to-module-schema.md) — Schema de `component-to-module.json`: mapeo alias component_jira → domain/module para TA-6
 
 ---
 

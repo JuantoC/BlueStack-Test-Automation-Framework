@@ -34,6 +34,20 @@
 
 ---
 
+## Derivación automática de `environment` desde estado Jira (ORC-2.0)
+
+Cuando el orchestrator recibe un trigger, deriva el ambiente del estado del ticket:
+
+| Estado Jira | `environment` derivado | Válido para procesar |
+|-------------|----------------------|---------------------|
+| `Revisión` | `"master"` | ✅ Sí |
+| `Done` | `"dev_saas"` | ✅ Sí |
+| Cualquier otro | — | ❌ No — abortar con `outcome: "wrong_status"` |
+
+Si el estado NO es válido → no invocar ticket-analyst, test-engine ni test-reporter. Ir directamente a ORC-6 con `already_reported: false`.
+
+---
+
 ## Qué NO es un ambiente válido del pipeline
 
 | Valor | Problema | Acción |

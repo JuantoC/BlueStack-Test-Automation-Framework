@@ -22,6 +22,7 @@ El Orchestrator mantiene este objeto en memoria y lo persiste a disco en cada tr
     "last_comment_id": null,
     "already_reported": false
   },
+  "escalation_mode": false,
   "step_log": [],
   "ticket_analyst_output": null,
   "test_engine_output": null,
@@ -48,12 +49,80 @@ Al iniciar, el Orchestrator verifica si existe `pipeline-logs/completed/<ticket_
 - `current_stage = "ticket_analysis"` → empezar desde test-engine.
 - `current_stage = "reporting"` con `report_result.status = null` → reintentar test-reporter.
 
-## Idempotencia
+## Agent Execution Record — `step_log[]`, `error_log[]`, `milestone_notes`
+
+### `step_log[]` — entradas por stage
+
+El qa-orchestrator escribe una entrada en `step_log[]` al completar cada stage. Formato de cada entrada:
+
+```json
+{ "stage": "ticket-analyst", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed" }
+```
+
+Para `test-engine`:
+```json
+{ "stage": "test-engine", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed | failed", "duration_ms": "<ms>" }
+```
+
+Para `test-generator`:
+```json
+{ "stage": "test-generator", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed | failed", "dry_run": "<dry_run_result>" }
+```
+
+Para `test-reporter`:
+```json
+{ "stage": "test-reporter", "started_at": "<ISO>", "completed_at": "<ISO>", "status": "completed | error" }
+```
+
+Para el nodo de routing (ORC-2.5):
+```json
+{ "stage": "routing", "action_evaluated": "<action>", "routing_decision": "<ORC-X>", "timestamp": "<ISO>" }
+```
+
+### `error_log[]` — errores de runtime
+
+Errores no bloqueantes (ej. fallo al acceder a URL de validación externa) se registran aquí sin detener el pipeline. Formato:
+
+```json
+{ "stage": "<stage>", "timestamp": "<ISO>", "error": "<descripción>" }
+```
+
+### `milestone_notes` — resumen de cierre
+
+Escrito por el qa-orchestrator en ORC-6.3 antes de mover el context a `completed/`:
+
+```json
+{
+  "pipeline_id": "<pipeline_id>",
+  "ticket_key": "<ticket_key>",
+  "outcome": "success | failed | escalated | no_sessions | auto_generated | auto_generated_dry_run_failed | error",
+  "executed_at": "<ISO>",
+  "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
+  "total_duration_note": "Ver step_log para tiempos por stage"
+}
+```
+
+Valores de `outcome`:
+
+| Valor | Descripción |
+|-------|-------------|
+| `success` | Pipeline completó y reportó en Jira |
+| `failed` | Algún test falló y se reportó con ✘ |
+| `escalated` | Criterios no automatizables — se posteó comentario de escalación |
+| `no_sessions` | No se encontraron sessions y test-generator no pudo crearlas |
+| `auto_generated` | Test generado automáticamente y ejecutado |
+| `auto_generated_dry_run_failed` | Test generado pero no compiló — requiere revisión manual |
+| `error` | Error técnico del pipeline |
+
+---
+
+## Idempotencia y flags de control
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | `already_reported` | boolean | `true` si el comentario ya fue posteado en Jira (modo normal o escalación) |
 | `last_comment_id` | string \| null | ID del comentario Jira posteado, o `null` si aún no se posteó |
+| `escalation_mode` | boolean | `true` cuando todos los criterios son non-automatable o sessions_found es false. Lo setea qa-orchestrator en ORC-2.5/ORC-3 antes de invocar test-reporter. test-reporter lee este campo para elegir entre flujo normal (TR-1→TR-6) y flujo de escalación (TR-E). |
 
 **Ciclo de vida:**
 - **ORC-1.3 (qa-orchestrator):** inicializa ambos campos en `false` / `null` al crear el Execution Context.

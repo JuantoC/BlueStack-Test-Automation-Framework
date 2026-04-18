@@ -192,7 +192,7 @@ Renderiza como card clickeable nativa en Jira Cloud.
 
 ### Especificación técnica completa
 
-Ver `docs/architecture/qa-pipeline/11-multimedia-attachments.md` — todas las decisiones (D-01 a D-10) y código de referencia.
+Ver `wiki/qa/multimedia-attachment-integration.md` — decisiones (D-01 a D-10), API pública del módulo TypeScript y variables de entorno.
 
 ---
 
@@ -258,6 +258,41 @@ Para el mapping completo de los campos custom de deploy (Cambios SQL, Cambios Li
 → `.claude/skills/jira-writer/references/field-map.md` — sección "Campos de deploy (dos grupos históricos)"
 
 > Regla: siempre usar el Grupo B (`customfield_10066-10071`) en tickets nuevos. El Grupo A es legacy.
+
+---
+
+## `test_reporter_output` — schema en el Execution Context
+
+Al completar, test-reporter escribe este objeto en `pipeline-logs/active/<ticket>.json`:
+
+```json
+"test_reporter_output": {
+  "executed_at": "<ISO-8601>",
+  "operation": "validate_master | validate_devsaas | escalation_comment",
+  "environment": "master | dev_saas | [cliente]",
+  "status": "success | partial | skipped | error",
+  "actions_taken": [
+    { "action": "comment_posted", "ticket": "NAA-XXXX", "comment_id": "12345" },
+    { "action": "transition_applied", "ticket": "NAA-XXXX", "from_status": "Revisión", "to_status": "A Versionar", "transition_id": "42" }
+  ],
+  "errors": [],
+  "comment_id": "<id del comentario posteado, o null>",
+  "transition_applied": "<to_status, o null>"
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `executed_at` | string (ISO) | Timestamp de ejecución |
+| `operation` | string | Operación ejecutada (misma que se envió a jira-writer) |
+| `environment` | string | Entorno del pipeline |
+| `status` | string | `"success"` = todo OK; `"partial"` = comentario posteado pero sin transición; `"skipped"` = `already_reported: true`; `"error"` = fallo técnico |
+| `actions_taken` | array | Lista de acciones ejecutadas por jira-writer |
+| `errors` | array | Errores no bloqueantes (ej. bug duplicado skipeado) |
+| `comment_id` | string \| null | ID del comentario Jira creado |
+| `transition_applied` | string \| null | Estado destino de la transición, o `null` si no se transicionó |
+
+> Tras escribir este output, test-reporter actualiza `idempotency.already_reported: true` y `idempotency.last_comment_id` en el mismo context.
 
 ---
 

@@ -228,7 +228,7 @@ Para cada criterio:
 3. Si la assertion requiere percepción humana, entorno físico específico, o no hay propiedad DOM → `automatable: false`
 4. `reason_if_not` describe la razón fundamental (no keywords)
 
-Referencia completa del modelo de capacidades: `.claude/pipelines/ticket-analyst/references/agent-capabilities.md` (referencia histórica — los agentes actuales están en `.claude/agents/`; ningún agente activo consume este archivo directamente)
+Referencia completa del modelo de capacidades: `wiki/qa/criterion-types-and-scopes.md` — enum `criterion_type`, `criterion_scope` y reglas de automatizabilidad.
 
 **Fuentes en orden de precedencia:**
 1. Lista explícita en descripción del ticket (bullets con pasos numerados)

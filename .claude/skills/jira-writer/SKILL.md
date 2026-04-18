@@ -196,7 +196,7 @@ Por cada bullet con ✘: crear ticket nuevo + linkear + comentar en el original.
 - **Hereda del original:** épica, assignee, prioridad mínima `High`, componente
 - **Descripción:** referencia al original + caso + error + pasos en Dev_SAAS
 
-### D2: Linkear (`createIssueLink` con type `"Relates"`)
+### D2: Linkear (`createIssueLink` con type `"is caused by"`)
 
 ### D3: Comentar en el ticket original (sin transicionarlo)
 - Informar el hallazgo y el nuevo ticket creado

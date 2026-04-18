@@ -26,6 +26,17 @@ Este directorio documenta la arquitectura del pipeline QA end-to-end que conecta
 | Entender visión general del sistema y estado actual de implementación | [`01-vision-y-estado.md`](01-vision-y-estado.md) |
 | Ver transiciones Jira y referencias cruzadas de skills | [`10-apendices.md`](10-apendices.md) |
 | Integrar upload de screenshots/videos al pipeline (JiraAttachmentUploader) | [`11-multimedia-attachments.md`](11-multimedia-attachments.md) |
+| Ver esquemas operacionales de criterios, outcomes y roles de test | [`wiki/qa/`](../../../wiki/qa/) |
+| Entender cómo se invalidan criterios en ticket-analyst (TA-4.4) | [`wiki/qa/comment-invalidation.md`](../../../wiki/qa/comment-invalidation.md) |
+| Ver el schema de output de ticket-analyst | [`wiki/qa/ticket-analyst-output-schema.md`](../../../wiki/qa/ticket-analyst-output-schema.md) |
+| Ver el schema de output de test-engine | [`wiki/qa/test-engine-output-schema.md`](../../../wiki/qa/test-engine-output-schema.md) |
+| Ver el schema del Execution Context completo | [`wiki/qa/execution-context-schema.md`](../../../wiki/qa/execution-context-schema.md) |
+| Ver tipos de criterio, automatizabilidad y roles de test | [`wiki/qa/criterion-types-and-scopes.md`](../../../wiki/qa/criterion-types-and-scopes.md), [`wiki/qa/test-roles.md`](../../../wiki/qa/test-roles.md), [`wiki/qa/criterion-automatizability.md`](../../../wiki/qa/criterion-automatizability.md) |
+| Ver outcomes posibles del pipeline | [`wiki/qa/pipeline-outcomes.md`](../../../wiki/qa/pipeline-outcomes.md) |
+| Ver catálogo de errores del pipeline | [`wiki/qa/error-handling-catalog.md`](../../../wiki/qa/error-handling-catalog.md) |
+| Ver lógica de routing del pipeline | [`wiki/qa/pipeline-routing.md`](../../../wiki/qa/pipeline-routing.md) |
+| Ver dominios, módulos y componentes | [`wiki/qa/domains-and-modules.md`](../../../wiki/qa/domains-and-modules.md) |
+| Ver formato ADF para comentarios Jira | [`wiki/qa/adf-format-guide.md`](../../../wiki/qa/adf-format-guide.md) |
 
 ---
 

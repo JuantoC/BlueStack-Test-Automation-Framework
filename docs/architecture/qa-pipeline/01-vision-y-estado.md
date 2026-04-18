@@ -54,7 +54,7 @@ El pipeline cierra el ciclo completo: **ticket → interpretación → pruebas �
 | Agent `qa-orchestrator` | `.claude/agents/qa-orchestrator.md` | 4 | ⚠️ EN CURSO — Agente creado + smoke test idempotencia validado. E2E completo en ticket `master` real pendiente. |
 | Script `poll-jira.ts` | `.claude/agents/scripts/` | 4 | ❌ No iniciado |
 | `failed-reports.json` | `pipeline-logs/` | 4 | ✅ Creado (estructura base) |
-| Agent `test-generator` | `.claude/agents/test-generator.md` | 5 | ❌ No iniciado |
+| Agent `test-generator` | `.claude/agents/test-generator.md` | 5 | ✅ Implementado — agente operativo con TG-1 a TG-6 (dry_run obligatorio, restricción inline selectors, anotación @auto-generated) |
 
 **Próxima fase activa:** Fase 4 — completar E2E del orchestrator + `poll-jira.ts`.
 

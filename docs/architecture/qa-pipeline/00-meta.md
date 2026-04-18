@@ -1,6 +1,16 @@
 # META: Estado del Documento — QA Automation Pipeline
 > Parte de: [docs/architecture/qa-pipeline/INDEX.md](INDEX.md)
 
+## v4.1 — 2026-04-17
+- **test-generator completo:** Agent `test-generator.md` implementado con pasos TG-1 a TG-6. Dry_run obligatorio, restricción de selectores inline, anotaciones `@auto-generated`/`@ticket`/`@validated`. Fue documentado como Fase 5 "No iniciado" — corregido a operativo.
+- **TEST_ROLE en test-engine:** Campo `role` agregado al Execution Context. Comando Jest incluye `TEST_ROLE={role}` cuando `role !== 'editor'`. Resolución de `@default-role` desde cabecera del `.test.ts`.
+- **TA-3b/TA-3c en ticket-analyst:** Lectura de tickets relacionados (`linkedIssues[]`) y acceso a URLs de validación externas con `basic_auth_user`/`basic_auth_pass`.
+- **Lógica TA-4.4:** Invalidación de criterios por señales de comentarios (delegación a otros tickets, especulación, attachments visuales).
+- **Routing ORC-2.5 y resumption ORC-1.2:** qa-orchestrator implementa routing granular por `testability_summary.action` y stage routing para resumption con 7 condiciones.
+- **wiki/qa/ expandida:** 16+ páginas nuevas de esquemas y contratos operacionales (criterion-automatizability, test-roles, pipeline-outcomes, error-handling-catalog, etc.).
+
+---
+
 ## v3.1 — 2026-04-16
 - **Integración multimedia:** módulo `src/core/jira/` (JiraApiClient + JiraAttachmentUploader)
 - test-engine output: campo `screenshots[]` (archivos Allure en fallos Jest)

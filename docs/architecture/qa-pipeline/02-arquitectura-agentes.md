@@ -56,6 +56,7 @@ Cada agente tiene **una responsabilidad única**, un **contrato de entrada/salid
 - ¿El trigger corresponde a ticket específico, polling sweep, o CI hook?
 - ¿Qué tipo de flujo aplica? (§5)
 - ¿El módulo tiene sessions → test-engine, o no → test-generator primero?
+- ORC-2.5 — Routing granular por `testability_summary.action`: `"full_run"` → ORC-3 (test-engine); `"generate_tests"` → ORC-4.1 (test-generator); `"partial_run_and_escalate"` → ORC-3 luego ORC-6; `"escalate_all"` → ORC-6.
 - ¿El resultado del test-engine requiere feedback positivo o negativo?
 - ¿Hay que crear tickets nuevos por fallos en Dev_SAAS?
 - ¿Se debe escalar a humano?
@@ -161,16 +162,18 @@ Cada agente tiene **una responsabilidad única**, un **contrato de entrada/salid
    - Título + Resumen Ejecutivo → `source: "inferred"`
    - Si ninguna fuente produce ≥ 1 criterio accionable → `criteria: []`, `source: "none"`,
      `testable: false`, `human_escalation: true`, pedir al equipo descripción del flujo a probar.
-3. Si `requested_env = "dev_saas"` en el trigger: extraer `test_cases` del comentario master
+3. TA-3b: Si el ticket tiene `linkedIssues[]` con tipo "Relates", "is parent of" o "is blocked by", leer tickets relacionados para enriquecer el contexto del análisis.
+4. TA-3c: Si se detecta una URL de validación externa en descripción o comentarios, acceder a ella con credenciales `basic_auth_user`/`basic_auth_pass` del trigger context.
+5. Si `requested_env = "dev_saas"` en el trigger: extraer `test_cases` del comentario master
    previo vía MCP Atlassian directo (`search` o `searchJiraIssuesUsingJql`) — re-test del mismo set validado en Master.
-4. Clasificar `domain` y `module`: primero por `component_jira` exacto (§6.3), luego por keywords (§6.2).
-5. Determinar `testable`: QA Bug Front/Back con `criteria[]` ≥ 1 → `true`;
+6. Clasificar `domain` y `module`: primero por `component_jira` exacto (§6.3), luego por keywords (§6.2).
+7. Determinar `testable`: QA Bug Front/Back con `criteria[]` ≥ 1 → `true`;
    tickets de diseño/UX sin criterios inferibles → `false`.
-6. Determinar `action_type` según estado del ticket: ver §classification-rules (archivo de referencia).
-7. Construir `test_hints` desde `criteria[]`. Para bugs: **principio de derivación** — el test reproduce la condición del bug y aserta que el fix la corrige.
-8. Determinar `confidence` y `confidence_reason`; si `confidence = "low"` → `testable: false` + escalación.
-9. Realizar **coverage gap analysis**: para cada criterio automatable, determinar si existe una session existente que lo cubra (campo `covered_by_existing_session` en cada `TestHint`). Ver modelo de capacidades en `.claude/pipelines/ticket-analyst/references/agent-capabilities.md`.
-10. Construir `testability_summary` con conteos y campo `action` que el Orchestrator usa para routing granular.
+8. Determinar `action_type` según estado del ticket: ver §classification-rules (archivo de referencia).
+9. Construir `test_hints` desde `criteria[]`. Para bugs: **principio de derivación** — el test reproduce la condición del bug y aserta que el fix la corrige.
+10. Determinar `confidence` y `confidence_reason`; si `confidence = "low"` → `testable: false` + escalación.
+11. Realizar **coverage gap analysis**: para cada criterio automatable, determinar si existe una session existente que lo cubra (campo `covered_by_existing_session` en cada `TestHint`). Ver modelo de capacidades en `.claude/pipelines/ticket-analyst/references/agent-capabilities.md`.
+12. Construir `testability_summary` con conteos y campo `action` que el Orchestrator usa para routing granular.
 
 ---
 
@@ -251,6 +254,8 @@ NODE_OPTIONS='--experimental-vm-modules' TARGET_ENV=master USE_GRID=true IS_HEAD
 
 Para `environment: "dev_saas"`: usar `TARGET_ENV=testing` (no `TARGET_ENV=master`).
 
+> *Campo adicional en el input: `role` (string, opcional, default `"editor"`) — valores: `"editor" | "admin" | "basic"`. Cuando `role !== 'editor'`, el comando Jest incluye `TEST_ROLE={role}` como variable de entorno. La anotación `@default-role` en el .test.ts puede ser sobreescrita por el campo `role` del input.*
+
 ---
 
 #### test-reporter (sub-agente de feedback)
@@ -277,9 +282,11 @@ Ver `.claude/skills/jira-writer/references/pipeline-schema.md` para el schema co
 
 ---
 
-#### test-generator (sub-agente de generación — Fase 5)
+#### test-generator (sub-agente de generación)
 
 **Responsabilidad:** Cuando no hay sessions para un módulo, generarlas usando `create-session` y `pom-generator`. **Modo dry_run obligatorio en primera ejecución** — no postea en Jira hasta validación humana.
+
+> *Nota: test-generator implementado y operativo a 2026-04-17. Ver `.claude/agents/test-generator.md` (TG-1 a TG-6).*
 
 **Usa:** `create-session`, `pom-generator`, filesystem del repositorio.
 

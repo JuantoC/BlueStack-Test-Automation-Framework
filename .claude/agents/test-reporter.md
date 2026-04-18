@@ -98,7 +98,7 @@ Verificar `idempotency.already_reported`.
 | `[cliente]` | `passed` | `validate_master` | Comentario ✔ con header de cliente |
 | `[cliente]` | `failed` | `validate_master` | Comentario ✘ con header de cliente |
 
-> **IDs de transición:** `42` = A Versionar, `2` = FEEDBACK, `31` = Done. Ver `.claude/skills/jira-writer/references/transition-ids.md` para definición completa y contexto.
+> **IDs de transición:** `42` = A Versionar, `2` = FEEDBACK, `31` = Done. Ver `wiki/qa/jira-operations-and-transitions.md` para tabla completa y lógica de determinación de operation.
 
 > **Entorno `testing`:** Es el entorno de desarrollo del framework. Los resultados son informativos, nunca transicionan el ticket.
 
@@ -139,36 +139,20 @@ Para cada test en `test_engine_output.results[]`:
 
 ## TR-4: Construir payload para jira-writer MODO F
 
-Ver contrato completo en `wiki/qa/pipeline-integration-schema.md` § Input: test-reporter → jira-writer.
+Este payload va a jira-writer (MODO F). Ver contrato completo en `wiki/qa/pipeline-integration-schema.md` § Input: test-reporter → jira-writer.
 
 Campos obligatorios: `schema_version`, `source_agent`, `operation`, `ticket_key`, `environment`, `test_results[]`.
 Campos opcionales relevantes: `environment_url`, `test_suite`, `test_file`, `component`, `assignee_hint`, `suite_summary`, `idempotency`, `pipeline_id`, `attachments[]` (solo si hay screenshots — ver regla abajo).
 
-Payload construido:
-```json
-{
-  "schema_version": "3.0",
-  "source_agent": "test-reporter",
-  "operation": "<determinado en TR-2>",
-  "ticket_key": "<ticket_analyst_output.ticket_key>",
-  "environment": "<test_engine_output.environment>",
-  "environment_url": "<de .env: TESTING_URL | MASTER_URL | DEVSAAS_URL según environment>",
-  "test_suite": "<nombre del archivo de session sin extensión>",
-  "test_file": "<path relativo, ej: sessions/post/NewAIPost.test.ts>",
-  "component": "<jira_metadata.component>",
-  "assignee_hint": "<inferido de jira_metadata.assignee>",
-  "suite_summary": { "total": "<total_tests>", "passed": "<passed>", "failed": "<failed>" },
-  "test_results": ["<construidos en TR-3>"],
-  "idempotency": { "already_reported": false, "last_comment_id": null },
-  "is_pipeline_test": false,
-  "pipeline_id": "<pipeline_id del Execution Context>"
-}
-```
+→ Schema completo: `wiki/qa/pipeline-integration-schema.md` § Input: test-reporter → jira-writer
 
 **Regla de inclusión de attachments (TR-4):**
 - Solo incluir `attachments[]` si `test_engine_output.screenshots` no está vacío
 - Si `screenshots` está vacío o ausente → omitir `attachments[]` del payload (compatibilidad v3.0)
 - El campo `label` sigue el patrón `Screenshot_<testName>`
+
+→ Schema v3.1 completo, flujo de upload y módulo TypeScript: `wiki/qa/multimedia-attachment-integration.md`
+→ Reglas tipográficas del comentario Jira (encabezados, emojis, negritas, orden de secciones): `wiki/qa/comment-validation-style.md`
 
 **`prerelease_version` para `environment: "dev_saas"`:**
 Leer `prerelease_version` del Execution Context. Si es `null` → abortar con:
@@ -250,20 +234,9 @@ jira-writer maneja internamente: F1.5 (idempotencia), F2 (routing a MODO B/C/D/A
 
 ## TR-6: Escribir test_reporter_output en el Execution Context
 
-Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar y reescribir:
+Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar el campo `test_reporter_output` y reescribir el archivo completo.
 
-```json
-"test_reporter_output": {
-  "executed_at": "<ISO>",
-  "operation": "<operation usada>",
-  "environment": "<environment>",
-  "status": "success | partial | skipped | error",
-  "actions_taken": [],
-  "errors": [],
-  "comment_id": "<id del comentario posteado, o null>",
-  "transition_applied": "<to_status, o null>"
-}
-```
+→ Schema del campo: `wiki/qa/pipeline-integration-schema.md` § Output: jira-writer → pipeline (campos: `executed_at`, `operation`, `environment`, `status`, `actions_taken`, `errors`, `comment_id`, `transition_applied`)
 
 Actualizar `idempotency.already_reported: true` y `idempotency.last_comment_id: <comment_id>` si se posteó comentario.
 

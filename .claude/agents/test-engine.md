@@ -102,7 +102,11 @@ Leer `.claude/pipelines/test-engine/references/test-map.json`.
 
 ## TE-5: Verificar que los archivos existen en disco
 
-Para cada path en `matched_sessions[]`, verificar existencia física. Si algún path no existe → remover de la lista y loguearlo. Si la lista queda vacía → `sessions_found: false`. Saltar a TE-8.
+Para cada path en `matched_sessions[]`:
+1. Verificar existencia física. Si el path no existe → remover de la lista y loguearlo.
+2. Si la session proviene de `auto_generated_sessions[]` en `test-map.json` y tiene `validated: false` → excluir de ejecución, registrar como `skipped_unvalidated` en `step_log[]`. No ejecutar tests no validados.
+
+Si la lista queda vacía tras estos filtros → `sessions_found: false`. Saltar a TE-8.
 
 ---
 
@@ -200,16 +204,7 @@ Leer `pipeline-logs/results-{ticket}-{execution_id}.json` después de la ejecuci
 
 Para cada `assertionResult` en `testResults[*].testResults`:
 
-```json
-{
-  "session_file": "<testFilePath relativo>",
-  "session_name": "<basename sin extensión>",
-  "status": "pass | fail | error",
-  "duration_ms": "<assertionResult.duration>",
-  "failure_messages": "<assertionResult.failureMessages[]>",
-  "mapped_to_hint": "<test_hint[i] del ticket-analyst si existe, si no: null>"
-}
-```
+→ Schema: [`wiki/qa/test-engine-output-schema.md § Schema del array results[]`](../../wiki/qa/test-engine-output-schema.md#schema-del-array-results)
 
 - `status: "error"` → Jest no pudo correr el archivo (error de sintaxis, import fallido).
 - `status: "fail"` → el test corrió pero una assertion falló.
@@ -221,14 +216,8 @@ El campo está reservado en el schema de `test_engine_output` pero la lógica de
 Hasta confirmar el schema de Jest, producir siempre `console_errors_detected: []`.
 
 **Pre-computar `failure_summary`** (solo si `numFailedTests > 0`):
-```json
-{
-  "test_name": "<fullName del primer test fallido>",
-  "error_message": "<primera línea de failureMessages[0]>",
-  "source": "<primera línea del stack que contenga src/>",
-  "stack": "<primeras 5 líneas del stack completo>"
-}
-```
+
+→ Schema: [`wiki/qa/test-engine-output-schema.md § Campo failure_summary`](../../wiki/qa/test-engine-output-schema.md#campo-failure_summary)
 
 ---
 
@@ -236,34 +225,7 @@ Hasta confirmar el schema de Jest, producir siempre `console_errors_detected: []
 
 Leer `pipeline-logs/active/<TICKET_KEY>.json`, agregar y reescribir:
 
-```json
-"test_engine_output": {
-  "pipeline_id": "...",
-  "ticket_key": "NAA-XXXX",
-  "execution_id": "exec-YYYYMMDD-NNN",
-  "executed_at": "<ISO>",
-  "mode_used": "discover_and_run | run_existing",
-  "environment": "master | dev_saas | [cliente]",
-  "grid": true,
-  "headless": true,
-  "sessions_found": true,
-  "result": "passed | failed | error",
-  "total_tests": 1,
-  "passed": 1,
-  "failed": 0,
-  "results": [...],
-  "failure_summary": null,
-  "console_errors_detected": [],
-  "jest_output_path": "pipeline-logs/results-NAA-XXXX-exec-NNN.json",
-  "screenshots": [
-    {
-      "testName": "NombreDelTest",
-      "path": "allure-results/attachments/<uuid>.png",
-      "capturedAt": "<ISO-8601>"
-    }
-  ]
-}
-```
+→ Schema: [`wiki/qa/test-engine-output-schema.md § Campo test_engine_output`](../../wiki/qa/test-engine-output-schema.md#campo-test_engine_output-en-el-execution-context)
 
 **Captura de screenshots (TE-8):**
 - Allure genera archivos en `allure-results/attachments/` automáticamente cuando un test falla

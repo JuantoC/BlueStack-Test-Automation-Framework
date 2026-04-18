@@ -99,15 +99,8 @@ Si el adjunto está embebido en un comentario → `origin: "comment"`. Si viene 
 
 **Extracción de `test_data_hints[]` desde la descripción:**
 Si la descripción contiene secciones como "Prompts de ejemplo", "Ejemplo de input", "Datos de prueba", bloques de código con ejemplos, o cualquier texto que constituya datos de entrada concretos para reproducir el comportamiento — extraerlos como `test_data_hints[]`:
-```json
-[
-  {
-    "type": "prompt | input_data | example_content",
-    "label": "descripción breve de qué es",
-    "content": "el texto exacto, copiado literalmente de la descripción"
-  }
-]
-```
+→ Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de classification.test_data_hints[]`
+
 **Regla:** si el dev dejó datos de prueba en la descripción, son la fuente de verdad de qué usar en el test — no datos random de factory. Extraerlos es obligatorio para criterios `visual_check` y recomendado para `functional_flow`.
 
 **Detección de mediaType:** Leer `attachment.mimeType` de la respuesta MCP. Si es `null` o `application/octet-stream` → inferir desde extensión del `filename`:
@@ -117,7 +110,7 @@ Si la descripción contiene secciones como "Prompts de ejemplo", "Ejemplo de inp
 
 **Mapeo de customfields deploy:**
 
-> Ver `.claude/pipelines/ticket-analyst/references/customfield-mapping.json` — fuente canónica con los dos grupos (A legacy y B NAA activo).
+> Ver `wiki/qa/jira-customfields.md` — fuente canónica con los dos grupos (A legacy y B NAA activo).
 
 Leer ambos grupos y usar el que tenga valor no-null. Si ambos tienen valor, preferir grupo B (10066-10071).
 
@@ -208,40 +201,16 @@ Si todos los criterios quedan invalidados tras este paso:
 Si después de 4.1 y 4.2 no hay ≥ 1 criterio accionable:
 
 Si `attachment_hint: true` (hay adjuntos visuales en comentarios de dev), ajustar el escalation_reason para mencionarlos y recomendar revisión manual antes de escalar sin contexto:
-```json
-{
-  "criteria": [],
-  "source": "none",
-  "testable": false,
-  "human_escalation": true,
-  "attachment_hint": true,
-  "attachment_files": ["video1.webm", "..."],
-  "escalation_reason": "Ticket sin criterios extraíbles ni inferibles. Se detectaron adjuntos visuales en comentarios de dev ([lista de archivos]) que podrían mostrar el comportamiento esperado — revisar manualmente antes de escalar sin contexto.",
-  "escalation_report": {
-    "summary": "No fue posible extraer ni inferir criterios automatizables. Adjuntos visuales disponibles para revisión manual.",
-    "visual_attachments_available": true,
-    "attachment_files": ["video1.webm", "..."],
-    "criteria_attempted": [],
-    "manual_test_guide": []
-  }
-}
-```
+
+Campos a setear: `criteria: []`, `source: "none"`, `testable: false`, `human_escalation: true`, `attachment_hint: true`, `attachment_files: [lista de filenames]`.
+`escalation_reason`: `"Ticket sin criterios extraíbles ni inferibles. Se detectaron adjuntos visuales en comentarios de dev ([lista de archivos]) que podrían mostrar el comportamiento esperado — revisar manualmente antes de escalar sin contexto."`
+`escalation_report`: setear `visual_attachments_available: true`, `attachment_files: [lista]` → Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de escalation_report`
 
 Si `attachment_hint: false` o no detectado:
-```json
-{
-  "criteria": [],
-  "source": "none",
-  "testable": false,
-  "human_escalation": true,
-  "escalation_reason": "Ticket sin criterios de prueba ni descripción suficiente.",
-  "escalation_report": {
-    "summary": "No fue posible extraer ni inferir criterios automatizables.",
-    "criteria_attempted": [],
-    "manual_test_guide": []
-  }
-}
-```
+
+Campos a setear: `criteria: []`, `source: "none"`, `testable: false`, `human_escalation: true`.
+`escalation_reason`: `"Ticket sin criterios de prueba ni descripción suficiente."`
+`escalation_report` → Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de escalation_report`
 
 **Regla:** `escalation_report` es OBLIGATORIO cuando `human_escalation: true`. Debe incluir:
 - `criteria_attempted[]`: bullets con cada criterio que se intentó extraer, con razón de por qué no fue suficiente (demasiado ambiguo, solo imagen, sin comportamiento observable, etc.)
@@ -255,21 +224,7 @@ Si `attachment_hint: false` o no detectado:
 Setear `human_escalation: true` en Execution Context y **detener**.
 
 Schema de cada criterio:
-```json
-{
-  "criterion_id": 1,
-  "description": "...",
-  "test_approach": {
-    "precondition": "...",
-    "action": "...",
-    "assertion": "... (observable en DOM)"
-  },
-  "criterion_type": "field_validation | functional_flow | state_transition | error_handling | visual_check | responsive | performance",
-  "criterion_scope": "ui | backend_data | api | vfs",
-  "automatable": true,
-  "reason_if_not": null
-}
-```
+→ Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de acceptance_criteria[] (por ítem)`
 
 **`criterion_scope` — valores válidos:**
 - `"ui"` (default): comportamiento visible en el navegador, verificable con Selenium.
@@ -333,17 +288,7 @@ Cuando el criterio requiere insertar, cargar, verificar o interactuar con plugin
 - NO generar pasos de tipo "click X → observar Y en pantalla" para estos criterios; la verificación no es visual.
 
 Calcular `testability_summary`:
-```json
-{
-  "total_criteria": 0,
-  "automatable_count": 0,
-  "non_automatable_count": 0,
-  "all_automatable": false,
-  "partial_automatable": false,
-  "human_escalation_needed": false,
-  "escalation_reasons": []
-}
-```
+→ Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de testability_summary`
 
 **Si `all_automatable: false` (ningún criterio es ejecutable por Selenium):**
 Generar `escalation_report` OBLIGATORIO con el mismo formato que TA-4.3:
@@ -382,7 +327,7 @@ Para cada criterio con `automatable: true`: consultar `test-map.json` del módul
 
 ## TA-6: Clasificar domain + module
 
-Leer `.claude/pipelines/ticket-analyst/references/component-to-module.json`.
+Leer `wiki/qa/domains-and-modules.md`.
 
 **Paso 1 — component_jira en el mapa:** `component_jira` puede ser un string o un array.
 - Si es array → iterar por TODOS los valores y colectar los módulos non-null que matcheen en el JSON.
@@ -418,19 +363,7 @@ Leer `.claude/pipelines/ticket-analyst/references/component-to-module.json`.
 | `requested_env = "dev_saas"` | `regression_test` |
 
 **test_hints[]** schema:
-```json
-{
-  "hint_id": 1,
-  "description": "...",
-  "automatable": true,
-  "criterion_type": "...",
-  "specific_action": "...",
-  "specific_assertion": "...",
-  "covered_by_existing_session": false,
-  "session_file": "...",
-  "gap_description": "..."
-}
-```
+→ Schema: `wiki/qa/ticket-analyst-output-schema.md § Schema de classification.test_hints[]`
 
 ---
 
@@ -490,7 +423,8 @@ Actualizar: `stage: "ticket-analyst"`, `stage_status: "completed"`, agregar entr
 
 ## Referencias
 
-- `.claude/pipelines/ticket-analyst/references/component-to-module.json`
+- `wiki/qa/domains-and-modules.md`
+- `wiki/qa/component-to-module-schema.md` — schema del JSON de aliases component_jira → domain/module (TA-6 step 1)
 - `.claude/pipelines/ticket-analyst/references/classification-rules.md`
 - `.claude/pipelines/ticket-analyst/references/trusted-accounts.json` — cuentas Jira de confianza máxima (señal de invalidación TA-4.4)
 - `.claude/pipelines/test-engine/references/test-map.json`

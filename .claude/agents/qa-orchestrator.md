@@ -138,14 +138,10 @@ Si no existe ningún context → crear en `pipeline-logs/active/<ticket_key>.jso
   "schema_version": "3.0",
   "created_at": "<ISO-8601>",
   "environment": "<environment del trigger>",
-  "prerelease_version": null,
   "stage": "init",
   "stage_status": "in_progress",
   "escalation_mode": false,
-  "idempotency": {
-    "last_comment_id": null,
-    "already_reported": false
-  },
+  "idempotency": { "last_comment_id": null, "already_reported": false },
   "step_log": [],
   "error_log": [],
   "ticket_analyst_output": null,
@@ -154,6 +150,8 @@ Si no existe ningún context → crear en `pipeline-logs/active/<ticket_key>.jso
   "test_reporter_output": null
 }
 ```
+
+→ Schema completo: `wiki/qa/execution-context-schema.md` § Estructura del Execution Context
 
 Persistir a disco antes de continuar.
 
@@ -336,6 +334,8 @@ Agent({
 })
 ```
 
+> **Propagación de screenshots (v3.1):** test-reporter lee `test_engine_output.screenshots[]` directamente desde el Execution Context. ORC-5 no necesita transformarlos — el Execution Context es el canal de propagación. Ver `wiki/qa/multimedia-attachment-integration.md` para el schema completo.
+
 El agente test-reporter escribe `test_reporter_output` en el Execution Context activo.
 
 Después de que retorna, leer el context y registrar en `step_log`:
@@ -394,18 +394,9 @@ No resumir como "ticket escalado" — el humano debe recibir todo el trabajo de 
 
 ### ORC-6.3 — Agent Execution Record
 
-Agregar `milestone_notes` al context antes de cerrarlo:
+Agregar `milestone_notes` al context antes de cerrarlo con los campos: `pipeline_id`, `ticket_key`, `outcome`, `executed_at`, `stages_completed[]`, `total_duration_note`.
 
-```json
-"milestone_notes": {
-  "pipeline_id": "<pipeline_id>",
-  "ticket_key": "<ticket_key>",
-  "outcome": "success | failed | escalated | no_sessions | auto_generated | auto_generated_dry_run_failed | error",
-  "executed_at": "<ISO>",
-  "stages_completed": ["ticket-analyst", "test-engine", "test-reporter"],
-  "total_duration_note": "Ver step_log para tiempos por stage"
-}
-```
+→ Schema completo: `wiki/qa/execution-context-schema.md` § milestone_notes
 
 ---
 
@@ -422,17 +413,9 @@ Agregar `milestone_notes` al context antes de cerrarlo:
 | test-reporter | Falla la transición | Registrar en `error_log`, dejar comentario ya posteado, `transition_applied: null` |
 | Cualquiera | Error no esperado | Registrar en `error_log`, mover context a `completed/` con `stage_status: "error"` |
 
-```json
-"error_log": [
-  {
-    "stage": "test-engine",
-    "timestamp": "<ISO>",
-    "error_type": "DockerNotAvailable",
-    "message": "...",
-    "action_taken": "aborted"
-  }
-]
-```
+Registrar en `error_log[]` con campos: `stage`, `timestamp`, `error_type`, `message`, `action_taken`.
+
+→ Schema completo: `wiki/qa/execution-context-schema.md` § error_log
 
 ---
 

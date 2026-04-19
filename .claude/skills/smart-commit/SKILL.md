@@ -1,5 +1,7 @@
 ---
 name: smart-commit
+model: sonnet
+effort: medium
 description: Analizar los cambios del working tree, agruparlos semánticamente y ejecutar commits atómicos ricos en contexto orientados a negocio, listos para ser consumidos por `commit-report`. Parámetro opcional `--push` para hacer push al finalizar. Activar cuando el usuario diga: "generar commits", "hacer commits", "commitear los cambios", "generar commits con push", "commitear y pushear", "hacer un commit de los cambios pendientes", "crear commits semánticos".
 ---
 

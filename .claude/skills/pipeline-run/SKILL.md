@@ -1,5 +1,7 @@
 ---
 name: pipeline-run
+model: sonnet
+effort: medium
 description: "Ejecuta el pipeline QA completo para un ticket Jira y captura aprendizajes post-ejecución. Activar cuando el usuario diga: \"correr el pipeline para NAA-XXXX\", \"probar el ticket NAA-XXXX\", \"ejecutar pipeline NAA-XXXX\", \"validar ticket NAA-XXXX\", \"simular el flujo para NAA-XXXX\", \"quiero probar este ticket\", o cuando pegue un ticket key directamente (ej. \"NAA-4188\", \"NAA-4467\"). Esta skill es la puerta de entrada principal al ciclo de entrenamiento iterativo del pipeline QA — usarla siempre que el usuario mencione un ticket de Jira en contexto de validación o testing."
 ---
 

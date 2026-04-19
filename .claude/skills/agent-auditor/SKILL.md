@@ -1,5 +1,7 @@
 ---
 name: agent-auditor
+model: opus
+effort: high
 description: Audita y corrige los 5 agentes del pipeline QA de Bluestack (.claude/agents/). Lanza subagentes paralelos para encontrar defectos, inconsistencias entre contratos, contenido externalizable y referencias rotas. Ejecuta los fixes directos y escala al humano solo cuando hay decisiones arquitectónicas o funcionales ambiguas. Activar cuando el usuario diga: "auditá los agentes", "revisá los agentes del pipeline", "corregí los agentes", "auditá el pipeline", "revisá qa-orchestrator", "encontrá problemas en los agentes", "mejorá los agentes", "analizá los agentes".
 tools: Agent, Read, Glob, Grep, Write, Edit
 ---
@@ -58,6 +60,8 @@ Cada subagente debe leer este archivo como primer paso de su auditoría.
 
 ## FASE 1 — Auditorías paralelas (lectura + análisis + edits propuestos)
 
+**Modelo de los subagentes:** al invocar el tool `Agent`, pasar siempre `model: "sonnet"` explícito para los 5 subagentes de auditoría. No omitir el parámetro — la detección de defectos cross-file requiere síntesis que haiku no sostiene.
+
 Lanzar los 5 subagentes **simultáneamente**. Cada uno produce:
 1. Lista de hallazgos con evidencia
 2. Lista de edits propuestos (con old_string / new_string o descripción exacta)
@@ -101,6 +105,8 @@ Para estos casos, asignar un único subagente ejecutor que toque TODOS los archi
 ---
 
 ## FASE 3 — Ejecución paralela de fixes
+
+**Modelo de los subagentes ejecutores:** al invocar el tool `Agent`, pasar siempre `model: "haiku"` explícito. Los ejecutores hacen reemplazos puntuales ya decididos en Fase 2 — sin reasoning abierto.
 
 Crear un subagente ejecutor por cada archivo (o grupo coordinado) que necesite cambios.
 Cada subagente ejecutor recibe:

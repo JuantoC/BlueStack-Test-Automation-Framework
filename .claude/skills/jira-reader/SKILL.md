@@ -1,5 +1,7 @@
 ---
 name: jira-reader
+model: haiku
+effort: low
 description: >
   Lee y consulta tickets de Jira del proyecto NAA en bluestack-cms.atlassian.net.
   Usar siempre que se necesite: buscar tickets por JQL, leer el detalle de un ticket,
@@ -348,6 +350,7 @@ Cuando el error aparece de todas formas:
 ```
 Agent({
   subagent_type: "Explore",  // o general-purpose si necesita lógica de extracción compleja
+  model: "haiku",            // lectura literal; no requiere reasoning
   description: "Extraer campos de ticket Jira desde archivo de respuesta grande",
   prompt: `
     Lee el archivo en {FILE_PATH} completo en chunks usando Read con offset/limit incremental

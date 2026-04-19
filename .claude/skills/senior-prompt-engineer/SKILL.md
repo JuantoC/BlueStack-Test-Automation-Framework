@@ -1,5 +1,7 @@
 ---
 name: senior-prompt-engineer
+model: opus
+effort: high
 description: >
   Skill de prompt engineering especializado en el workspace de QA automation de Bluestack.
   Su función principal es MEJORAR/EVOLUCIONAR un prompt que el usuario ya tiene.

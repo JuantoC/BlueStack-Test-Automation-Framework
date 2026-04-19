@@ -1,5 +1,7 @@
 ---
 name: audit-logs
+model: haiku
+effort: low
 description: Audita y corrige el uso del sistema de logs Winston en archivos o carpetas del framework BlueStack. Activar cuando el usuario diga: "auditá los logs de", "revisá los logs de", "los logs de X están mal", "corregí los logs de", "aplicá las convenciones de logs en", "fijate el uso de debug/info/error en", "el sistema de logs necesita ordenarse", "hay logs con nivel incorrecto en", "revisá si faltan logs en", "definí las convenciones de logs", "actualizá las convenciones de logs". El target (archivo o carpeta) lo indica el usuario explícitamente o está seleccionado en el IDE.
 ---
 

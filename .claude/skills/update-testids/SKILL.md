@@ -1,5 +1,7 @@
 ---
 name: update-testids
+model: sonnet
+effort: medium
 description: >
   Lee un ticket de Jira con screenshots de DevTools, extrae los data-testid implementados
   por el front, actualiza los locators en los POMs del framework, valida en un flujo grid real
@@ -54,10 +56,22 @@ con el tool `Agent` para aislar el contexto. Esto no es opcional ni una optimiza
 Agent({
   subagent_type: "Explore",          // para lectura/exploración — Agentes A y B
   subagent_type: "general-purpose",  // para escritura/ejecución — Agentes C, D, E, F
+  model: "<haiku|sonnet>",           // OBLIGATORIO: ver tabla abajo
   description: "Nombre corto del agente",
   prompt: `<brief completo copiado de la sección correspondiente>`
 })
 ```
+
+**Tabla de modelos por agente (no omitir `model` al invocar):**
+
+| Agente | Tarea | model |
+|---|---|---|
+| A | Leer ticket Jira + attachments (extracción literal) | `haiku` |
+| B | Leer POMs listados (extracción literal) | `haiku` |
+| C | Descargar imágenes + visión + clasificación de testids | `sonnet` |
+| D | Aplicar ediciones sobre locators en código productivo | `sonnet` |
+| E | Generar sessions y ejecutar validación grid (invoca `create-session`) | `sonnet` |
+| F | Actualizar knowledge base (escritura de notas) | `haiku` |
 
 **Reglas de lanzamiento:**
 - Agentes A y B → lanzar en **el mismo mensaje** (tool calls paralelas en un solo response)
@@ -525,7 +539,7 @@ Flujo: Login → Posts → entrar al editor → ejecutar acción de header
   await driver.get(authUrl);
 
   const login = new MainLoginPage(driver, opts);
-  const postPage = new MainPostPage(driver, 'POST', opts);
+  const postPage = new MainPostPage(driver, opts);
   const postEditor = new MainEditorPage(driver, opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });

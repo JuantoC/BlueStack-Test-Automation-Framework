@@ -1,5 +1,7 @@
 ---
 name: skill-retrospective
+model: sonnet
+effort: medium
 description: >
   Proceso interno post-ejecución que Claude aplica por iniciativa propia al finalizar cualquier skill activa
   O cualquier turno donde se editaron archivos o el usuario declaró una convención explícita.

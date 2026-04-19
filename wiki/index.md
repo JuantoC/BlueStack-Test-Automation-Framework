@@ -94,6 +94,7 @@ Los agentes consumen `wiki/qa/` como fuente canónica de contratos y schemas en 
 ### Development
 - [development/commit-conventions.md](development/commit-conventions.md) — Formato de commits semánticos: tipos, estructura, tabla módulo → impacto
 - [development/skill-conventions.md](development/skill-conventions.md) — Convenciones para crear y organizar skills: tipos, idioma, wiki-first, archivos modulares
+- [development/model-effort-strategy.md](development/model-effort-strategy.md) — Asignación canónica de `model:` y `effort:` por agent y skill · marco de decisión · protocolo de drift
 
 ### QA / Jira
 - [qa/adf-format-guide.md](qa/adf-format-guide.md) — Formato ADF JSON para contenido rich text en Jira: nodos, marks, ejemplos completos

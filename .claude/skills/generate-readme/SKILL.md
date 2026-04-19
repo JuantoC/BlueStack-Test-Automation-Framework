@@ -1,5 +1,7 @@
 ---
 name: generate-readme
+model: haiku
+effort: low
 description: Generar o actualizar un archivo README.md para una carpeta o módulo del proyecto, siguiendo las convenciones del repositorio BlueStack. Activar cuando el usuario diga: "generá el README de X", "documentá la carpeta X", "creá el README para X", "actualizá el README de X", "la carpeta X no tiene README", "agregá documentación a X", "genera readme", "necesito el readme de".
 ---
 

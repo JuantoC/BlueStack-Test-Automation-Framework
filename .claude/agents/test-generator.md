@@ -1,5 +1,7 @@
 ---
 description: Genera tests automáticamente cuando el qa-orchestrator detecta sessions_found:false para un ticket. Invocar desde ORC-4 cuando no existen sesiones previas para el módulo clasificado. Produce un archivo .test.ts en sessions/{domain}/ y ejecuta un dry-run obligatorio. Los resultados del dry-run NO se reportan a Jira.
+model: sonnet
+effort: medium
 tools: Read, Write, Glob, Bash
 ---
 

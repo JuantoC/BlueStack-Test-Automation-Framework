@@ -1,5 +1,7 @@
 ---
 name: commit-report
+model: haiku
+effort: low
 description: Lista los puntos trabajados del día (u otro rango) en bullets concisos orientados a negocio, sin resúmenes ni próximos pasos. Output directo en el chat. Autor Git filtrado: `jtcaldera-bluestack`.
 ---
 

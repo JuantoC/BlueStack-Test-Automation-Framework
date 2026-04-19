@@ -1,5 +1,7 @@
 ---
 name: jira-writer
+model: sonnet
+effort: medium
 description: >
   Crea tickets y escribe comentarios de validación QA en el proyecto NAA de Bluestack,
   siguiendo las convenciones del equipo. Usar siempre que se necesite: crear un QA Bug

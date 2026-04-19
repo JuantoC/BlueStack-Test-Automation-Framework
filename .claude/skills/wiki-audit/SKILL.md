@@ -1,5 +1,7 @@
 ---
 name: wiki-audit
+model: sonnet
+effort: high
 description: >
   Audita la coherencia de toda la documentación del proyecto BlueStack: wiki/, skills,
   agents, pipelines, rules y código fuente. Detecta duplicaciones, convenciones dispersas,
@@ -52,6 +54,8 @@ Esto te da el estado actual y evita que los agentes busquen lo que ya está regi
 ---
 
 ## Paso 1 — Lanzar agentes Explore en paralelo (research)
+
+**Modelo de los subagentes Explore (R1–R7):** al invocar el tool `Agent`, pasar siempre `model: "sonnet"` explícito. La detección de inconsistencias cross-fuente y la síntesis por dimensión requieren reasoning que haiku no sostiene. No omitir el parámetro.
 
 Lanzar todos los agentes necesarios según el scope en **un solo mensaje** para que corran en paralelo.
 
@@ -198,6 +202,8 @@ Para cada grupo de issues, un agente general-purpose recibe:
 - Los archivos a modificar
 - La regla de resolución específica (ver checklists en references/)
 - Instrucción de registrar cada cambio en `wiki/log.md` con fecha actual
+
+**Modelo de los subagentes de fix:** al invocar el tool `Agent`, pasar siempre `model: "sonnet"` explícito. Los edits guiados por checklist requieren precisión de redacción que haiku degrada.
 
 Lanzar todos los agentes de fix en **un solo mensaje** para paralelismo máximo.
 

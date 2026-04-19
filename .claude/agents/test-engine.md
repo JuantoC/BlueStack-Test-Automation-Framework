@@ -1,5 +1,7 @@
 ---
 description: Ejecuta tests de automatización Selenium/Jest. Invocar cuando el qa-orchestrator tiene un ticket_analyst_output con testable=true y necesita descubrir y correr sessions existentes contra un entorno.
+model: haiku
+effort: low
 tools: Bash, Read, Glob, Grep, Write
 ---
 

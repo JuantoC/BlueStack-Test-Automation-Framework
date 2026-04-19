@@ -1,5 +1,7 @@
 ---
 name: create-session
+model: sonnet
+effort: medium
 description: Genera archivos .test.ts para el framework de automatización Bluestack dentro de la carpeta /sessions. Usar siempre que el usuario quiera crear un nuevo test, una nueva sesión, un nuevo caso de prueba, o cuando mencione "nuevo test", "nueva sesión", "quiero probar X flujo", "automatizar X", o cualquier variante de agregar cobertura de testing a una funcionalidad del CMS. También activar cuando el usuario describa un flujo de pasos que deba ser validado.
 ---
 
@@ -131,7 +133,7 @@ runSession('Nombre del test', async ({ driver, opts, log }) => {
   const { user, pass } = ENV_CONFIG.getCredentials('editor');
 ```
 
-**4.** Instanciar solo los POs que se usan. Firma base: `(driver, opts)`. Con tipo de nota: `(driver, 'POST', opts)`.
+**4.** Instanciar solo los POs que se usan. Firma única: `(driver, opts)` — ningún Maestro recibe `noteType`/`videoType` en el constructor. El tipo viaja dentro del objeto de data generado por el factory (`data.noteType` / `data.videoType`).
 
 **5. Login siempre primer paso:** `await login.passLoginAndTwoFA({ username: user, password: pass });`
 

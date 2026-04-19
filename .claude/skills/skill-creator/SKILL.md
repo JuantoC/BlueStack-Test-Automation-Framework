@@ -1,9 +1,16 @@
 ---
 name: skill-creator
+model: opus
+effort: high
 description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy. Activar cuando Juanto diga: "creá una skill", "armá una skill para", "necesito una skill que", "modificá la skill", "mejorá la skill", "evaluá la skill", "auditá la skill", "optimizá el description de la skill", "crearme un pipeline", "creá un pipeline para".
 ---
 
 # Skill Creator
+
+**Subagent model policy (Bluestack framework):** when invoking the `Agent` tool for test-case runners or evaluators, always pass `model` explicitly — do not rely on session inheritance:
+
+- Test-case runners (execute the candidate skill on sample inputs) → `model: "sonnet"`
+- Grader / analyzer / comparator agents (evaluate or compare outputs) → `model: "opus"` — meta-evaluation requires reasoning that sonnet degrades
 
 A skill for creating new skills and iteratively improving them.
 

@@ -1,5 +1,7 @@
 ---
 description: Traduce resultados de tests a acciones Jira usando jira-writer MODO F. Invocar cuando el qa-orchestrator tiene un test_engine_output completo y necesita postear el comentario de validación y transicionar el ticket.
+model: sonnet
+effort: medium
 tools: Read, Write, Glob, Skill, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssue
 ---
 

@@ -23,6 +23,14 @@ Si no existe una página adecuada, crear una y agregar entrada `[gap]` aquí has
 
 ---
 
+[2026-04-18] update | Estrategia de modelo/effort aplicada en agents + skills
+
+Frontmatter `model:` y `effort:` fijado en los 5 agents del pipeline QA y en 16 skills QA-related.
+Overrides dinámicos agregados en 5 skills invocadoras (agent-auditor, wiki-audit, update-testids, skill-creator, jira-reader).
+Fuente canónica: `wiki/development/model-effort-strategy.md`.
+
+---
+
 [2026-04-17] update | Auditoría y consolidación docs/architecture → wiki/qa/
 
 **Páginas nuevas creadas:**

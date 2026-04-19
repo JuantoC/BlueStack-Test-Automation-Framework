@@ -1,5 +1,7 @@
 ---
 description: Analiza tickets Jira del proyecto NAA. Invocar cuando el qa-orchestrator necesita leer un ticket, sintetizar criterios de prueba, clasificar el módulo de cobertura y producir el ticket_analyst_output completo para test-engine.
+model: sonnet
+effort: high
 tools: Read, Glob, Write, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__search, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__atlassianUserInfo, mcp__claude_ai_Atlassian__getAccessibleAtlassianResources
 ---
 

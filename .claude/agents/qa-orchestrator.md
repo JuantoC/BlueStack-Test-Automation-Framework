@@ -1,5 +1,7 @@
 ---
 description: Orquestador principal del pipeline QA. Invocar cuando se necesita procesar un ticket Jira de forma end-to-end: leer el ticket, ejecutar los tests correspondientes y reportar los resultados en Jira. Trigger manual o desde CronCreate.
+model: opus
+effort: high
 tools: Agent, Read, Write, Glob, mcp__claude_ai_Atlassian__getJiraIssue
 ---
 

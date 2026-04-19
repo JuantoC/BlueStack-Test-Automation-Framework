@@ -1,5 +1,7 @@
 ---
 name: pom-generator
+model: sonnet
+effort: medium
 description: Genera clases Page Object Model (main pages y subcomponentes) para el repositorio de test automation Selenium/TypeScript. Usá esta skill siempre que el usuario quiera crear, generar, scaffoldear o armar una nueva página, un nuevo componente, un nuevo subcomponente, un nuevo modal, o cualquier clase POM nueva para automatización de UI. También se activa cuando el usuario menciona "nueva página", "nuevo page object", "armar el POM de", "generar la clase de", "crear el componente de", "scaffoldear", o cualquier variación que implique generar archivos TypeScript que sigan la arquitectura Page Object Model del repositorio. Incluso si el usuario solo describe una UI o pega un DOM HTML y pide que se arme algo con eso, esta skill aplica. También se activa cuando el usuario quiere extender un POM ya existente sin romper lo que funciona: "agregá métodos al POM de", "extendé el componente de", "le faltan métodos/locators a", "completá la cobertura de", "hay interacciones sin cubrir en", "sumá lo que falta al POM de", "[NombreClase] ya existe, quiero agregar", "qué le falta al componente", o cuando el usuario pega un screenshot o DOM sobre una clase que ya existe en src/pages/.
 ---
 

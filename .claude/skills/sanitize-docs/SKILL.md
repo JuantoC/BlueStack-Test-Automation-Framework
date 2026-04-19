@@ -1,5 +1,7 @@
 ---
 name: sanitize-docs
+model: sonnet
+effort: low
 description: Reviews and documents public functions and classes from TypeScript files in the Bluestack project with full JSDoc and inline comments. Use when the user says "document this file", "sanitize folder X", "add JSDoc", "review the comments of", "document the project", or any variation of wanting to improve code documentation. Always activate when the user mentions wanting to work/sanitize a specific folder such as @src/core, @src/pages, @src/tests, or any subfolder of the project.
 ---
 
@@ -116,8 +118,8 @@ For classes, the JSDoc goes at the declaration level and includes:
  *  what pattern it applies (Facade, Page Object, Orchestrator), what sub-components it coordinates, and what are the main methods to use.]
  *
  * @example
- * const page = new MainPostPage(driver, NoteType.POST, opts);
- * await page.createNewNote();
+ * const page = new MainPostPage(driver, opts);
+ * await page.createNewNote('POST');
  */
 export class MainPostPage { ... }
 ```

@@ -6,6 +6,11 @@ import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
+/**
+ * Maestro del editor de video. Coordina las acciones de header del editor (EditorHeaderActions)
+ * para flujos de cierre y publicación. El tipo de video (VideoType) no se recibe en el constructor
+ * — viaja dentro del objeto de data generado por el factory.
+ */
 export class MainEditorPage {
     private config: RetryOptions
 

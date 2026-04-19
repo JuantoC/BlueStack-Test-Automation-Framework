@@ -4,18 +4,15 @@ import { EditorHeaderActions, VideoExitAction } from "./EditorHeaderActions.js";
 import { resolveRetryConfig } from "../../../core/config/defaultConfig.js";
 import { step } from "allure-js-commons";
 import logger from "../../../core/utils/logger.js";
-import { VideoType } from "../UploadVideoBtn.js";
 import { getErrorMessage } from "../../../core/utils/errorUtils.js";
 
 export class MainEditorPage {
     private config: RetryOptions
 
-    private readonly videoType: VideoType;
     public readonly header: EditorHeaderActions;
 
-    constructor(driver: WebDriver, videoType: VideoType, opts: RetryOptions) {
+    constructor(driver: WebDriver, opts: RetryOptions) {
         this.config = resolveRetryConfig(opts, "MainEditorPage");
-        this.videoType = videoType || 'YOUTUBE';
         this.header = new EditorHeaderActions(driver, this.config);
     }
 

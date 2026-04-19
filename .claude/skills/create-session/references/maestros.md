@@ -26,18 +26,18 @@ Wiki de cada PO: [`wiki/index.md`](../../../../wiki/index.md) → sección "Page
 ## Constructores frecuentes
 
 ```typescript
-// Sin tipo de nota
+// Firma única: (driver, opts). Ningún Maestro recibe noteType/videoType en el constructor.
 new MainLoginPage(driver, opts)
 new MainVideoPage(driver, opts)
 new MainImagePage(driver, opts)
 new MainTagsPage(driver, opts)
 new SidebarAndHeader(driver, opts)
-
-// Con tipo de nota (string literal)
-new MainPostPage(driver, 'POST', opts)       // o 'LISTICLE' | 'LIVEBLOG'
-new MainEditorPage(driver, 'POST', opts)     // mismo NoteType que el de arriba
+new MainPostPage(driver, opts)
+new MainEditorPage(driver, opts)
 new MainAIPage(driver, opts)
 ```
+
+> **Convención:** el tipo de nota/video viaja **dentro del objeto de data** generado por los factories (`data.noteType`, `data.videoType`). Los métodos lo leen internamente — no se pasa como parámetro separado. Ver `wiki/patterns/factory-api.md`.
 
 ---
 

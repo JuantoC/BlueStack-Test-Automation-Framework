@@ -27,7 +27,7 @@ funcionan correctamente: guardar sin salir, guardar y salir, publicar sin salir 
 
   const login = new MainLoginPage(driver, opts);
   const videoPage = new MainVideoPage(driver, opts);
-  const videoEditor = new MainVideoEditorPage(driver, 'YOUTUBE', opts);
+  const videoEditor = new MainVideoEditorPage(driver, opts);
   const sidebar = new SidebarAndHeader(driver, opts);
 
   await login.passLoginAndTwoFA({ username: user, password: pass });

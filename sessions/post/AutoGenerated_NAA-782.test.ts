@@ -29,7 +29,7 @@ runSession("NAA-782 — Galería CKEditor: paginación no-infinita", async ({ dr
   await driver.get(authUrl);
 
   const login = new MainLoginPage(driver, opts);
-  const post = new MainPostPage(driver, 'POST', opts);
+  const post = new MainPostPage(driver, opts);
 
   await step("Login en el CMS", async () => {
     await login.passLoginAndTwoFA({ username: user, password: pass });

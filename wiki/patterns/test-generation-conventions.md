@@ -84,7 +84,7 @@ Esta anotación es solo documentativa — no modifica el runtime.
 
 - Instanciar solo los POs que se usan en el test.
 - Usar siempre los **POs Maestros** de `src/pages/`. No duplicar lógica de UI inline.
-- Firma base: `(driver, opts)`. Con tipo de nota: `(driver, 'POST', opts)`.
+- Firma única: `(driver, opts)` — ningún Maestro recibe `noteType`/`videoType` en el constructor. El tipo viaja dentro del objeto de data (`data.noteType` / `data.videoType`); los métodos lo leen internamente.
 - Prohibido en archivos `.test.ts`: `By.*`, `driver.findElement`, `driver.wait`, `waitFind`, `clickSafe`, `writeSafe`, assertions directas sobre `WebElement`.
 
 ## Logs

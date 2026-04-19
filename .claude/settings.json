@@ -198,10 +198,14 @@
       "mcp__claude_ai_Atlassian__getJiraIssue",
       "Bash(./node_modules/.bin/tsx scripts/skills/pending-docs-reader.ts *)",
       "Bash(./node_modules/.bin/tsx scripts/validate-ssot.ts)",
+      "Bash(./node_modules/.bin/tsx scripts/validate-ssot.ts *)",
       "Bash(./node_modules/.bin/tsx scripts/skills/jsdoc-scanner.ts --path *)",
+      "Bash(node node_modules/.bin/tsc --noEmit*)",
       "Bash(claude --version)",
       "Edit(/.claude/skills/wiki-audit/**)",
-      "Edit(/.claude/skills/skill-creator/**)"
+      "Edit(/.claude/skills/skill-creator/**)",
+      "Bash(python3 /tmp/extract_tools.py)",
+      "Bash(python3 /tmp/extract_full.py)"
     ],
     "additionalDirectories": [
       "/home/jutoc/proyectos/BlueStack-Test-Automation-Framework/.claude/pipelines",
